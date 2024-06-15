@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  HostListener,
   OnInit,
 } from '@angular/core';
 import { RouterLink, RouterModule } from '@angular/router';
@@ -13,6 +14,7 @@ import {
 import { Platform } from '@angular/cdk/platform';
 import { filter, map } from 'rxjs';
 import { initFlowbite } from 'flowbite';
+
 import { Constants } from './constants';
 
 @Component({
@@ -24,7 +26,9 @@ import { Constants } from './constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
-  public isOnline?: boolean;
+  public darkTheme?: boolean;
+  public sidebarOpen?: boolean;
+  public online?: boolean;
   public showUpdateModal?: boolean;
   public showInstallModal?: boolean;
   public isIos?: boolean;
@@ -61,6 +65,19 @@ export class AppComponent implements OnInit {
     }
 
     this.configureInstallModel();
+
+    this.detectTheme();
+
+    this.detectSidebarState();
+  }
+
+  @HostListener('window:resize')
+  detectSidebarState() {
+    if (document.documentElement.clientWidth >= 1024 && !this.sidebarOpen) {
+      this.sidebarOpen = true;
+    } else {
+      this.sidebarOpen = false;
+    }
   }
 
   public updateApp(): void {
@@ -83,8 +100,40 @@ export class AppComponent implements OnInit {
     this.showInstallModal = false;
   }
 
+  public toggleTheme(): void {
+    this.darkTheme = !this.darkTheme;
+
+    localStorage.setItem('dark-theme', String(this.darkTheme));
+  }
+
+  public toggleSidebar(): void {
+    if (document.documentElement.clientWidth >= 1024) {
+      this.sidebarOpen = true;
+      return;
+    }
+
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  private detectTheme(): void {
+    const preferredTheme = localStorage.getItem('dark-theme');
+
+    if (!preferredTheme) {
+      if (
+        window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+      ) {
+        this.darkTheme = true;
+      }
+    } else {
+      if (preferredTheme === String(true)) {
+        this.darkTheme = true;
+      }
+    }
+  }
+
   private updateOnlineStatus(): void {
-    this.isOnline = window.navigator.onLine;
+    this.online = window.navigator.onLine;
 
     this.cdr.markForCheck();
   }

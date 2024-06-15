@@ -19,7 +19,7 @@ export interface Holding extends Stock {
 }
 
 export interface Transaction {
-  id: string;
+  id: string; // Database UUID
   type: TransactionType;
   date: number;
   quantity: number;

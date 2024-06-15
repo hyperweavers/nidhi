@@ -28,13 +28,17 @@ export class MarketService {
       .pipe(
         map(
           (operatingStatus): MarketStatus => ({
-            lastUpdated: new Date(operatingStatus.Date).getTime(),
+            lastUpdated: MarketUtils.dateStringToEpoch(operatingStatus.Date),
             status:
               operatingStatus.currentMarketStatus === VendorStatus.LIVE
                 ? Status.OPEN
                 : Status.CLOSED,
-            startTime: new Date(operatingStatus.tradingStartTime).getTime(),
-            endTime: new Date(operatingStatus.tradingEndTime).getTime(),
+            startTime: MarketUtils.dateStringToEpoch(
+              operatingStatus.tradingStartTime
+            ),
+            endTime: MarketUtils.dateStringToEpoch(
+              operatingStatus.tradingEndTime
+            ),
           })
         )
       );
@@ -47,7 +51,7 @@ export class MarketService {
           complete: true,
           name: companyDetails.companyShortName,
           vendorCode: {
-            et: companyDetails.companyId,
+            etm: companyDetails.companyId,
           },
           scripCode: {
             nse: companyDetails.nseScripCode,
@@ -140,7 +144,7 @@ export class MarketService {
 
     return this.getDashboard(query).pipe(
       map((dashboard): Stock | null => {
-        const stock = dashboard.companies?.at(0);
+        const stock = dashboard.companies ? dashboard.companies[0] : null;
 
         if (!stock) {
           return null;
@@ -149,7 +153,7 @@ export class MarketService {
         return {
           name: stock.companyShortName,
           vendorCode: {
-            et: stock.companyId,
+            etm: stock.companyId,
           },
           scripCode: {
             nse: stock.scripCode2,
@@ -192,7 +196,7 @@ export class MarketService {
 
     return this.getDashboard(query).pipe(
       map((dashboard): Index | null => {
-        const index = dashboard.indices?.at(0);
+        const index = dashboard.indices ? dashboard.indices[0] : null;
 
         if (!index) {
           return null;
@@ -242,7 +246,7 @@ export class MarketService {
         return stocks.map((stock) => ({
           name: stock.companyShortName,
           vendorCode: {
-            et: stock.companyId,
+            etm: stock.companyId,
           },
           scripCode: {
             nse: stock.scripCode2,
@@ -320,11 +324,14 @@ export class MarketService {
       .get<SearchResult[]>(Constants.api.STOCK_SEARCH + query)
       .pipe(
         map((results) =>
-          results.map(({ tagId, shortNameEt }) => ({
+          results.map((result) => ({
+            name: result.shortNameEt,
             vendorCode: {
-              et: tagId,
+              etm: result.tagId,
             },
-            name: shortNameEt,
+            scripCode: {
+              nse: result.symbol,
+            },
           }))
         )
       );

@@ -2,7 +2,7 @@ export interface Stock {
   id?: string; // Database UUID
   name: string;
   vendorCode: VendorCode;
-  scripCode?: ScripCode;
+  scripCode: ScripCode;
   quote?: Quote;
   statistics?: Statistics;
   performance?: Performance;
@@ -11,12 +11,12 @@ export interface Stock {
 
 export interface VendorCode {
   mc?: string;
-  et?: string;
+  etm?: string;
 }
 
 export interface ScripCode {
   nse: string;
-  bse: string;
+  bse?: string;
 }
 
 export interface Quote {
@@ -45,11 +45,10 @@ export interface Statistics {
 
 export interface Performance {
   yearToDate?: Change;
-  lifetime?: Change;
   weekly: Change;
   monthly: Change;
   quarterly: Change;
-  halfYearly?: Change;
+  halfYearly: Change;
   yearly: YearlyPerformance;
 }
 
@@ -57,7 +56,7 @@ export interface YearlyPerformance {
   one: Change;
   two?: Change;
   three?: Change;
-  five?: Change;
+  five: Change;
   ten?: Change;
 }
 

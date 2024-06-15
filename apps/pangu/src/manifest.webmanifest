@@ -1,12 +1,15 @@
 {
-  "id": "pangu",
   "name": "Pangu",
   "short_name": "Pangu",
   "description": "Privacy focused open source stock portfolio manager.",
+  "categories": [
+    "finance"
+  ],
   "lang": "en",
   "theme_color": "#181818",
   "background_color": "#181818",
   "display": "standalone",
+  "id": "./",
   "scope": "./",
   "start_url": "./",
   "icons": [
@@ -49,18 +52,32 @@
       "src": "assets/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-1024x1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/maskable_icon-1024x1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "assets/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "assets/icons/screenshot-1024x768.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "label": "Pangu"
     },
     {
-      "src": "assets/icons/icon-512x512.png",
-      "sizes": "512x512",
+      "src": "assets/icons/screenshot-1024x768.png",
+      "sizes": "1024x768",
       "type": "image/png",
+      "label": "Pangu",
       "form_factor": "wide"
     }
   ]

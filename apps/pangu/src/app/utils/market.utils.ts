@@ -14,4 +14,8 @@ export class MarketUtils {
   public static stringToNumber(value: string): number {
     return Number(value.replace(/,/g, ''));
   }
+
+  public static dateStringToEpoch(date: string): number {
+    return new Date(date).getTime();
+  }
 }

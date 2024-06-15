@@ -3,6 +3,11 @@ export const Constants = {
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
     TRANSACTION: 'transaction',
+    IMPORT: 'import',
+    EXPORT: 'export',
+    DELETE: 'delete',
+    PRIVACY: 'privacy',
+    TERMS: 'terms',
     ABOUT: 'about',
   },
   api: {

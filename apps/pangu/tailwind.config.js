@@ -9,8 +9,20 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
     './node_modules/flowbite/**/*.js'
   ],
-  darkMode: 'media',
+  darkMode: 'class',
   theme: {
+    fontFamily: {
+      'logo': [
+        'Poppins',
+        'ui-sans-serif',
+        'system-ui'
+      ],
+      'sans': [
+        'Inter',
+        'ui-sans-serif',
+        'system-ui'
+      ]
+    },
     colors: {
       primary: colors.purple,
     },

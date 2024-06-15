@@ -22,9 +22,34 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: Constants.routes.IMPORT,
+    loadComponent: () =>
+      import('./pages/import/import.page').then((m) => m.ImportPage),
+  },
+  {
+    path: Constants.routes.EXPORT,
+    loadComponent: () =>
+      import('./pages/export/export.page').then((m) => m.ExportPage),
+  },
+  {
+    path: Constants.routes.DELETE,
+    loadComponent: () =>
+      import('./pages/delete/delete.page').then((m) => m.DeletePage),
+  },
+  {
     path: Constants.routes.ABOUT,
     loadComponent: () =>
       import('./pages/about/about.page').then((m) => m.AboutPage),
+  },
+  {
+    path: Constants.routes.PRIVACY,
+    loadComponent: () =>
+      import('./pages/privacy/privacy.page').then((m) => m.PrivacyPage),
+  },
+  {
+    path: Constants.routes.TERMS,
+    loadComponent: () =>
+      import('./pages/terms/terms.page').then((m) => m.TermsPage),
   },
   {
     path: '**',
