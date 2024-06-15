@@ -2,7 +2,9 @@
   "name": "@nidhi/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "deploy:pangu": "rm -rf docs && nx build pangu --configuration production --base-href ./ && mv dist/apps/pangu/browser docs && cp docs/index.html docs/404.html && echo pangu.hyperweavers.com > docs/CNAME"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "~17.3.0",
