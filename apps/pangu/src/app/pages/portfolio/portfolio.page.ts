@@ -31,6 +31,7 @@ import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-clo
 import { PortfolioService } from '../../services/portfolio.service';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
+import { Dropdown } from 'flowbite';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
@@ -101,6 +102,8 @@ export class PortfolioPage implements OnInit {
   public transactionFormError?: string;
 
   private selectedStock?: Stock;
+  private sortDropdown?: Dropdown;
+  private filterDropdown?: Dropdown;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -183,6 +186,15 @@ export class PortfolioPage implements OnInit {
 
   public ngOnInit(): void {
     this.initDatePicker();
+
+    this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
+      'Dropdown',
+      'sortDropdown'
+    );
+    this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
+      'Dropdown',
+      'filterDropdown'
+    );
   }
 
   public async addTransaction(): Promise<void> {
@@ -233,6 +245,15 @@ export class PortfolioPage implements OnInit {
       this.showTransactionFormError(
         'One or more field(s) containing invalid value(s)!'
       );
+
+      console.log(
+        this.selectedStock,
+        this.transactionType,
+        this.date(),
+        this.price(),
+        this.quantity(),
+        this.charges()
+      );
       // TODO: Catch storage exceptions in main pages (import, export, date, profile, ...)
     }
   }
@@ -260,7 +281,6 @@ export class PortfolioPage implements OnInit {
 
   public resetTransactionForm(): void {
     this.selectedStock = undefined;
-    this.transactionType = undefined;
 
     this.showSearchResults = false;
 
@@ -271,16 +291,28 @@ export class PortfolioPage implements OnInit {
     this.charges.set(0);
   }
 
-  public closeStatusModal(): void {
+  public closeStatusModal(retainTransactionType?: boolean): void {
     this.showStatusModal = false;
+
+    if (!retainTransactionType) {
+      this.transactionType = undefined;
+    }
   }
 
   public filterPortfolio(filter: PortfolioFilter): void {
     this.portfolioFilter$.next(filter);
+
+    if (this.filterDropdown) {
+      this.filterDropdown.hide();
+    }
   }
 
   public clearPortfolioFilters(): void {
     this.portfolioFilter$.next(PortfolioFilter.NONE);
+
+    if (this.filterDropdown) {
+      this.filterDropdown.hide();
+    }
   }
 
   public sortPortfolio(
@@ -288,6 +320,10 @@ export class PortfolioPage implements OnInit {
     order: PortfolioSortOrder
   ): void {
     this.portfolioSort$.next([type, order]);
+
+    if (this.sortDropdown) {
+      this.sortDropdown.hide();
+    }
   }
 
   private showTransactionFormError(message: string): void {

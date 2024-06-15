@@ -70,8 +70,10 @@ export class PortfolioService {
               let marketValue = 0;
               let dayProfitLossValue = 0;
               let previousMarketValue = 0;
-              let advanceValue = 0;
-              let declineValue = 0;
+              let dayAdvanceValue = 0;
+              let dayDeclineValue = 0;
+              let totalAdvanceValue = 0;
+              let totalDeclineValue = 0;
 
               holdings.map((holding) => {
                 const totalValue =
@@ -81,16 +83,24 @@ export class PortfolioService {
 
                 investment += holding.investment || 0;
                 marketValue += totalValue;
+
                 dayProfitLossValue +=
                   holding.quote && holding.quantity
                     ? holding.quote.change.value * holding.quantity
                     : 0;
+
                 previousMarketValue +=
                   holding.quote && holding.quantity
                     ? holding.quote.close * holding.quantity
                     : 0;
 
-                dayProfitLossValue >= 0 ? advanceValue++ : declineValue++;
+                holding.quote?.change?.direction === Direction.UP
+                  ? dayAdvanceValue++
+                  : dayDeclineValue++;
+
+                holding.totalProfitLoss?.direction === Direction.UP
+                  ? totalAdvanceValue++
+                  : totalDeclineValue++;
               });
 
               const dayProfitLossPercentage =
@@ -98,10 +108,14 @@ export class PortfolioService {
               const totalProfitLossValue = marketValue - investment;
               const totalProfitLossPercentage =
                 (totalProfitLossValue / investment) * 100 || 0;
-              const advancePercentage =
-                (advanceValue / holdings.length) * 100 || 0;
-              const declinePercentage =
-                (declineValue / holdings.length) * 100 || 0;
+              const dayAdvancePercentage =
+                (dayAdvanceValue / holdings.length) * 100 || 0;
+              const dayDeclinePercentage =
+                (dayDeclineValue / holdings.length) * 100 || 0;
+              const totalAdvancePercentage =
+                (totalAdvanceValue / holdings.length) * 100 || 0;
+              const totalDeclinePercentage =
+                (totalDeclineValue / holdings.length) * 100 || 0;
 
               return {
                 holdings,
@@ -119,13 +133,21 @@ export class PortfolioService {
                   percentage: totalProfitLossPercentage,
                   value: totalProfitLossValue,
                 },
-                advance: {
-                  percentage: advancePercentage,
-                  value: advanceValue,
+                dayAdvance: {
+                  percentage: dayAdvancePercentage,
+                  value: dayAdvanceValue,
                 },
-                decline: {
-                  percentage: declinePercentage,
-                  value: declineValue,
+                dayDecline: {
+                  percentage: dayDeclinePercentage,
+                  value: dayDeclineValue,
+                },
+                totalAdvance: {
+                  percentage: totalAdvancePercentage,
+                  value: totalAdvanceValue,
+                },
+                totalDecline: {
+                  percentage: totalDeclinePercentage,
+                  value: totalDeclineValue,
                 },
               };
             })

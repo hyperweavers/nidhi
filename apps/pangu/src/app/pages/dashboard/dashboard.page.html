@@ -10,7 +10,82 @@
         <h3
           class="mb-2 text-base uppercase font-normal text-gray-500 dark:text-gray-400"
         >
-          Portfolio
+          Portfolio <span class="text-xs">(Total)</span>
+        </h3>
+        <span
+          class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
+          >{{ kpi.portfolio.marketValue | number: '1.2-2' }}</span
+        >
+        <p
+          class="flex items-center text-base font-normal"
+          [ngClass]="kpi.portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+        >
+          <span class="flex items-center mr-1.5 text-sm">
+            @if (kpi.portfolio.totalProfitLoss.direction === Direction.UP) {
+            <svg
+              class="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+              ></path>
+            </svg>
+            } @else {
+            <svg
+              class="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+              ></path>
+            </svg>
+            } {{ kpi.portfolio.totalProfitLoss.value | number: '1.2-2' }} ({{
+            kpi.portfolio.totalProfitLoss.percentage | number: '1.2-2' }}%)
+          </span>
+        </p>
+
+        <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
+          <div
+            class="h-1 rounded-l bg-green-500 dark:bg-green-400"
+            [class.rounded-r]="!kpi.portfolio.totalDecline.percentage"
+            [style.width]="kpi.portfolio.totalAdvance.percentage + '%'"
+          ></div>
+        </div>
+
+        <div
+          class="mt-1 w-full text-xs flex justify-between text-gray-500 dark:text-gray-400"
+        >
+          <span
+            >{{ kpi.portfolio.totalAdvance.value }} ({{
+            kpi.portfolio.totalAdvance.percentage | number: '1.2-2' }}%)</span
+          >
+          <span
+            >{{ kpi.portfolio.totalDecline.value }} ({{
+            kpi.portfolio.totalDecline.percentage | number: '1.2-2' }}%)</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ routes.PORTFOLIO }}"
+      class="cursor-pointer p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="w-full">
+        <h3
+          class="mb-2 text-base uppercase font-normal text-gray-500 dark:text-gray-400"
+        >
+          Portfolio <span class="text-xs">(Day)</span>
         </h3>
         <span
           class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
@@ -57,7 +132,8 @@
         <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
           <div
             class="h-1 rounded-l bg-green-500 dark:bg-green-400"
-            [style.width]="kpi.portfolio.advance.percentage + '%'"
+            [class.rounded-r]="!kpi.portfolio.dayDecline.percentage"
+            [style.width]="kpi.portfolio.dayAdvance.percentage + '%'"
           ></div>
         </div>
 
@@ -65,12 +141,12 @@
           class="mt-1 w-full text-xs flex justify-between text-gray-500 dark:text-gray-400"
         >
           <span
-            >{{ kpi.portfolio.advance.value }} ({{
-            kpi.portfolio.advance.percentage | number: '1.2-2' }}%)</span
+            >{{ kpi.portfolio.dayAdvance.value }} ({{
+            kpi.portfolio.dayAdvance.percentage | number: '1.2-2' }}%)</span
           >
           <span
-            >{{ kpi.portfolio.decline.value }} ({{
-            kpi.portfolio.decline.percentage | number: '1.2-2' }}%)</span
+            >{{ kpi.portfolio.dayDecline.value }} ({{
+            kpi.portfolio.dayDecline.percentage | number: '1.2-2' }}%)</span
           >
         </div>
       </div>
@@ -128,6 +204,7 @@
         <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
           <div
             class="h-1 rounded-l bg-green-500 dark:bg-green-400"
+            [class.rounded-r]="!index.quote?.decline?.percentage"
             [style.width]="index.quote?.advance?.percentage + '%'"
           ></div>
         </div>

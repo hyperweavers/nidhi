@@ -7,8 +7,10 @@ export interface Portfolio {
   marketValue: number;
   dayProfitLoss: Change;
   totalProfitLoss: Change;
-  advance: AdvanceDecline;
-  decline: AdvanceDecline;
+  dayAdvance: AdvanceDecline;
+  dayDecline: AdvanceDecline;
+  totalAdvance: AdvanceDecline;
+  totalDecline: AdvanceDecline;
 }
 
 export interface Holding extends Stock {
