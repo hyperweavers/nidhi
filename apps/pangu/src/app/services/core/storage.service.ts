@@ -5,6 +5,7 @@ import {
   exportDB,
   importInto,
 } from 'dexie-export-import';
+import { v4 as uuid } from 'uuid';
 
 import { Holding } from '../../models/portfolio';
 import { db } from '../../db/app.db';
@@ -19,7 +20,22 @@ export class StorageService {
     this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
   }
 
-  // public insert() {}
+  public async insert(holding: Holding): Promise<void> {
+    const stock = await db.stocks.get({
+      'scripCode.nse': holding.scripCode.nse,
+    });
+
+    if (!stock) {
+      holding = {
+        ...holding,
+        id: uuid(),
+      };
+      await db.stocks.add(holding, holding.id);
+    } else {
+      console.log('Stock exists!');
+      // TODO: Update existing stock
+    }
+  }
 
   // public update() {}
 
