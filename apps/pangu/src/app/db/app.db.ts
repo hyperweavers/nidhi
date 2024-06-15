@@ -1,32 +1,68 @@
 import Dexie, { Table } from 'dexie';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { StockEntity, TransactionEntity } from './entities';
+import { Holding, TransactionType } from '../models/portfolio';
 
 class AppDB extends Dexie {
-  stocks!: Table<StockEntity, string>;
-  transactions!: Table<TransactionEntity, string>;
+  stocks!: Table<Holding, string>;
 
   constructor() {
     super('pangu');
 
     this.version(1).stores({
       stocks: '&id, &symbol, &vendorCode',
-      transactions: '&id, stockId',
     });
+
+    // TODO: Remove
     this.on('populate', async () => {
       await db.stocks.bulkAdd([
         {
-          id: uuidv4(),
+          id: uuid(),
           name: 'Infosys',
-          symbol: 'INFY',
-          vendorCode: '10960',
+          scripCode: {
+            nse: 'INFY',
+          },
+          vendorCode: {
+            etm: '10960',
+          },
+          transactions: [
+            {
+              id: uuid(),
+              type: TransactionType.BUY,
+              date: Date.now(),
+              quantity: 5,
+              price: 1200.0,
+              charges: 15.0,
+            },
+            {
+              id: uuid(),
+              type: TransactionType.BUY,
+              date: Date.now(),
+              quantity: 3,
+              price: 1300.0,
+              charges: 18.0,
+            },
+          ],
         },
         {
-          id: uuidv4(),
+          id: uuid(),
           name: 'Info Edge',
-          symbol: 'NAUKRI',
-          vendorCode: '18352',
+          scripCode: {
+            nse: 'NAUKRI',
+          },
+          vendorCode: {
+            etm: '18352',
+          },
+          transactions: [
+            {
+              id: uuid(),
+              type: TransactionType.BUY,
+              date: Date.now(),
+              quantity: 2,
+              price: 5000.0,
+              charges: 60.0,
+            },
+          ],
         },
       ]);
     });
@@ -34,54 +70,3 @@ class AppDB extends Dexie {
 }
 
 export const db = new AppDB();
-
-[
-  {
-    name: 'Infosys',
-    vendorCode: {
-      etm: '10960',
-    },
-    scripCode: {
-      nse: 'INFY',
-    },
-    quote: {
-      price: 1414.45,
-    },
-  },
-  {
-    name: 'Info Edge',
-    vendorCode: {
-      etm: '18352',
-    },
-    scripCode: {
-      nse: 'NAUKRI',
-    },
-    quote: {
-      price: 6061.25,
-    },
-  },
-  {
-    name: 'InfoBeans Tech',
-    vendorCode: {
-      etm: '59671',
-    },
-    scripCode: {
-      nse: 'INFOBEAN',
-    },
-    quote: {
-      price: 386.25,
-    },
-  },
-  {
-    name: 'Infollion Research',
-    vendorCode: {
-      etm: '2119712',
-    },
-    scripCode: {
-      nse: 'INFOLLIONSM',
-    },
-    quote: {
-      price: 221.1,
-    },
-  },
-];

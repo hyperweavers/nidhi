@@ -1,3 +1,4 @@
+import { AdvanceDecline } from './index';
 import { Change, Stock } from './stock';
 
 export interface Portfolio {
@@ -6,16 +7,17 @@ export interface Portfolio {
   marketValue: number;
   dayProfitLoss: Change;
   totalProfitLoss: Change;
+  advance: AdvanceDecline;
+  decline: AdvanceDecline;
 }
 
 export interface Holding extends Stock {
   transactions: Transaction[];
-  quantity: number;
-  averagePrice: number;
-  investment: number;
-  marketValue: number;
-  dayProfitLoss: Change;
-  totalProfitLoss: Change;
+  quantity?: number;
+  averagePrice?: number;
+  investment?: number;
+  marketValue?: number;
+  totalProfitLoss?: Change;
 }
 
 export interface Transaction {
@@ -24,7 +26,7 @@ export interface Transaction {
   date: number;
   quantity: number;
   price: number;
-  charges: number;
+  charges?: number;
 }
 
 export enum TransactionType {

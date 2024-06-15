@@ -5,6 +5,9 @@
   "prefix": "app",
   "sourceRoot": "apps/pangu/src",
   "tags": [],
+  "i18n": {
+    "sourceLocale": "en-IN"
+  },
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",

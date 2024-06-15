@@ -1,3 +1,5 @@
+import { AdvanceDecline } from './index';
+
 export interface Stock {
   id?: string; // Database UUID
   name: string;
@@ -10,8 +12,8 @@ export interface Stock {
 }
 
 export interface VendorCode {
+  etm: string;
   mc?: string;
-  etm?: string;
 }
 
 export interface ScripCode {
@@ -32,10 +34,8 @@ export interface Quote {
   volume: number;
 }
 
-export interface Change {
+export interface Change extends AdvanceDecline {
   direction: Direction;
-  percentage: number;
-  value: number;
 }
 
 export interface Statistics {
