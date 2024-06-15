@@ -8,16 +8,26 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/pangu",
         "index": "apps/pangu/src/index.html",
         "browser": "apps/pangu/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/pangu/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": ["apps/pangu/src/favicon.ico", "apps/pangu/src/assets"],
-        "styles": ["apps/pangu/src/styles.scss"],
+        "assets": [
+          "apps/pangu/src/favicon.ico",
+          "apps/pangu/src/assets",
+          "apps/pangu/src/manifest.webmanifest"
+        ],
+        "styles": [
+          "apps/pangu/src/styles.scss"
+        ],
         "scripts": []
       },
       "configurations": {
@@ -34,7 +44,8 @@
               "maximumError": "4kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "serviceWorker": "apps/pangu/ngsw-config.json"
         },
         "development": {
           "optimization": false,
@@ -67,7 +78,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/pangu/jest.config.ts"
       }
