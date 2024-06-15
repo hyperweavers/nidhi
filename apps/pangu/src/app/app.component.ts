@@ -103,6 +103,8 @@ export class AppComponent implements OnInit {
   public toggleTheme(): void {
     this.darkTheme = !this.darkTheme;
 
+    document.documentElement.classList.toggle('dark');
+
     localStorage.setItem('dark-theme', String(this.darkTheme));
   }
 
@@ -124,10 +126,14 @@ export class AppComponent implements OnInit {
         window.matchMedia('(prefers-color-scheme: dark)').matches
       ) {
         this.darkTheme = true;
+
+        document.documentElement.classList.add('dark');
       }
     } else {
       if (preferredTheme === String(true)) {
         this.darkTheme = true;
+
+        document.documentElement.classList.add('dark');
       }
     }
   }

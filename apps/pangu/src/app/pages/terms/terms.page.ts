@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { BasePage } from '../base.page';
+
 @Component({
   selector: 'app-terms-page',
   standalone: true,
@@ -9,4 +11,4 @@ import { CommonModule } from '@angular/common';
   styleUrl: './terms.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TermsPage {}
+export class TermsPage extends BasePage {}

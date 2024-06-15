@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BasePage } from '../base.page';
 
 @Component({
   selector: 'app-transaction-page',
@@ -9,4 +10,4 @@ import { CommonModule } from '@angular/common';
   styleUrl: './transaction.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TransactionPage {}
+export class TransactionPage extends BasePage {}

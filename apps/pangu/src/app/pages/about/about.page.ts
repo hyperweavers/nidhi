@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { BasePage } from '../base.page';
+
 @Component({
   selector: 'app-about-page',
   standalone: true,
@@ -9,4 +11,4 @@ import { CommonModule } from '@angular/common';
   styleUrl: './about.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AboutPage {}
+export class AboutPage extends BasePage {}

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { BasePage } from '../base.page';
+
 @Component({
   selector: 'app-page-not-found-page',
   standalone: true,
@@ -9,4 +11,4 @@ import { CommonModule } from '@angular/common';
   styleUrl: './page-not-found.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageNotFoundPage {}
+export class PageNotFoundPage extends BasePage {}
