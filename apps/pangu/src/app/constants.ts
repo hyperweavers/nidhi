@@ -2,7 +2,6 @@ export const Constants = {
   routes: {
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
-    TRANSACTION: 'transaction',
     IMPORT: 'import',
     EXPORT: 'export',
     DELETE: 'delete',

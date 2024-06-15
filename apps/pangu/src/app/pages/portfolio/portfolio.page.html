@@ -1,206 +1,132 @@
 <div class="flex flex-col h-full">
-  <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-    Stock Holdings
-  </h1>
-
-  <div class="items-center justify-between block sm:flex">
-    <div class="flex items-center py-4">
-      <form class="sm:pr-3" action="#" method="GET">
-        <label for="products-search" class="sr-only">Search</label>
-        <div class="relative w-48 mt-1 sm:w-64 xl:w-96">
-          <div
-            class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
-          >
-            <svg
-              class="w-4 h-4 text-gray-500 dark:text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              ></path>
-            </svg>
-          </div>
-          <input
-            type="text"
-            name="stock"
-            class="bg-gray-50 ps-10 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="Search"
-          />
-        </div>
-      </form>
-    </div>
-
-    <div>
-      <button
-        id="dropdownActionButton"
-        data-dropdown-toggle="dropdownAction"
-        class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-        type="button"
-      >
-        <span class="sr-only">Filter</span>
-        Filter
-        <svg
-          class="w-2.5 h-2.5 ms-2.5"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 6"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 4 4 4-4"
-          />
-        </svg>
-      </button>
-
-      <!-- Dropdown -->
-      <div
-        id="dropdownAction"
-        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-      >
-        <ul
-          class="py-1 text-sm text-gray-700 dark:text-gray-200"
-          aria-labelledby="dropdownActionButton"
-        >
-          <li
-            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-          >
-            Gainers
-          </li>
-          <li
-            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-          >
-            Losers
-          </li>
-          <li
-            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-          >
-            All
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <button
-      id="createProductButton"
-      class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-      type="button"
-      data-drawer-target="add-new-stock-drawer"
-      data-drawer-show="add-new-stock-drawer"
-      aria-controls="add-new-stock-drawer"
-      data-drawer-placement="right"
-    >
-      <svg
-        class="w-5 h-5 mr-2 -ml-1"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-          clip-rule="evenodd"
-        ></path>
-      </svg>
-
-      Add Stock
-    </button>
-  </div>
-
-  <!-- <div
-    class="items-center justify-between block sm:flex md:divide-x md:divide-gray-100 dark:divide-gray-700"
+  <!-- Table Header -->
+  <div
+    class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 py-4"
   >
-    <div class="flex items-center mb-4 sm:mb-0">
-      <form class="sm:pr-3" action="#" method="GET">
-        <label for="products-search" class="sr-only">Search</label>
-        <div class="relative w-48 mt-1 sm:w-64 xl:w-96">
-          <input
-            type="text"
-            name="email"
-            id="products-search"
-            class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="Search for products"
-          />
-        </div>
-      </form>
-      <div class="flex items-center w-full sm:justify-end">
-        <div class="flex pl-2 space-x-1">
-          <button
-            id="dropdownActionButton"
-            data-dropdown-toggle="dropdownAction"
-            class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-            type="button"
+    <div class="w-full md:w-64 xl:w-96">
+      <form class="flex items-center">
+        <label for="simple-search" class="sr-only">Search</label>
+        <div class="relative w-full">
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
           >
-            <span class="sr-only">Filter</span>
-            Filter
             <svg
-              class="w-2.5 h-2.5 ms-2.5"
               aria-hidden="true"
+              class="w-5 h-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 10 6"
             >
               <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m1 1 4 4 4-4"
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
               />
             </svg>
-          </button>
-
-          Dropdown
-          <div
-            id="dropdownAction"
-            class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-          >
-            <ul
-              class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="dropdownActionButton"
-            >
-              <li
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Gainers
-              </li>
-              <li
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Losers
-              </li>
-              <li
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                All
-              </li>
-            </ul>
           </div>
+          <input
+            type="text"
+            id="simple-search"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Search"
+            required=""
+          />
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0"
+    >
+      <button
+        (click)="openAddTransactionDrawer(TransactionType.BUY)"
+        data-drawer-target="add-transaction-drawer"
+        data-drawer-show="add-transaction-drawer"
+        aria-controls="add-transaction-drawer"
+        data-drawer-placement="right"
+        type="button"
+        class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+      >
+        <svg
+          class="h-4 w-4 mr-2"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            clip-rule="evenodd"
+            fill-rule="evenodd"
+            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+          />
+        </svg>
+        Add Stock
+      </button>
+
+      <div class="flex items-center space-x-3 w-full md:w-auto">
+        <button
+          id="filterDropdownButton"
+          data-dropdown-toggle="filterDropdown"
+          class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            class="h-4 w-4 mr-2 text-gray-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Filter
+          <svg
+            class="-mr-1 ml-1.5 w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              clip-rule="evenodd"
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            />
+          </svg>
+        </button>
+
+        <div
+          id="filterDropdown"
+          class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+        >
+          <ul
+            class="py-1 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="filterDropdownButton"
+          >
+            <li
+              class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              All
+            </li>
+            <li
+              class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Gainers
+            </li>
+            <li
+              class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Losers
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-    <button
-      id="createProductButton"
-      class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
-      type="button"
-      data-drawer-target="add-new-stock-drawer"
-      data-drawer-show="add-new-stock-drawer"
-      aria-controls="add-new-stock-drawer"
-      data-drawer-placement="right"
-    >
-      Add new product
-    </button>
-  </div> -->
+  </div>
 
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -211,7 +137,7 @@
         class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-6 py-3">
+          <th scope="col" class="px-6 py-4">
             <div class="flex items-center">
               Holding
               <a href="#">
@@ -229,7 +155,7 @@
               </a>
             </div>
           </th>
-          <th scope="col" class="px-6 py-3">
+          <th scope="col" class="px-6 py-4">
             <div class="flex items-center">
               Day Profit/Loss
               <a href="#">
@@ -247,7 +173,7 @@
               </a>
             </div>
           </th>
-          <th scope="col" class="px-6 py-3">
+          <th scope="col" class="px-6 py-4">
             <div class="flex items-center">
               Total Profit/Loss
               <a href="#">
@@ -265,6 +191,9 @@
               </a>
             </div>
           </th>
+          <!-- <th scope="col" class="px-6 py-4">
+            <span class="sr-only">Actions</span>
+          </th> -->
         </tr>
       </thead>
       <tbody>
@@ -302,10 +231,55 @@
               holding.totalProfitLoss?.percentage | number: '1.2-2' }}%)
             </div>
           </td>
+          <!-- <td class="px-6 py-4 flex items-center justify-end">
+            <button
+              [attr.id]="holding.scripCode.nse + '-action-dropdown-button'"
+              [attr.data-dropdown-toggle]="holding.scripCode.nse + '-action-dropdown'"
+              class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+              type="button"
+            >
+              <svg
+                class="w-5 h-5"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"
+                />
+              </svg>
+            </button>
+
+            <div
+              [attr.id]="holding.scripCode.nse + '-action-dropdown'"
+              class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+            >
+              <ul
+                class="py-1 text-sm text-gray-700 dark:text-gray-200"
+                [attr.aria-labelledby]="holding.scripCode.nse + '-action-dropdown-button'"
+              >
+                <li>
+                  <a
+                    href="#"
+                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    >Buy</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    >Sell</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </td> -->
         </tr>
         }
       </tbody>
-      <tfoot>
+      <!-- <tfoot>
         <tr class="font-semibold text-gray-900 dark:text-white">
           <th scope="row" class="px-6 py-3">
             <div>Total ({{ portfolio.holdings.length }})</div>
@@ -333,7 +307,7 @@
             </div>
           </td>
         </tr>
-      </tfoot>
+      </tfoot> -->
     </table>
   </div>
   } @else {
@@ -381,10 +355,10 @@
   </div>
   }
 
-  <!-- Add Stock Drawer -->
+  <!-- Add Transaction Drawer -->
   <div
-    (appDrawerClosed)="resetAddNewStockForm()"
-    id="add-new-stock-drawer"
+    (appDrawerClosed)="resetTransactionForm()"
+    id="add-transaction-drawer"
     class="fixed top-0 right-0 z-50 w-full h-full max-w-xs p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 translate-x-full"
     tabindex="-1"
     aria-labelledby="drawer-label"
@@ -394,14 +368,14 @@
       id="drawer-label"
       class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
     >
-      New Stock
+      {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}} Stock
     </h5>
 
     <button
-      (click)="resetAddNewStockForm()"
+      (click)="resetTransactionForm()"
       type="button"
-      data-drawer-dismiss="add-new-stock-drawer"
-      aria-controls="add-new-stock-drawer"
+      data-drawer-dismiss="add-transaction-drawer"
+      aria-controls="add-transaction-drawer"
       class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
     >
       <svg
@@ -433,20 +407,17 @@
           id="name"
           [(ngModel)]="name"
           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-          placeholder="Type stock name"
+          placeholder="Type stock name..."
           required
         />
 
-        <!-- Dropdown -->
+        <!-- Search Results Dropdown -->
         <div
           class="absolute w-full z-10 mt-px bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700"
         >
           @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
           && stocks.length > 0 ) {
-          <ul
-            class="py-2 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownDefaultButton"
-          >
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             @for (stock of stocks; track stock.scripCode.nse) {
             <li
               (click)="selectStock(stock)"
@@ -464,7 +435,7 @@
         <label
           for="date"
           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Investment Date</label
+          >Date</label
         >
 
         <div class="relative">
@@ -484,7 +455,7 @@
             </svg>
           </div>
           <input
-            #investmentDateInput
+            #transactionDateInput
             type="text"
             name="date"
             id="date"
@@ -501,7 +472,7 @@
         <label
           for="price"
           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Investment Price</label
+          >Price</label
         >
         <input
           type="number"
@@ -581,53 +552,107 @@
         />
       </div>
 
+      @if (transactionFormError) {
+      <div>
+        <p class="mt-4 text-sm text-red-600 dark:text-red-500">
+          {{ transactionFormError }}
+        </p>
+      </div>
+      }
+
       <div
         class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
       >
         <button
-          (click)="addStock()"
+          (click)="addTransaction()"
           type="submit"
           class="inline-flex text-white w-full justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
         >
-          <svg
-            class="w-5 h-5 mr-2 -ml-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-
-          Add Stock
+          {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}}
         </button>
         <button
-          (click)="resetAddNewStockForm()"
+          (click)="resetTransactionForm()"
           type="button"
-          data-drawer-dismiss="add-new-stock-drawer"
-          aria-controls="add-new-stock-drawer"
+          data-drawer-dismiss="add-transaction-drawer"
+          aria-controls="add-transaction-drawer"
           class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
         >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    tabindex="-1"
+    class="flex bg-gray-900 bg-opacity-50 dark:bg-opacity-80 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full"
+    [class.hidden]="!showTransactionProgress"
+  >
+    <div role="status">
+      <svg
+        aria-hidden="true"
+        class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        viewBox="0 0 100 101"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+
+      Processing...
+    </div>
+  </div>
+
+  <div
+    tabindex="-1"
+    class="flex bg-gray-900 bg-opacity-50 dark:bg-opacity-80 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    [class.hidden]="!showStatusModal"
+  >
+    <div class="relative p-4 w-full max-w-md max-h-full">
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <div class="p-4 md:p-5 text-center">
           <svg
+            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
             aria-hidden="true"
-            class="w-5 h-5 -ml-1 sm:mr-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
           >
             <path
+              stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
+              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
           </svg>
-          Cancel
-        </button>
+          <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+            Transaction added successfully!<br />Do you want to add one more
+            transaction?
+          </h3>
+          <button
+            (click)="closeStatusModal()"
+            type="button"
+            class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+          >
+            Yes
+          </button>
+          <button
+            (click)="closeStatusModal()"
+            data-drawer-dismiss="add-transaction-drawer"
+            type="button"
+            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+          >
+            No
+          </button>
+        </div>
       </div>
     </div>
   </div>

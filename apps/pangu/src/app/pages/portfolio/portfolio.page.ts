@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnInit,
@@ -20,9 +21,9 @@ import {
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { DrawerClosedDirective } from '../../directives/click-outside/drawer-closed.directive';
+import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { Direction, Stock } from '../../models/stock';
-import { Portfolio, TransactionType } from '../../models/portfolio';
+import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
 import { PortfolioService } from '../../services/portfolio.service';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
@@ -41,13 +42,14 @@ declare const Datepicker: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage extends BasePage implements OnInit {
-  @ViewChild('investmentDateInput', { static: true })
-  private investmentDateInput?: ElementRef;
+  @ViewChild('transactionDateInput', { static: true })
+  private transactionDateInput?: ElementRef;
 
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
 
   public readonly Direction = Direction;
+  public readonly TransactionType = TransactionType;
 
   public name = signal('');
   public date = signal('');
@@ -57,11 +59,16 @@ export class PortfolioPage extends BasePage implements OnInit {
   public readonly gross = computed(() => this.price() * this.quantity());
   public readonly net = computed(() => this.gross() + this.charges());
 
-  public showSearchResults = false;
+  public transactionType?: TransactionType;
+  public showSearchResults?: boolean;
+  public showStatusModal?: boolean;
+  public showTransactionProgress?: boolean;
+  public transactionFormError?: string;
 
   private selectedStock?: Stock;
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private portfolioService: PortfolioService,
     private marketService: MarketService,
     private storageService: StorageService
@@ -83,12 +90,13 @@ export class PortfolioPage extends BasePage implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.initDatePickerElement();
+    this.initDatePicker();
   }
 
-  public async addStock(): Promise<void> {
+  public async addTransaction(): Promise<void> {
     if (
       this.selectedStock &&
+      this.transactionType &&
       this.date() &&
       this.price() > 0 &&
       this.quantity() > 0 &&
@@ -100,31 +108,53 @@ export class PortfolioPage extends BasePage implements OnInit {
       );
 
       if (date < new Date()) {
-        await this.storageService.insert({
+        this.showTransactionProgress = true;
+
+        const stock = {
           ...this.selectedStock,
           transactions: [
             {
               id: uuid(),
-              type: TransactionType.BUY,
+              type: this.transactionType,
               date: date.getTime(),
               price: this.price(),
               quantity: this.quantity(),
               charges: this.charges(),
             },
           ],
-        });
+        };
 
-        this.resetAddNewStockForm();
+        if (stock.id) {
+          await this.storageService.update(stock);
+        } else {
+          await this.storageService.insert(stock);
+        }
 
-        // TODO: show a modal to add another stock confirmation. On cancel, close the drawer.
+        this.resetTransactionForm();
+
+        this.showTransactionProgress = false;
+        this.showStatusModal = true;
       } else {
-        console.log('Date in future!');
-        // TODO: show modal
+        this.showTransactionFormError('Date is in future!');
       }
     } else {
-      console.log('Invalid data!');
-      // TODO: show modal
+      this.showTransactionFormError(
+        'One or more field(s) containing invalid value(s)!'
+      );
       // TODO: Catch storage exceptions in main pages (import, export, date, profile, ...)
+    }
+  }
+
+  public openAddTransactionDrawer(
+    type: TransactionType,
+    stock?: Holding
+  ): void {
+    this.transactionType = type;
+
+    if (stock) {
+      this.selectedStock = stock;
+
+      this.name.set(stock.name);
     }
   }
 
@@ -136,8 +166,9 @@ export class PortfolioPage extends BasePage implements OnInit {
     this.showSearchResults = false;
   }
 
-  public resetAddNewStockForm(): void {
+  public resetTransactionForm(): void {
     this.selectedStock = undefined;
+    this.transactionType = undefined;
 
     this.showSearchResults = false;
 
@@ -148,9 +179,23 @@ export class PortfolioPage extends BasePage implements OnInit {
     this.charges.set(0);
   }
 
-  private initDatePickerElement(): void {
-    if (this.investmentDateInput) {
-      new Datepicker(this.investmentDateInput.nativeElement, {
+  public closeStatusModal(): void {
+    this.showStatusModal = false;
+  }
+
+  private showTransactionFormError(message: string): void {
+    this.transactionFormError = message;
+
+    setTimeout(() => {
+      this.transactionFormError = '';
+
+      this.cdr.markForCheck();
+    }, 2000);
+  }
+
+  private initDatePicker(): void {
+    if (this.transactionDateInput) {
+      new Datepicker(this.transactionDateInput.nativeElement, {
         autohide: true,
         format: 'dd/mm/yyyy',
         todayBtn: true,
@@ -160,7 +205,7 @@ export class PortfolioPage extends BasePage implements OnInit {
         maxDate: Date.now(),
       });
 
-      this.investmentDateInput.nativeElement.addEventListener(
+      this.transactionDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

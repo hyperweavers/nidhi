@@ -15,13 +15,6 @@ export const appRoutes: Route[] = [
       import('./pages/portfolio/portfolio.page').then((m) => m.PortfolioPage),
   },
   {
-    path: Constants.routes.TRANSACTION,
-    loadComponent: () =>
-      import('./pages/transaction/transaction.page').then(
-        (m) => m.TransactionPage
-      ),
-  },
-  {
     path: Constants.routes.IMPORT,
     loadComponent: () =>
       import('./pages/import/import.page').then((m) => m.ImportPage),

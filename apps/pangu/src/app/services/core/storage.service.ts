@@ -32,14 +32,27 @@ export class StorageService {
       };
       await db.stocks.add(holding, holding.id);
     } else {
-      console.log('Stock exists!');
-      // TODO: Update existing stock
+      this.update(holding);
     }
   }
 
-  // public update() {}
+  public async update(holding: Holding): Promise<void> {
+    let updated = 0;
 
-  // public delete() {}
+    if (holding.id) {
+      updated = await db.stocks.update(holding.id, {
+        transactions: holding.transactions,
+      });
+    }
+
+    if (!updated) {
+      this.insert(holding);
+    }
+  }
+
+  public async delete(id: string): Promise<void> {
+    await db.stocks.delete(id);
+  }
 
   public async importDb(
     blob: Blob,
