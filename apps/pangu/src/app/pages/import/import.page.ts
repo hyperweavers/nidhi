@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
 import { StorageService } from '../../services/core/storage.service';
-import { BasePage } from '../base.page';
 
 @Component({
   selector: 'app-import-page',
@@ -19,7 +18,7 @@ import { BasePage } from '../base.page';
   styleUrl: './import.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportPage extends BasePage {
+export class ImportPage {
   @ViewChild('importFileInput', { static: true })
   private importFileInput?: ElementRef;
 
@@ -32,9 +31,7 @@ export class ImportPage extends BasePage {
   constructor(
     private cdr: ChangeDetectorRef,
     private storageService: StorageService
-  ) {
-    super();
-  }
+  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public handleFileInput(event: any) {

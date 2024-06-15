@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { BasePage } from '../base.page';
-
 @Component({
   selector: 'app-privacy-page',
   standalone: true,
@@ -11,4 +9,4 @@ import { BasePage } from '../base.page';
   styleUrl: './privacy.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrivacyPage extends BasePage {}
+export class PrivacyPage {}

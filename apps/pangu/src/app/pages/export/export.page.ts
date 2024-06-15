@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
 import { StorageService } from '../../services/core/storage.service';
-import { BasePage } from '../base.page';
 
 @Component({
   selector: 'app-export-page',
@@ -17,16 +16,14 @@ import { BasePage } from '../base.page';
   styleUrl: './export.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExportPage extends BasePage {
+export class ExportPage {
   public showStatusModal?: boolean;
   public showExportProgress?: boolean;
 
   constructor(
     private cdr: ChangeDetectorRef,
     private storageService: StorageService
-  ) {
-    super();
-  }
+  ) {}
 
   public async export(): Promise<void> {
     this.showStatusModal = true;

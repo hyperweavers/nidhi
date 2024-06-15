@@ -10,7 +10,6 @@ import { Direction } from '../../models/stock';
 import { Portfolio } from '../../models/portfolio';
 import { MarketService } from '../../services/core/market.service';
 import { PortfolioService } from '../../services/portfolio.service';
-import { BasePage } from '../base.page';
 
 interface Kpi {
   indices: Index[];
@@ -25,7 +24,7 @@ interface Kpi {
   styleUrl: './dashboard.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPage extends BasePage {
+export class DashboardPage {
   public kpi$: Observable<Kpi>;
 
   private indices$: Observable<Index[]>;
@@ -38,8 +37,6 @@ export class DashboardPage extends BasePage {
     private marketService: MarketService,
     private portfolioService: PortfolioService
   ) {
-    super();
-
     this.indices$ = this.marketService.getIndices([
       IndexCodes.NIFTY_FIFTY,
       IndexCodes.SENSEX,

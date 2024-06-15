@@ -31,8 +31,6 @@ import { PortfolioService } from '../../services/portfolio.service';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
 
-import { BasePage } from '../base.page';
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
 
@@ -63,7 +61,7 @@ enum PortfolioSortOrder {
   styleUrl: './portfolio.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PortfolioPage extends BasePage implements OnInit {
+export class PortfolioPage implements OnInit {
   @ViewChild('transactionDateInput', { static: true })
   private transactionDateInput?: ElementRef;
 
@@ -83,6 +81,7 @@ export class PortfolioPage extends BasePage implements OnInit {
   public readonly TransactionType = TransactionType;
   public readonly PortfolioFilter = PortfolioFilter;
   public readonly PortfolioSortType = PortfolioSortType;
+  public readonly PortfolioSortOrder = PortfolioSortOrder;
 
   public portfolioSearchQuery = signal('');
 
@@ -108,8 +107,6 @@ export class PortfolioPage extends BasePage implements OnInit {
     private marketService: MarketService,
     private storageService: StorageService
   ) {
-    super();
-
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
       distinctUntilChanged()
@@ -284,19 +281,10 @@ export class PortfolioPage extends BasePage implements OnInit {
     this.portfolioFilter$.next(PortfolioFilter.NONE);
   }
 
-  public sortPortfolio(type: PortfolioSortType): void {
-    const currentPortfolioSort = this.portfolioSort$.getValue();
-    let order: PortfolioSortOrder;
-    if (type === currentPortfolioSort[0]) {
-      order = Number(!currentPortfolioSort[1]) as PortfolioSortOrder;
-    } else {
-      if (type === PortfolioSortType.NAME) {
-        order = PortfolioSortOrder.ASC;
-      } else {
-        order = PortfolioSortOrder.DSC;
-      }
-    }
-
+  public sortPortfolio(
+    type: PortfolioSortType,
+    order: PortfolioSortOrder
+  ): void {
     this.portfolioSort$.next([type, order]);
   }
 

@@ -5,7 +5,12 @@ import {
   HostListener,
   OnInit,
 } from '@angular/core';
-import { RouterLink, RouterModule } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterModule,
+} from '@angular/router';
 import {
   SwUpdate,
   VersionEvent,
@@ -41,11 +46,16 @@ export class AppComponent implements OnInit {
   constructor(
     private platform: Platform,
     private swUpdate: SwUpdate,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   public ngOnInit(): void {
-    initFlowbite();
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        initFlowbite();
+      }
+    });
 
     this.updateOnlineStatus();
 

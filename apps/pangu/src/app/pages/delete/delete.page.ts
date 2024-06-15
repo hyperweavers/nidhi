@@ -6,7 +6,6 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { StorageService } from '../../services/core/storage.service';
-import { BasePage } from '../base.page';
 
 @Component({
   selector: 'app-delete-page',
@@ -16,16 +15,14 @@ import { BasePage } from '../base.page';
   styleUrl: './delete.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeletePage extends BasePage {
+export class DeletePage {
   public showStatusModal?: boolean;
   public showDeleteProgress?: boolean;
 
   constructor(
     private cdr: ChangeDetectorRef,
     private storageService: StorageService
-  ) {
-    super();
-  }
+  ) {}
 
   public async delete(): Promise<void> {
     this.showStatusModal = true;
