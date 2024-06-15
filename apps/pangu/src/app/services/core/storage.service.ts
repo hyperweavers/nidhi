@@ -7,7 +7,8 @@ import {
 } from 'dexie-export-import';
 import { v4 as uuid } from 'uuid';
 
-import { Holding } from '../../models/portfolio';
+import { Stock } from '../../models/stock';
+import { Holding, Transaction } from '../../models/portfolio';
 import { db } from '../../db/app.db';
 
 @Injectable({
@@ -20,33 +21,25 @@ export class StorageService {
     this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
   }
 
-  public async insert(holding: Holding): Promise<void> {
+  public async addOrUpdate(
+    holding: Stock | Holding,
+    transaction: Transaction
+  ): Promise<void> {
     const stock = await db.stocks.get({
       'scripCode.nse': holding.scripCode.nse,
     });
 
-    if (!stock) {
+    if (stock?.id) {
+      await db.stocks.update(stock.id, {
+        transactions: [...stock.transactions, transaction],
+      });
+    } else {
       holding = {
         ...holding,
         id: uuid(),
+        transactions: [transaction],
       };
       await db.stocks.add(holding, holding.id);
-    } else {
-      this.update(holding);
-    }
-  }
-
-  public async update(holding: Holding): Promise<void> {
-    let updated = 0;
-
-    if (holding.id) {
-      updated = await db.stocks.update(holding.id, {
-        transactions: holding.transactions,
-      });
-    }
-
-    if (!updated) {
-      this.insert(holding);
     }
   }
 

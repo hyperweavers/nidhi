@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable, from, map, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { Holding, Portfolio } from '../models/portfolio';
+import { Direction, Stock } from '../models/stock';
+import { Holding, Portfolio, TransactionType } from '../models/portfolio';
 import { StorageService } from './core/storage.service';
 import { MarketService } from './core/market.service';
-import { Direction, Stock } from '../models/stock';
 
 @Injectable({
   providedIn: 'root',
@@ -32,12 +32,18 @@ export class PortfolioService {
                 );
                 const quantity =
                   storageStock?.transactions.reduce(
-                    (a, v) => a + v.quantity,
+                    (a, v) =>
+                      v.type === TransactionType.BUY
+                        ? a + v.quantity
+                        : a - v.quantity,
                     0
                   ) || 0;
                 const investment =
                   storageStock?.transactions.reduce(
-                    (a, v) => a + v.quantity * v.price + (v.charges || 0),
+                    (a, v) =>
+                      v.type === TransactionType.BUY
+                        ? a + v.quantity * v.price + (v.charges || 0)
+                        : a - v.quantity * v.price - (v.charges || 0),
                     0
                   ) || 0;
                 const averagePrice = investment / quantity || 0;

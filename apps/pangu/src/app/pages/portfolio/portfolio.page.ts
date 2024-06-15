@@ -18,12 +18,14 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  iif,
   map,
   share,
   switchMap,
   tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
+import { Dropdown } from 'flowbite';
 
 import { Direction, Stock } from '../../models/stock';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
@@ -31,7 +33,6 @@ import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-clo
 import { PortfolioService } from '../../services/portfolio.service';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
-import { Dropdown } from 'flowbite';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
@@ -101,7 +102,7 @@ export class PortfolioPage implements OnInit {
   public showTransactionProgress?: boolean;
   public transactionFormError?: string;
 
-  private selectedStock?: Stock;
+  private selectedStock?: Stock | Holding;
   private sortDropdown?: Dropdown;
   private filterDropdown?: Dropdown;
 
@@ -125,8 +126,11 @@ export class PortfolioPage implements OnInit {
       map(([portfolio, filter, [type, order], query]) => ({
         ...portfolio,
         holdings: portfolio.holdings
-          .filter((holding) =>
-            holding.name.toLowerCase().includes(query.toLowerCase())
+          .filter(
+            (holding) =>
+              holding.quantity &&
+              holding.quantity > 0 &&
+              holding.name.toLowerCase().includes(query.toLowerCase())
           )
           .filter((holding) => {
             switch (filter) {
@@ -175,10 +179,34 @@ export class PortfolioPage implements OnInit {
     this.stockSearchResults$ = toObservable(this.name).pipe(
       debounceTime(500),
       distinctUntilChanged(),
+      tap((query) => {
+        this.showSearchResults = false;
+
+        if (query !== this.selectedStock?.name) {
+          this.selectedStock = undefined;
+        }
+      }),
       filter((query) => query.length > 2 && query !== this.selectedStock?.name),
-      switchMap((query) => this.marketService.search(query)),
+      switchMap((query) =>
+        iif(
+          () => this.transactionType === TransactionType.BUY,
+          this.marketService.search(query),
+          this.portfolioService.portfolio$.pipe(
+            map((portfolio) =>
+              portfolio.holdings.filter(
+                (holding) =>
+                  (holding.quantity &&
+                    holding.quantity > 0 &&
+                    holding.name.toLowerCase().includes(query.toLowerCase())) ||
+                  holding.scripCode.nse
+                    .toLowerCase()
+                    .includes(query.toLowerCase())
+              )
+            )
+          )
+        )
+      ),
       tap(() => {
-        this.selectedStock = undefined;
         this.showSearchResults = true;
       })
     );
@@ -191,6 +219,7 @@ export class PortfolioPage implements OnInit {
       'Dropdown',
       'sortDropdown'
     );
+
     this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
       'Dropdown',
       'filterDropdown'
@@ -214,25 +243,16 @@ export class PortfolioPage implements OnInit {
       if (date < new Date()) {
         this.showTransactionProgress = true;
 
-        const stock = {
-          ...this.selectedStock,
-          transactions: [
-            {
-              id: uuid(),
-              type: this.transactionType,
-              date: date.getTime(),
-              price: this.price(),
-              quantity: this.quantity(),
-              charges: this.charges(),
-            },
-          ],
+        const transaction = {
+          id: uuid(),
+          type: this.transactionType,
+          date: date.getTime(),
+          price: this.price(),
+          quantity: this.quantity(),
+          charges: this.charges(),
         };
 
-        if (stock.id) {
-          await this.storageService.update(stock);
-        } else {
-          await this.storageService.insert(stock);
-        }
+        await this.storageService.addOrUpdate(this.selectedStock, transaction);
 
         this.resetTransactionForm();
 
@@ -258,20 +278,11 @@ export class PortfolioPage implements OnInit {
     }
   }
 
-  public openAddTransactionDrawer(
-    type: TransactionType,
-    stock?: Holding
-  ): void {
+  public openAddTransactionDrawer(type: TransactionType): void {
     this.transactionType = type;
-
-    if (stock) {
-      this.selectedStock = stock;
-
-      this.name.set(stock.name);
-    }
   }
 
-  public selectStock(stock: Stock): void {
+  public selectStock(stock: Stock | Holding): void {
     this.selectedStock = stock;
 
     this.name.set(stock.name);
