@@ -165,7 +165,7 @@
 
     <!-- Nav Bar -->
     <nav
-      class="z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+      class="z-30 w-full h-16 bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"
     >
       <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
@@ -220,7 +220,7 @@
 
           <form action="#" method="GET" class="hidden lg:block lg:pl-3.5">
             <label for="topbar-search" class="sr-only">Search</label>
-            <div class="relative mt-1 lg:w-96">
+            <div class="relative lg:w-96">
               <div
                 class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
               >
@@ -382,14 +382,12 @@
   <!-- Main Container -->
   <div
     class="flex flex-1 pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900"
-    [class.pt-28]="showInstallModal"
-    [class.mt-2]="showInstallModal"
+    [class.mt-14]="showInstallModal"
   >
     <!-- Side Menu -->
     <aside
       class="fixed top-0 left-0 z-20 lg:flex flex-col flex-shrink-0 w-64 h-full pt-16 font-normal duration-75 flex transition-width"
-      [class.pt-28]="showInstallModal"
-      [class.mt-2]="showInstallModal"
+      [class.mt-14]="showInstallModal"
       [class.hidden]="!sidebarOpen"
       aria-label="Sidebar"
     >
@@ -668,7 +666,7 @@
 
     <!-- Main Content -->
     <main
-      class="relative w-full overflow-y-auto p-4 bg-gray-50 lg:ml-64 dark:bg-gray-900 text-gray-900 dark:text-white"
+      class="relative w-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-gray-900 text-gray-900 dark:text-white"
     >
       <router-outlet />
     </main>
