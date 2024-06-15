@@ -117,6 +117,43 @@ export class AppComponent implements OnInit {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
+  public async share(): Promise<void> {
+    const shareData = {
+      title: 'Pangu',
+      text: "Hey there! I found this awesome app called Pangu. It is a privacy focused open source stock portfolio manager. I thought you might like it. Why don't you give a try?",
+      url: document.location.origin,
+    };
+    let shared = false;
+
+    if (
+      navigator.canShare &&
+      navigator.share &&
+      navigator.canShare(shareData)
+    ) {
+      try {
+        await navigator.share(shareData);
+
+        shared = true;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    if (!shared) {
+      const a = document.createElement('a');
+      a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%20Pangu&body=${encodeURI(
+        shareData.text + ' The app is available at ' + shareData.url
+      )}`;
+      a.target = '_blank';
+
+      a.click();
+
+      a.remove();
+    }
+
+    this.toggleSidebar();
+  }
+
   private detectTheme(): void {
     const preferredTheme = localStorage.getItem('dark-theme');
 

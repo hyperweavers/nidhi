@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { StorageService } from '../../services/core/storage.service';
 import { BasePage } from '../base.page';
 
 @Component({
@@ -11,4 +16,31 @@ import { BasePage } from '../base.page';
   styleUrl: './delete.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeletePage extends BasePage {}
+export class DeletePage extends BasePage {
+  public showStatusModal?: boolean;
+  public showDeleteProgress?: boolean;
+
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private storageService: StorageService
+  ) {
+    super();
+  }
+
+  public async delete(): Promise<void> {
+    this.showStatusModal = true;
+    this.showDeleteProgress = true;
+
+    this.cdr.markForCheck();
+
+    await this.storageService.deleteDb();
+
+    this.showDeleteProgress = false;
+
+    this.cdr.markForCheck();
+  }
+
+  public closeStatusAlert(): void {
+    this.showStatusModal = false;
+  }
+}

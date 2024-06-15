@@ -14,7 +14,7 @@ import { BasePage } from '../base.page';
 
 interface Kpi {
   indices: Index[];
-  portfolio: Portfolio;
+  portfolio?: Portfolio;
 }
 
 @Component({
@@ -50,7 +50,7 @@ export class DashboardPage extends BasePage {
     this.kpi$ = combineLatest([this.indices$, this.portfolio$]).pipe(
       map(([indices, portfolio]) => ({
         indices,
-        portfolio,
+        portfolio: portfolio.holdings.length > 0 ? portfolio : undefined,
       }))
     );
   }

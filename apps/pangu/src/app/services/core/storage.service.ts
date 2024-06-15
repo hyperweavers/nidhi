@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
 import { liveQuery, Observable } from 'dexie';
+import {
+  ExportProgress as Progress,
+  exportDB,
+  importInto,
+} from 'dexie-export-import';
 
 import { Holding } from '../../models/portfolio';
 import { db } from '../../db/app.db';
@@ -20,9 +25,30 @@ export class StorageService {
 
   // public delete() {}
 
-  // public importDb() {}
+  public async importDb(
+    blob: Blob,
+    progressCallback: (progress: Progress) => boolean
+  ): Promise<void> {
+    await db.delete();
 
-  // public exportDb() {}
+    await db.open();
 
-  // public deleteDb() {}
+    await importInto(db, blob, {
+      progressCallback,
+    });
+  }
+
+  public async exportDb(
+    progressCallback: (progress: Progress) => boolean
+  ): Promise<Blob> {
+    return await exportDB(db, {
+      progressCallback,
+    });
+  }
+
+  public async deleteDb(): Promise<void> {
+    await db.delete();
+
+    await db.open();
+  }
 }

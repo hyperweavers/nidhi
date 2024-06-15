@@ -682,11 +682,9 @@
                 <span class="ml-3">Terms & Conditions</span>
               </a>
 
-              <a
-                href="mailto:?subject=&body="
-                target="_blank"
-                (click)="toggleSidebar()"
-                class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
+              <div
+                (click)="share()"
+                class="flex items-center p-2 text-base cursor-pointer text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
                   class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -703,7 +701,7 @@
                 </svg>
 
                 <span class="ml-3">Share</span>
-              </a>
+              </div>
             </div>
           </div>
         </div>

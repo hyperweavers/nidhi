@@ -7,7 +7,7 @@ module.exports = {
   content: [
     join(__dirname, 'src/**/!(*.stories|*.spec).{ts,html}'),
     ...createGlobPatternsForDependencies(__dirname),
-    './node_modules/flowbite/**/*.js'
+    './node_modules/flowbite/**/*.js',
   ],
   darkMode: 'class',
   theme: {
@@ -15,12 +15,12 @@ module.exports = {
       'logo': [
         'Poppins',
         'ui-sans-serif',
-        'system-ui'
+        'system-ui',
       ],
       'sans': [
         'Inter',
         'ui-sans-serif',
-        'system-ui'
+        'system-ui',
       ]
     },
     colors: {
@@ -29,6 +29,6 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    require('flowbite/plugin')
+    require('flowbite/plugin'),
   ],
 };
