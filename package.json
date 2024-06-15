@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~17.3.0",
+    "@angular/cdk": "^17.3.6",
     "@angular/common": "~17.3.0",
     "@angular/compiler": "~17.3.0",
     "@angular/core": "~17.3.0",
@@ -15,6 +16,7 @@
     "@angular/router": "~17.3.0",
     "@angular/service-worker": "~17.3.0",
     "@nx/angular": "18.3.4",
+    "flowbite": "^2.3.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
@@ -45,6 +47,7 @@
     "@types/node": "18.16.9",
     "@typescript-eslint/eslint-plugin": "^7.3.0",
     "@typescript-eslint/parser": "^7.3.0",
+    "autoprefixer": "^10.4.0",
     "cypress": "^13.6.6",
     "eslint": "~8.57.0",
     "eslint-config-prettier": "^9.0.0",
@@ -53,7 +56,9 @@
     "jest-environment-jsdom": "^29.4.1",
     "jest-preset-angular": "~14.0.3",
     "nx": "18.3.4",
+    "postcss": "^8.4.5",
     "prettier": "^2.6.2",
+    "tailwindcss": "^3.0.2",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "typescript": "~5.4.2"
