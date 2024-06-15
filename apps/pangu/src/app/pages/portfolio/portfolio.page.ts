@@ -12,10 +12,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
+  BehaviorSubject,
   Observable,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
+  map,
   switchMap,
   tap,
 } from 'rxjs';
@@ -33,6 +36,25 @@ import { BasePage } from '../base.page';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
 
+enum PortfolioFilter {
+  NONE,
+  DAY_GAINERS,
+  DAY_LOSERS,
+  OVERALL_GAINERS,
+  OVERALL_LOSERS,
+}
+
+enum PortfolioSortType {
+  NAME,
+  DAY_PROFIT_LOSS,
+  OVERALL_PROFIT_LOSS,
+}
+
+enum PortfolioSortOrder {
+  ASC,
+  DSC,
+}
+
 @Component({
   selector: 'app-portfolio-page',
   standalone: true,
@@ -48,8 +70,21 @@ export class PortfolioPage extends BasePage implements OnInit {
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
 
+  private portfolioSearchQuery$: Observable<string>;
+
+  private portfolioFilter$ = new BehaviorSubject<PortfolioFilter>(
+    PortfolioFilter.NONE
+  );
+  private portfolioSort$ = new BehaviorSubject<
+    [PortfolioSortType, PortfolioSortOrder]
+  >([PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC]);
+
   public readonly Direction = Direction;
   public readonly TransactionType = TransactionType;
+  public readonly PortfolioFilter = PortfolioFilter;
+  public readonly PortfolioSortType = PortfolioSortType;
+
+  public portfolioSearchQuery = signal('');
 
   public name = signal('');
   public date = signal('');
@@ -75,7 +110,65 @@ export class PortfolioPage extends BasePage implements OnInit {
   ) {
     super();
 
-    this.portfolio$ = this.portfolioService.portfolio$;
+    this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
+      debounceTime(200),
+      distinctUntilChanged()
+    );
+
+    this.portfolio$ = combineLatest([
+      this.portfolioService.portfolio$,
+      this.portfolioFilter$,
+      this.portfolioSort$,
+      this.portfolioSearchQuery$,
+    ]).pipe(
+      map(([portfolio, filter, [type, order], query]) => ({
+        ...portfolio,
+        holdings: portfolio.holdings
+          .filter((holding) =>
+            holding.name.toLowerCase().includes(query.toLowerCase())
+          )
+          .filter((holding) => {
+            switch (filter) {
+              case PortfolioFilter.DAY_GAINERS:
+                return holding.quote?.change?.direction === Direction.UP;
+
+              case PortfolioFilter.DAY_LOSERS:
+                return holding.quote?.change?.direction === Direction.DOWN;
+
+              case PortfolioFilter.OVERALL_GAINERS:
+                return holding.totalProfitLoss?.direction === Direction.UP;
+
+              case PortfolioFilter.OVERALL_LOSERS:
+                return holding.totalProfitLoss?.direction === Direction.DOWN;
+
+              default:
+                return true;
+            }
+          })
+          .sort((h1, h2) => {
+            switch (type) {
+              case PortfolioSortType.NAME:
+                return order === PortfolioSortOrder.ASC
+                  ? h1.name.localeCompare(h2.name)
+                  : h2.name.localeCompare(h1.name);
+
+              case PortfolioSortType.DAY_PROFIT_LOSS:
+                return order === PortfolioSortOrder.ASC
+                  ? (h1.quote?.change?.percentage || 0) -
+                      (h2.quote?.change?.percentage || 0)
+                  : (h2.quote?.change?.percentage || 0) -
+                      (h1.quote?.change?.percentage || 0);
+
+              case PortfolioSortType.OVERALL_PROFIT_LOSS:
+                return order === PortfolioSortOrder.ASC
+                  ? (h1.totalProfitLoss?.percentage || 0) -
+                      (h2.totalProfitLoss?.percentage || 0)
+                  : (h2.totalProfitLoss?.percentage || 0) -
+                      (h1.totalProfitLoss?.percentage || 0);
+            }
+          }),
+      }))
+    );
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
       debounceTime(500),
@@ -181,6 +274,30 @@ export class PortfolioPage extends BasePage implements OnInit {
 
   public closeStatusModal(): void {
     this.showStatusModal = false;
+  }
+
+  public filterPortfolio(filter: PortfolioFilter): void {
+    this.portfolioFilter$.next(filter);
+  }
+
+  public clearPortfolioFilters(): void {
+    this.portfolioFilter$.next(PortfolioFilter.NONE);
+  }
+
+  public sortPortfolio(type: PortfolioSortType): void {
+    const currentPortfolioSort = this.portfolioSort$.getValue();
+    let order: PortfolioSortOrder;
+    if (type === currentPortfolioSort[0]) {
+      order = Number(!currentPortfolioSort[1]) as PortfolioSortOrder;
+    } else {
+      if (type === PortfolioSortType.NAME) {
+        order = PortfolioSortOrder.ASC;
+      } else {
+        order = PortfolioSortOrder.DSC;
+      }
+    }
+
+    this.portfolioSort$.next([type, order]);
   }
 
   private showTransactionFormError(message: string): void {
