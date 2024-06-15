@@ -215,11 +215,13 @@ export class PortfolioPage implements OnInit {
   public ngOnInit(): void {
     this.initDatePicker();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
       'Dropdown',
       'sortDropdown'
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
       'Dropdown',
       'filterDropdown'
