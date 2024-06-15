@@ -19,14 +19,15 @@ import {
   distinctUntilChanged,
   filter,
   map,
+  share,
   switchMap,
   tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
-import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { Direction, Stock } from '../../models/stock';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
+import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { PortfolioService } from '../../services/portfolio.service';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
@@ -164,7 +165,8 @@ export class PortfolioPage implements OnInit {
                       (h1.totalProfitLoss?.percentage || 0);
             }
           }),
-      }))
+      })),
+      share()
     );
 
     this.stockSearchResults$ = toObservable(this.name).pipe(

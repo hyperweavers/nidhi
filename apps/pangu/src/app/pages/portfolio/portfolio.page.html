@@ -50,6 +50,7 @@
       </div>
     </div>
   </dl>
+  }
 
   <!-- Table Header -->
   <div
@@ -393,7 +394,7 @@
     </div>
   </div>
 
-  @if (portfolio.holdings.length > 0) {
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Table -->
   <div class="relative overflow-x-auto sm:mx-4 ahsdow sm:rounded-lg">
     <table
