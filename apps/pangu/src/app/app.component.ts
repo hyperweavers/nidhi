@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
+import { RouterLink, RouterModule } from '@angular/router';
 import {
   SwUpdate,
   VersionEvent,
@@ -8,13 +13,15 @@ import {
 import { Platform } from '@angular/cdk/platform';
 import { filter, map } from 'rxjs';
 import { initFlowbite } from 'flowbite';
+import { Constants } from './constants';
 
 @Component({
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, RouterLink],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
   public isOnline?: boolean;
@@ -22,9 +29,16 @@ export class AppComponent implements OnInit {
   public showInstallModal?: boolean;
   public isIos?: boolean;
 
+  public readonly routes = Constants.routes;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
 
-  constructor(private platform: Platform, private swUpdate: SwUpdate) {}
+  constructor(
+    private platform: Platform,
+    private swUpdate: SwUpdate,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   public ngOnInit(): void {
     initFlowbite();
@@ -71,6 +85,8 @@ export class AppComponent implements OnInit {
 
   private updateOnlineStatus(): void {
     this.isOnline = window.navigator.onLine;
+
+    this.cdr.markForCheck();
   }
 
   private configureInstallModel(): void {
@@ -85,6 +101,8 @@ export class AppComponent implements OnInit {
 
         this.showInstallModal = true;
         this.pwaInstallPromptEvent = event;
+
+        this.cdr.markForCheck();
       });
     }
   }

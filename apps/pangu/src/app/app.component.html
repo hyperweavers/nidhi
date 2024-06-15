@@ -1,82 +1,393 @@
-<!-- PWa Install Notification -->
-@if (showInstallModal) {
-<div
-  id="sticky-banner"
-  tabindex="-1"
-  class="fixed top-0 start-0 z-50 flex justify-between w-full p-4 border-b border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
->
-  <div class="flex items-center mx-auto">
-    <p
-      class="flex items-center text-sm font-normal text-gray-500 dark:text-gray-400"
-    >
-      <span
-        class="inline-flex p-1 me-3 rounded-full dark:bg-gray-600 w-6 h-6 items-center justify-center flex-shrink-0"
+<!-- App Header -->
+<header>
+  <!-- PWA Install Notification -->
+  @if (showInstallModal) {
+  <div
+    tabindex="-1"
+    class="flex justify-between w-full p-2 border-b border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
+  >
+    <div class="flex items-center mx-auto">
+      <p
+        class="flex items-center text-sm font-normal text-gray-500 dark:text-gray-400"
+      >
+        <span
+          class="inline-flex p-1 me-3 rounded-full dark:bg-gray-600 w-6 h-6 items-center justify-center flex-shrink-0"
+        >
+          <svg
+            class="w-6 h-6 text-gray-800 dark:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+            />
+          </svg>
+
+          <span class="sr-only">Install</span>
+        </span>
+        <span
+          class="inline-flex items-center justify-center flex-col md:flex-row"
+        >
+          <span class="leading-tight"
+            >Pangu is available as a PWA (Progressive Web App) which can be
+            installed on your device and used like regular native apps. @if
+            (isIos) { To install, close this modal, tap the “share” icon, and
+            then tap on “Add to home screen”. }</span
+          >
+          @if (!isIos) {
+          <button
+            type="button"
+            class="mx-0 pt-3 md:mx-3 md:pt-0"
+            (click)="installApp()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 135 40"
+              class="h-10"
+            >
+              <defs>
+                <style>
+                  .cls-1 {
+                    fill: #a6a6a6;
+                  }
+                  .cls-2 {
+                    fill: #fff;
+                  }
+                  .cls-3 {
+                    fill: #5a0fc8;
+                  }
+                </style>
+              </defs>
+              <path
+                class="cls-1"
+                d="M130.2,40H4.73A4.74,4.74,0,0,1,0,35.27V4.73A4.73,4.73,0,0,1,4.73,0H130.2A4.8,4.8,0,0,1,135,4.73V35.27A4.81,4.81,0,0,1,130.2,40Z"
+              />
+              <path
+                d="M134,35.27a3.83,3.83,0,0,1-3.83,3.83H4.73A3.84,3.84,0,0,1,.89,35.27V4.72A3.84,3.84,0,0,1,4.73.89H130.2A3.83,3.83,0,0,1,134,4.72V35.27Z"
+              />
+              <path
+                class="cls-2"
+                d="M40.56,25.26l1.26-3.18h3.63l-1.72-4.82,2.15-5.45,6.17,16.38H47.5l-1-2.93Z"
+              />
+              <path
+                class="cls-3"
+                d="M36.68,28.19l6.61-16.38H38.91L34.39,22.4,31.18,11.81H27.81L24.36,22.4l-2.43-4.83-2.2,6.78L22,28.19h4.31l3.12-9.49,3,9.49Z"
+              />
+              <path
+                class="cls-2"
+                d="M12.7,22.57h2.7a7.64,7.64,0,0,0,2.18-.28l.7-2.15,1.95-6a4.74,4.74,0,0,0-.51-.67,5.61,5.61,0,0,0-4.39-1.66H8.55V28.19H12.7Zm3.57-7a2.14,2.14,0,0,1,.59,1.58,2.28,2.28,0,0,1-.52,1.58,2.69,2.69,0,0,1-2.08.65H12.7V15h1.57A2.73,2.73,0,0,1,16.27,15.58Z"
+              />
+              <path class="cls-2" d="M61.25,14.45V8.74h.66v5.11h2.52v.6Z" />
+              <path
+                class="cls-2"
+                d="M67.94,14.45l-.13-.61h0a1.83,1.83,0,0,1-.63.55,2.08,2.08,0,0,1-.8.14,1.44,1.44,0,0,1-1-.33,1.2,1.2,0,0,1-.36-.93c0-.87.69-1.32,2.08-1.36l.72,0v-.27a1.09,1.09,0,0,0-.21-.74.91.91,0,0,0-.7-.24,3,3,0,0,0-1.21.32l-.2-.49a2.55,2.55,0,0,1,.7-.27,2.76,2.76,0,0,1,.75-.1,1.64,1.64,0,0,1,1.14.34,1.45,1.45,0,0,1,.37,1.09v2.92ZM66.47,14a1.33,1.33,0,0,0,1-.34,1.23,1.23,0,0,0,.35-.93v-.38l-.65,0a2.42,2.42,0,0,0-1.12.24.76.76,0,0,0-.34.67.66.66,0,0,0,.21.53A.92.92,0,0,0,66.47,14Z"
+              />
+              <path
+                class="cls-2"
+                d="M70.36,10.17V13a1.1,1.1,0,0,0,.24.78,1,1,0,0,0,.74.26,1.22,1.22,0,0,0,1-.37,1.88,1.88,0,0,0,.31-1.2V10.17h.65v4.28h-.54l-.09-.57h0a1.23,1.23,0,0,1-.55.48,1.89,1.89,0,0,1-.81.17,1.63,1.63,0,0,1-1.17-.37A1.58,1.58,0,0,1,69.7,13v-2.8Z"
+              />
+              <path
+                class="cls-2"
+                d="M77.59,14.45V11.68a1.1,1.1,0,0,0-.24-.78,1,1,0,0,0-.74-.26,1.22,1.22,0,0,0-1,.37,1.82,1.82,0,0,0-.31,1.2v2.24h-.65V10.17h.53l.1.59h0a1.25,1.25,0,0,1,.55-.49,1.77,1.77,0,0,1,.8-.18,1.63,1.63,0,0,1,1.17.38,1.56,1.56,0,0,1,.39,1.19v2.79Z"
+              />
+              <path
+                class="cls-2"
+                d="M81.28,14.53A1.83,1.83,0,0,1,79.84,14a2.35,2.35,0,0,1-.51-1.62,2.44,2.44,0,0,1,.52-1.66,1.88,1.88,0,0,1,1.48-.59,3.17,3.17,0,0,1,.61.07,1.87,1.87,0,0,1,.49.16l-.2.55a3.23,3.23,0,0,0-.47-.15,2.68,2.68,0,0,0-.45-.05c-.87,0-1.31.55-1.31,1.66a2,2,0,0,0,.32,1.21,1.13,1.13,0,0,0,1,.42,2.82,2.82,0,0,0,1.1-.23v.58A2.35,2.35,0,0,1,81.28,14.53Z"
+              />
+              <path
+                class="cls-2"
+                d="M86.31,14.45V11.68a1.1,1.1,0,0,0-.24-.78,1,1,0,0,0-.74-.26,1.25,1.25,0,0,0-1,.37,1.86,1.86,0,0,0-.31,1.2v2.24h-.65V8.37H84v1.84a4,4,0,0,1,0,.55h0a1.4,1.4,0,0,1,.54-.48,1.79,1.79,0,0,1,.81-.18,1.67,1.67,0,0,1,1.18.37A1.59,1.59,0,0,1,87,11.66v2.79Z"
+              />
+              <path
+                class="cls-2"
+                d="M93,14.45l-.13-.61h0a1.76,1.76,0,0,1-.64.55,2,2,0,0,1-.79.14,1.42,1.42,0,0,1-1-.33,1.2,1.2,0,0,1-.36-.93c0-.87.69-1.32,2.07-1.36l.73,0v-.27a1,1,0,0,0-.22-.74.87.87,0,0,0-.69-.24,2.91,2.91,0,0,0-1.21.32l-.2-.49a2.61,2.61,0,0,1,.69-.27,2.84,2.84,0,0,1,.76-.1,1.59,1.59,0,0,1,1.13.34,1.41,1.41,0,0,1,.37,1.09v2.92ZM91.54,14a1.33,1.33,0,0,0,.95-.34,1.22,1.22,0,0,0,.34-.93v-.38l-.64,0a2.42,2.42,0,0,0-1.12.24.74.74,0,0,0-.34.67.66.66,0,0,0,.21.53A.9.9,0,0,0,91.54,14Z"
+              />
+              <path
+                class="cls-2"
+                d="M97.58,13.28a1.09,1.09,0,0,1-.45.93,2.12,2.12,0,0,1-1.25.32,2.68,2.68,0,0,1-1.32-.27v-.6A3,3,0,0,0,95.9,14a1.5,1.5,0,0,0,.78-.17.54.54,0,0,0,.28-.49.55.55,0,0,0-.22-.43,3.44,3.44,0,0,0-.85-.42A4.75,4.75,0,0,1,95,12.1a1.19,1.19,0,0,1-.37-.37,1,1,0,0,1-.13-.51A1,1,0,0,1,95,10.4a1.91,1.91,0,0,1,1.17-.31,3.55,3.55,0,0,1,1.35.28l-.23.53a3,3,0,0,0-1.17-.26,1.27,1.27,0,0,0-.69.14.45.45,0,0,0-.24.4.48.48,0,0,0,.09.29.84.84,0,0,0,.28.23,5.4,5.4,0,0,0,.75.32,2.69,2.69,0,0,1,1,.56A1,1,0,0,1,97.58,13.28Z"
+              />
+              <path
+                class="cls-2"
+                d="M71,28.45H69.23l-1.7-6c-.07-.26-.16-.63-.27-1.12s-.18-.83-.2-1c0,.3-.12.67-.22,1.14s-.19.81-.26,1l-1.65,5.93H63.15l-1.29-5-1.32-5h1.67l1.43,5.82c.22.94.38,1.76.48,2.48,0-.39.13-.82.23-1.3s.19-.87.27-1.16l1.63-5.84h1.62l1.66,5.86A22.75,22.75,0,0,1,70,26.76a18.14,18.14,0,0,1,.49-2.49L72,18.46h1.66Z"
+              />
+              <path
+                class="cls-2"
+                d="M78.15,28.59a3.63,3.63,0,0,1-2.75-1,3.88,3.88,0,0,1-1-2.83,4.33,4.33,0,0,1,.92-2.92,3.22,3.22,0,0,1,2.54-1.06,3.11,3.11,0,0,1,2.36.91,3.48,3.48,0,0,1,.87,2.51V25h-5a2.56,2.56,0,0,0,.6,1.7,2.08,2.08,0,0,0,1.58.59,5.51,5.51,0,0,0,1.25-.13,6.05,6.05,0,0,0,1.24-.42v1.31a4.88,4.88,0,0,1-1.19.39A7.09,7.09,0,0,1,78.15,28.59ZM77.86,22a1.6,1.6,0,0,0-1.23.49,2.34,2.34,0,0,0-.55,1.41h3.43a2.12,2.12,0,0,0-.45-1.42A1.54,1.54,0,0,0,77.86,22Z"
+              />
+              <path
+                class="cls-2"
+                d="M86.78,20.75a2.62,2.62,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.58,4.58,0,0,1-.8,2.89,2.91,2.91,0,0,1-4.45,0h-.1l-.3.89h-1.2V17.82h1.6v2.52c0,.19,0,.47,0,.84s0,.6,0,.7h.06A2.58,2.58,0,0,1,86.78,20.75Zm-.42,1.32a1.65,1.65,0,0,0-1.4.57,3.37,3.37,0,0,0-.44,1.91v.11a3.55,3.55,0,0,0,.44,2,1.64,1.64,0,0,0,1.43.62,1.47,1.47,0,0,0,1.3-.68,3.62,3.62,0,0,0,.44-2C88.13,22.93,87.54,22.07,86.36,22.07Z"
+              />
+              <path
+                class="cls-2"
+                d="M101.65,28.45l-1-2.77H96.83l-1,2.77H94.13l3.74-10h1.78l3.73,10Zm-1.43-4.18-.94-2.72c-.07-.18-.16-.47-.28-.86s-.2-.68-.25-.86a14,14,0,0,1-.54,1.83l-.9,2.61Z"
+              />
+              <path
+                class="cls-2"
+                d="M108.37,28.59a2.64,2.64,0,0,1-2.23-1H106c.07.63.1,1,.1,1.16v3.1h-1.61V20.89h1.3c0,.14.11.48.23,1h.08a2.53,2.53,0,0,1,2.26-1.15,2.64,2.64,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.66,4.66,0,0,1-.8,2.89A2.67,2.67,0,0,1,108.37,28.59ZM108,22.07a1.66,1.66,0,0,0-1.4.56,2.92,2.92,0,0,0-.44,1.79v.24a3.55,3.55,0,0,0,.44,2,1.62,1.62,0,0,0,1.43.62,1.44,1.44,0,0,0,1.28-.69,3.52,3.52,0,0,0,.45-1.95,3.41,3.41,0,0,0-.45-1.92A1.48,1.48,0,0,0,108,22.07Z"
+              />
+              <path
+                class="cls-2"
+                d="M117.09,28.59a2.64,2.64,0,0,1-2.23-1h-.09c.06.63.09,1,.09,1.16v3.1h-1.6V20.89h1.29c0,.14.12.48.23,1h.08a2.54,2.54,0,0,1,2.26-1.15,2.62,2.62,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.66,4.66,0,0,1-.8,2.89A2.67,2.67,0,0,1,117.09,28.59Zm-.39-6.52a1.66,1.66,0,0,0-1.4.56,2.92,2.92,0,0,0-.44,1.79v.24a3.55,3.55,0,0,0,.44,2,1.64,1.64,0,0,0,1.43.62,1.44,1.44,0,0,0,1.28-.69,3.52,3.52,0,0,0,.45-1.95,3.41,3.41,0,0,0-.44-1.92A1.51,1.51,0,0,0,116.7,22.07Z"
+              />
+            </svg>
+          </button>
+          }
+        </span>
+      </p>
+    </div>
+    <div class="flex items-center">
+      <button
+        (click)="closeInstallModal()"
+        type="button"
+        class="flex-shrink-0 inline-flex justify-center w-7 h-7 items-center text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 dark:hover:bg-gray-600 dark:hover:text-white"
       >
         <svg
-          class="w-6 h-6 text-gray-800 dark:text-white"
+          class="w-3 h-3"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
           fill="none"
-          viewBox="0 0 24 24"
+          viewBox="0 0 14 14"
         >
           <path
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
           />
         </svg>
+        <span class="sr-only">Close</span>
+      </button>
+    </div>
+  </div>
+  }
 
-        <span class="sr-only">Install</span>
-      </span>
-      <span
-        >Install this application on your home screen for quick, easy and
-        offline access when you’re on the go. @if (isIos) { Close this modal,
-        tap the “share” icon, and then tap on “Add to home screen”. } @else {
-        <a
-          href="#"
-          (click)="installApp()"
-          class="px-5 py-2 ms-3 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-          >Install</a
-        >
-        }</span
-      >
-    </p>
-  </div>
-  <div class="flex items-center">
-    <button
-      (click)="closeInstallModal()"
-      type="button"
-      class="flex-shrink-0 inline-flex justify-center w-7 h-7 items-center text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 dark:hover:bg-gray-600 dark:hover:text-white"
+  <!-- Nav Bar -->
+  <nav
+    class="bg-white border-b border-gray-200 dark:border-gray-700 dark:bg-gray-900"
+  >
+    <div
+      class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
     >
-      <svg
-        class="w-3 h-3"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 14 14"
+      <a
+        href="/"
+        class="flex items-center space-x-3 rtl:space-x-reverse dark:text-white"
       >
-        <path
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-        />
-      </svg>
-      <span class="sr-only">Close</span>
-    </button>
-  </div>
-</div>
-}
+        <svg
+          class="w-8 h-8"
+          viewBox="356.5 596.5 292.1494 322"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            transform="matrix(0.9999999999999999, 0, 0, 0.9999999999999999, 0, 0)"
+          >
+            <path
+              fill="currentColor"
+              d="M 639.5,596.5 C 647.225,603.846 650.058,612.846 648,623.5C 645.699,634.793 639.199,642.46 628.5,646.5C 623.213,644.189 618.213,641.356 613.5,638C 630.418,634.248 639.752,623.748 641.5,606.5C 641.45,603.024 640.783,599.69 639.5,596.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 602.5,641.5 C 605.187,641.336 607.854,641.503 610.5,642C 615.102,644.804 619.768,647.304 624.5,649.5C 622.284,656.465 619.284,663.132 615.5,669.5C 606.902,665.528 606.569,666.028 614.5,671C 651.096,719.028 655.263,769.862 627,823.5C 618.473,848.98 617.306,874.813 623.5,901C 622.238,904.929 619.572,907.595 615.5,909C 599.519,908.801 583.519,908.467 567.5,908C 575.459,906.836 583.459,906.336 591.5,906.5C 591.334,902.154 591.501,897.821 592,893.5C 595.115,888.156 597.448,882.489 599,876.5C 599.083,865.077 600.083,853.744 602,842.5C 605.031,831.43 608.365,820.43 612,809.5C 617.288,764.495 599.122,733.329 557.5,716C 548.991,713.632 540.325,712.298 531.5,712C 528.613,709.113 525.779,706.279 523,703.5C 521.764,697.523 521.097,691.523 521,685.5C 533.446,673.054 545.946,660.554 558.5,648C 573.333,645.982 587.999,643.816 602.5,641.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 525.5,609.5 C 526.376,609.369 527.043,609.702 527.5,610.5C 523.465,624.167 526.798,635.667 537.5,645C 541.171,647.39 545.171,648.89 549.5,649.5C 548.861,651.76 547.694,653.76 546,655.5C 542.94,659.063 539.44,662.063 535.5,664.5C 523.415,660.51 516.248,652.176 514,639.5C 513.302,627.719 517.135,617.719 525.5,609.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 543.5,901.5 C 544.407,907.106 544.74,912.773 544.5,918.5C 533.497,917.875 522.497,917.208 511.5,916.5C 511.5,915.5 511.5,914.5 511.5,913.5C 512.791,913.737 513.791,913.404 514.5,912.5C 513.077,909.483 512.077,906.316 511.5,903C 519.039,881.871 521.539,860.038 519,837.5C 513.961,817.081 512.294,796.415 514,775.5C 511.439,784.991 510.272,794.658 510.5,804.5C 510.914,814.536 511.414,824.536 512,834.5C 481.633,821.245 453.133,824.412 426.5,844C 413.119,856.61 407.452,872.11 409.5,890.5C 409.5,891.5 409.5,892.5 409.5,893.5C 406.941,893.198 404.607,893.532 402.5,894.5C 395.978,894.823 389.645,894.49 383.5,893.5C 381.365,891.631 378.698,890.964 375.5,891.5C 377.948,890.527 380.615,890.194 383.5,890.5C 382.998,885.162 382.831,879.828 383,874.5C 390.991,862.361 395.491,849.027 396.5,834.5C 397.324,830.688 397.824,826.688 398,822.5C 398.717,821.956 399.217,821.289 399.5,820.5C 404.247,820.864 408.081,819.198 411,815.5C 412.235,807.577 412.902,799.577 413,791.5C 414.566,778.782 419.232,767.449 427,757.5C 428.44,756.852 429.94,756.519 431.5,756.5C 433.924,755.97 436.257,755.136 438.5,754C 433.544,754.251 428.544,754.418 423.5,754.5C 414.526,753.032 408.36,748.032 405,739.5C 400.389,724.913 404.556,713.746 417.5,706C 427.459,703.073 436.792,704.406 445.5,710C 464.441,713.269 475.941,705.436 480,686.5C 484.921,691.938 486.588,698.271 485,705.5C 482.833,709 480,711.833 476.5,714C 479.735,713.074 482.735,711.741 485.5,710C 477.551,726.825 464.884,731.825 447.5,725C 444.174,722.045 440.841,719.045 437.5,716C 427.736,711.699 420.236,714.199 415,723.5C 412.277,733.886 415.777,741.052 425.5,745C 432.951,745.778 439.284,743.444 444.5,738C 449.12,736.382 453.787,736.382 458.5,738C 481.853,741.246 502.853,735.913 521.5,722C 562.203,723.033 589.036,742.866 602,781.5C 606.569,801.517 604.569,820.851 596,839.5C 594.167,842 592.333,844.5 590.5,847C 579.556,854.069 567.556,857.069 554.5,856C 551.026,855.699 547.692,854.866 544.5,853.5C 544.167,852.833 543.833,852.167 543.5,851.5C 544.989,846.24 545.489,840.906 545,835.5C 544.116,842.037 542.449,848.37 540,854.5C 538.761,870.358 539.927,886.024 543.5,901.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 431.5,756.5 C 428.833,755.833 426.167,755.167 423.5,754.5C 428.544,754.418 433.544,754.251 438.5,754C 436.257,755.136 433.924,755.97 431.5,756.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 479.5,887.5 C 479.5,886.833 479.5,886.167 479.5,885.5C 479.5,884.167 478.833,883.5 477.5,883.5C 475.286,883.709 473.619,882.876 472.5,881C 477.477,865.273 477.81,849.44 473.5,833.5C 484.263,833.149 494.596,834.983 504.5,839C 493.829,850.313 491.662,863.147 498,877.5C 500.684,880.702 502.517,884.368 503.5,888.5C 496.562,890.419 489.562,890.752 482.5,889.5C 481.995,888.081 480.995,887.415 479.5,887.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 463.5,885.5 C 468.833,885.5 474.167,885.5 479.5,885.5C 479.5,886.167 479.5,886.833 479.5,887.5C 472.5,887.077 465.5,886.577 458.5,886C 460.134,885.506 461.801,885.34 463.5,885.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 375.5,891.5 C 378.698,890.964 381.365,891.631 383.5,893.5C 374.494,893.666 365.494,893.5 356.5,893C 362.827,892.349 369.16,891.849 375.5,891.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 444.5,914.5 C 455.988,913.505 467.655,913.172 479.5,913.5C 479.5,914.167 479.5,914.833 479.5,915.5C 467.837,915.062 456.17,914.728 444.5,914.5 Z"
+            />
+            <path
+              fill="currentColor"
+              d="M 479.5,913.5 C 490.167,913.5 500.833,913.5 511.5,913.5C 511.5,914.5 511.5,915.5 511.5,916.5C 500.833,916.167 490.167,915.833 479.5,915.5C 479.5,914.833 479.5,914.167 479.5,913.5 Z"
+            />
+          </g>
+        </svg>
+        <span class="self-center text-2xl font-semibold whitespace-nowrap"
+          >Pangu</span
+        >
+      </a>
+      <div class="flex md:order-2">
+        <button
+          type="button"
+          data-collapse-toggle="navbar-search"
+          aria-controls="navbar-search"
+          aria-expanded="false"
+          class="md:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1"
+        >
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+            />
+          </svg>
+          <span class="sr-only">Search</span>
+        </button>
+        <div class="relative hidden md:block">
+          <div
+            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+          >
+            <svg
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+            <span class="sr-only">Search</span>
+          </div>
+          <input
+            type="text"
+            class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Search..."
+          />
+        </div>
+        <button
+          data-collapse-toggle="navbar-search"
+          type="button"
+          class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+          aria-controls="navbar-search"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Menu</span>
+          <svg
+            class="w-5 h-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 17 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 1h15M1 7h15M1 13h15"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
+        id="navbar-search"
+      >
+        <div class="relative mt-3 md:hidden">
+          <div
+            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+          >
+            <svg
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Search..."
+          />
+        </div>
+        <ul
+          class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+        >
+          <li>
+            <a
+              routerLink="/{{ routes.DASHBOARD }}"
+              routerLinkActive="md:text-blue-700 md:dark:text-blue-500"
+              ariaCurrentWhenActive="page"
+              class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              routerLink="/{{ routes.PORTFOLIO }}"
+              routerLinkActive="md:text-blue-700 md:dark:text-blue-500"
+              ariaCurrentWhenActive="page"
+              class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >Portfolio</a
+            >
+          </li>
+          <li>
+            <a
+              routerLink="/{{ routes.ABOUT }}"
+              routerLinkActive="md:text-blue-700 md:dark:text-blue-500"
+              ariaCurrentWhenActive="page"
+              class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >About</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Main Container -->
+<main>
+  <router-outlet />
+</main>
 
 <!-- PWA Update Notification -->
 @if (showUpdateModal) {
 <div
-  id="toast-interactive"
   class="fixed bottom-5 right-5 w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:bg-gray-800 dark:text-gray-400"
   role="alert"
 >
@@ -103,9 +414,11 @@
     </div>
     <div class="ms-3 text-sm font-normal">
       <span class="mb-1 text-sm font-semibold text-gray-900 dark:text-white"
-        >Update</span
+        >Update available</span
       >
-      <div class="mb-2 text-sm font-normal">A new version is available.</div>
+      <div class="mb-2 text-sm font-normal">
+        A newer version of the app is available.
+      </div>
       <div class="grid grid-cols-2 gap-2">
         <div>
           <a
@@ -151,5 +464,3 @@
   </div>
 </div>
 }
-
-<router-outlet></router-outlet>
