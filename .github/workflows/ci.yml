@@ -6,13 +6,22 @@ on:
       - main
   pull_request:
 
+# Needed for nx-set-shas when run on the main branch
+permissions:
+  actions: read
+  contents: read
+
 jobs:
-  ci:
+  main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # This line enables distribution
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
 
       - uses: actions/setup-node@v4
         with:
@@ -20,6 +29,11 @@ jobs:
           cache: 'npm' # Cache node_modules
 
       - run: npm ci
-      - run: npx nx affected -t lint build
-      # Enable unit and e2e tests when available/fixed
-      # - run: npx nx affected -t lint test build e2e-ci
+
+      - uses: nrwl/nx-set-shas@v4
+
+      - run: git branch --track main origin/main
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - run: npx nx-cloud record -- nx format:check
+      - run: npx nx affected -t lint test build e2e-ci
