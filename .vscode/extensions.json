@@ -2,6 +2,21 @@
   "recommendations": [
     "nrwl.angular-console",
     "esbenp.prettier-vscode",
-    "firsttris.vscode-jest-runner"
+    "firsttris.vscode-jest-runner",
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "zignd.html-css-class-completion",
+    "davidanson.vscode-markdownlint",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    "redhat.vscode-yaml",
+    "ecmel.vscode-html-css",
+    "formulahendry.auto-rename-tag",
+    "aaron-bond.better-comments",
+    "eamodio.gitlens",
+    "mrmlnc.vscode-scss",
+    "stylelint.vscode-stylelint",
+    "bradlc.vscode-tailwindcss"
   ]
 }

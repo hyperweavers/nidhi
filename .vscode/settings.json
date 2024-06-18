@@ -1,0 +1,29 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [".commitlintrc"],
+      "url": "https://json.schemastore.org/commitlintrc.json"
+    },
+    {
+      "fileMatch": [".eslintrc.json", ".eslintrc"],
+      "url": "https://json.schemastore.org/eslintrc.json"
+    },
+    {
+      "fileMatch": [".lintstagedrc"],
+      "url": "https://json.schemastore.org/lintstagedrc.schema.json"
+    },
+    {
+      "fileMatch": [".prettierrc"],
+      "url": "https://json.schemastore.org/prettierrc"
+    },
+    {
+      "fileMatch": [".stylelintrc.json", ".stylelintrc"],
+      "url": "https://json.schemastore.org/stylelintrc.json"
+    }
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
+  // Runs Prettier, then ESLint
+  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+  "eslint.probe": ["javascript", "typescript", "html", "markdown"]
+}
