@@ -105,6 +105,8 @@ export class PortfolioPage implements OnInit {
   private selectedStock?: Stock | Holding;
   private sortDropdown?: Dropdown;
   private filterDropdown?: Dropdown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private datepicker?: any;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -298,10 +300,12 @@ export class PortfolioPage implements OnInit {
     this.showSearchResults = false;
 
     this.name.set('');
-    this.date.set('');
+    this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
     this.price.set(0);
     this.quantity.set(0);
     this.charges.set(0);
+
+    this.resetDatepicker();
   }
 
   public closeStatusModal(retainTransactionType?: boolean): void {
@@ -349,9 +353,13 @@ export class PortfolioPage implements OnInit {
     }, 2000);
   }
 
+  private resetDatepicker() {
+    this.datepicker?.setDate(Date.now(), { clear: true });
+  }
+
   private initDatePicker(): void {
     if (this.transactionDateInput) {
-      new Datepicker(this.transactionDateInput.nativeElement, {
+      this.datepicker = new Datepicker(this.transactionDateInput.nativeElement, {
         autohide: true,
         format: 'dd/mm/yyyy',
         todayBtn: true,
@@ -370,6 +378,8 @@ export class PortfolioPage implements OnInit {
           this.date.set(value);
         }
       );
+
+      this.resetDatepicker();
     }
   }
 }
