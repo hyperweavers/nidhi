@@ -49,7 +49,7 @@ export class MarketService {
       map(
         (companyDetails): Stock => ({
           complete: true,
-          name: companyDetails.companyShortName,
+          name: companyDetails.companyName,
           vendorCode: {
             etm: companyDetails.companyId,
           },
@@ -151,7 +151,7 @@ export class MarketService {
         }
 
         return {
-          name: stock.companyShortName,
+          name: stock.companyName,
           vendorCode: {
             etm: stock.companyId,
           },
@@ -244,7 +244,7 @@ export class MarketService {
         }
 
         return stocks.map((stock) => ({
-          name: stock.companyShortName,
+          name: stock.companyName,
           vendorCode: {
             etm: stock.companyId,
           },
@@ -325,7 +325,7 @@ export class MarketService {
       .pipe(
         map((results) =>
           results.map((result) => ({
-            name: result.shortNameEt,
+            name: result.tagName,
             vendorCode: {
               etm: result.tagId,
             },
