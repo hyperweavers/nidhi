@@ -1,3 +1,8 @@
 {
-  "singleQuote": true
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "singleQuote": true,
+  "trailingComma": "all"
 }
