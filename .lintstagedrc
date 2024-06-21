@@ -5,7 +5,7 @@
   "*": [
     "nx format:write --uncommitted"
   ],
-  "*.scss": [
+  "*.{scss,css}": [
     "stylelint --fix"
   ]
 }
