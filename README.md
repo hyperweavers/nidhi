@@ -1,7 +1,6 @@
 # Nidhi
 
-[![CI](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml/badge.svg)](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml) ![GitHub License](https://img.shields.io/github/license/hyperweavers/nidhi)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![CI](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml/badge.svg)](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml) ![GitHub License](https://img.shields.io/github/license/hyperweavers/nidhi) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
 ## About
 
