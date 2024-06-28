@@ -1,8 +1,8 @@
-<div class="pb-4 flex flex-col h-full">
+<div class="flex h-full flex-col pb-4">
   @if (portfolio$ | async; as portfolio) {
   <!-- Summary -->
   <dl
-    class="flex justify-between m-4 p-4 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    class="m-4 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
   >
     <div class="flex flex-col">
       <div>
@@ -18,7 +18,7 @@
         </dt>
       </div>
     </div>
-    <div class="flex flex-col ms-6">
+    <div class="ms-6 flex flex-col">
       <div>
         <dd class="mb-2 text-gray-500 dark:text-gray-400">Day Profit/Loss</dd>
         <dt
@@ -50,7 +50,7 @@
 
   <!-- Table Header -->
   <div
-    class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4"
+    class="flex flex-col items-center justify-between space-y-3 p-4 md:flex-row md:space-x-4 md:space-y-0"
   >
     <!-- Search -->
     <div class="w-full md:w-64 xl:w-96">
@@ -58,11 +58,11 @@
         <label for="simple-search" class="sr-only">Search</label>
         <div class="relative w-full">
           <div
-            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
           >
             <svg
               aria-hidden="true"
-              class="w-5 h-5 text-gray-500 dark:text-gray-400"
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -77,7 +77,7 @@
           <input
             [(ngModel)]="portfolioSearchQuery"
             type="text"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Search"
           />
         </div>
@@ -85,21 +85,21 @@
     </div>
 
     <div
-      class="w-full md:w-auto flex flex-col md:flex-row space-y-3 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0"
+      class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-3 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
     >
       <div class="flex space-x-3">
         <!-- Sort -->
-        <div class="flex items-center w-full md:w-auto">
+        <div class="flex w-full items-center md:w-auto">
           <button
             id="sortDropdownButton"
             data-dropdown-toggle="sortDropdown"
-            class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
             type="button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
-              class="h-4 w-4 mr-2 text-gray-400"
+              class="mr-2 h-4 w-4 text-gray-400"
               viewBox="0 0 24 24"
               fill="currentColor"
             >
@@ -114,7 +114,7 @@
 
             Sort
             <svg
-              class="-mr-1 ml-1.5 w-5 h-5"
+              class="-mr-1 ml-1.5 h-5 w-5"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@
 
           <div
             id="sortDropdown"
-            class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
           >
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
@@ -138,13 +138,13 @@
             >
               <li
                 (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Company Name
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -162,13 +162,13 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Company Name
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -186,13 +186,13 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Day Profit/Loss
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -210,13 +210,13 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Day Profit/Loss
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -234,13 +234,13 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Overall Profit/Loss
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -258,13 +258,13 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Overall Profit/Loss
 
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -285,17 +285,17 @@
         </div>
 
         <!-- Filter -->
-        <div class="flex items-center w-full md:w-auto">
+        <div class="flex w-full items-center md:w-auto">
           <button
             id="filterDropdownButton"
             data-dropdown-toggle="filterDropdown"
-            class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
             type="button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
-              class="h-4 w-4 mr-2 text-gray-400"
+              class="mr-2 h-4 w-4 text-gray-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -307,7 +307,7 @@
             </svg>
             Filter
             <svg
-              class="-mr-1 ml-1.5 w-5 h-5"
+              class="-mr-1 ml-1.5 h-5 w-5"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -323,7 +323,7 @@
 
           <div
             id="filterDropdown"
-            class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
           >
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
@@ -331,31 +331,31 @@
             >
               <li
                 (click)="clearPortfolioFilters()"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 All
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Day Gainers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Day Losers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Overall Gainers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
-                class="block cursor-pointer py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Overall Losers
               </li>
@@ -373,7 +373,7 @@
           aria-controls="add-transaction-drawer"
           data-drawer-placement="right"
           type="button"
-          class="flex w-1/2 md:w-24 items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
         >
           Buy
         </button>
@@ -386,7 +386,7 @@
           aria-controls="add-transaction-drawer"
           data-drawer-placement="right"
           type="button"
-          class="flex w-1/2 md:w-24 items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
         >
           Sell
         </button>
@@ -396,15 +396,15 @@
 
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Table -->
-  <div class="relative overflow-x-auto sm:mx-4 shadow sm:rounded-lg">
+  <div class="relative overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
     <table
-      class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
       <thead
-        class="text-xs text-center text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        class="bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="p-2 sm:p-4 min-w-32 text-left">
+          <th scope="col" class="min-w-32 p-2 text-left sm:p-4">
             <div class="max-w-24 whitespace-nowrap">Company (Qty)</div>
             <div>Avg. Price (&#8377;)</div>
             <div>Investment (&#8377;)</div>
@@ -424,11 +424,11 @@
 
       <tbody>
         @for (holding of portfolio.holdings; track holding.id) {
-        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-          <th scope="row" class="p-2 sm:p-4 font-normal min-w-32">
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <th scope="row" class="min-w-32 p-2 font-normal sm:p-4">
             <div class="flex">
               <div
-                class="max-w-24 text-gray-900 font-medium truncate dark:text-white"
+                class="max-w-24 truncate font-medium text-gray-900 dark:text-white"
               >
                 {{ holding.name }}
               </div>
@@ -438,17 +438,20 @@
             <div>{{ holding.investment | number: '1.2-2' }}</div>
           </th>
           <td
-            class="p-2 sm:p-4 text-center"
+            class="p-2 text-center sm:p-4"
             [ngClass]="holding.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
-            <div>{{ (holding.quote?.change?.value! * holding.quantity!) | number: '1.2-2' }}</div>
+            <div>
+              {{ (holding.quote?.change?.value! * holding.quantity!) | number:
+              '1.2-2' }}
+            </div>
             <div>
               ({{ holding.quote?.change?.percentage | number: '1.2-2' }}%)
             </div>
             <div>{{ holding.quote?.price | number: '1.2-2' }}</div>
           </td>
           <td
-            class="p-2 sm:p-4 text-center"
+            class="p-2 text-center sm:p-4"
             [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>{{ holding.totalProfitLoss?.value | number: '1.2-2' }}</div>
@@ -464,11 +467,11 @@
   </div>
   } @else {
   <div
-    class="flex flex-col justify-center items-center flex-1 text-gray-500 dark:text-gray-400"
+    class="flex flex-1 flex-col items-center justify-center text-gray-500 dark:text-gray-400"
     role="status"
   >
     <svg
-      class="mx-auto mb-4 w-12 h-12"
+      class="mx-auto mb-4 h-12 w-12"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -486,10 +489,10 @@
     <p>No Holdings!</p>
   </div>
   } } @else {
-  <div class="flex justify-center items-center flex-1" role="status">
+  <div class="flex flex-1 items-center justify-center" role="status">
     <svg
       aria-hidden="true"
-      class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -511,14 +514,14 @@
   <div
     (appDrawerClosed)="resetTransactionForm()"
     id="add-transaction-drawer"
-    class="fixed top-0 right-0 z-50 w-full h-full max-w-xs p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 translate-x-full"
+    class="fixed right-0 top-0 z-50 h-full w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform dark:bg-gray-800"
     tabindex="-1"
     aria-labelledby="drawer-label"
     aria-hidden="true"
   >
     <h5
       id="drawer-label"
-      class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+      class="mb-6 inline-flex items-center text-sm font-semibold uppercase text-gray-500 dark:text-gray-400"
     >
       {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}} Stock
     </h5>
@@ -528,11 +531,11 @@
       type="button"
       data-drawer-dismiss="add-transaction-drawer"
       aria-controls="add-transaction-drawer"
-      class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+      class="absolute right-2.5 top-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
     >
       <svg
         aria-hidden="true"
-        class="w-5 h-5"
+        class="h-5 w-5"
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"
@@ -550,7 +553,7 @@
       <div class="relative">
         <label
           for="name"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Company</label
         >
         <input
@@ -558,14 +561,14 @@
           name="name"
           id="name"
           [(ngModel)]="name"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="Type company name/symbol..."
           required
         />
 
         <!-- Search Results Dropdown -->
         <div
-          class="absolute w-full z-10 mt-px bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700"
+          class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
         >
           @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
           && stocks.length > 0 ) {
@@ -586,16 +589,16 @@
       <div>
         <label
           for="date"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Date</label
         >
 
         <div class="relative">
           <div
-            class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none"
+            class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
           >
             <svg
-              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              class="h-4 w-4 text-gray-500 dark:text-gray-400"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"
@@ -612,7 +615,7 @@
             name="date"
             id="date"
             [(ngModel)]="date"
-            class="ps-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="DD/MM/YYYY"
             required
             readonly
@@ -623,7 +626,7 @@
       <div>
         <label
           for="price"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Price</label
         >
         <input
@@ -631,7 +634,7 @@
           name="price"
           id="price"
           [(ngModel)]="price"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="&#8377; 0"
           required
         />
@@ -640,7 +643,7 @@
       <div>
         <label
           for="quantity"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Quantity</label
         >
         <input
@@ -648,7 +651,7 @@
           name="quantity"
           id="quantity"
           [(ngModel)]="quantity"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="0"
           required
         />
@@ -657,7 +660,7 @@
       <div>
         <label
           for="gross"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Gross Amount</label
         >
         <input
@@ -665,7 +668,7 @@
           name="gross"
           id="gross"
           [value]="gross()"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="0"
           readonly
         />
@@ -674,7 +677,7 @@
       <div>
         <label
           for="changes"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Charges (optional)</label
         >
         <input
@@ -682,7 +685,7 @@
           name="changes"
           id="changes"
           [(ngModel)]="charges"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="&#8377; 0"
         />
       </div>
@@ -690,7 +693,7 @@
       <div>
         <label
           for="net"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
           >Net Amount</label
         >
         <input
@@ -698,7 +701,7 @@
           name="net"
           id="net"
           [value]="net()"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="0"
           readonly
         />
@@ -713,12 +716,12 @@
       }
 
       <div
-        class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
+        class="bottom-0 left-0 flex w-full justify-center space-x-4 pb-4 md:absolute md:px-4"
       >
         <button
           (click)="addTransaction()"
           type="submit"
-          class="inline-flex text-white w-full justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex w-full justify-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
         >
           {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}}
         </button>
@@ -727,7 +730,7 @@
           type="button"
           data-drawer-dismiss="add-transaction-drawer"
           aria-controls="add-transaction-drawer"
-          class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          class="focus:ring-primary-300 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
         >
           Cancel
         </button>
@@ -738,13 +741,13 @@
   <!-- Loading Modal -->
   <div
     tabindex="-1"
-    class="flex bg-gray-900 bg-opacity-50 dark:bg-opacity-80 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-full max-h-full"
+    class="fixed left-0 right-0 top-0 z-50 flex h-full max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
     [class.hidden]="!showTransactionProgress"
   >
     <div role="status">
       <svg
         aria-hidden="true"
-        class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        class="inline h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -766,14 +769,14 @@
   <!-- Alert Dialog -->
   <div
     tabindex="-1"
-    class="flex bg-gray-900 bg-opacity-50 dark:bg-opacity-80 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    class="fixed left-0 right-0 top-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
     [class.hidden]="!showStatusModal"
   >
-    <div class="relative p-4 w-full max-w-md max-h-full">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <div class="p-4 md:p-5 text-center">
+    <div class="relative max-h-full w-full max-w-md p-4">
+      <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
+        <div class="p-4 text-center md:p-5">
           <svg
-            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+            class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -794,7 +797,7 @@
           <button
             (click)="closeStatusModal(true)"
             type="button"
-            class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
           >
             Yes
           </button>
@@ -802,7 +805,7 @@
             (click)="closeStatusModal()"
             data-drawer-dismiss="add-transaction-drawer"
             type="button"
-            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
           >
             No
           </button>
