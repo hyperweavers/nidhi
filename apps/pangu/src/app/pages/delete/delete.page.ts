@@ -1,14 +1,14 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
-  selector: 'app-delete-page',
+  selector: 'app-delete',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './delete.page.html',
@@ -21,7 +21,7 @@ export class DeletePage {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   public async delete(): Promise<void> {

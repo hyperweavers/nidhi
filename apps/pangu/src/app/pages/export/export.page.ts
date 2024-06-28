@@ -1,15 +1,15 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
-  selector: 'app-export-page',
+  selector: 'app-export',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './export.page.html',
@@ -22,7 +22,7 @@ export class ExportPage {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   public async export(): Promise<void> {
@@ -32,7 +32,7 @@ export class ExportPage {
     this.cdr.markForCheck();
 
     const blob = await this.storageService.exportDb(
-      this.progressCallback.bind(this)
+      this.progressCallback.bind(this),
     );
 
     const url = window.URL.createObjectURL(blob);

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -8,9 +9,9 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { Dropdown } from 'flowbite';
 import {
   BehaviorSubject,
   Observable,
@@ -25,14 +26,13 @@ import {
   tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
-import { Dropdown } from 'flowbite';
 
-import { Direction, Stock } from '../../models/stock';
-import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
-import { PortfolioService } from '../../services/portfolio.service';
+import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
+import { Direction, Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
+import { PortfolioService } from '../../services/portfolio.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
@@ -57,7 +57,7 @@ enum PortfolioSortOrder {
 }
 
 @Component({
-  selector: 'app-portfolio-page',
+  selector: 'app-portfolio',
   standalone: true,
   imports: [CommonModule, FormsModule, DrawerClosedDirective],
   templateUrl: './portfolio.page.html',
@@ -74,7 +74,7 @@ export class PortfolioPage implements OnInit {
   private portfolioSearchQuery$: Observable<string>;
 
   private portfolioFilter$ = new BehaviorSubject<PortfolioFilter>(
-    PortfolioFilter.NONE
+    PortfolioFilter.NONE,
   );
   private portfolioSort$ = new BehaviorSubject<
     [PortfolioSortType, PortfolioSortOrder]
@@ -112,11 +112,11 @@ export class PortfolioPage implements OnInit {
     private cdr: ChangeDetectorRef,
     private portfolioService: PortfolioService,
     private marketService: MarketService,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
-      distinctUntilChanged()
+      distinctUntilChanged(),
     );
 
     this.portfolio$ = combineLatest([
@@ -132,7 +132,7 @@ export class PortfolioPage implements OnInit {
             (holding) =>
               holding.quantity &&
               holding.quantity > 0 &&
-              holding.name.toLowerCase().includes(query.toLowerCase())
+              holding.name.toLowerCase().includes(query.toLowerCase()),
           )
           .filter((holding) => {
             switch (filter) {
@@ -175,7 +175,7 @@ export class PortfolioPage implements OnInit {
             }
           }),
       })),
-      share()
+      share(),
     );
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
@@ -202,15 +202,15 @@ export class PortfolioPage implements OnInit {
                     holding.name.toLowerCase().includes(query.toLowerCase())) ||
                   holding.scripCode.nse
                     .toLowerCase()
-                    .includes(query.toLowerCase())
-              )
-            )
-          )
-        )
+                    .includes(query.toLowerCase()),
+              ),
+            ),
+          ),
+        ),
       ),
       tap(() => {
         this.showSearchResults = true;
-      })
+      }),
     );
   }
 
@@ -220,13 +220,13 @@ export class PortfolioPage implements OnInit {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
       'Dropdown',
-      'sortDropdown'
+      'sortDropdown',
     );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
       'Dropdown',
-      'filterDropdown'
+      'filterDropdown',
     );
   }
 
@@ -241,7 +241,7 @@ export class PortfolioPage implements OnInit {
     ) {
       const dateFragments = this.date().split('/');
       const date = new Date(
-        `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`
+        `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
       );
 
       if (date < new Date()) {
@@ -267,7 +267,7 @@ export class PortfolioPage implements OnInit {
       }
     } else {
       this.showTransactionFormError(
-        'One or more field(s) containing invalid value(s)!'
+        'One or more field(s) containing invalid value(s)!',
       );
 
       console.log(
@@ -276,7 +276,7 @@ export class PortfolioPage implements OnInit {
         this.date(),
         this.price(),
         this.quantity(),
-        this.charges()
+        this.charges(),
       );
       // TODO: Catch storage exceptions in main pages (import, export, date, profile, ...)
     }
@@ -334,7 +334,7 @@ export class PortfolioPage implements OnInit {
 
   public sortPortfolio(
     type: PortfolioSortType,
-    order: PortfolioSortOrder
+    order: PortfolioSortOrder,
   ): void {
     this.portfolioSort$.next([type, order]);
 
@@ -359,15 +359,18 @@ export class PortfolioPage implements OnInit {
 
   private initDatePicker(): void {
     if (this.transactionDateInput) {
-      this.datepicker = new Datepicker(this.transactionDateInput.nativeElement, {
-        autohide: true,
-        format: 'dd/mm/yyyy',
-        todayBtn: true,
-        clearBtn: true,
-        todayBtnMode: 1,
-        todayHighlight: true,
-        maxDate: Date.now(),
-      });
+      this.datepicker = new Datepicker(
+        this.transactionDateInput.nativeElement,
+        {
+          autohide: true,
+          format: 'dd/mm/yyyy',
+          todayBtn: true,
+          clearBtn: true,
+          todayBtnMode: 1,
+          todayHighlight: true,
+          maxDate: Date.now(),
+        },
+      );
 
       this.transactionDateInput.nativeElement.addEventListener(
         'changeDate',
@@ -376,7 +379,7 @@ export class PortfolioPage implements OnInit {
           const value = e.target.value;
 
           this.date.set(value);
-        }
+        },
       );
 
       this.resetDatepicker();

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -5,13 +6,12 @@ import {
   ElementRef,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
-  selector: 'app-import-page',
+  selector: 'app-import',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './import.page.html',
@@ -30,7 +30,7 @@ export class ImportPage {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +48,7 @@ export class ImportPage {
 
       await this.storageService.importDb(
         this.importFile,
-        this.progressCallback.bind(this)
+        this.progressCallback.bind(this),
       );
     } else {
       this.statusMessage = 'Please select a file to import!';
