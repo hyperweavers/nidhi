@@ -6,7 +6,7 @@ export interface Stock {
   vendorCode: VendorCode;
   scripCode: ScripCode;
   quote?: Quote;
-  statistics?: Statistics;
+  limits?: Limits;
   performance?: Performance;
   complete?: boolean; // Set to `true` if complete details available.
 }
@@ -38,7 +38,7 @@ export interface Change extends AdvanceDecline {
   direction: Direction;
 }
 
-export interface Statistics {
+export interface Limits {
   lowerCircuit?: number;
   upperCircuit?: number;
 }
