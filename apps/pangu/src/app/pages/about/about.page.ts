@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-about-page',
+  selector: 'app-about',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './about.page.html',

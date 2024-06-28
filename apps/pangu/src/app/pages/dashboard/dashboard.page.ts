@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Observable, combineLatest, map } from 'rxjs';
 
 import { Constants } from '../../constants';
-import { IndexCodes } from '../../models/market';
 import { Index } from '../../models/index';
-import { Direction } from '../../models/stock';
+import { IndexCodes } from '../../models/market';
 import { Portfolio } from '../../models/portfolio';
+import { Direction } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { PortfolioService } from '../../services/portfolio.service';
 
@@ -17,7 +17,7 @@ interface Kpi {
 }
 
 @Component({
-  selector: 'app-dashboard-page',
+  selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.page.html',
@@ -35,7 +35,7 @@ export class DashboardPage {
 
   constructor(
     private marketService: MarketService,
-    private portfolioService: PortfolioService
+    private portfolioService: PortfolioService,
   ) {
     this.indices$ = this.marketService.getIndices([
       IndexCodes.NIFTY_FIFTY,
@@ -48,7 +48,7 @@ export class DashboardPage {
       map(([indices, portfolio]) => ({
         indices,
         portfolio: portfolio.holdings.length > 0 ? portfolio : undefined,
-      }))
+      })),
     );
   }
 }

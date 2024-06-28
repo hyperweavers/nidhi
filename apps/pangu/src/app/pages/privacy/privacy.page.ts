@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-privacy-page',
+  selector: 'app-privacy',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './privacy.page.html',
