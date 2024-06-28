@@ -1,20 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Observable, combineLatest, map } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import { Constants } from '../../constants';
-import { Index } from '../../models/index';
-import { IndexCodes } from '../../models/market';
-import { Portfolio } from '../../models/portfolio';
+import { Kpi } from '../../models/kpi';
 import { Direction } from '../../models/stock';
-import { MarketService } from '../../services/core/market.service';
-import { PortfolioService } from '../../services/portfolio.service';
-
-interface Kpi {
-  indices: Index[];
-  portfolio?: Portfolio;
-}
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,28 +18,9 @@ interface Kpi {
 export class DashboardPage {
   public kpi$: Observable<Kpi>;
 
-  private indices$: Observable<Index[]>;
-  private portfolio$: Observable<Portfolio>;
-
-  public readonly routes = Constants.routes;
   public readonly Direction = Direction;
 
-  constructor(
-    private marketService: MarketService,
-    private portfolioService: PortfolioService,
-  ) {
-    this.indices$ = this.marketService.getIndices([
-      IndexCodes.NIFTY_FIFTY,
-      IndexCodes.SENSEX,
-    ]);
-
-    this.portfolio$ = this.portfolioService.portfolio$;
-
-    this.kpi$ = combineLatest([this.indices$, this.portfolio$]).pipe(
-      map(([indices, portfolio]) => ({
-        indices,
-        portfolio: portfolio.holdings.length > 0 ? portfolio : undefined,
-      })),
-    );
+  constructor(dashboardService: DashboardService) {
+    this.kpi$ = dashboardService.kpi$;
   }
 }
