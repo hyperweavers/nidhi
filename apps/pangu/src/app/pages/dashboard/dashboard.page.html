@@ -1,176 +1,30 @@
-<div class="p-4 flex flex-col h-full">
-  @if (kpi$ | async; as kpi) {
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    @if (kpi.portfolio) {
+<div class="flex h-full flex-col p-4">
+  @if (kpi$ | async; as kpi) { @if (kpi.cards.length > 0) {
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+    @for (card of kpi.cards; track card.id) {
     <div
-      routerLink="/{{ routes.PORTFOLIO }}"
-      class="cursor-pointer p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"
-    >
-      <div class="w-full">
-        <h3
-          class="mb-2 text-base uppercase font-normal text-gray-500 dark:text-gray-400"
-        >
-          Portfolio <span class="text-xs">(Total)</span>
-        </h3>
-        <span
-          class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
-          >{{ kpi.portfolio.marketValue | number: '1.2-2' }}</span
-        >
-        <p
-          class="flex items-center text-base font-normal"
-          [ngClass]="kpi.portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-        >
-          <span class="flex items-center mr-1.5 text-sm">
-            @if (kpi.portfolio.totalProfitLoss.direction === Direction.UP) {
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-              ></path>
-            </svg>
-            } @else {
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-              ></path>
-            </svg>
-            } {{ kpi.portfolio.totalProfitLoss.value | number: '1.2-2' }} ({{
-            kpi.portfolio.totalProfitLoss.percentage | number: '1.2-2' }}%)
-          </span>
-        </p>
-
-        <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
-          <div
-            class="h-1 rounded-l bg-green-500 dark:bg-green-400"
-            [class.rounded-r]="!kpi.portfolio.totalDecline.percentage"
-            [style.width]="kpi.portfolio.totalAdvance.percentage + '%'"
-          ></div>
-        </div>
-
-        <div
-          class="mt-1 w-full text-xs flex justify-between text-gray-500 dark:text-gray-400"
-        >
-          <span
-            >{{ kpi.portfolio.totalAdvance.value }} ({{
-            kpi.portfolio.totalAdvance.percentage | number: '1.2-2' }}%)</span
-          >
-          <span
-            >{{ kpi.portfolio.totalDecline.value }} ({{
-            kpi.portfolio.totalDecline.percentage | number: '1.2-2' }}%)</span
-          >
-        </div>
-      </div>
-    </div>
-
-    <div
-      routerLink="/{{ routes.PORTFOLIO }}"
-      class="cursor-pointer p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"
-    >
-      <div class="w-full">
-        <h3
-          class="mb-2 text-base uppercase font-normal text-gray-500 dark:text-gray-400"
-        >
-          Portfolio <span class="text-xs">(Day)</span>
-        </h3>
-        <span
-          class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
-          >{{ kpi.portfolio.marketValue | number: '1.2-2' }}</span
-        >
-        <p
-          class="flex items-center text-base font-normal"
-          [ngClass]="kpi.portfolio.dayProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-        >
-          <span class="flex items-center mr-1.5 text-sm">
-            @if (kpi.portfolio.dayProfitLoss.direction === Direction.UP) {
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-              ></path>
-            </svg>
-            } @else {
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-              ></path>
-            </svg>
-            } {{ kpi.portfolio.dayProfitLoss.value | number: '1.2-2' }} ({{
-            kpi.portfolio.dayProfitLoss.percentage | number: '1.2-2' }}%)
-          </span>
-        </p>
-
-        <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
-          <div
-            class="h-1 rounded-l bg-green-500 dark:bg-green-400"
-            [class.rounded-r]="!kpi.portfolio.dayDecline.percentage"
-            [style.width]="kpi.portfolio.dayAdvance.percentage + '%'"
-          ></div>
-        </div>
-
-        <div
-          class="mt-1 w-full text-xs flex justify-between text-gray-500 dark:text-gray-400"
-        >
-          <span
-            >{{ kpi.portfolio.dayAdvance.value }} ({{
-            kpi.portfolio.dayAdvance.percentage | number: '1.2-2' }}%)</span
-          >
-          <span
-            >{{ kpi.portfolio.dayDecline.value }} ({{
-            kpi.portfolio.dayDecline.percentage | number: '1.2-2' }}%)</span
-          >
-        </div>
-      </div>
-    </div>
-    } @for (index of kpi.indices; track index.id) {
-    <div
-      class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      routerLink="{{ card.routeLink ? ('/' + card.routeLink) : null }}"
+      [class.cursor-pointer]="card.routeLink"
+      class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
     >
       <div class="w-full">
         <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">
-          {{ index.name }}
+          {{ card.title }} @if (card.subtitle) {
+          <span class="text-xs">({{ card.subtitle }})</span>
+          }
         </h3>
         <span
           class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
-          >{{ index.quote?.value | number: '1.2-2' }}</span
+          >{{ card.value | number: '1.2-2' }}</span
         >
         <p
           class="flex items-center text-base font-normal"
-          [ngClass]="index.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          [ngClass]="card.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
         >
-          <span class="flex items-center mr-1.5 text-sm">
-            @if (index.quote?.change?.direction === Direction.UP) {
+          <span class="mr-1.5 flex items-center text-sm">
+            @if (card.change?.direction === Direction.UP) {
             <svg
-              class="w-4 h-4"
+              class="h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -184,7 +38,7 @@
             </svg>
             } @else {
             <svg
-              class="w-4 h-4"
+              class="h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -196,40 +50,40 @@
                 d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
               ></path>
             </svg>
-            } {{ index.quote?.change?.value | number: '1.2-2' }} ({{
-            index.quote?.change?.percentage | number: '1.2-2' }}%)
+            } {{ card.change?.value | number: '1.2-2' }} ({{
+            card.change?.percentage | number: '1.2-2' }}%)
           </span>
         </p>
 
-        <div class="mt-3 w-full rounded-full h-1 bg-red-600 dark:bg-red-500">
+        <div class="mt-3 h-1 w-full rounded-full bg-red-600 dark:bg-red-500">
           <div
             class="h-1 rounded-l bg-green-500 dark:bg-green-400"
-            [class.rounded-r]="!index.quote?.decline?.percentage"
-            [style.width]="index.quote?.advance?.percentage + '%'"
+            [class.rounded-r]="card.decline?.percentage"
+            [style.width]="card.advance?.percentage + '%'"
           ></div>
         </div>
 
         <div
-          class="mt-1 w-full text-xs flex justify-between text-gray-500 dark:text-gray-400"
+          class="mt-1 flex w-full justify-between text-xs text-gray-500 dark:text-gray-400"
         >
           <span
-            >{{ index.quote?.advance?.value }} ({{
-            index.quote?.advance?.percentage | number: '1.2-2' }}%)</span
+            >{{ card.advance?.value }} ({{ card.advance?.percentage | number:
+            '1.2-2' }}%)</span
           >
           <span
-            >{{ index.quote?.decline?.value }} ({{
-            index.quote?.decline?.percentage | number: '1.2-2' }}%)</span
+            >{{ card.decline?.value }} ({{ card.decline?.percentage | number:
+            '1.2-2' }}%)</span
           >
         </div>
       </div>
     </div>
     }
   </div>
-  } @else {
-  <div class="flex justify-center items-center flex-1" role="status">
+  } } @else {
+  <div class="flex flex-1 items-center justify-center" role="status">
     <svg
       aria-hidden="true"
-      class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
