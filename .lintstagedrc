@@ -1,9 +1,9 @@
 {
   "apps/**/*.{ts,js,scss,css,html,md,json}": [
-    "nx affected --target lint --uncommitted --fix true"
+    "nx affected:lint --fix --files"
   ],
   "*": [
-    "nx format:write --uncommitted"
+    "nx format:write --files"
   ],
   "*.{scss,css}": [
     "stylelint --fix"
