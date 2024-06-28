@@ -1,10 +1,6 @@
 {
   "json.schemas": [
     {
-      "fileMatch": [".commitlintrc"],
-      "url": "https://json.schemastore.org/commitlintrc.json"
-    },
-    {
       "fileMatch": [".eslintrc.json", ".eslintrc"],
       "url": "https://json.schemastore.org/eslintrc.json"
     },
@@ -25,5 +21,37 @@
   "editor.formatOnSave": false,
   // Runs Prettier, then ESLint
   "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
-  "eslint.probe": ["javascript", "typescript", "html", "markdown"]
+  "eslint.probe": ["javascript", "typescript", "html", "markdown"],
+  "cSpell.words": [
+    "autohide",
+    "bargraphvalue",
+    "beforeinstallprompt",
+    "datepicker",
+    "devkit",
+    "dexie",
+    "entitytype",
+    "Exhange",
+    "fando",
+    "Financials",
+    "flowbite",
+    "hyperweavers",
+    "indexid",
+    "isin",
+    "jailbreaking",
+    "matchtype",
+    "mcap",
+    "ngsw",
+    "nidhi",
+    "Pangu",
+    "Percentange",
+    "previousclose",
+    "Refinitive",
+    "Scripd",
+    "SENSEX",
+    "seoname",
+    "stylelint",
+    "tailwindcss",
+    "titlecase",
+    "vwap"
+  ]
 }
