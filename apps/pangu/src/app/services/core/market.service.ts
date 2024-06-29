@@ -1,12 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
+  BehaviorSubject,
   Observable,
   distinctUntilKeyChanged,
   iif,
   map,
-  of,
+  merge,
   shareReplay,
+  skip,
   switchMap,
   timer,
 } from 'rxjs';
@@ -32,7 +34,8 @@ import { SettingsService } from './settings.service';
 export class MarketService {
   public marketStatus$: Observable<MarketStatus>;
 
-  private poll$: Observable<number>;
+  private poll$: Observable<unknown>;
+  private refresh$ = new BehaviorSubject(null);
 
   constructor(
     private http: HttpClient,
@@ -41,7 +44,9 @@ export class MarketService {
     this.marketStatus$ = this.settingsService.settings$
       .pipe(
         distinctUntilKeyChanged('refreshInterval'),
-        switchMap(({ refreshInterval }) => timer(0, refreshInterval)),
+        switchMap(({ refreshInterval }) =>
+          merge(timer(0, refreshInterval), this.refresh$.pipe(skip(1))),
+        ),
       )
       .pipe(
         switchMap(() =>
@@ -73,12 +78,18 @@ export class MarketService {
           () => status === Status.OPEN,
           this.settingsService.settings$.pipe(
             distinctUntilKeyChanged('refreshInterval'),
-            switchMap(({ refreshInterval }) => timer(0, refreshInterval)),
+            switchMap(({ refreshInterval }) =>
+              merge(timer(0, refreshInterval), this.refresh$.pipe(skip(1))),
+            ),
           ),
-          of(0),
+          this.refresh$,
         ),
       ),
     );
+  }
+
+  public refresh(): void {
+    this.refresh$.next(null);
   }
 
   public getStock(code: string, complete?: boolean): Observable<Stock | null> {
