@@ -19,10 +19,10 @@ export const Constants = {
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
     INDEX_QUOTES:
       'https://etapi.indiatimes.com/et-screener/index-byid?indexids=',
-    MARKET_STATUS:
-      'https://etapi.indiatimes.com/et-screener/index-byid',
+    MARKET_STATUS: 'https://etapi.indiatimes.com/et-screener/index-byid',
   },
   settings: {
     THEME: 'theme',
+    REFRESH_INTERVAL: 'refresh_interval',
   },
 };
