@@ -12,7 +12,7 @@
         >
           <div
             class="me-3 hidden h-6 w-6 flex-shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
-            [class.!flex]="isIos"
+            [class.!flex]="ios"
           >
             <svg
               class="h-6 w-6 text-gray-800 dark:text-white"
@@ -40,7 +40,7 @@
               >Pangu is available as a PWA (Progressive Web App) which can be
               installed on your device and used like regular native apps.</span
             >
-            @if (isIos) {
+            @if (ios) {
               <span>
                 To install Pangu, close this modal, tap the “share” icon, and
                 then tap on “Add to home screen”.
@@ -48,7 +48,7 @@
             }
           </p>
 
-          @if (!isIos) {
+          @if (!ios) {
             <button class="mx-0 md:mx-3" type="button" (click)="installApp()">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -418,7 +418,7 @@
               <li>
                 <a
                   (click)="toggleSidebar()"
-                  routerLink="/{{ routes.DASHBOARD }}"
+                  routerLink="/{{ Routes.DASHBOARD }}"
                   routerLinkActive="bg-gray-100 dark:bg-gray-700"
                   class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
@@ -441,7 +441,7 @@
               <li>
                 <a
                   (click)="toggleSidebar()"
-                  routerLink="/{{ routes.PORTFOLIO }}"
+                  routerLink="/{{ Routes.PORTFOLIO }}"
                   routerLinkActive="bg-gray-100 dark:bg-gray-700"
                   class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
@@ -469,7 +469,7 @@
             <div class="space-y-2 py-2">
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.IMPORT }}"
+                routerLink="/{{ Routes.IMPORT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
@@ -496,7 +496,7 @@
 
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.EXPORT }}"
+                routerLink="/{{ Routes.EXPORT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
@@ -523,7 +523,7 @@
 
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.DELETE }}"
+                routerLink="/{{ Routes.DELETE }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
@@ -550,7 +550,7 @@
             <div class="space-y-2 pt-2">
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.ABOUT }}"
+                routerLink="/{{ Routes.ABOUT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
@@ -575,7 +575,7 @@
 
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.PRIVACY }}"
+                routerLink="/{{ Routes.PRIVACY }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
@@ -597,7 +597,7 @@
 
               <a
                 (click)="toggleSidebar()"
-                routerLink="/{{ routes.TERMS }}"
+                routerLink="/{{ Routes.TERMS }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
                 class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
