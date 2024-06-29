@@ -1,3 +1,5 @@
+import { Platform } from '@angular/cdk/platform';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -16,15 +18,14 @@ import {
   VersionEvent,
   VersionReadyEvent,
 } from '@angular/service-worker';
-import { Platform } from '@angular/cdk/platform';
-import { filter, map } from 'rxjs';
 import { initFlowbite } from 'flowbite';
+import { filter, map } from 'rxjs';
 
 import { Constants } from './constants';
 
 @Component({
   standalone: true,
-  imports: [RouterModule, RouterLink],
+  imports: [CommonModule, RouterModule, RouterLink],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -47,7 +48,7 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private swUpdate: SwUpdate,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
   ) {}
 
   public ngOnInit(): void {
@@ -66,11 +67,11 @@ export class AppComponent implements OnInit {
       this.swUpdate.versionUpdates.pipe(
         filter(
           (event: VersionEvent): event is VersionReadyEvent =>
-            event.type === 'VERSION_READY'
+            event.type === 'VERSION_READY',
         ),
         map(() => {
           this.showUpdateModal = true;
-        })
+        }),
       );
     }
 
@@ -152,7 +153,7 @@ export class AppComponent implements OnInit {
     if (!shared) {
       const a = document.createElement('a');
       a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%20Pangu&body=${encodeURI(
-        shareData.text + ' The app is available at ' + shareData.url
+        shareData.text + ' The app is available at ' + shareData.url,
       )}`;
       a.target = '_blank';
 
