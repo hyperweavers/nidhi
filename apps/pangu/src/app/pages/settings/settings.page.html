@@ -1,4 +1,4 @@
-<div class="p-4 h-full">
+<div class="h-full p-4">
   @if (settings$ | async; as settings) {
   <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
     Settings
@@ -24,7 +24,7 @@
           <button
             (click)="selectTheme(Theme.LIGHT)"
             type="button"
-            class="inline-flex items-center rounded-s-lg border px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 border-gray-200 dark:border-gray-700 focus:ring-primary-700 dark:focus:ring-primary-500"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.LIGHT ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -45,7 +45,7 @@
           <button
             (click)="selectTheme(Theme.SYSTEM)"
             type="button"
-            class="inline-flex items-center border-t border-b px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 border-gray-200 dark:border-gray-700 focus:ring-primary-700 dark:focus:ring-primary-500"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center border-b border-t border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.SYSTEM ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -66,7 +66,7 @@
           <button
             (click)="selectTheme(Theme.DARK)"
             type="button"
-            class="inline-flex items-center rounded-e-lg border px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 border-gray-200 dark:border-gray-700 focus:ring-primary-700 dark:focus:ring-primary-500"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.DARK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -84,12 +84,58 @@
         </div>
       </div>
     </li>
+
+    <li class="py-1">
+      <div class="flex items-center space-x-4">
+        <div class="min-w-0 flex-1">
+          <p
+            class="truncate text-base font-semibold text-gray-900 dark:text-white"
+          >
+            Refresh Interval
+          </p>
+          <p
+            class="truncate text-sm font-normal text-gray-500 dark:text-gray-400"
+          >
+            ({{ settings.refreshInterval / 1000 }} seconds)
+          </p>
+        </div>
+
+        <div class="inline-flex rounded-md shadow-sm" role="group">
+          <button
+            (click)="selectRefreshInterval(RefreshInterval.FIFTEEN_SECONDS)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="settings.refreshInterval === RefreshInterval.FIFTEEN_SECONDS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            15
+          </button>
+
+          <button
+            (click)="selectRefreshInterval(RefreshInterval.THIRTY_SECONDS)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center border-b border-t border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="settings.refreshInterval === RefreshInterval.THIRTY_SECONDS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            30
+          </button>
+
+          <button
+            (click)="selectRefreshInterval(RefreshInterval.ONE_MINUTE)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="settings.refreshInterval === RefreshInterval.ONE_MINUTE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            60
+          </button>
+        </div>
+      </div>
+    </li>
   </ul>
   } @else {
-  <div class="flex justify-center items-center flex-1 h-full" role="status">
+  <div class="flex h-full flex-1 items-center justify-center" role="status">
     <svg
       aria-hidden="true"
-      class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -106,4 +152,5 @@
     <span class="sr-only">Loading...</span>
   </div>
   }
-<div>
+  <div></div>
+</div>

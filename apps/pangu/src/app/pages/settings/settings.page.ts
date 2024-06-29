@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Settings, Theme } from '../../models/settings';
+import { RefreshInterval, Settings, Theme } from '../../models/settings';
 import { SettingsService } from '../../services/core/settings.service';
 
 @Component({
@@ -17,6 +17,7 @@ export class SettingsPage {
   public settings$: Observable<Settings>;
 
   public readonly Theme = Theme;
+  public readonly RefreshInterval = RefreshInterval;
 
   constructor(private settingsService: SettingsService) {
     this.settings$ = this.settingsService.settings$;
@@ -24,5 +25,9 @@ export class SettingsPage {
 
   public selectTheme(theme: Theme): void {
     this.settingsService.setTheme(theme);
+  }
+
+  public selectRefreshInterval(interval: RefreshInterval): void {
+    this.settingsService.setRefreshInterval(interval);
   }
 }

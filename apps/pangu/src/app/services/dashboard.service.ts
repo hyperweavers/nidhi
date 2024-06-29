@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, map } from 'rxjs';
+import { Observable, combineLatest, map, shareReplay } from 'rxjs';
 
 import { Constants } from '../constants';
 import { Index } from '../models/index';
@@ -22,10 +22,9 @@ export class DashboardService {
     marketService: MarketService,
     portfolioService: PortfolioService,
   ) {
-    this.indices$ = marketService.getIndices([
-      IndexCodes.NIFTY_FIFTY,
-      IndexCodes.SENSEX,
-    ]);
+    this.indices$ = marketService
+      .getIndices([IndexCodes.NIFTY_FIFTY, IndexCodes.SENSEX])
+      .pipe(shareReplay(1));
 
     this.portfolio$ = portfolioService.portfolio$;
 
