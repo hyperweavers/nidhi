@@ -305,6 +305,33 @@
               </svg>
             </button> -->
 
+            <button
+              (click)="refreshData()"
+              type="button"
+              class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              <span class="sr-only">Refresh</span>
+
+              <svg
+                class="h-6 w-6"
+                [class.animate-spin]="refreshing"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
+                />
+              </svg>
+            </button>
+
             <div class="ml-3 flex items-center">
               <div>
                 <button
@@ -338,16 +365,6 @@
                     Anonymous
                   </p>
                 </div>
-                <!-- <ul class="py-1" role="none">
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                        role="menuitem"
-                        >Sign out</a
-                      >
-                    </li>
-                  </ul> -->
               </div>
             </div>
           </div>
@@ -375,11 +392,11 @@
         <!-- TODO: Replace when app-wide search functionality is implemented -->
         <div class="flex flex-1 flex-col overflow-y-auto py-2">
           <div
-            class="flex-1 space-y-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
+            class="flex-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
           >
             <!-- TODO: Enable when app-wide search functionality is implemented -->
             <!-- FIXME: On mobile devices, tapping on the search field closes the side menu -->
-            <!-- <div class="pb-3 lg:hidden">
+            <!-- <div class="pb-4 lg:hidden">
               <label for="mobile-search" class="sr-only">Search</label>
               <div class="relative">
                 <div

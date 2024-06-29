@@ -19,7 +19,7 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { Observable, filter, map } from 'rxjs';
+import { Observable, filter, map, tap } from 'rxjs';
 
 import { Constants } from './constants';
 import { MarketStatus, Status } from './models/market-status';
@@ -36,12 +36,11 @@ import { MarketService } from './services/core/market.service';
 export class AppComponent implements OnInit {
   public marketStatus$: Observable<MarketStatus>;
 
-  public darkTheme?: boolean;
   public sidebarOpen?: boolean;
-  public online?: boolean;
   public showUpdateModal?: boolean;
   public showInstallModal?: boolean;
   public ios?: boolean;
+  public refreshing?: boolean;
 
   public readonly Routes = Constants.routes;
   public readonly Status = Status;
@@ -56,7 +55,9 @@ export class AppComponent implements OnInit {
     private router: Router,
     private marketService: MarketService,
   ) {
-    this.marketStatus$ = this.marketService.marketStatus$;
+    this.marketStatus$ = this.marketService.marketStatus$.pipe(
+      tap(() => (this.refreshing = false)),
+    );
   }
 
   public ngOnInit(): void {
@@ -79,8 +80,6 @@ export class AppComponent implements OnInit {
     }
 
     this.configureInstallModel();
-
-    this.detectTheme();
 
     this.detectSidebarState();
   }
@@ -116,14 +115,6 @@ export class AppComponent implements OnInit {
     this.showInstallModal = false;
   }
 
-  public toggleTheme(): void {
-    this.darkTheme = !this.darkTheme;
-
-    document.documentElement.classList.toggle('dark');
-
-    localStorage.setItem('dark-theme', String(this.darkTheme));
-  }
-
   public toggleSidebar(): void {
     if (document.documentElement.clientWidth >= 1024) {
       this.sidebarOpen = true;
@@ -131,6 +122,12 @@ export class AppComponent implements OnInit {
     }
 
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  public refreshData(): void {
+    this.refreshing = true;
+
+    this.marketService.refresh();
   }
 
   public async share(): Promise<void> {
@@ -148,8 +145,6 @@ export class AppComponent implements OnInit {
     ) {
       try {
         await navigator.share(shareData);
-
-        shared = true;
       } catch (err) {
         console.error(err);
       } finally {
@@ -169,27 +164,6 @@ export class AppComponent implements OnInit {
     }
 
     this.toggleSidebar();
-  }
-
-  private detectTheme(): void {
-    const preferredTheme = localStorage.getItem('dark-theme');
-
-    if (!preferredTheme) {
-      if (
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      ) {
-        this.darkTheme = true;
-
-        document.documentElement.classList.add('dark');
-      }
-    } else {
-      if (preferredTheme === String(true)) {
-        this.darkTheme = true;
-
-        document.documentElement.classList.add('dark');
-      }
-    }
   }
 
   private configureInstallModel(): void {
