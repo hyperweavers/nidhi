@@ -16,7 +16,8 @@ export const Constants = {
       'https://etsearch.indiatimes.com/etspeeds/etsearchMdata.ep?matchCompanyName=true&ticker=',
     STOCK_QUOTE:
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
-    MARKET_STATUS:
-      'https://json.bselivefeeds.indiatimes.com/ET_Community/holidaylist?_=',
+    INDEX_QUOTES:
+      'https://etapi.indiatimes.com/et-screener/index-byid?indexids=',
+    MARKET_STATUS: 'https://etapi.indiatimes.com/et-screener/index-byid',
   },
 };
