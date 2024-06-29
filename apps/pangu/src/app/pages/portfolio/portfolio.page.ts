@@ -110,9 +110,9 @@ export class PortfolioPage implements OnInit {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private portfolioService: PortfolioService,
-    private marketService: MarketService,
     private storageService: StorageService,
+    portfolioService: PortfolioService,
+    marketService: MarketService,
   ) {
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
@@ -120,7 +120,7 @@ export class PortfolioPage implements OnInit {
     );
 
     this.portfolio$ = combineLatest([
-      this.portfolioService.portfolio$,
+      portfolioService.portfolio$,
       this.portfolioFilter$,
       this.portfolioSort$,
       this.portfolioSearchQuery$,
@@ -179,7 +179,7 @@ export class PortfolioPage implements OnInit {
     );
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500),
+      debounceTime(500), // TODO: Review the time
       distinctUntilChanged(),
       tap((query) => {
         this.showSearchResults = false;
@@ -192,8 +192,8 @@ export class PortfolioPage implements OnInit {
       switchMap((query) =>
         iif(
           () => this.transactionType === TransactionType.BUY,
-          this.marketService.search(query),
-          this.portfolioService.portfolio$.pipe(
+          marketService.search(query),
+          portfolioService.portfolio$.pipe(
             map((portfolio) =>
               portfolio.holdings.filter(
                 (holding) =>
@@ -353,7 +353,7 @@ export class PortfolioPage implements OnInit {
     }, 2000);
   }
 
-  private resetDatepicker() {
+  private resetDatepicker(): void {
     this.datepicker?.setDate(Date.now(), { clear: true });
   }
 
