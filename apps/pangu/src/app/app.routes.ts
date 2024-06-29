@@ -15,6 +15,11 @@ export const appRoutes: Route[] = [
       import('./pages/portfolio/portfolio.page').then((m) => m.PortfolioPage),
   },
   {
+    path: Constants.routes.SETTINGS,
+    loadComponent: () =>
+      import('./pages/settings/settings.page').then((m) => m.SettingsPage),
+  },
+  {
     path: Constants.routes.IMPORT,
     loadComponent: () =>
       import('./pages/import/import.page').then((m) => m.ImportPage),
