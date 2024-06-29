@@ -147,6 +147,8 @@ export class AppComponent implements OnInit {
         shared = true;
       } catch (err) {
         console.error(err);
+      } finally {
+        shared = true;
       }
     }
 
@@ -155,7 +157,6 @@ export class AppComponent implements OnInit {
       a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%20Pangu&body=${encodeURI(
         shareData.text + ' The app is available at ' + shareData.url,
       )}`;
-      a.target = '_blank';
 
       a.click();
 
