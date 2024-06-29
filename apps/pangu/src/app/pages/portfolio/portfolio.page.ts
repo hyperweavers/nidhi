@@ -269,15 +269,6 @@ export class PortfolioPage implements OnInit {
       this.showTransactionFormError(
         'One or more field(s) containing invalid value(s)!',
       );
-
-      console.log(
-        this.selectedStock,
-        this.transactionType,
-        this.date(),
-        this.price(),
-        this.quantity(),
-        this.charges(),
-      );
       // TODO: Catch storage exceptions in main pages (import, export, date, profile, ...)
     }
   }
