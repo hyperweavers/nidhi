@@ -1,10 +1,12 @@
-import { Change } from './stock';
+import { Change, Performance } from './stock';
 
 export interface Index {
   id: string;
   name: string;
   exchange: Exchange;
   quote?: Quote;
+  performance?: Performance;
+  complete?: boolean; // Set to `true` if complete details available.
 }
 
 export interface Quote {

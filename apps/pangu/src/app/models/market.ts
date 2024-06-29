@@ -210,6 +210,50 @@ export interface StockFlag {
   foFlag: boolean;
 }
 
+export interface IndexQuotes {
+  marketStatusDto: OperatingStatus;
+  indicesList: IndexQuote[];
+  diiData: FiiDiiData;
+  fiiData: FiiDiiData;
+}
+
+export interface IndexQuote {
+  indexId: string;
+  indexName: string;
+  seoName: string;
+  percentChange: number;
+  r1Week: number;
+  r1Month: number;
+  r3Month: number;
+  r1Year: number;
+  r3Year: number;
+  r5Year: number;
+  r6Month: number;
+  change1Week: number;
+  change1Month: number;
+  change3Month: number;
+  change6Month: number;
+  change1Year: number;
+  change3Year: number;
+  change5Year: number;
+  dateTime: string;
+  exchange: string;
+  symbol: string;
+  lastTradedPrice: number;
+  netChange: number;
+  advances: number;
+  advancesPerChange: number;
+  declines: number;
+  declinesPerChange: number;
+  graphURL: string;
+}
+
+export interface FiiDiiData {
+  serviceName: string;
+  date: number;
+  netInvestment: number;
+}
+
 export interface SearchResult {
   tagSeoName: string;
   marketCap: string;
@@ -228,17 +272,16 @@ export interface SearchResult {
 
 export interface OperatingStatus {
   currentMarketStatus: VendorStatus;
-  tradingStartTime: string;
+  currentTime: number;
+  instrumentName: string;
   purpose: string;
-  instrumentID: string;
-  marketStatus: string;
-  Date: string;
+  tradingStartTime: string;
   tradingEndTime: string;
 }
 
 export enum VendorStatus {
   LIVE = 'Live',
-  CLOSE = 'CLOSED', // TODO: Check the exact value
+  CLOSE = 'CLOSED',
 }
 
 export const ExchangeCodes = {
