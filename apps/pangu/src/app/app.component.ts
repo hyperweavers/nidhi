@@ -37,9 +37,9 @@ export class AppComponent implements OnInit {
   public online?: boolean;
   public showUpdateModal?: boolean;
   public showInstallModal?: boolean;
-  public isIos?: boolean;
+  public ios?: boolean;
 
-  public readonly routes = Constants.routes;
+  public readonly Routes = Constants.routes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
@@ -57,11 +57,6 @@ export class AppComponent implements OnInit {
         initFlowbite();
       }
     });
-
-    this.updateOnlineStatus();
-
-    window.addEventListener('online', this.updateOnlineStatus.bind(this));
-    window.addEventListener('offline', this.updateOnlineStatus.bind(this));
 
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.pipe(
@@ -87,7 +82,9 @@ export class AppComponent implements OnInit {
     if (document.documentElement.clientWidth >= 1024 && !this.sidebarOpen) {
       this.sidebarOpen = true;
     } else {
-      this.sidebarOpen = false;
+      if (this.sidebarOpen) {
+        this.sidebarOpen = false;
+      }
     }
   }
 
@@ -187,17 +184,11 @@ export class AppComponent implements OnInit {
     }
   }
 
-  private updateOnlineStatus(): void {
-    this.online = window.navigator.onLine;
-
-    this.cdr.markForCheck();
-  }
-
   private configureInstallModel(): void {
     if (this.platform.IOS) {
       if ('standalone' in window.navigator && window.navigator.standalone) {
         this.showInstallModal = true;
-        this.isIos = true;
+        this.ios = true;
       }
     } else {
       window.addEventListener('beforeinstallprompt', (event: Event) => {
