@@ -3,17 +3,17 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { Constants } from '../../constants';
+import { Index } from '../../models/index';
 import {
   CompanyDetails,
   Dashboard,
   DashboardQuery,
-  SearchResult,
   OperatingStatus,
+  SearchResult,
   VendorStatus,
 } from '../../models/market';
-import { Stock } from '../../models/stock';
 import { MarketStatus, Status } from '../../models/market-status';
-import { Index } from '../../models/index';
+import { Stock } from '../../models/stock';
 import { MarketUtils } from '../../utils/market.utils';
 
 @Injectable({
@@ -34,13 +34,13 @@ export class MarketService {
                 ? Status.OPEN
                 : Status.CLOSED,
             startTime: MarketUtils.dateStringToEpoch(
-              operatingStatus.tradingStartTime
+              operatingStatus.tradingStartTime,
             ),
             endTime: MarketUtils.dateStringToEpoch(
-              operatingStatus.tradingEndTime
+              operatingStatus.tradingEndTime,
             ),
-          })
-        )
+          }),
+        ),
       );
   }
 
@@ -62,7 +62,7 @@ export class MarketService {
             price: companyDetails.nse.current,
             change: {
               direction: MarketUtils.getDirection(
-                companyDetails.nse.percentChange
+                companyDetails.nse.percentChange,
               ),
               percentage: companyDetails.nse.percentChange,
               value: companyDetails.nse.absoluteChange,
@@ -78,28 +78,28 @@ export class MarketService {
           performance: {
             weekly: {
               direction: MarketUtils.getDirection(
-                companyDetails.nse.performanceW1
+                companyDetails.nse.performanceW1,
               ),
               percentage: companyDetails.nse.performanceW1,
               value: companyDetails.nse.performanceValueW1,
             },
             monthly: {
               direction: MarketUtils.getDirection(
-                companyDetails.nse.performanceM1
+                companyDetails.nse.performanceM1,
               ),
               percentage: companyDetails.nse.performanceM1,
               value: companyDetails.nse.performanceValueM1,
             },
             quarterly: {
               direction: MarketUtils.getDirection(
-                companyDetails.nse.performanceM3
+                companyDetails.nse.performanceM3,
               ),
               percentage: companyDetails.nse.performanceM3,
               value: companyDetails.nse.performanceValueM3,
             },
             halfYearly: {
               direction: MarketUtils.getDirection(
-                companyDetails.nse.performanceM6
+                companyDetails.nse.performanceM6,
               ),
               percentage: companyDetails.nse.performanceM6,
               value: companyDetails.nse.performanceValueM6,
@@ -107,29 +107,29 @@ export class MarketService {
             yearly: {
               one: {
                 direction: MarketUtils.getDirection(
-                  companyDetails.nse.performanceY1
+                  companyDetails.nse.performanceY1,
                 ),
                 percentage: companyDetails.nse.performanceY1,
                 value: companyDetails.nse.performanceValueY1,
               },
               three: {
                 direction: MarketUtils.getDirection(
-                  companyDetails.nse.performanceY3
+                  companyDetails.nse.performanceY3,
                 ),
                 percentage: companyDetails.nse.performanceY3,
                 value: companyDetails.nse.performanceValueY3,
               },
               five: {
                 direction: MarketUtils.getDirection(
-                  companyDetails.nse.performanceY5
+                  companyDetails.nse.performanceY5,
                 ),
                 percentage: companyDetails.nse.performanceY5,
                 value: companyDetails.nse.performanceValueY5,
               },
             },
           },
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -164,7 +164,7 @@ export class MarketService {
             price: MarketUtils.stringToNumber(stock.lastTradedPrice),
             change: {
               direction: MarketUtils.getDirection(
-                MarketUtils.stringToNumber(stock.percentChange)
+                MarketUtils.stringToNumber(stock.percentChange),
               ),
               percentage: MarketUtils.stringToNumber(stock.percentChange),
               value: MarketUtils.stringToNumber(stock.change),
@@ -173,15 +173,15 @@ export class MarketService {
             low: MarketUtils.stringToNumber(stock.low),
             high: MarketUtils.stringToNumber(stock.high),
             fiftyTwoWeekLow: MarketUtils.stringToNumber(
-              stock.fiftyTwoWeekLowPrice
+              stock.fiftyTwoWeekLowPrice,
             ),
             fiftyTwoWeekHigh: MarketUtils.stringToNumber(
-              stock.fiftyTwoWeekHighPrice
+              stock.fiftyTwoWeekHighPrice,
             ),
             volume: MarketUtils.stringToNumber(stock.volumeInK) * 1000,
           },
         };
-      })
+      }),
     );
   }
 
@@ -211,14 +211,18 @@ export class MarketService {
             value: MarketUtils.stringToNumber(index.currentIndexValue),
             change: {
               direction: MarketUtils.getDirection(
-                MarketUtils.stringToNumber(index.percentChange)
+                MarketUtils.stringToNumber(index.percentChange),
               ),
               percentage: MarketUtils.stringToNumber(index.percentChange),
               value: MarketUtils.stringToNumber(index.netChange),
             },
             advance: {
-              percentage: MarketUtils.stringToNumber(index.advancesPercentange),
-              value: MarketUtils.stringToNumber(index.advances),
+              percentage:
+                MarketUtils.stringToNumber(index.advancesPercentange) +
+                MarketUtils.stringToNumber(index.noChangePercentage),
+              value:
+                MarketUtils.stringToNumber(index.advances) +
+                MarketUtils.stringToNumber(index.noChange),
             },
             decline: {
               percentage: MarketUtils.stringToNumber(index.declinesPercentange),
@@ -226,7 +230,7 @@ export class MarketService {
             },
           },
         };
-      })
+      }),
     );
   }
 
@@ -257,7 +261,7 @@ export class MarketService {
             price: MarketUtils.stringToNumber(stock.lastTradedPrice),
             change: {
               direction: MarketUtils.getDirection(
-                MarketUtils.stringToNumber(stock.percentChange)
+                MarketUtils.stringToNumber(stock.percentChange),
               ),
               percentage: MarketUtils.stringToNumber(stock.percentChange),
               value: MarketUtils.stringToNumber(stock.change),
@@ -266,15 +270,15 @@ export class MarketService {
             low: MarketUtils.stringToNumber(stock.low),
             high: MarketUtils.stringToNumber(stock.high),
             fiftyTwoWeekLow: MarketUtils.stringToNumber(
-              stock.fiftyTwoWeekLowPrice
+              stock.fiftyTwoWeekLowPrice,
             ),
             fiftyTwoWeekHigh: MarketUtils.stringToNumber(
-              stock.fiftyTwoWeekHighPrice
+              stock.fiftyTwoWeekHighPrice,
             ),
             volume: MarketUtils.stringToNumber(stock.volumeInK) * 1000,
           },
         }));
-      })
+      }),
     );
   }
 
@@ -300,14 +304,18 @@ export class MarketService {
             value: MarketUtils.stringToNumber(index.currentIndexValue),
             change: {
               direction: MarketUtils.getDirection(
-                MarketUtils.stringToNumber(index.percentChange)
+                MarketUtils.stringToNumber(index.percentChange),
               ),
               percentage: MarketUtils.stringToNumber(index.percentChange),
               value: MarketUtils.stringToNumber(index.netChange),
             },
             advance: {
-              percentage: MarketUtils.stringToNumber(index.advancesPercentange),
-              value: MarketUtils.stringToNumber(index.advances),
+              percentage:
+                MarketUtils.stringToNumber(index.advancesPercentange) +
+                MarketUtils.stringToNumber(index.noChangePercentage),
+              value:
+                MarketUtils.stringToNumber(index.advances) +
+                MarketUtils.stringToNumber(index.noChange),
             },
             decline: {
               percentage: MarketUtils.stringToNumber(index.declinesPercentange),
@@ -315,7 +323,7 @@ export class MarketService {
             },
           },
         }));
-      })
+      }),
     );
   }
 
@@ -332,8 +340,8 @@ export class MarketService {
             scripCode: {
               nse: result.symbol,
             },
-          }))
-        )
+          })),
+        ),
       );
   }
 
