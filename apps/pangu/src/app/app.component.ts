@@ -19,9 +19,11 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { filter, map } from 'rxjs';
+import { Observable, filter, map } from 'rxjs';
 
 import { Constants } from './constants';
+import { MarketStatus, Status } from './models/market-status';
+import { MarketService } from './services/core/market.service';
 
 @Component({
   standalone: true,
@@ -32,6 +34,8 @@ import { Constants } from './constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
+  public marketStatus$: Observable<MarketStatus>;
+
   public darkTheme?: boolean;
   public sidebarOpen?: boolean;
   public online?: boolean;
@@ -40,6 +44,7 @@ export class AppComponent implements OnInit {
   public ios?: boolean;
 
   public readonly Routes = Constants.routes;
+  public readonly Status = Status;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
@@ -49,7 +54,10 @@ export class AppComponent implements OnInit {
     private swUpdate: SwUpdate,
     private cdr: ChangeDetectorRef,
     private router: Router,
-  ) {}
+    private marketService: MarketService,
+  ) {
+    this.marketStatus$ = this.marketService.marketStatus$;
+  }
 
   public ngOnInit(): void {
     this.router.events.subscribe((event) => {

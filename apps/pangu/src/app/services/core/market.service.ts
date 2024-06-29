@@ -20,26 +20,28 @@ import { MarketUtils } from '../../utils/market.utils';
   providedIn: 'root',
 })
 export class MarketService {
-  constructor(private http: HttpClient) {}
+  public marketStatus$: Observable<MarketStatus>;
 
-  public getStatus(): Observable<MarketStatus> {
-    return this.http.get<IndexQuotes>(Constants.api.MARKET_STATUS).pipe(
-      map(
-        ({ marketStatusDto }): MarketStatus => ({
-          lastUpdated: marketStatusDto.currentTime,
-          status:
-            marketStatusDto.currentMarketStatus === VendorStatus.LIVE
-              ? Status.OPEN
-              : Status.CLOSED,
-          startTime: MarketUtils.dateStringToEpoch(
-            marketStatusDto.tradingStartTime,
-          ),
-          endTime: MarketUtils.dateStringToEpoch(
-            marketStatusDto.tradingEndTime,
-          ),
-        }),
-      ),
-    );
+  constructor(private http: HttpClient) {
+    this.marketStatus$ = this.http
+      .get<IndexQuotes>(Constants.api.MARKET_STATUS)
+      .pipe(
+        map(
+          ({ marketStatusDto }): MarketStatus => ({
+            lastUpdated: marketStatusDto.currentTime,
+            status:
+              marketStatusDto.currentMarketStatus === VendorStatus.LIVE
+                ? Status.OPEN
+                : Status.CLOSED,
+            startTime: MarketUtils.dateStringToEpoch(
+              marketStatusDto.tradingStartTime,
+            ),
+            endTime: MarketUtils.dateStringToEpoch(
+              marketStatusDto.tradingEndTime,
+            ),
+          }),
+        ),
+      );
   }
 
   public getStock(code: string, complete?: boolean): Observable<Stock | null> {
