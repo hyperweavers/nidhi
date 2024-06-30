@@ -24,7 +24,7 @@
           <button
             (click)="selectTheme(Theme.LIGHT)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center rounded-s-lg border border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.LIGHT ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -45,7 +45,7 @@
           <button
             (click)="selectTheme(Theme.SYSTEM)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center border-b border-t border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center border-b border-t border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.SYSTEM ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -66,7 +66,7 @@
           <button
             (click)="selectTheme(Theme.DARK)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center rounded-e-lg border border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.theme === Theme.DARK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             <svg
@@ -104,7 +104,7 @@
           <button
             (click)="selectRefreshInterval(RefreshInterval.FIFTEEN_SECONDS)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center rounded-s-lg border border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.refreshInterval === RefreshInterval.FIFTEEN_SECONDS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             15
@@ -113,7 +113,7 @@
           <button
             (click)="selectRefreshInterval(RefreshInterval.THIRTY_SECONDS)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center border-b border-t border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center border-b border-t border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.refreshInterval === RefreshInterval.THIRTY_SECONDS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             30
@@ -122,7 +122,7 @@
           <button
             (click)="selectRefreshInterval(RefreshInterval.ONE_MINUTE)"
             type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-4 py-2 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 w-10 items-center justify-center rounded-e-lg border border-gray-200 text-sm font-medium focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="settings.refreshInterval === RefreshInterval.ONE_MINUTE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
           >
             60
