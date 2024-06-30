@@ -131,6 +131,8 @@ export class AppComponent implements OnInit {
   }
 
   public async share(): Promise<void> {
+    this.toggleSidebar();
+
     const shareData = {
       title: 'Pangu',
       text: "Hey there! I found this awesome app called Pangu. It is a privacy focused open source stock portfolio manager. I thought you might like it. Why don't you give a try?",
@@ -162,8 +164,6 @@ export class AppComponent implements OnInit {
 
       a.remove();
     }
-
-    this.toggleSidebar();
   }
 
   private configureInstallModel(): void {
