@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Dropdown } from 'flowbite';
 import {
@@ -27,6 +28,7 @@ import {
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { Constants } from '../../constants';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
 import { Direction, Stock } from '../../models/stock';
@@ -59,7 +61,7 @@ enum PortfolioSortOrder {
 @Component({
   selector: 'app-portfolio',
   standalone: true,
-  imports: [CommonModule, FormsModule, DrawerClosedDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DrawerClosedDirective],
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +82,7 @@ export class PortfolioPage implements OnInit {
     [PortfolioSortType, PortfolioSortOrder]
   >([PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC]);
 
+  public readonly Routes = Constants.routes;
   public readonly Direction = Direction;
   public readonly TransactionType = TransactionType;
   public readonly PortfolioFilter = PortfolioFilter;
@@ -137,10 +140,10 @@ export class PortfolioPage implements OnInit {
           .filter((holding) => {
             switch (filter) {
               case PortfolioFilter.DAY_GAINERS:
-                return holding.quote?.change?.direction === Direction.UP;
+                return holding.quote?.nse?.change?.direction === Direction.UP;
 
               case PortfolioFilter.DAY_LOSERS:
-                return holding.quote?.change?.direction === Direction.DOWN;
+                return holding.quote?.nse?.change?.direction === Direction.DOWN;
 
               case PortfolioFilter.OVERALL_GAINERS:
                 return holding.totalProfitLoss?.direction === Direction.UP;
@@ -161,10 +164,10 @@ export class PortfolioPage implements OnInit {
 
               case PortfolioSortType.DAY_PROFIT_LOSS:
                 return order === PortfolioSortOrder.ASC
-                  ? (h1.quote?.change?.percentage || 0) -
-                      (h2.quote?.change?.percentage || 0)
-                  : (h2.quote?.change?.percentage || 0) -
-                      (h1.quote?.change?.percentage || 0);
+                  ? (h1.quote?.nse?.change?.percentage || 0) -
+                      (h2.quote?.nse?.change?.percentage || 0)
+                  : (h2.quote?.nse?.change?.percentage || 0) -
+                      (h1.quote?.nse?.change?.percentage || 0);
 
               case PortfolioSortType.OVERALL_PROFIT_LOSS:
                 return order === PortfolioSortOrder.ASC

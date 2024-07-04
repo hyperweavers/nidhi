@@ -18,4 +18,23 @@ export class MarketUtils {
   public static dateStringToEpoch(date: string): number {
     return new Date(date).getTime();
   }
+
+  public static getWeekDays(start: number, end: number) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    let count = 0;
+
+    while (startDate <= endDate) {
+      const dayOfWeek = startDate.getDay();
+
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        count++;
+      }
+
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    return count;
+  }
 }

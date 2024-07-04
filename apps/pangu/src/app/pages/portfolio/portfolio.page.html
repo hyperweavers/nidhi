@@ -424,7 +424,10 @@
 
       <tbody>
         @for (holding of portfolio.holdings; track holding.id) {
-        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+        <tr
+          [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm]"
+          class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
+        >
           <th scope="row" class="min-w-32 p-2 font-normal sm:p-4">
             <div class="flex">
               <div
@@ -439,16 +442,16 @@
           </th>
           <td
             class="p-2 text-center sm:p-4"
-            [ngClass]="holding.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="holding.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
-              {{ (holding.quote?.change?.value! * holding.quantity!) | number:
-              '1.2-2' }}
+              {{ (holding.quote?.nse?.change?.value! * holding.quantity!) |
+              number: '1.2-2' }}
             </div>
             <div>
-              ({{ holding.quote?.change?.percentage | number: '1.2-2' }}%)
+              ({{ holding.quote?.nse?.change?.percentage | number: '1.2-2' }}%)
             </div>
-            <div>{{ holding.quote?.price | number: '1.2-2' }}</div>
+            <div>{{ holding.quote?.nse?.price | number: '1.2-2' }}</div>
           </td>
           <td
             class="p-2 text-center sm:p-4"

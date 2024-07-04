@@ -15,6 +15,16 @@ export const appRoutes: Route[] = [
       import('./pages/portfolio/portfolio.page').then((m) => m.PortfolioPage),
   },
   {
+    path: Constants.routes.STOCKS,
+    loadComponent: () =>
+      import('./pages/stocks/stocks.page').then((m) => m.StocksPage),
+  },
+  {
+    path: `${Constants.routes.STOCKS}/:id`,
+    loadComponent: () =>
+      import('./pages/stocks/stocks.page').then((m) => m.StocksPage),
+  },
+  {
     path: Constants.routes.SETTINGS,
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),

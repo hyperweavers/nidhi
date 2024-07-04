@@ -47,7 +47,7 @@ export class PortfolioService {
                     ) || 0;
                   const averagePrice = investment / quantity || 0;
                   const totalProfitLossValue = marketStock.quote
-                    ? (marketStock.quote.price - averagePrice) * quantity
+                    ? (marketStock.quote.nse.price - averagePrice) * quantity
                     : 0;
                   const totalProfitLossPercentage =
                     (totalProfitLossValue / investment) * 100 || 0;
@@ -60,7 +60,7 @@ export class PortfolioService {
                     averagePrice,
                     investment,
                     marketValue: marketStock.quote
-                      ? marketStock.quote.price * quantity
+                      ? marketStock.quote.nse.price * quantity
                       : 0,
                     totalProfitLoss: {
                       direction:
@@ -85,7 +85,7 @@ export class PortfolioService {
                 holdings.map((holding) => {
                   const totalValue =
                     holding.quote && holding.quantity
-                      ? holding.quote.price * holding.quantity
+                      ? holding.quote.nse.price * holding.quantity
                       : 0;
 
                   investment += holding.investment || 0;
@@ -93,15 +93,15 @@ export class PortfolioService {
 
                   dayProfitLossValue +=
                     holding.quote && holding.quantity
-                      ? holding.quote.change.value * holding.quantity
+                      ? holding.quote.nse.change.value * holding.quantity
                       : 0;
 
                   previousMarketValue +=
                     holding.quote && holding.quantity
-                      ? holding.quote.close * holding.quantity
+                      ? holding.quote.nse.close * holding.quantity
                       : 0;
 
-                  holding.quote?.change?.direction === Direction.UP
+                  holding.quote?.nse?.change?.direction === Direction.UP
                     ? dayAdvanceValue++
                     : dayDeclineValue++;
 
