@@ -9,18 +9,18 @@
         <button
           (click)="setExchange(Exchange.NSE)"
           type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-r-0 border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 items-center rounded-s-lg border border-r-0 border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
           [ngClass]="activeExchange === Exchange.NSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-          >
+        >
           NSE
         </button>
 
         <button
-        (click)="setExchange(Exchange.BSE)"
+          (click)="setExchange(Exchange.BSE)"
           type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-10 items-center rounded-e-lg border border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
           [ngClass]="activeExchange === Exchange.BSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-          >
+        >
           BSE
         </button>
       </div>
@@ -34,7 +34,8 @@
         class="flex items-center"
         [ngClass]="stock.quote?.[activeExchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
       >
-        @if (stock.quote?.[activeExchange]?.change?.direction === Direction.UP) {
+        @if (stock.quote?.[activeExchange]?.change?.direction === Direction.UP)
+        {
         <svg
           class="h-4 w-4"
           fill="currentColor"
@@ -62,8 +63,9 @@
             d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
           ></path>
         </svg>
-        } &#8377;{{ stock.quote?.[activeExchange]?.change?.value | number: '1.2-2' }} ({{
-        stock.quote?.[activeExchange]?.change?.percentage | number: '1.2-2' }}%)
+        } &#8377;{{ stock.quote?.[activeExchange]?.change?.value | number:
+        '1.2-2' }} ({{ stock.quote?.[activeExchange]?.change?.percentage |
+        number: '1.2-2' }}%)
       </div>
       <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
         Volume: {{ stock.quote?.[activeExchange]?.volume | number: '1.0' }}
@@ -72,7 +74,9 @@
   </div>
 
   <!-- Graph -->
-  <div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800">
+  <div
+    class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+  >
     <div class="flex justify-end rounded-md px-4 shadow-sm" role="group">
       <!-- TODO: Enable when intra day chart data is implemented -->
       <!-- <button
@@ -95,7 +99,7 @@
 
       <!-- TODO: Replace with above block when intra day chart data is implemented -->
       <button
-      (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+        (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -104,7 +108,7 @@
       </button>
 
       <button
-      (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
+        (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -113,7 +117,7 @@
       </button>
 
       <button
-      (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
+        (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -122,7 +126,7 @@
       </button>
 
       <button
-      (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
+        (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -131,7 +135,7 @@
       </button>
 
       <button
-      (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
+        (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -140,7 +144,7 @@
       </button>
 
       <button
-      (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
+        (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
         type="button"
         class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
         [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
@@ -217,13 +221,15 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               52W High
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh| number: '1.2-2' }}
+            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh| number:
+            '1.2-2' }}
           </div>
           <div class="flex-1 text-red-600 dark:text-red-500">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               52W Low
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number: '1.2-2' }}
+            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number:
+            '1.2-2' }}
           </div>
         </div>
       </div>
@@ -248,7 +254,8 @@
               1 Month
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.monthly?.direction === Direction.UP) {
+              @if (stock.performance?.[activeExchange]?.monthly?.direction ===
+              Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -276,7 +283,8 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.monthly?.percentage | number: '1.2-2' }}%
+              } {{ stock.performance?.[activeExchange]?.monthly?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
           <div
@@ -287,7 +295,8 @@
               3 Months
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.quarterly?.direction === Direction.UP) {
+              @if (stock.performance?.[activeExchange]?.quarterly?.direction ===
+              Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -315,7 +324,8 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.quarterly?.percentage | number: '1.2-2' }}%
+              } {{ stock.performance?.[activeExchange]?.quarterly?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
           <div
@@ -326,7 +336,8 @@
               6 Months
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.halfYearly?.direction === Direction.UP) {
+              @if (stock.performance?.[activeExchange]?.halfYearly?.direction
+              === Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -354,7 +365,8 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.halfYearly?.percentage | number: '1.2-2' }}%
+              } {{ stock.performance?.[activeExchange]?.halfYearly?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
         </div>
@@ -367,7 +379,8 @@
               1 Year
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.one?.direction === Direction.UP) {
+              @if (stock.performance?.[activeExchange]?.yearly?.one?.direction
+              === Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -395,7 +408,8 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.yearly?.one?.percentage | number: '1.2-2' }}%
+              } {{ stock.performance?.[activeExchange]?.yearly?.one?.percentage
+              | number: '1.2-2' }}%
             </div>
           </div>
           <div
@@ -406,8 +420,8 @@
               3 Years
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.three?.direction === Direction.UP)
-              {
+              @if (stock.performance?.[activeExchange]?.yearly?.three?.direction
+              === Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -435,7 +449,9 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.yearly?.three?.percentage | number: '1.2-2' }}%
+              } {{
+              stock.performance?.[activeExchange]?.yearly?.three?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
           <div
@@ -446,8 +462,8 @@
               5 Years
             </div>
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.five?.direction === Direction.UP)
-              {
+              @if (stock.performance?.[activeExchange]?.yearly?.five?.direction
+              === Direction.UP) {
               <svg
                 class="h-4 w-4"
                 fill="currentColor"
@@ -475,7 +491,8 @@
                   d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
                 ></path>
               </svg>
-              } {{ stock.performance?.[activeExchange]?.yearly?.five?.percentage | number: '1.2-2' }}%
+              } {{ stock.performance?.[activeExchange]?.yearly?.five?.percentage
+              | number: '1.2-2' }}%
             </div>
           </div>
         </div>
