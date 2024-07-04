@@ -1,0 +1,506 @@
+<div class="flex h-full flex-col space-y-4 p-4">
+  @if (stock$ | async; as stock) {
+  <!-- Basic Info -->
+  <div class="space-y-2">
+    <div class="flex space-x-4">
+      <div class="flex-1 text-3xl font-semibold">{{ stock.name }}</div>
+
+      <div class="inline-flex rounded-md shadow-sm" role="group">
+        <button
+          (click)="setExchange(Exchange.NSE)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-s-lg border border-r-0 border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeExchange === Exchange.NSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+          NSE
+        </button>
+
+        <button
+        (click)="setExchange(Exchange.BSE)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex items-center rounded-e-lg border border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeExchange === Exchange.BSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+          BSE
+        </button>
+      </div>
+    </div>
+
+    <div class="text-gray-900 dark:text-white">
+      <div class="text-xl font-semibold">
+        &#8377;{{ stock.quote?.[activeExchange]?.price | number: '1.2-2' }}
+      </div>
+      <div
+        class="flex items-center"
+        [ngClass]="stock.quote?.[activeExchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+      >
+        @if (stock.quote?.[activeExchange]?.change?.direction === Direction.UP) {
+        <svg
+          class="h-4 w-4"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            clip-rule="evenodd"
+            fill-rule="evenodd"
+            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+          ></path>
+        </svg>
+        } @else {
+        <svg
+          class="h-4 w-4"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            clip-rule="evenodd"
+            fill-rule="evenodd"
+            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+          ></path>
+        </svg>
+        } &#8377;{{ stock.quote?.[activeExchange]?.change?.value | number: '1.2-2' }} ({{
+        stock.quote?.[activeExchange]?.change?.percentage | number: '1.2-2' }}%)
+      </div>
+      <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
+        Volume: {{ stock.quote?.[activeExchange]?.volume | number: '1.0' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Graph -->
+  <div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800">
+    <div class="flex justify-end rounded-md px-4 shadow-sm" role="group">
+      <!-- TODO: Enable when intra day chart data is implemented -->
+      <!-- <button
+      (click)="setChartTimeRange(ChartTimeRange.ONE_DAY)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        1D
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        1W
+      </button> -->
+
+      <!-- TODO: Replace with above block when intra day chart data is implemented -->
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        1W
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        1M
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        3M
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        6M
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        1Y
+      </button>
+
+      <button
+      (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
+        type="button"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+        [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        5Y
+      </button>
+    </div>
+
+    <div #chartContainer class="h-80 w-full">
+      @if (isChartLoading) {
+      <div class="flex h-full flex-1 items-center justify-center" role="status">
+        <svg
+          aria-hidden="true"
+          class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <span class="sr-only">Loading...</span>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+    <!-- Overview -->
+    <div
+      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    >
+      <h5
+        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
+      >
+        Overview
+      </h5>
+      <div
+        class="flex flex-col space-y-4 text-sm text-gray-900 dark:text-white"
+      >
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Open
+            </div>
+            &#8377;{{ stock.quote?.[activeExchange]?.open | number: '1.2-2' }}
+          </div>
+          <div class="flex-1 text-green-500 dark:text-green-400">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              High
+            </div>
+            &#8377;{{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
+          </div>
+          <div class="flex-1 text-red-600 dark:text-red-500">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">Low</div>
+            &#8377;{{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Prev. Close
+            </div>
+            &#8377;{{ stock.quote?.[activeExchange]?.close | number: '1.2-2' }}
+          </div>
+          <div class="flex-1 text-green-500 dark:text-green-400">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              52W High
+            </div>
+            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh| number: '1.2-2' }}
+          </div>
+          <div class="flex-1 text-red-600 dark:text-red-500">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              52W Low
+            </div>
+            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number: '1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Returns -->
+    <div
+      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    >
+      <h5
+        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
+      >
+        Returns
+      </h5>
+      <div class="flex flex-col space-y-4 text-sm">
+        <div class="flex justify-between">
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.monthly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              1 Month
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.monthly?.direction === Direction.UP) {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.monthly?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.quarterly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              3 Months
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.quarterly?.direction === Direction.UP) {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.quarterly?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.halfYearly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              6 Months
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.halfYearly?.direction === Direction.UP) {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.halfYearly?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.yearly?.one?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              1 Year
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.yearly?.one?.direction === Direction.UP) {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.yearly?.one?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.yearly?.three?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              3 Years
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.yearly?.three?.direction === Direction.UP)
+              {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.yearly?.three?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+          <div
+            class="flex-1"
+            [ngClass]="stock.performance?.[activeExchange]?.yearly?.five?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              5 Years
+            </div>
+            <div class="flex">
+              @if (stock.performance?.[activeExchange]?.yearly?.five?.direction === Direction.UP)
+              {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+                ></path>
+              </svg>
+              } @else {
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+                ></path>
+              </svg>
+              } {{ stock.performance?.[activeExchange]?.yearly?.five?.percentage | number: '1.2-2' }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @else {
+  <div class="flex flex-1 items-center justify-center" role="status">
+    <svg
+      aria-hidden="true"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+      viewBox="0 0 100 101"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    </svg>
+    <span class="sr-only">Loading...</span>
+  </div>
+  }
+</div>

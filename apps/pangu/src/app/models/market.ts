@@ -279,6 +279,18 @@ export interface OperatingStatus {
   tradingEndTime: string;
 }
 
+export interface History {
+  s: string;
+  noData: boolean;
+  dates: string[];
+  t: number[];
+  o: number[];
+  c: number[];
+  h: number[];
+  l: number[];
+  v: number[];
+}
+
 export enum VendorStatus {
   LIVE = 'Live',
   CLOSE = 'CLOSED',
@@ -292,4 +304,9 @@ export const ExchangeCodes = {
 export const IndexCodes = {
   NIFTY_FIFTY: '2369',
   SENSEX: '2365',
+};
+
+export const IndexNames = {
+  NIFTY_FIFTY: 'NIFTY',
+  SENSEX: 'SENSEX',
 };

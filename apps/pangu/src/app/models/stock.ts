@@ -5,9 +5,11 @@ export interface Stock {
   name: string;
   vendorCode: VendorCode;
   scripCode: ScripCode;
-  quote?: Quote;
-  limits?: Limits;
-  performance?: Performance;
+  details?: Details;
+  quote?: ExchangeQuote;
+  limits?: ExchangeLimits;
+  metrics?: ExchangeMetrics;
+  performance?: ExchangePerformance;
   complete?: boolean; // Set to `true` if complete details available.
 }
 
@@ -19,6 +21,17 @@ export interface VendorCode {
 export interface ScripCode {
   nse: string;
   bse?: string;
+  isin?: string;
+}
+
+export interface Details {
+  sector: string;
+  industry: string;
+}
+
+export interface ExchangeQuote {
+  nse: Quote;
+  bse?: Quote;
 }
 
 export interface Quote {
@@ -38,9 +51,36 @@ export interface Change extends AdvanceDecline {
   direction: Direction;
 }
 
+export interface ExchangeLimits {
+  nse: Limits;
+  bse?: Limits;
+}
+
 export interface Limits {
   lowerCircuit?: number;
   upperCircuit?: number;
+}
+
+export interface ExchangeMetrics {
+  nse: Metrics;
+  bse?: Metrics;
+}
+
+export interface Metrics {
+  marketCapType: string;
+  marketCap: number;
+  faceValue: number;
+  pe: number;
+  pb: number;
+  eps: number;
+  vwap: number;
+  dividendYield: number;
+  bookValue: number;
+}
+
+export interface ExchangePerformance {
+  nse: Performance;
+  bse?: Performance;
 }
 
 export interface Performance {
@@ -63,4 +103,9 @@ export interface YearlyPerformance {
 export enum Direction {
   UP = 1,
   DOWN = -1,
+}
+
+export enum Exchange {
+  NSE = 'nse',
+  BSE = 'bse',
 }
