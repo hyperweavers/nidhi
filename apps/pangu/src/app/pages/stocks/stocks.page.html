@@ -3,7 +3,7 @@
   <!-- Basic Info -->
   <div class="space-y-2">
     <div class="flex space-x-4">
-      <div class="flex-1 text-3xl font-semibold">{{ stock.name }}</div>
+      <div class="flex-1 text-2xl font-semibold">{{ stock.name }}</div>
 
       <div class="inline-flex rounded-md shadow-sm" role="group">
         <button
@@ -27,7 +27,7 @@
     </div>
 
     <div class="text-gray-900 dark:text-white">
-      <div class="text-xl font-semibold">
+      <div class="text-lg font-semibold">
         &#8377;{{ stock.quote?.[activeExchange]?.price | number: '1.2-2' }}
       </div>
       <div
@@ -45,13 +45,15 @@
     </div>
   </div>
 
-  <!-- Graph -->
+  <!-- Graph Section -->
   <div
     class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
   >
-    <div class="flex justify-end rounded-md px-4 shadow-sm" role="group">
-      <!-- TODO: Enable when intra day chart data is implemented -->
-      <!-- <button
+    <!-- Range Selector -->
+    <div class="flex flex-1 justify-end">
+      <div class="flex h-8 justify-end rounded-md shadow-sm" role="group">
+        <!-- TODO: Enable when intra day chart data is implemented -->
+        <!-- <button
         (click)="setChartTimeRange(ChartTimeRange.ONE_DAY)"
           type="button"
           class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
@@ -69,63 +71,65 @@
           1W
         </button> -->
 
-      <!-- TODO: Replace with above block when intra day chart data is implemented -->
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        1W
-      </button>
+        <!-- TODO: Replace with above block when intra day chart data is implemented -->
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          1W
+        </button>
 
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        1M
-      </button>
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          1M
+        </button>
 
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        3M
-      </button>
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          3M
+        </button>
 
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        6M
-      </button>
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          6M
+        </button>
 
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        1Y
-      </button>
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          1Y
+        </button>
 
-      <button
-        (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        5Y
-      </button>
+        <button
+          (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          5Y
+        </button>
+      </div>
     </div>
 
-    <div #chartContainer class="h-80 w-full">
+    <!-- Graph -->
+    <div #chartContainer class="mt-3 h-80 w-full">
       @if (isChartLoading) {
       <div class="flex h-full flex-1 items-center justify-center" role="status">
         <svg
@@ -151,7 +155,7 @@
   </div>
 
   <!-- Details -->
-  <div class="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <!-- Overview -->
     <div
       class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
@@ -161,10 +165,9 @@
       >
         Overview
       </h5>
-      <div
-        class="flex flex-col space-y-4 text-sm text-gray-900 dark:text-white"
-      >
-        <div class="flex justify-between">
+
+      <div class="flex space-x-10 text-sm text-gray-900 dark:text-white">
+        <div class="flex flex-col space-y-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
@@ -172,40 +175,161 @@
             &#8377;{{ stock.quote?.[activeExchange]?.open | number: '1.2-2' }}
           </div>
 
-          <div class="flex-1 text-green-500 dark:text-green-400">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              High
-            </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
-          </div>
-
-          <div class="flex-1 text-red-600 dark:text-red-500">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">Low</div>
-            &#8377;{{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
-          </div>
-        </div>
-        <div class="flex justify-between">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
             &#8377;{{ stock.quote?.[activeExchange]?.close | number: '1.2-2' }}
           </div>
+        </div>
 
-          <div class="flex-1 text-green-500 dark:text-green-400">
+        <div class="flex flex-1 flex-col space-y-4">
+          <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              52W High
+              Day Range (&#8377;)
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh| number:
-            '1.2-2' }}
+
+            <div class="flex text-xs">
+              <div class="flex-1">
+                {{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
+              </div>
+
+              <div>
+                {{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
+              </div>
+            </div>
+
+            <div class="flex items-center">
+              <div class="text-xs font-bold text-red-600 dark:text-red-500">
+                L
+              </div>
+
+              <input
+                type="range"
+                class="slider mx-1 h-1 flex-1 appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
+                [min]="stock.quote?.[activeExchange]?.low"
+                [max]="stock.quote?.[activeExchange]?.high"
+                [value]="stock.quote?.[activeExchange]?.price"
+                disabled
+              />
+
+              <div class="text-xs font-bold text-green-500 dark:text-green-400">
+                H
+              </div>
+            </div>
           </div>
 
-          <div class="flex-1 text-red-600 dark:text-red-500">
+          <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              52W Low
+              52 Week Range (&#8377;)
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number:
-            '1.2-2' }}
+
+            <div class="flex text-xs">
+              <div class="flex-1">
+                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number:
+                '1.2-2' }}
+              </div>
+
+              <div>
+                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh | number:
+                '1.2-2' }}
+              </div>
+            </div>
+
+            <div class="flex items-center">
+              <div class="text-xs font-bold text-red-600 dark:text-red-500">
+                L
+              </div>
+
+              <input
+                type="range"
+                class="slider mx-1 h-1 flex-1 appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
+                [min]="stock.quote?.[activeExchange]?.fiftyTwoWeekLow"
+                [max]="stock.quote?.[activeExchange]?.fiftyTwoWeekHigh"
+                [value]="stock.quote?.[activeExchange]?.price"
+                disabled
+              />
+
+              <div class="text-xs font-bold text-green-500 dark:text-green-400">
+                H
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div
+      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    >
+      <h5
+        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
+      >
+        Metrics
+      </h5>
+
+      <div class="flex flex-col space-y-4 text-sm">
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              EPS (TTM)
+            </div>
+            <div class="flex">
+              &#8377;{{ stock.metrics?.[activeExchange]?.eps | number: '1.2-2'
+              }}
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              P/E Ratio
+            </div>
+            <div class="flex">
+              {{ stock.metrics?.[activeExchange]?.pe | number: '1.2-2' }}
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              VWAP
+            </div>
+            <div class="flex">
+              &#8377;{{ stock.metrics?.[activeExchange]?.vwap | number: '1.2-2'
+              }}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Dividend Yield
+            </div>
+            <div class="flex">
+              {{ stock.metrics?.[activeExchange]?.dividendYield | number:
+              '1.2-2' }}%
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Market Cap
+            </div>
+            <div class="flex">
+              &#8377;{{ stock.metrics?.[activeExchange]?.marketCap | number:
+              '1.2-2' }} Cr.
+            </div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Face Value
+            </div>
+            <div class="flex">
+              &#8377;{{ stock.metrics?.[activeExchange]?.faceValue | number:
+              '1.2-2' }}
+            </div>
           </div>
         </div>
       </div>
@@ -318,6 +442,63 @@
               === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.yearly?.five?.percentage |
               number: '1.2-2' }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrip Info -->
+    <div
+      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    >
+      <h5
+        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
+      >
+        Scrip Info
+      </h5>
+
+      <div class="flex flex-col space-y-4 text-sm">
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">NSE</div>
+            <div class="flex">{{ stock.scripCode.nse }}</div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">BSE</div>
+            <div class="flex">{{ stock.scripCode.bse }}</div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              ISIN
+            </div>
+            <div class="flex">{{ stock.scripCode.isin }}</div>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Sector
+            </div>
+            <div class="flex">{{ stock.details?.sector }}</div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Industry
+            </div>
+            <div class="flex">{{ stock.details?.industry }}</div>
+          </div>
+
+          <div class="flex-1">
+            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
+              Market Cap Type
+            </div>
+            <div class="flex">
+              {{ stock.metrics?.[activeExchange]?.marketCapType }}
             </div>
           </div>
         </div>
