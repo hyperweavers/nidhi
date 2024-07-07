@@ -28,6 +28,7 @@ export const Constants = {
   },
   settings: {
     THEME: 'theme',
+    COLOR_SCHEME: 'color_scheme',
     REFRESH_INTERVAL: 'refresh_interval',
   },
 };

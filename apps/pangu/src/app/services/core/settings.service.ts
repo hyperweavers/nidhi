@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { Constants } from '../../constants';
-import { RefreshInterval, Settings, Theme } from '../../models/settings';
+import {
+  ColorScheme,
+  RefreshInterval,
+  Settings,
+  Theme,
+} from '../../models/settings';
 
 @Injectable({
   providedIn: 'root',
@@ -10,21 +15,28 @@ import { RefreshInterval, Settings, Theme } from '../../models/settings';
 export class SettingsService {
   private readonly DEFAULT_SETTINGS: Settings = {
     theme: Theme.SYSTEM,
+    colorScheme: ColorScheme.DARK,
     refreshInterval: RefreshInterval.THIRTY_SECONDS,
   };
 
-  public settings$: BehaviorSubject<Settings>;
+  public settings$: Observable<Settings>;
+
+  private settingsSubject$: BehaviorSubject<Settings>;
 
   constructor() {
     const theme = this.getTheme();
+    const colorScheme = this.getColorScheme();
     const refreshInterval = this.getRefreshInterval();
 
-    this.settings$ = new BehaviorSubject<Settings>({
+    this.applyTheme(theme);
+
+    this.settingsSubject$ = new BehaviorSubject<Settings>({
       theme,
+      colorScheme,
       refreshInterval,
     });
 
-    this.applyTheme(theme);
+    this.settings$ = this.settingsSubject$.asObservable();
   }
 
   public setTheme(theme: Theme): void {
@@ -33,8 +45,9 @@ export class SettingsService {
 
       this.applyTheme(theme);
 
-      this.settings$.next({
+      this.settingsSubject$.next({
         theme,
+        colorScheme: this.getColorScheme(),
         refreshInterval: this.getRefreshInterval(),
       });
     }
@@ -52,10 +65,21 @@ export class SettingsService {
         String(refreshInterval),
       );
 
-      this.settings$.next({
+      this.settingsSubject$.next({
         refreshInterval,
         theme: this.getTheme(),
+        colorScheme: this.getColorScheme(),
       });
+    }
+  }
+
+  private setColorScheme(colorScheme: ColorScheme): void {
+    if (
+      colorScheme &&
+      Object.values<string>(ColorScheme).includes(colorScheme) &&
+      localStorage
+    ) {
+      localStorage.setItem(Constants.settings.COLOR_SCHEME, colorScheme);
     }
   }
 
@@ -64,6 +88,14 @@ export class SettingsService {
       localStorage &&
       ((localStorage.getItem(Constants.settings.THEME) ||
         this.DEFAULT_SETTINGS.theme) as Theme)
+    );
+  }
+
+  private getColorScheme(): ColorScheme {
+    return (
+      localStorage &&
+      ((localStorage.getItem(Constants.settings.COLOR_SCHEME) ||
+        this.DEFAULT_SETTINGS.colorScheme) as ColorScheme)
     );
   }
 
@@ -91,9 +123,13 @@ export class SettingsService {
     if (isDarkTheme) {
       !documentElementClassList.contains('dark') &&
         documentElementClassList.add('dark');
+
+      this.setColorScheme(ColorScheme.DARK);
     } else {
       documentElementClassList.contains('dark') &&
         documentElementClassList.remove('dark');
+
+      this.setColorScheme(ColorScheme.LIGHT);
     }
   }
 }
