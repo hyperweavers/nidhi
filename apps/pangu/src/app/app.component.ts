@@ -4,7 +4,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  HostListener,
   OnInit,
 } from '@angular/core';
 import {
@@ -21,10 +20,13 @@ import {
 import { initFlowbite } from 'flowbite';
 import { Observable, filter, map, tap } from 'rxjs';
 
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
 import { MarketStatus, Status } from './models/market-status';
 import { MarketService } from './services/core/market.service';
+import { SettingsService } from './services/core/settings.service';
 
+@UntilDestroy()
 @Component({
   standalone: true,
   imports: [CommonModule, RouterModule, RouterLink],
@@ -34,6 +36,8 @@ import { MarketService } from './services/core/market.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
+  private readonly MEDIA_SIZE_LARGE = 1024;
+
   public marketStatus$: Observable<MarketStatus>;
 
   public sidebarOpen?: boolean;
@@ -54,6 +58,7 @@ export class AppComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private marketService: MarketService,
+    private settingsService: SettingsService,
   ) {
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),
@@ -64,6 +69,18 @@ export class AppComponent implements OnInit {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         initFlowbite();
+      }
+    });
+
+    this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
+      if (document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
+        if (!this.sidebarOpen) {
+          this.sidebarOpen = true;
+        }
+      } else {
+        this.sidebarOpen = false;
+
+        this.cdr.markForCheck();
       }
     });
 
@@ -80,19 +97,6 @@ export class AppComponent implements OnInit {
     }
 
     this.configureInstallModel();
-
-    this.detectSidebarState();
-  }
-
-  @HostListener('window:resize')
-  detectSidebarState() {
-    if (document.documentElement.clientWidth >= 1024 && !this.sidebarOpen) {
-      this.sidebarOpen = true;
-    } else {
-      if (this.sidebarOpen) {
-        this.sidebarOpen = false;
-      }
-    }
   }
 
   public updateApp(): void {
@@ -116,7 +120,7 @@ export class AppComponent implements OnInit {
   }
 
   public toggleSidebar(): void {
-    if (document.documentElement.clientWidth >= 1024) {
+    if (document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
       this.sidebarOpen = true;
       return;
     }

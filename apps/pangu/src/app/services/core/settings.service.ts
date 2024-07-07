@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
 import { Constants } from '../../constants';
 import {
@@ -20,6 +20,7 @@ export class SettingsService {
   };
 
   public settings$: Observable<Settings>;
+  public resize$: Observable<Event>;
 
   private settingsSubject$: BehaviorSubject<Settings>;
 
@@ -37,6 +38,8 @@ export class SettingsService {
     });
 
     this.settings$ = this.settingsSubject$.asObservable();
+
+    this.resize$ = fromEvent(window, 'resize').pipe(debounceTime(500));
 
     window
       .matchMedia('(prefers-color-scheme: dark)')

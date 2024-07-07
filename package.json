@@ -18,6 +18,7 @@
     "@angular/platform-browser-dynamic": "18.0.3",
     "@angular/router": "18.0.3",
     "@angular/service-worker": "18.0.3",
+    "@ngneat/until-destroy": "^10.0.0",
     "@nx/angular": "19.3.0",
     "dexie": "^4.0.4",
     "dexie-export-import": "^4.1.2",
