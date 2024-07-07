@@ -37,6 +37,20 @@ export class SettingsService {
     });
 
     this.settings$ = this.settingsSubject$.asObservable();
+
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', ({ matches }) => {
+        if (this.getTheme() === Theme.SYSTEM) {
+          this.applyTheme(matches ? Theme.DARK : Theme.LIGHT);
+
+          this.settingsSubject$.next({
+            theme: this.getTheme(),
+            colorScheme: this.getColorScheme(),
+            refreshInterval: this.getRefreshInterval(),
+          });
+        }
+      });
   }
 
   public setTheme(theme: Theme): void {
