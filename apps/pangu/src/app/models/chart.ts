@@ -1,24 +1,14 @@
-import { UTCTimestamp } from "lightweight-charts";
+import { Change } from './stock';
 
-export interface BasicChartData {
-  time: UTCTimestamp;
-  value: number;
-}
-
-export interface TechnicalChartData {
-  time: UTCTimestamp;
+export interface ChartData {
+  lineColor: string;
+  time: string;
   open: number;
   close: number;
   high: number;
   low: number;
-}
-
-export interface BasicChartData {
-  time: UTCTimestamp;
   value: number;
-}
-
-export enum ChartType {
-  BASIC,
-  TECHNICAL,
+  volume: number;
+  previousDayClose?: number;
+  change?: Change;
 }

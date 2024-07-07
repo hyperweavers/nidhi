@@ -13,9 +13,9 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
-import { UTCTimestamp } from 'lightweight-charts';
 
 import { Constants } from '../../constants';
+import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
 import {
   CompanyDetails,
@@ -27,10 +27,9 @@ import {
   VendorStatus,
 } from '../../models/market';
 import { MarketStatus, Status } from '../../models/market-status';
-import { Stock } from '../../models/stock';
-import { BasicChartData, ChartType, TechnicalChartData } from '../../models/chart';
-import { MarketUtils } from '../../utils/market.utils';
+import { Direction, Stock } from '../../models/stock';
 import { ChartUtils } from '../../utils/chart.utils';
+import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';
 
 export enum ChartCategory {
@@ -44,7 +43,7 @@ export enum ChartCategory {
 export class MarketService {
   public marketStatus$: Observable<MarketStatus>;
 
-  private readonly MAX_CHART_HISTORY_IN_DAYS = 5*365; // 5 years
+  private readonly MAX_CHART_HISTORY_IN_DAYS = 5 * 365; // 5 years
 
   private poll$: Observable<unknown>;
   private refresh$ = new BehaviorSubject(null);
@@ -225,29 +224,68 @@ export class MarketService {
     );
   }
 
-  public getGraph(symbol: string, type: ChartType, category: ChartCategory): Observable<BasicChartData[] | TechnicalChartData[]> {
-    const url = (category === ChartCategory.STOCK) ? Constants.api.STOCK_CHART : Constants.api.INDEX_CHART;
-    const from = ChartUtils.getTimestampSince(new Date(), this.MAX_CHART_HISTORY_IN_DAYS);
+  public getHistoricalChart(
+    symbol: string,
+    category: ChartCategory,
+  ): Observable<ChartData[]> {
+    const url =
+      category === ChartCategory.STOCK
+        ? Constants.api.STOCK_CHART
+        : Constants.api.INDEX_CHART;
+    const from = ChartUtils.getTimestampSince(
+      new Date(),
+      this.MAX_CHART_HISTORY_IN_DAYS,
+    );
     const to = Date.now();
     const weekdays = MarketUtils.getWeekDays(from, to);
     const queryParams = `symbol=${symbol}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}&countback=${weekdays}`;
 
-    return from > 0 && weekdays > 0 ? this.http.get<History>(url + queryParams).pipe(
-      map(({ noData, t, o, c, h, l }): BasicChartData[] | TechnicalChartData[] => {
-        return noData ? [] : (t.map((time, i) => {
-          return type === ChartType.BASIC ? {
-            time: time as UTCTimestamp,
-            value: c[i],
-          } : {
-            time: time as UTCTimestamp,
-            open: o[i],
-            close: c[i],
-            high: h[i],
-            low: l[i],
-          };
-        }) as BasicChartData[] | TechnicalChartData[]);
-      }),
-    ) : of([]);
+    return from > 0 && weekdays > 0
+      ? this.http.get<History>(url + queryParams).pipe(
+          map(({ noData, dates, o, c, h, l, v }): ChartData[] => {
+            return noData
+              ? []
+              : ([...new Set(dates)].map((date, i) => {
+                  const time = new Date(date).toLocaleDateString('en-CA', {
+                    timeZone: 'Asia/Kolkata',
+                  });
+                  const previousDayClose = i > 0 ? c[i - 1] : undefined;
+                  const todayClose = c[i];
+
+                  let changeValue, changePercent;
+
+                  if (previousDayClose) {
+                    changeValue = todayClose - previousDayClose;
+                    changePercent = (changeValue / previousDayClose) * 100;
+                  }
+
+                  return {
+                    time,
+                    open: o[i],
+                    close: c[i],
+                    high: h[i],
+                    low: l[i],
+                    value: c[i],
+                    volume: v[i],
+                    previousDayClose,
+                    change:
+                      changeValue !== undefined && changePercent !== undefined
+                        ? {
+                            direction: MarketUtils.getDirection(changePercent),
+                            percentage: changePercent,
+                            value: changeValue,
+                          }
+                        : undefined,
+                    lineColor:
+                      changePercent &&
+                      MarketUtils.getDirection(changePercent) === Direction.UP
+                        ? '#22c55e'
+                        : '#ef4444',
+                  };
+                }) as ChartData[]);
+          }),
+        )
+      : of([]);
   }
 
   public search(query: string): Observable<Stock[]> {

@@ -47,13 +47,56 @@
 
   <!-- Graph Section -->
   <div
-    class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    class="-ml-4 w-screen bg-white px-0 py-4 shadow md:ml-0 md:w-full md:rounded-lg md:border md:border-gray-200 md:px-4 dark:bg-gray-800 md:dark:border-gray-700"
   >
-    <!-- Range Selector -->
-    <div class="flex flex-1 justify-end">
-      <div class="flex h-8 justify-end rounded-md shadow-sm" role="group">
-        <!-- TODO: Enable when intra day chart data is implemented -->
-        <!-- <button
+    <div class="flex max-w-full px-2 md:items-center md:px-0">
+      <!-- Crosshair Details -->
+      <div
+        class="flex h-8 min-w-36 max-w-36 flex-col pe-2 text-xs text-gray-900 md:max-w-none md:flex-row md:space-x-3 md:pe-4 dark:text-white"
+      >
+        @if (chartCrosshairData) {
+        <div class="flex md:flex-col">
+          <div class="text-gray-500 dark:text-gray-400">Open:&nbsp;</div>
+          {{ chartCrosshairData.open | number: '1.2-2' }}
+        </div>
+
+        <div class="flex md:flex-col">
+          <div class="text-gray-500 dark:text-gray-400">Close:&nbsp;</div>
+          {{ chartCrosshairData.close | number: '1.2-2' }}
+        </div>
+
+        <div class="flex md:flex-col">
+          <div class="text-gray-500 dark:text-gray-400">Low:&nbsp;</div>
+          {{ chartCrosshairData.low | number: '1.2-2' }}
+        </div>
+
+        <div class="flex md:flex-col">
+          <div class="text-gray-500 dark:text-gray-400">High:&nbsp;</div>
+          {{ chartCrosshairData.high | number: '1.2-2' }}
+        </div>
+
+        <div class="flex md:flex-col">
+          <div class="text-gray-500 dark:text-gray-400">Volume:&nbsp;</div>
+          {{ chartCrosshairData.volume | number: '1.0' }}
+        </div>
+
+        @if (chartCrosshairData.change) {
+        <div
+          class="flex whitespace-nowrap md:flex-col"
+          [ngClass]="chartCrosshairData.change.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+        >
+          <div class="text-gray-500 dark:text-gray-400">Change:&nbsp;</div>
+          {{ chartCrosshairData.change.value| number: '1.2-2' }} ({{
+          chartCrosshairData.change.percentage| number: '1.2-2' }}%)
+        </div>
+        } }
+      </div>
+
+      <!-- Range Selector -->
+      <div class="flex flex-1 justify-end">
+        <div class="flex h-8 justify-end rounded-md shadow-sm" role="group">
+          <!-- TODO: Enable when intra day chart data is implemented -->
+          <!-- <button
         (click)="setChartTimeRange(ChartTimeRange.ONE_DAY)"
           type="button"
           class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
@@ -71,60 +114,61 @@
           1W
         </button> -->
 
-        <!-- TODO: Replace with above block when intra day chart data is implemented -->
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          1W
-        </button>
+          <!-- TODO: Replace with above block when intra day chart data is implemented -->
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            1W
+          </button>
 
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          1M
-        </button>
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.ONE_MONTH)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            1M
+          </button>
 
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          3M
-        </button>
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.THREE_MONTHS)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            3M
+          </button>
 
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          6M
-        </button>
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.SIX_MONTHS)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            6M
+          </button>
 
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          1Y
-        </button>
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.ONE_YEAR)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            1Y
+          </button>
 
-        <button
-          (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
-          type="button"
-          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-          [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-        >
-          5Y
-        </button>
+          <button
+            (click)="setChartTimeRange(ChartTimeRange.FIVE_YEAR)"
+            type="button"
+            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-lg border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+            [ngClass]="activeChartTimeRange === ChartTimeRange.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+          >
+            5Y
+          </button>
+        </div>
       </div>
     </div>
 

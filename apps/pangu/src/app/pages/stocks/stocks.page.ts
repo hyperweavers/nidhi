@@ -4,23 +4,35 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  OnDestroy,
   ViewChild,
   input,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { IChartApi, createChart } from 'lightweight-charts';
-import { Observable, delay, switchMap, take, tap } from 'rxjs';
-
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
-  BasicChartData,
-  ChartType,
-  TechnicalChartData,
-} from '../../models/chart';
+  IChartApi,
+  ISeriesApi,
+  MouseEventParams,
+  createChart,
+} from 'lightweight-charts';
+import {
+  Observable,
+  delay,
+  distinctUntilKeyChanged,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
+
+import { ChartData } from '../../models/chart';
+import { ColorScheme } from '../../models/settings';
 import { Direction, Exchange, Stock } from '../../models/stock';
 import {
   ChartCategory,
   MarketService,
 } from '../../services/core/market.service';
+import { SettingsService } from '../../services/core/settings.service';
 import { ChartUtils } from '../../utils/chart.utils';
 
 enum ChartTimeRange {
@@ -33,6 +45,7 @@ enum ChartTimeRange {
   FIVE_YEAR = '5Y',
 }
 
+@UntilDestroy()
 @Component({
   selector: 'app-stocks',
   standalone: true,
@@ -41,12 +54,14 @@ enum ChartTimeRange {
   styleUrl: './stocks.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StocksPage {
-  @ViewChild('chartContainer') chartContainer!: ElementRef;
+export class StocksPage implements OnDestroy {
+  @ViewChild('chartContainer') private chartContainer!: ElementRef;
 
   public readonly id = input<string>('');
 
   public stock$: Observable<Stock | null>;
+
+  public chartCrosshairData!: ChartData | undefined;
 
   public activeChartTimeRange = ChartTimeRange.FIVE_YEAR; // TODO: Set the value as 1 day when intra day chart data is implemented
   public activeExchange = Exchange.NSE;
@@ -57,21 +72,125 @@ export class StocksPage {
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
 
+  private chartData!: Map<string, ChartData>;
   private chart!: IChartApi;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private areaSeries!: ISeriesApi<any>;
 
-  constructor(cdr: ChangeDetectorRef, marketService: MarketService) {
+  constructor(
+    private cdr: ChangeDetectorRef,
+    marketService: MarketService,
+    settingsService: SettingsService,
+  ) {
     this.stock$ = toObservable(this.id).pipe(
       switchMap((id) => marketService.getStock(id, true)),
       tap((stock) => {
         if (stock && !this.chart) {
           marketService
-            .getGraph(stock.scripCode.nse, ChartType.BASIC, ChartCategory.STOCK)
-            .pipe(delay(100), take(1))
+            .getHistoricalChart(stock.scripCode.nse, ChartCategory.STOCK)
+            .pipe(delay(100), take(1)) // A delay of 100ms is added to let Angular run change detection and update chart container element ref.
             .subscribe((data) => {
               if (data.length > 0) {
+                this.chartData = data.reduce(
+                  (map, obj): Map<string, ChartData> => {
+                    map.set(obj.time, obj);
+                    return map;
+                  },
+                  new Map<string, ChartData>(),
+                );
+
                 this.initChart(data);
 
+                this.areaSeries.applyOptions({
+                  lineColor: stock.quote?.nse?.change?.direction
+                    ? stock.quote.nse.change.direction === Direction.UP
+                      ? '#22c55e'
+                      : '#ef4444'
+                    : '#2962FF',
+                  topColor: stock.quote?.nse?.change?.direction
+                    ? stock.quote.nse.change.direction === Direction.UP
+                      ? 'rgba(34, 197, 94, 0.4)'
+                      : 'rgba(239, 68, 68, 0.4)'
+                    : 'rgba(41, 98, 255, 0.4)',
+                  bottomColor: stock.quote?.nse?.change?.direction
+                    ? stock.quote.nse.change.direction === Direction.UP
+                      ? 'rgba(34, 197, 94, 0.1)'
+                      : 'rgba(239, 68, 68, 0.1)'
+                    : 'rgba(41, 98, 255, 0.1)',
+                });
+
                 cdr.markForCheck();
+
+                settingsService.resize$
+                  .pipe(untilDestroyed(this))
+                  .subscribe(() => {
+                    if (this.chart && this.chartContainer) {
+                      this.chart.resize(
+                        this.chartContainer.nativeElement.offsetWidth,
+                        this.chartContainer.nativeElement.offsetHeight,
+                      );
+
+                      this.chart.timeScale().fitContent();
+
+                      this.setChartTimeRange(this.activeChartTimeRange);
+                    }
+                  });
+
+                settingsService.settings$
+                  .pipe(
+                    untilDestroyed(this),
+                    distinctUntilKeyChanged('colorScheme'),
+                  )
+                  .subscribe(({ colorScheme }) => {
+                    if (colorScheme && this.chart) {
+                      this.chart.applyOptions({
+                        layout: {
+                          textColor:
+                            colorScheme === ColorScheme.DARK
+                              ? '#fff'
+                              : '#111827',
+                        },
+                        timeScale: {
+                          borderColor:
+                            colorScheme === ColorScheme.DARK
+                              ? '#374151'
+                              : '#E5E7EB',
+                        },
+                        rightPriceScale: {
+                          borderColor:
+                            colorScheme === ColorScheme.DARK
+                              ? '#374151'
+                              : '#E5E7EB',
+                        },
+                        leftPriceScale: {
+                          borderColor:
+                            colorScheme === ColorScheme.DARK
+                              ? '#374151'
+                              : '#E5E7EB',
+                        },
+                        overlayPriceScales: {
+                          borderColor:
+                            colorScheme === ColorScheme.DARK
+                              ? '#374151'
+                              : '#E5E7EB',
+                        },
+                        crosshair: {
+                          horzLine: {
+                            labelBackgroundColor:
+                              colorScheme === ColorScheme.DARK
+                                ? '#111827'
+                                : '#f3f4f6',
+                          },
+                          vertLine: {
+                            labelBackgroundColor:
+                              colorScheme === ColorScheme.DARK
+                                ? '#111827'
+                                : '#f3f4f6',
+                          },
+                        },
+                      });
+                    }
+                  });
               }
             });
         }
@@ -93,7 +212,7 @@ export class StocksPage {
         //   break;
 
         case ChartTimeRange.ONE_WEEK:
-          from = ChartUtils.getTimestampSince(to, 10); // 10 days includes weekend
+          from = ChartUtils.getTimestampSince(to, 10); // 10 days considered as one week as it includes weekend
           break;
 
         case ChartTimeRange.ONE_MONTH:
@@ -135,12 +254,19 @@ export class StocksPage {
     }
   }
 
-  private initChart(data: BasicChartData[] | TechnicalChartData[]): void {
+  public ngOnDestroy(): void {
+    if (this.chart) {
+      this.chart.unsubscribeCrosshairMove(
+        this.chartCrosshairMoveEventHandler.bind(this),
+      );
+    }
+  }
+
+  private initChart(data: ChartData[]): void {
     if (this.chartContainer?.nativeElement && data?.length > 0) {
       this.chart = createChart(this.chartContainer.nativeElement, {
         layout: {
           background: { color: 'transparent' },
-          textColor: '#DDD',
         },
         grid: {
           horzLines: {
@@ -150,21 +276,33 @@ export class StocksPage {
             visible: false,
           },
         },
-        handleScroll: false,
+        handleScroll: false, // TODO: Fix time scale not re-rending issue before enable scrolling
         handleScale: false,
       });
 
-      const areaSeries = this.chart.addAreaSeries({
-        lineColor: '#2962FF',
-        topColor: 'rgba(41, 98, 255, 0.4)',
-        bottomColor: 'rgba(41, 98, 255, 0.1)',
+      this.areaSeries = this.chart.addAreaSeries({
+        lineWidth: 1,
       });
 
-      areaSeries.setData(data);
+      this.areaSeries.setData(data);
 
       this.chart.timeScale().fitContent();
 
+      this.chart.subscribeCrosshairMove(
+        this.chartCrosshairMoveEventHandler.bind(this),
+      );
+
       this.isChartLoading = false;
     }
+  }
+
+  private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
+    if (time && this.chartData?.size > 0) {
+      this.chartCrosshairData = this.chartData.get(time.toLocaleString());
+    } else {
+      this.chartCrosshairData = undefined;
+    }
+
+    this.cdr.markForCheck();
   }
 }
