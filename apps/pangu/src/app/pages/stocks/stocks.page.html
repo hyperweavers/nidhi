@@ -34,38 +34,10 @@
         class="flex items-center"
         [ngClass]="stock.quote?.[activeExchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
       >
-        @if (stock.quote?.[activeExchange]?.change?.direction === Direction.UP)
-        {
-        <svg
-          class="h-4 w-4"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            clip-rule="evenodd"
-            fill-rule="evenodd"
-            d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-          ></path>
-        </svg>
-        } @else {
-        <svg
-          class="h-4 w-4"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            clip-rule="evenodd"
-            fill-rule="evenodd"
-            d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-          ></path>
-        </svg>
-        } &#8377;{{ stock.quote?.[activeExchange]?.change?.value | number:
-        '1.2-2' }} ({{ stock.quote?.[activeExchange]?.change?.percentage |
-        number: '1.2-2' }}%)
+        {{ stock.quote?.[activeExchange]?.change?.direction === Direction.UP ?
+        '&#x25B2;' : '&#x25BC;' }} &#8377;{{
+        stock.quote?.[activeExchange]?.change?.value | number: '1.2-2' }} ({{
+        stock.quote?.[activeExchange]?.change?.percentage | number: '1.2-2' }}%)
       </div>
       <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
         Volume: {{ stock.quote?.[activeExchange]?.volume | number: '1.0' }}
@@ -80,22 +52,22 @@
     <div class="flex justify-end rounded-md px-4 shadow-sm" role="group">
       <!-- TODO: Enable when intra day chart data is implemented -->
       <!-- <button
-      (click)="setChartTimeRange(ChartTimeRange.ONE_DAY)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        1D
-      </button>
+        (click)="setChartTimeRange(ChartTimeRange.ONE_DAY)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-lg border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          1D
+        </button>
 
-      <button
-      (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
-        type="button"
-        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-        [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-      >
-        1W
-      </button> -->
+        <button
+        (click)="setChartTimeRange(ChartTimeRange.ONE_WEEK)"
+          type="button"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+          [ngClass]="activeChartTimeRange === ChartTimeRange.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          1W
+        </button> -->
 
       <!-- TODO: Replace with above block when intra day chart data is implemented -->
       <button
@@ -199,12 +171,14 @@
             </div>
             &#8377;{{ stock.quote?.[activeExchange]?.open | number: '1.2-2' }}
           </div>
+
           <div class="flex-1 text-green-500 dark:text-green-400">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               High
             </div>
             &#8377;{{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
           </div>
+
           <div class="flex-1 text-red-600 dark:text-red-500">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">Low</div>
             &#8377;{{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
@@ -217,6 +191,7 @@
             </div>
             &#8377;{{ stock.quote?.[activeExchange]?.close | number: '1.2-2' }}
           </div>
+
           <div class="flex-1 text-green-500 dark:text-green-400">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               52W High
@@ -224,6 +199,7 @@
             &#8377;{{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh| number:
             '1.2-2' }}
           </div>
+
           <div class="flex-1 text-red-600 dark:text-red-500">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               52W Low
@@ -244,6 +220,7 @@
       >
         Returns
       </h5>
+
       <div class="flex flex-col space-y-4 text-sm">
         <div class="flex justify-between">
           <div
@@ -253,40 +230,15 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               1 Month
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.monthly?.direction ===
-              Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{ stock.performance?.[activeExchange]?.monthly?.percentage |
-              number: '1.2-2' }}%
+              {{ stock.performance?.[activeExchange]?.monthly?.direction ===
+              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
+              stock.performance?.[activeExchange]?.monthly?.percentage | number:
+              '1.2-2' }}%
             </div>
           </div>
+
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.quarterly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -294,40 +246,15 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               3 Months
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.quarterly?.direction ===
-              Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{ stock.performance?.[activeExchange]?.quarterly?.percentage |
+              {{ stock.performance?.[activeExchange]?.quarterly?.direction ===
+              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
+              stock.performance?.[activeExchange]?.quarterly?.percentage |
               number: '1.2-2' }}%
             </div>
           </div>
+
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.halfYearly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -335,41 +262,16 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               6 Months
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.halfYearly?.direction
-              === Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{ stock.performance?.[activeExchange]?.halfYearly?.percentage |
+              {{ stock.performance?.[activeExchange]?.halfYearly?.direction ===
+              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
+              stock.performance?.[activeExchange]?.halfYearly?.percentage |
               number: '1.2-2' }}%
             </div>
           </div>
         </div>
+
         <div class="flex justify-between">
           <div
             class="flex-1"
@@ -378,40 +280,15 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               1 Year
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.one?.direction
-              === Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{ stock.performance?.[activeExchange]?.yearly?.one?.percentage
-              | number: '1.2-2' }}%
+              {{ stock.performance?.[activeExchange]?.yearly?.one?.direction ===
+              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
+              stock.performance?.[activeExchange]?.yearly?.one?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
+
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.yearly?.three?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -419,41 +296,15 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               3 Years
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.three?.direction
-              === Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{
+              {{ stock.performance?.[activeExchange]?.yearly?.three?.direction
+              === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.yearly?.three?.percentage |
               number: '1.2-2' }}%
             </div>
           </div>
+
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.yearly?.five?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -461,38 +312,12 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               5 Years
             </div>
+
             <div class="flex">
-              @if (stock.performance?.[activeExchange]?.yearly?.five?.direction
-              === Direction.UP) {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                ></path>
-              </svg>
-              } @else {
-              <svg
-                class="h-4 w-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                ></path>
-              </svg>
-              } {{ stock.performance?.[activeExchange]?.yearly?.five?.percentage
-              | number: '1.2-2' }}%
+              {{ stock.performance?.[activeExchange]?.yearly?.five?.direction
+              === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
+              stock.performance?.[activeExchange]?.yearly?.five?.percentage |
+              number: '1.2-2' }}%
             </div>
           </div>
         </div>
