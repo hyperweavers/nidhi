@@ -4,7 +4,7 @@ import { Direction } from '../models/stock';
 
 export class MarketUtils {
   public static getDirection(value: number): Direction {
-    return value > 0 ? Direction.UP : Direction.DOWN;
+    return value >= 0 ? Direction.UP : Direction.DOWN;
   }
 
   public static getExchange(code: string): Exchange {
