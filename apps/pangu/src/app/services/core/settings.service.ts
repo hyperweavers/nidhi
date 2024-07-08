@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
+import { DOCUMENT } from '@angular/common';
 import { Constants } from '../../constants';
 import {
   ColorScheme,
@@ -24,7 +25,7 @@ export class SettingsService {
 
   private settingsSubject$: BehaviorSubject<Settings>;
 
-  constructor() {
+  constructor(@Inject(DOCUMENT) private document: Document) {
     const theme = this.getTheme();
     const colorScheme = this.getColorScheme();
     const refreshInterval = this.getRefreshInterval();
@@ -125,7 +126,7 @@ export class SettingsService {
   }
 
   private applyTheme(theme: Theme): void {
-    const documentElementClassList = document.documentElement.classList;
+    const documentElementClassList = this.document.documentElement.classList;
 
     let isDarkTheme = false;
 

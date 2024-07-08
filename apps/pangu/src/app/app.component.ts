@@ -1,9 +1,10 @@
 import { Platform } from '@angular/cdk/platform';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Inject,
   OnInit,
 } from '@angular/core';
 import {
@@ -53,6 +54,7 @@ export class AppComponent implements OnInit {
   private pwaInstallPromptEvent?: any;
 
   constructor(
+    @Inject(DOCUMENT) private document: Document,
     private platform: Platform,
     private swUpdate: SwUpdate,
     private cdr: ChangeDetectorRef,
@@ -73,7 +75,7 @@ export class AppComponent implements OnInit {
     });
 
     this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
-      if (document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
+      if (this.document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
         if (!this.sidebarOpen) {
           this.sidebarOpen = true;
         }
@@ -120,7 +122,7 @@ export class AppComponent implements OnInit {
   }
 
   public toggleSidebar(): void {
-    if (document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
+    if (this.document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
       this.sidebarOpen = true;
       return;
     }
@@ -140,7 +142,7 @@ export class AppComponent implements OnInit {
     const shareData = {
       title: 'Pangu',
       text: "Hey there! I found this awesome app called Pangu. It is a privacy focused open source stock portfolio manager. I thought you might like it. Why don't you give a try?",
-      url: document.location.origin,
+      url: this.document.location.origin,
     };
     let shared = false;
 
@@ -159,7 +161,7 @@ export class AppComponent implements OnInit {
     }
 
     if (!shared) {
-      const a = document.createElement('a');
+      const a = this.document.createElement('a');
       a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%20Pangu&body=${encodeURI(
         shareData.text + ' The app is available at ' + shareData.url,
       )}`;

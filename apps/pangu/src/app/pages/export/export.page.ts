@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Inject,
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -21,6 +22,7 @@ export class ExportPage {
   public showExportProgress?: boolean;
 
   constructor(
+    @Inject(DOCUMENT) private document: Document,
     private cdr: ChangeDetectorRef,
     private storageService: StorageService,
   ) {}
@@ -36,8 +38,8 @@ export class ExportPage {
     );
 
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    document.body.appendChild(a);
+    const a = this.document.createElement('a');
+    this.document.body.appendChild(a);
     a.setAttribute('style', 'display: none');
     a.href = url;
     a.download = 'pangu-data.json';
