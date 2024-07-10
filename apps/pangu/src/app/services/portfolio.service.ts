@@ -46,7 +46,7 @@ export class PortfolioService {
                       0,
                     ) || 0;
                   const averagePrice = investment / quantity || 0;
-                  const totalProfitLossValue = marketStock.quote
+                  const totalProfitLossValue = marketStock.quote?.nse
                     ? (marketStock.quote.nse.price - averagePrice) * quantity
                     : 0;
                   const totalProfitLossPercentage =
@@ -59,7 +59,7 @@ export class PortfolioService {
                     quantity,
                     averagePrice,
                     investment,
-                    marketValue: marketStock.quote
+                    marketValue: marketStock.quote?.nse
                       ? marketStock.quote.nse.price * quantity
                       : 0,
                     totalProfitLoss: {
@@ -84,7 +84,7 @@ export class PortfolioService {
 
                 holdings.map((holding) => {
                   const totalValue =
-                    holding.quote && holding.quantity
+                    holding.quote?.nse && holding.quantity
                       ? holding.quote.nse.price * holding.quantity
                       : 0;
 
@@ -92,12 +92,12 @@ export class PortfolioService {
                   marketValue += totalValue;
 
                   dayProfitLossValue +=
-                    holding.quote && holding.quantity
+                    holding.quote?.nse && holding.quantity
                       ? holding.quote.nse.change.value * holding.quantity
                       : 0;
 
                   previousMarketValue +=
-                    holding.quote && holding.quantity
+                    holding.quote?.nse?.close && holding.quantity
                       ? holding.quote.nse.close * holding.quantity
                       : 0;
 

@@ -25,6 +25,16 @@ export const appRoutes: Route[] = [
       import('./pages/stocks/stocks.page').then((m) => m.StocksPage),
   },
   {
+    path: Constants.routes.INDICES,
+    loadComponent: () =>
+      import('./pages/indices/indices.page').then((m) => m.IndicesPage),
+  },
+  {
+    path: `${Constants.routes.INDICES}/:exchange/:id`,
+    loadComponent: () =>
+      import('./pages/indices/indices.page').then((m) => m.IndicesPage),
+  },
+  {
     path: Constants.routes.SETTINGS,
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),
@@ -63,7 +73,7 @@ export const appRoutes: Route[] = [
     path: '**',
     loadComponent: () =>
       import('./pages/page-not-found/page-not-found.page').then(
-        (m) => m.PageNotFoundPage
+        (m) => m.PageNotFoundPage,
       ),
   },
 ];

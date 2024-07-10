@@ -20,6 +20,7 @@ import {
 } from 'lightweight-charts';
 import {
   Observable,
+  combineLatest,
   delay,
   distinctUntilKeyChanged,
   switchMap,
@@ -28,8 +29,9 @@ import {
 } from 'rxjs';
 
 import { ChartData } from '../../models/chart';
+import { Index } from '../../models/index';
 import { ColorScheme } from '../../models/settings';
-import { Direction, ExchangeName, Stock } from '../../models/stock';
+import { Direction, ExchangeName } from '../../models/stock';
 import {
   ChartCategory,
   MarketService,
@@ -49,20 +51,21 @@ enum ChartTimeRange {
 
 @UntilDestroy()
 @Component({
-  selector: 'app-stocks',
+  selector: 'app-indices',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './stocks.page.html',
-  styleUrl: './stocks.page.scss',
+  templateUrl: './indices.page.html',
+  styleUrl: './indices.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StocksPage implements OnDestroy {
+export class IndicesPage implements OnDestroy {
   @ViewChild('chartContainer') private chartContainerRef?: ElementRef;
   @ViewChild('chart') private chartRef?: ElementRef;
 
+  public readonly exchange = input<string>('');
   public readonly id = input<string>('');
 
-  public stock$: Observable<Stock | null>;
+  public index$: Observable<Index | null>;
 
   public chartCrosshairData?: ChartData;
 
@@ -72,7 +75,7 @@ export class StocksPage implements OnDestroy {
   public isChartLoading = true;
   public isChartInFullscreen = false;
 
-  public readonly ExchangeName = ExchangeName;
+  public readonly Exchange = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
 
@@ -87,12 +90,20 @@ export class StocksPage implements OnDestroy {
     marketService: MarketService,
     settingsService: SettingsService,
   ) {
-    this.stock$ = toObservable(this.id).pipe(
-      switchMap((id) => marketService.getStock(id, true)),
-      tap((stock) => {
-        if (stock && !this.chart && stock.scripCode.nse) {
+    this.index$ = combineLatest([
+      toObservable(this.exchange),
+      toObservable(this.id),
+    ]).pipe(
+      switchMap(([exchange, id]) =>
+        marketService.getIndex(id, exchange as ExchangeName, true),
+      ),
+      tap((index) => {
+        if (index && !this.chart) {
           marketService
-            .getHistoricalChart(stock.scripCode.nse, ChartCategory.STOCK)
+            .getHistoricalChart(
+              index.vendorCode.etm.symbol,
+              ChartCategory.INDEX,
+            )
             .pipe(delay(100), take(1)) // A delay of 100ms is added to let Angular run change detection and update chart container element ref.
             .subscribe((data) => {
               if (data.length > 0) {
@@ -108,18 +119,18 @@ export class StocksPage implements OnDestroy {
 
                 if (this.areaSeries) {
                   this.areaSeries.applyOptions({
-                    lineColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    lineColor: index.quote?.change?.direction
+                      ? index.quote.change.direction === Direction.UP
                         ? '#22c55e'
                         : '#ef4444'
                       : '#2962FF',
-                    topColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    topColor: index.quote?.change?.direction
+                      ? index.quote.change.direction === Direction.UP
                         ? 'rgba(34, 197, 94, 0.4)'
                         : 'rgba(239, 68, 68, 0.4)'
                       : 'rgba(41, 98, 255, 0.4)',
-                    bottomColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    bottomColor: index.quote?.change?.direction
+                      ? index.quote.change.direction === Direction.UP
                         ? 'rgba(34, 197, 94, 0.1)'
                         : 'rgba(239, 68, 68, 0.1)'
                       : 'rgba(41, 98, 255, 0.1)',
@@ -252,12 +263,6 @@ export class StocksPage implements OnDestroy {
           to: ChartUtils.epochToUtcTimestamp(to.getTime()),
         });
       }
-    }
-  }
-
-  public setExchange(exchange: ExchangeName): void {
-    if (exchange) {
-      this.activeExchange = exchange;
     }
   }
 

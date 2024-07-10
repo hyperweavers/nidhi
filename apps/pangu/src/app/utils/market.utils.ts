@@ -1,14 +1,21 @@
-import { Exchange } from '../models/index';
-import { ExchangeCodes } from '../models/market';
-import { Direction } from '../models/stock';
+import { ExchangeCode } from '../models/market';
+import { Direction, ExchangeName } from '../models/stock';
 
 export class MarketUtils {
   public static getDirection(value: number): Direction {
     return value >= 0 ? Direction.UP : Direction.DOWN;
   }
 
-  public static getExchange(code: string): Exchange {
-    return code === ExchangeCodes.NSE ? Exchange.NSE : Exchange.BSE;
+  public static getExchangeNameFromVendorCode(
+    code: ExchangeCode,
+  ): ExchangeName {
+    return code === ExchangeCode.NSE ? ExchangeName.NSE : ExchangeName.BSE;
+  }
+
+  public static getExchangeVendorCodeFromName(
+    name: ExchangeName,
+  ): ExchangeCode {
+    return name === ExchangeName.NSE ? ExchangeCode.NSE : ExchangeCode.BSE;
   }
 
   public static stringToNumber(value: string): number {

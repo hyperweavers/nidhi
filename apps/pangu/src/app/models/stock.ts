@@ -1,25 +1,20 @@
 import { AdvanceDecline } from './index';
+import { StockVendorCode } from './market';
 
 export interface Stock {
   id?: string; // Database UUID
   name: string;
-  vendorCode: VendorCode;
   scripCode: ScripCode;
-  details?: Details;
+  vendorCode: StockVendorCode;
   quote?: ExchangeQuote;
   limits?: ExchangeLimits;
   metrics?: ExchangeMetrics;
   performance?: ExchangePerformance;
-  complete?: boolean; // Set to `true` if complete details available.
-}
-
-export interface VendorCode {
-  etm: string;
-  mc?: string;
+  details?: Details;
 }
 
 export interface ScripCode {
-  nse: string;
+  nse?: string;
   bse?: string;
   isin?: string;
 }
@@ -30,21 +25,21 @@ export interface Details {
 }
 
 export interface ExchangeQuote {
-  nse: Quote;
+  nse?: Quote;
   bse?: Quote;
 }
 
 export interface Quote {
-  lastUpdated: number;
   price: number;
   change: Change;
   open?: number;
-  close: number;
-  low: number;
-  high: number;
-  fiftyTwoWeekLow: number;
-  fiftyTwoWeekHigh: number;
-  volume: number;
+  close?: number;
+  low?: number;
+  high?: number;
+  fiftyTwoWeekLow?: number;
+  fiftyTwoWeekHigh?: number;
+  volume?: number;
+  lastUpdated?: number;
 }
 
 export interface Change extends AdvanceDecline {
@@ -105,7 +100,7 @@ export enum Direction {
   DOWN = -1,
 }
 
-export enum Exchange {
+export enum ExchangeName {
   NSE = 'nse',
   BSE = 'bse',
 }

@@ -3,6 +3,7 @@ export const Constants = {
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
     STOCKS: 'stocks',
+    INDICES: 'indices',
     SETTINGS: 'settings',
     IMPORT: 'import',
     EXPORT: 'export',
@@ -21,8 +22,10 @@ export const Constants = {
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
     STOCK_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/stock/history?resolution=1D&',
-    INDEX_QUOTES:
-      'https://etapi.indiatimes.com/et-screener/index-byid?indexids=',
+    INDEX_QUOTE:
+      'https://etapi.indiatimes.com/et-screener/index-summary?indexId=',
+    INDEX_CONSTITUENTS:
+      'https://etmarketsapis.indiatimes.com/ET_Stats/getIndexByIds?pagesize=1000&sortby=currentprice&sortorder=desc&company=true&',
     INDEX_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/index/history?resolution=1D&',
   },
