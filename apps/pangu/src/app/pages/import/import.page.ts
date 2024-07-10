@@ -20,7 +20,7 @@ import { StorageService } from '../../services/core/storage.service';
 })
 export class ImportPage {
   @ViewChild('importFileInput', { static: true })
-  private importFileInput?: ElementRef;
+  private importFileInputRef?: ElementRef;
 
   public statusMessage?: string;
   public showStatusModal?: boolean;
@@ -67,8 +67,8 @@ export class ImportPage {
 
       this.importFile = null;
 
-      if (this.importFileInput) {
-        this.importFileInput.nativeElement.value = '';
+      if (this.importFileInputRef) {
+        this.importFileInputRef.nativeElement.value = '';
       }
     }
 

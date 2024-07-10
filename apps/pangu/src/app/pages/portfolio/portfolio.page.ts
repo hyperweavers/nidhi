@@ -10,8 +10,8 @@ import {
   signal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Dropdown } from 'flowbite';
 import {
   BehaviorSubject,
@@ -68,7 +68,7 @@ enum PortfolioSortOrder {
 })
 export class PortfolioPage implements OnInit {
   @ViewChild('transactionDateInput', { static: true })
-  private transactionDateInput?: ElementRef;
+  private transactionDateInputRef?: ElementRef;
 
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
@@ -352,9 +352,9 @@ export class PortfolioPage implements OnInit {
   }
 
   private initDatePicker(): void {
-    if (this.transactionDateInput) {
+    if (this.transactionDateInputRef) {
       this.datepicker = new Datepicker(
-        this.transactionDateInput.nativeElement,
+        this.transactionDateInputRef.nativeElement,
         {
           autohide: true,
           format: 'dd/mm/yyyy',
@@ -366,7 +366,7 @@ export class PortfolioPage implements OnInit {
         },
       );
 
-      this.transactionDateInput.nativeElement.addEventListener(
+      this.transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

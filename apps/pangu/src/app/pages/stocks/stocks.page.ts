@@ -1,9 +1,11 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
+  HostListener,
+  Inject,
   OnDestroy,
   ViewChild,
   input,
@@ -55,29 +57,32 @@ enum ChartTimeRange {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StocksPage implements OnDestroy {
-  @ViewChild('chartContainer') private chartContainer!: ElementRef;
+  @ViewChild('chartContainer') private chartContainerRef?: ElementRef;
+  @ViewChild('chart') private chartRef?: ElementRef;
 
   public readonly id = input<string>('');
 
   public stock$: Observable<Stock | null>;
 
-  public chartCrosshairData!: ChartData | undefined;
+  public chartCrosshairData?: ChartData;
 
   public activeChartTimeRange = ChartTimeRange.FIVE_YEAR; // TODO: Set the value as 1 day when intra day chart data is implemented
   public activeExchange = Exchange.NSE;
 
   public isChartLoading = true;
+  public isChartInFullscreen = false;
 
   public readonly Exchange = Exchange;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
 
-  private chartData!: Map<string, ChartData>;
-  private chart!: IChartApi;
+  private chartData?: Map<string, ChartData>;
+  private chart?: IChartApi;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private areaSeries!: ISeriesApi<any>;
+  private areaSeries?: ISeriesApi<any>;
 
   constructor(
+    @Inject(DOCUMENT) private document: Document,
     private cdr: ChangeDetectorRef,
     marketService: MarketService,
     settingsService: SettingsService,
@@ -101,33 +106,35 @@ export class StocksPage implements OnDestroy {
 
                 this.initChart(data);
 
-                this.areaSeries.applyOptions({
-                  lineColor: stock.quote?.nse?.change?.direction
-                    ? stock.quote.nse.change.direction === Direction.UP
-                      ? '#22c55e'
-                      : '#ef4444'
-                    : '#2962FF',
-                  topColor: stock.quote?.nse?.change?.direction
-                    ? stock.quote.nse.change.direction === Direction.UP
-                      ? 'rgba(34, 197, 94, 0.4)'
-                      : 'rgba(239, 68, 68, 0.4)'
-                    : 'rgba(41, 98, 255, 0.4)',
-                  bottomColor: stock.quote?.nse?.change?.direction
-                    ? stock.quote.nse.change.direction === Direction.UP
-                      ? 'rgba(34, 197, 94, 0.1)'
-                      : 'rgba(239, 68, 68, 0.1)'
-                    : 'rgba(41, 98, 255, 0.1)',
-                });
+                if (this.areaSeries) {
+                  this.areaSeries.applyOptions({
+                    lineColor: stock.quote?.nse?.change?.direction
+                      ? stock.quote.nse.change.direction === Direction.UP
+                        ? '#22c55e'
+                        : '#ef4444'
+                      : '#2962FF',
+                    topColor: stock.quote?.nse?.change?.direction
+                      ? stock.quote.nse.change.direction === Direction.UP
+                        ? 'rgba(34, 197, 94, 0.4)'
+                        : 'rgba(239, 68, 68, 0.4)'
+                      : 'rgba(41, 98, 255, 0.4)',
+                    bottomColor: stock.quote?.nse?.change?.direction
+                      ? stock.quote.nse.change.direction === Direction.UP
+                        ? 'rgba(34, 197, 94, 0.1)'
+                        : 'rgba(239, 68, 68, 0.1)'
+                      : 'rgba(41, 98, 255, 0.1)',
+                  });
+                }
 
                 cdr.markForCheck();
 
                 settingsService.resize$
                   .pipe(untilDestroyed(this))
                   .subscribe(() => {
-                    if (this.chart && this.chartContainer) {
+                    if (this.chart && this.chartRef) {
                       this.chart.resize(
-                        this.chartContainer.nativeElement.offsetWidth,
-                        this.chartContainer.nativeElement.offsetHeight,
+                        this.chartRef.nativeElement.offsetWidth,
+                        this.chartRef.nativeElement.offsetHeight,
                       );
 
                       this.chart.timeScale().fitContent();
@@ -236,7 +243,7 @@ export class StocksPage implements OnDestroy {
           break;
 
         default:
-          console.log(`Invalid range: ${range}`);
+          console.warn(`Invalid range: ${range}`);
       }
 
       if (this.chart && from > 0) {
@@ -254,6 +261,54 @@ export class StocksPage implements OnDestroy {
     }
   }
 
+  @HostListener('window:fullscreenchange')
+  public onFullscreenChange(): void {
+    if (this.document.fullscreenElement) {
+      this.isChartInFullscreen = true;
+    } else {
+      this.isChartInFullscreen = false;
+    }
+
+    if (this.chart && this.chartRef) {
+      this.chart.resize(
+        this.chartRef.nativeElement.offsetWidth,
+        this.chartRef.nativeElement.offsetHeight,
+      );
+
+      this.chart.timeScale().fitContent();
+
+      this.setChartTimeRange(this.activeChartTimeRange);
+    }
+  }
+
+  public toggleFullscreen(): void {
+    if (this.document.fullscreenElement) {
+      this.document.exitFullscreen();
+    } else {
+      if (this.chartContainerRef) {
+        this.chartContainerRef.nativeElement
+          .requestFullscreen()
+          .then(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (screen.orientation as any)
+              .lock('landscape')
+              .catch((error: Error) => {
+                console.error(
+                  `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
+                );
+              });
+
+            this.cdr.markForCheck();
+          })
+          .catch((error: Error) => {
+            console.error(
+              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+            );
+          });
+      }
+    }
+  }
+
   public ngOnDestroy(): void {
     if (this.chart) {
       this.chart.unsubscribeCrosshairMove(
@@ -263,8 +318,8 @@ export class StocksPage implements OnDestroy {
   }
 
   private initChart(data: ChartData[]): void {
-    if (this.chartContainer?.nativeElement && data?.length > 0) {
-      this.chart = createChart(this.chartContainer.nativeElement, {
+    if (this.chartRef?.nativeElement && data?.length > 0) {
+      this.chart = createChart(this.chartRef.nativeElement, {
         layout: {
           background: { color: 'transparent' },
         },
@@ -297,7 +352,7 @@ export class StocksPage implements OnDestroy {
   }
 
   private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
-    if (time && this.chartData?.size > 0) {
+    if (time && this.chartData && this.chartData.size > 0) {
       this.chartCrosshairData = this.chartData.get(time.toLocaleString());
     } else {
       this.chartCrosshairData = undefined;
