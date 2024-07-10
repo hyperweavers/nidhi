@@ -638,6 +638,7 @@ export class MarketService {
                           percentage: company.percentChange,
                           value: company.change,
                         },
+                        volume: company.volumeInLacs * 100000,
                       };
 
                       const stock: Stock = {

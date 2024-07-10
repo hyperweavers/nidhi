@@ -11,6 +11,7 @@ import {
   input,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   IChartApi,
@@ -28,6 +29,7 @@ import {
   tap,
 } from 'rxjs';
 
+import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
 import { ColorScheme } from '../../models/settings';
@@ -53,7 +55,7 @@ enum ChartTimeRange {
 @Component({
   selector: 'app-indices',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './indices.page.html',
   styleUrl: './indices.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,6 +77,7 @@ export class IndicesPage implements OnDestroy {
   public isChartLoading = true;
   public isChartInFullscreen = false;
 
+  public readonly Routes = Constants.routes;
   public readonly Exchange = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
