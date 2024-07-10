@@ -623,7 +623,7 @@ export class MarketService {
           constituents: this.http
             .get<IndexConstituents>(
               Constants.api.INDEX_CONSTITUENTS +
-                `exchange=${MarketUtils.getExchangeVendorCodeFromName(exchange)}&indexid=${code}`,
+                `exchange=${MarketUtils.getExchangeVendorCodeFromName(exchange)}&indexid=${code}&sortby=netChange`,
             )
             .pipe(
               map(({ searchresult }): Stock[] =>
