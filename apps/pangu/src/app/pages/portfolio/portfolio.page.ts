@@ -200,12 +200,9 @@ export class PortfolioPage implements OnInit {
             map((portfolio) =>
               portfolio.holdings.filter(
                 (holding) =>
-                  (holding.quantity &&
-                    holding.quantity > 0 &&
-                    holding.name.toLowerCase().includes(query.toLowerCase())) ||
-                  holding.scripCode.nse
-                    .toLowerCase()
-                    .includes(query.toLowerCase()),
+                  holding.quantity &&
+                  holding.quantity > 0 &&
+                  holding.name.toLowerCase().includes(query.toLowerCase()),
               ),
             ),
           ),

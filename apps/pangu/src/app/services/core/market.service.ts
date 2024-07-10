@@ -4,6 +4,7 @@ import {
   BehaviorSubject,
   Observable,
   distinctUntilKeyChanged,
+  forkJoin,
   iif,
   map,
   merge,
@@ -21,13 +22,16 @@ import {
   CompanyDetails,
   Dashboard,
   DashboardQuery,
+  ExchangeCode,
   History,
+  IndexConstituents,
+  IndexDetails,
   IndexQuotes,
   SearchResult,
   VendorStatus,
 } from '../../models/market';
 import { MarketStatus, Status } from '../../models/market-status';
-import { Direction, Stock } from '../../models/stock';
+import { Direction, ExchangeName, Quote, Stock } from '../../models/stock';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';
@@ -111,9 +115,13 @@ export class MarketService {
         );
   }
 
-  public getIndex(code: string, complete?: boolean): Observable<Index | null> {
+  public getIndex(
+    code: string,
+    exchange: ExchangeName,
+    complete?: boolean,
+  ): Observable<Index | null> {
     return complete
-      ? this.getIndexDetails(code)
+      ? this.getIndexDetails(code, exchange)
       : this.getIndices([code]).pipe(
           map((indices) => (indices.length > 0 ? indices[0] : null)),
         );
@@ -136,12 +144,12 @@ export class MarketService {
 
             return stocks.map((stock) => ({
               name: stock.companyName,
-              vendorCode: {
-                etm: stock.companyId,
-              },
               scripCode: {
                 nse: stock.scripCode2,
                 bse: stock.scripCode,
+              },
+              vendorCode: {
+                etm: stock.companyId,
               },
               quote: {
                 nse: {
@@ -191,7 +199,15 @@ export class MarketService {
             return indices.map((index) => ({
               id: index.indexid,
               name: index.indexName,
-              exchange: MarketUtils.getExchange(index.exchange),
+              exchange: MarketUtils.getExchangeNameFromVendorCode(
+                index.exchange as ExchangeCode,
+              ),
+              vendorCode: {
+                etm: {
+                  id: index.indexid,
+                  symbol: index.scripCode1GivenByExhange,
+                },
+              },
               quote: {
                 lastUpdated: index.dateTimeLong,
                 value: MarketUtils.stringToNumber(index.currentIndexValue),
@@ -312,15 +328,14 @@ export class MarketService {
         this.http.get<CompanyDetails>(Constants.api.STOCK_QUOTE + code).pipe(
           map(
             (companyDetails): Stock => ({
-              complete: true, // Marking as complete though 'limits' is not filled due to unavailability of data in market api
               name: companyDetails.companyName,
-              vendorCode: {
-                etm: companyDetails.companyId,
-              },
               scripCode: {
                 nse: companyDetails.nseScripCode,
                 bse: companyDetails.bseScripCode,
                 isin: companyDetails.isinCode,
+              },
+              vendorCode: {
+                etm: companyDetails.companyId,
               },
               details: {
                 sector: companyDetails.sectorName,
@@ -503,78 +518,163 @@ export class MarketService {
     );
   }
 
-  private getIndexDetails(code: string): Observable<Index> {
+  private getIndexDetails(
+    code: string,
+    exchange: ExchangeName,
+  ): Observable<Index> {
     return this.poll$.pipe(
       switchMap(() =>
-        this.http.get<IndexQuotes>(Constants.api.INDEX_QUOTES + code).pipe(
-          map(
-            ({ indicesList }): Index => ({
-              complete: true,
-              id: indicesList[0].indexId,
-              name: indicesList[0].indexName,
-              exchange: MarketUtils.getExchange(indicesList[0].exchange),
-              quote: {
-                lastUpdated: MarketUtils.dateStringToEpoch(
-                  indicesList[0].dateTime,
-                ),
-                value: indicesList[0].lastTradedPrice,
-                change: {
-                  direction: MarketUtils.getDirection(
-                    indicesList[0].percentChange,
+        forkJoin({
+          index: this.http
+            .get<IndexDetails>(Constants.api.INDEX_QUOTE + code)
+            .pipe(
+              map(
+                (indexDetails): Index => ({
+                  id: indexDetails.assetId,
+                  name: indexDetails.assetName,
+                  exchange: MarketUtils.getExchangeNameFromVendorCode(
+                    indexDetails.assetExchangeId as ExchangeCode,
                   ),
-                  percentage: indicesList[0].percentChange,
-                  value: indicesList[0].netChange,
-                },
-                advance: {
-                  percentage: indicesList[0].advancesPerChange,
-                  value: indicesList[0].advances,
-                },
-                decline: {
-                  percentage: indicesList[0].declinesPerChange,
-                  value: indicesList[0].declines,
-                },
-              },
-              performance: {
-                weekly: {
-                  direction: MarketUtils.getDirection(indicesList[0].r1Week),
-                  percentage: indicesList[0].r1Week,
-                  value: indicesList[0].change1Week,
-                },
-                monthly: {
-                  direction: MarketUtils.getDirection(indicesList[0].r1Month),
-                  percentage: indicesList[0].r1Month,
-                  value: indicesList[0].change1Month,
-                },
-                quarterly: {
-                  direction: MarketUtils.getDirection(indicesList[0].r3Month),
-                  percentage: indicesList[0].r3Month,
-                  value: indicesList[0].change3Month,
-                },
-                halfYearly: {
-                  direction: MarketUtils.getDirection(indicesList[0].r6Month),
-                  percentage: indicesList[0].r6Month,
-                  value: indicesList[0].change6Month,
-                },
-                yearly: {
-                  one: {
-                    direction: MarketUtils.getDirection(indicesList[0].r1Year),
-                    percentage: indicesList[0].r1Year,
-                    value: indicesList[0].change1Year,
+                  vendorCode: {
+                    etm: {
+                      id: indexDetails.assetId,
+                      symbol: indexDetails.assetSymbol,
+                    },
                   },
-                  three: {
-                    direction: MarketUtils.getDirection(indicesList[0].r3Year),
-                    percentage: indicesList[0].r3Year,
-                    value: indicesList[0].change3Year,
+                  quote: {
+                    lastUpdated: indexDetails.dateTime,
+                    value: indexDetails.lastTradedPrice,
+                    change: {
+                      direction: MarketUtils.getDirection(
+                        indexDetails.percentChange,
+                      ),
+                      percentage: indexDetails.percentChange,
+                      value: indexDetails.netChange,
+                    },
+                    open: indexDetails.keyMetrics.openPrice,
+                    close: indexDetails.keyMetrics.previousClose,
+                    low: indexDetails.keyMetrics.lowPrice,
+                    high: indexDetails.keyMetrics.highPrice,
+                    fiftyTwoWeekLow: indexDetails.fiftyTwoWeekLow,
+                    fiftyTwoWeekHigh: indexDetails.fiftyTwoWeekHigh,
+                    advance: {
+                      percentage: indexDetails.advancesPercentage,
+                      value: indexDetails.advances,
+                    },
+                    decline: {
+                      percentage: indexDetails.declinesPercentage,
+                      value: indexDetails.declines,
+                    },
                   },
-                  five: {
-                    direction: MarketUtils.getDirection(indicesList[0].r5Year),
-                    percentage: indicesList[0].r5Year,
-                    value: indicesList[0].change5Year,
+                  metrics: {
+                    marketCap: indexDetails.keyMetrics.marketCap,
+                    pe: indexDetails.keyMetrics.peRatio,
+                    pb: indexDetails.keyMetrics.pbRatio,
+                    dividendYield: indexDetails.keyMetrics.dividendYield,
                   },
-                },
-              },
-            }),
-          ),
+                  performance: {
+                    weekly: {
+                      direction: MarketUtils.getDirection(indexDetails.r1Week),
+                      percentage: indexDetails.r1Week,
+                      value: indexDetails.change1Week,
+                    },
+                    monthly: {
+                      direction: MarketUtils.getDirection(indexDetails.r1Month),
+                      percentage: indexDetails.r1Month,
+                      value: indexDetails.change1Month,
+                    },
+                    quarterly: {
+                      direction: MarketUtils.getDirection(indexDetails.r3Month),
+                      percentage: indexDetails.r3Month,
+                      value: indexDetails.change3Month,
+                    },
+                    halfYearly: {
+                      direction: MarketUtils.getDirection(indexDetails.r6Month),
+                      percentage: indexDetails.r6Month,
+                      value: indexDetails.change6Month,
+                    },
+                    yearly: {
+                      one: {
+                        direction: MarketUtils.getDirection(
+                          indexDetails.r1Year,
+                        ),
+                        percentage: indexDetails.r1Year,
+                        value: indexDetails.change1Year,
+                      },
+                      three: {
+                        direction: MarketUtils.getDirection(
+                          indexDetails.r3Year,
+                        ),
+                        percentage: indexDetails.r3Year,
+                        value: indexDetails.change3Year,
+                      },
+                      five: {
+                        direction: MarketUtils.getDirection(
+                          indexDetails.r5Year,
+                        ),
+                        percentage: indexDetails.r5Year,
+                        value: indexDetails.change5Year,
+                      },
+                    },
+                  },
+                }),
+              ),
+            ),
+          constituents: this.http
+            .get<IndexConstituents>(
+              Constants.api.INDEX_CONSTITUENTS +
+                `exchange=${MarketUtils.getExchangeVendorCodeFromName(exchange)}&indexid=${code}`,
+            )
+            .pipe(
+              map(({ searchresult }): Stock[] =>
+                searchresult[0] && searchresult[0].companies?.length > 0
+                  ? searchresult[0].companies.map((company): Stock => {
+                      const quote: Quote = {
+                        price: company.current,
+                        change: {
+                          direction: MarketUtils.getDirection(
+                            company.percentChange,
+                          ),
+                          percentage: company.percentChange,
+                          value: company.change,
+                        },
+                      };
+
+                      const stock: Stock = {
+                        name: company.companyName,
+                        vendorCode: {
+                          etm: company.companyId,
+                        },
+                        scripCode: {
+                          nse:
+                            exchange === ExchangeName.NSE &&
+                            company.nseScripCode
+                              ? company.nseScripCode
+                              : undefined,
+                          bse:
+                            exchange === ExchangeName.BSE &&
+                            company.bseScripCode
+                              ? company.bseScripCode
+                              : undefined,
+                        },
+                        quote: {
+                          nse:
+                            exchange === ExchangeName.NSE ? quote : undefined,
+                          bse:
+                            exchange === ExchangeName.BSE ? quote : undefined,
+                        },
+                      };
+
+                      return stock;
+                    })
+                  : [],
+              ),
+            ),
+        }).pipe(
+          map(({ index, constituents }) => ({
+            ...index,
+            constituents,
+          })),
         ),
       ),
     );

@@ -1,48 +1,28 @@
 <div class="flex h-full flex-col">
-  @if (stock$ | async; as stock) {
+  @if (index$ | async; as index) {
   <!-- Basic Info -->
   <div class="space-y-2 p-4">
     <div class="flex space-x-4">
-      <div class="flex-1 text-2xl font-semibold">{{ stock.name }}</div>
-
-      <div>
-        <div class="inline-flex h-8 rounded-md shadow-sm" role="group">
-          <button
-            (click)="setExchange(ExchangeName.NSE)"
-            type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-10 items-center rounded-s-lg border border-r-0 border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-            [ngClass]="activeExchange === ExchangeName.NSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-          >
-            NSE
-          </button>
-
-          <button
-            (click)="setExchange(ExchangeName.BSE)"
-            type="button"
-            class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-10 items-center rounded-e-lg border border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-            [ngClass]="activeExchange === ExchangeName.BSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
-          >
-            BSE
-          </button>
-        </div>
+      <div class="flex-1 text-2xl font-semibold">
+        {{ index.name }}
+        <span
+          class="me-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+          >{{ index.exchange | uppercase }}</span
+        >
       </div>
     </div>
 
     <div class="text-gray-900 dark:text-white">
       <div class="text-lg font-semibold">
-        &#8377;{{ stock.quote?.[activeExchange]?.price | number: '1.2-2' }}
+        {{ index.quote?.value | number: '1.2-2' }}
       </div>
       <div
         class="flex items-center"
-        [ngClass]="stock.quote?.[activeExchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+        [ngClass]="index.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
       >
-        {{ stock.quote?.[activeExchange]?.change?.direction === Direction.UP ?
-        '&#x25B2;' : '&#x25BC;' }} &#8377;{{
-        stock.quote?.[activeExchange]?.change?.value | number: '1.2-2' }} ({{
-        stock.quote?.[activeExchange]?.change?.percentage | number: '1.2-2' }}%)
-      </div>
-      <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
-        Volume: {{ stock.quote?.[activeExchange]?.volume | number: '1.0' }}
+        {{ index.quote?.change?.direction === Direction.UP ? '&#x25B2;' :
+        '&#x25BC;' }} {{ index.quote?.change?.value | number: '1.2-2' }} ({{
+        index.quote?.change?.percentage | number: '1.2-2' }}%)
       </div>
     </div>
   </div>
@@ -281,31 +261,27 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.open | number: '1.2-2' }}
+            {{ index.quote?.open | number: '1.2-2' }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.close | number: '1.2-2' }}
+            {{ index.quote?.close | number: '1.2-2' }}
           </div>
         </div>
 
         <div class="flex flex-1 flex-col space-y-4">
           <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Day Range (&#8377;)
+              Day Range
             </div>
 
             <div class="flex text-xs">
-              <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
-              </div>
+              <div class="flex-1">{{ index.quote?.low | number: '1.2-2' }}</div>
 
-              <div>
-                {{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
-              </div>
+              <div>{{ index.quote?.high | number: '1.2-2' }}</div>
             </div>
 
             <div class="flex items-center">
@@ -316,9 +292,9 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.[activeExchange]?.low"
-                [max]="stock.quote?.[activeExchange]?.high"
-                [value]="stock.quote?.[activeExchange]?.price"
+                [min]="index.quote?.low"
+                [max]="index.quote?.high"
+                [value]="index.quote?.value"
                 disabled
               />
 
@@ -330,19 +306,15 @@
 
           <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              52 Week Range (&#8377;)
+              52 Week Range
             </div>
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number:
-                '1.2-2' }}
+                {{ index.quote?.fiftyTwoWeekLow | number: '1.2-2' }}
               </div>
 
-              <div>
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh | number:
-                '1.2-2' }}
-              </div>
+              <div>{{ index.quote?.fiftyTwoWeekHigh | number: '1.2-2' }}</div>
             </div>
 
             <div class="flex items-center">
@@ -353,91 +325,15 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.[activeExchange]?.fiftyTwoWeekLow"
-                [max]="stock.quote?.[activeExchange]?.fiftyTwoWeekHigh"
-                [value]="stock.quote?.[activeExchange]?.price"
+                [min]="index.quote?.fiftyTwoWeekLow"
+                [max]="index.quote?.fiftyTwoWeekHigh"
+                [value]="index.quote?.value"
                 disabled
               />
 
               <div class="text-xs font-bold text-green-500 dark:text-green-400">
                 H
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Metrics -->
-    <div
-      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
-    >
-      <h5
-        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
-      >
-        Metrics
-      </h5>
-
-      <div class="flex flex-col space-y-4 text-sm">
-        <div class="flex justify-between">
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              EPS (TTM)
-            </div>
-            <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.eps | number: '1.2-2'
-              }}
-            </div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              P/E Ratio
-            </div>
-            <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.pe | number: '1.2-2' }}
-            </div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              VWAP
-            </div>
-            <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.vwap | number: '1.2-2'
-              }}
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-between">
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Dividend Yield
-            </div>
-            <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.dividendYield | number:
-              '1.2-2' }}%
-            </div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Market Cap
-            </div>
-            <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.marketCap | number:
-              '1.2-2' }} Cr.
-            </div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Face Value
-            </div>
-            <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.faceValue | number:
-              '1.2-2' }}
             </div>
           </div>
         </div>
@@ -458,49 +354,46 @@
         <div class="flex justify-between">
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.monthly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.monthly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               1 Month
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.monthly?.direction ===
-              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.monthly?.percentage | number:
-              '1.2-2' }}%
+              {{ index.performance?.monthly?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.monthly?.percentage | number: '1.2-2' }}%
             </div>
           </div>
 
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.quarterly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.quarterly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               3 Months
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.quarterly?.direction ===
-              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.quarterly?.percentage |
-              number: '1.2-2' }}%
+              {{ index.performance?.quarterly?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.quarterly?.percentage | number: '1.2-2' }}%
             </div>
           </div>
 
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.halfYearly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.halfYearly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               6 Months
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.halfYearly?.direction ===
-              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.halfYearly?.percentage |
-              number: '1.2-2' }}%
+              {{ index.performance?.halfYearly?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.halfYearly?.percentage | number: '1.2-2' }}%
             </div>
           </div>
         </div>
@@ -508,106 +401,46 @@
         <div class="flex justify-between">
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.yearly?.one?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.yearly?.one?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               1 Year
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.yearly?.one?.direction ===
-              Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.one?.percentage |
-              number: '1.2-2' }}%
+              {{ index.performance?.yearly?.one?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.yearly?.one?.percentage | number: '1.2-2' }}%
             </div>
           </div>
 
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.yearly?.three?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.yearly?.three?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               3 Years
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.yearly?.three?.direction
-              === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.three?.percentage |
-              number: '1.2-2' }}%
+              {{ index.performance?.yearly?.three?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.yearly?.three?.percentage | number: '1.2-2' }}%
             </div>
           </div>
 
           <div
             class="flex-1"
-            [ngClass]="stock.performance?.[activeExchange]?.yearly?.five?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+            [ngClass]="index.performance?.yearly?.five?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               5 Years
             </div>
 
             <div class="flex">
-              {{ stock.performance?.[activeExchange]?.yearly?.five?.direction
-              === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.five?.percentage |
-              number: '1.2-2' }}%
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scrip Info -->
-    <div
-      class="flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
-    >
-      <h5
-        class="mb-4 text-xl font-semibold leading-none text-gray-900 dark:text-white"
-      >
-        Scrip Info
-      </h5>
-
-      <div class="flex flex-col space-y-4 text-sm">
-        <div class="flex justify-between">
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">NSE</div>
-            <div class="flex">{{ stock.scripCode.nse }}</div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">BSE</div>
-            <div class="flex">{{ stock.scripCode.bse }}</div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              ISIN
-            </div>
-            <div class="flex">{{ stock.scripCode.isin }}</div>
-          </div>
-        </div>
-
-        <div class="flex justify-between">
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Sector
-            </div>
-            <div class="flex">{{ stock.details?.sector }}</div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Industry
-            </div>
-            <div class="flex">{{ stock.details?.industry }}</div>
-          </div>
-
-          <div class="flex-1">
-            <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Market Cap Type
-            </div>
-            <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.marketCapType }}
+              {{ index.performance?.yearly?.five?.direction === Direction.UP ?
+              '&#x25B2;' : '&#x25BC;' }} {{
+              index.performance?.yearly?.five?.percentage | number: '1.2-2' }}%
             </div>
           </div>
         </div>

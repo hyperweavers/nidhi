@@ -4,7 +4,7 @@ import { Observable, combineLatest, map, shareReplay } from 'rxjs';
 import { Constants } from '../constants';
 import { Index } from '../models/index';
 import { Kpi, KpiCard } from '../models/kpi';
-import { IndexCodes } from '../models/market';
+import { IndexCode } from '../models/market';
 import { Portfolio } from '../models/portfolio';
 import { MarketService } from './core/market.service';
 import { PortfolioService } from './portfolio.service';
@@ -23,7 +23,7 @@ export class DashboardService {
     portfolioService: PortfolioService,
   ) {
     this.indices$ = marketService
-      .getIndices([IndexCodes.NIFTY_FIFTY, IndexCodes.SENSEX])
+      .getIndices([IndexCode.NIFTY_FIFTY, IndexCode.SENSEX])
       .pipe(shareReplay(1));
 
     this.portfolio$ = portfolioService.portfolio$;
@@ -63,6 +63,7 @@ export class DashboardService {
               change: index.quote?.change,
               advance: index.quote?.advance,
               decline: index.quote?.decline,
+              routeLink: `${Constants.routes.INDICES}/${index.exchange}/${index.id}`,
             }),
           ),
         ],

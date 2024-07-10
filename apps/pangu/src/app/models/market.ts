@@ -254,6 +254,153 @@ export interface FiiDiiData {
   netInvestment: number;
 }
 
+export interface OperatingStatus {
+  currentMarketStatus: VendorStatus;
+  currentTime: number;
+  instrumentName: string;
+  purpose: string;
+  tradingStartTime: string;
+  tradingEndTime: string;
+}
+
+export interface IndexDetails {
+  assetName: string;
+  assetId: string;
+  assetExchangeId: string;
+  assetSymbol: string;
+  advances: number;
+  declines: number;
+  advancesPercentage: number;
+  declinesPercentage: number;
+  lastTradedPrice: number;
+  netChange: number;
+  percentChange: number;
+  dateTime: number;
+  highPrice: number;
+  lowPrice: number;
+  fiftyTwoWeekHigh: number;
+  fiftyTwoWeekLow: number;
+  keyMetrics: IndexKeyMetrics;
+  returns: IndexReturns[];
+  r1Week: number;
+  r1Month: number;
+  r3Month: number;
+  r6Month: number;
+  r1Year: number;
+  r3Year: number;
+  r5Year: number;
+  change1Week: number;
+  change1Month: number;
+  change3Month: number;
+  change6Month: number;
+  change1Year: number;
+  change3Year: number;
+  change5Year: number;
+}
+
+export interface IndexKeyMetrics {
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  previousClose: number;
+  marketCap: number;
+  peRatio: number;
+  pbRatio: number;
+  dividendYield: number;
+}
+
+export interface IndexReturns {
+  label: IndexReturnLabel;
+  returnPercentage: number;
+  high: number;
+  low: number;
+}
+
+export interface IndexConstituents {
+  searchresult: IndexConstituentsResult[];
+  pagesummary: IndexConstituentsSummary;
+}
+
+export interface IndexConstituentsResult {
+  fiftyTwoWeekHighIndexValue: number;
+  fiftyTwoWeekLowIndexValue: number;
+  datetimeStr: string;
+  dateTime: number;
+  indexId: string;
+  indexName: string;
+  exchange: string;
+  exchangeId: string;
+  scripCode1GivenByExhange: string;
+  scripCode2GivenByExhange: string;
+  futureOptionflag: number;
+  seoName: string;
+  openIndexValue: number;
+  highIndexValue: number;
+  lowIndexValue: number;
+  closeIndexValue: number;
+  currentIndexValue: number;
+  netChange: number;
+  perChange: number;
+  changeValue: number;
+  noChange: number;
+  noChangePerChange: number;
+  advances: number;
+  advancesPerChange: number;
+  declines: number;
+  declinesPerChange: number;
+  companies: IndexConstituentsCompany[];
+}
+
+export interface IndexConstituentsCompany {
+  companyId: string;
+  seoName: string;
+  companyName: string;
+  companyShortName: string;
+  change: number;
+  percentChange: number;
+  volumeInLacs: number;
+  current: number;
+  turnover: number;
+  monthChange: number;
+  yearChange: number;
+  monthPerChange: number;
+  yearPerChange: number;
+  bseScripCode: string;
+  nseScripCode: string;
+  symbol: string;
+  companyType: string;
+  eventCount: number;
+  open: number;
+  high: number;
+  low: number;
+  monthHighPrice: number;
+  monthLowPrice: number;
+  fiftyTwoWeekHighPrice: number;
+  fiftyTwoWeekLowPrice: number;
+}
+
+export interface IndexConstituentsSummary {
+  totalRecords: number;
+  totalpages: number;
+  pagesize: number;
+  indexvalue: string;
+  pageno: number;
+  exchange: string;
+  lasttradeddate: string;
+}
+
+export interface History {
+  s: string;
+  noData: boolean;
+  dates: string[];
+  t: number[];
+  o: number[];
+  c: number[];
+  h: number[];
+  l: number[];
+  v: number[];
+}
+
 export interface SearchResult {
   tagSeoName: string;
   marketCap: string;
@@ -270,25 +417,19 @@ export interface SearchResult {
   lastTradedPrice: string;
 }
 
-export interface OperatingStatus {
-  currentMarketStatus: VendorStatus;
-  currentTime: number;
-  instrumentName: string;
-  purpose: string;
-  tradingStartTime: string;
-  tradingEndTime: string;
+export interface StockVendorCode {
+  etm: string;
+  mc?: string;
 }
 
-export interface History {
-  s: string;
-  noData: boolean;
-  dates: string[];
-  t: number[];
-  o: number[];
-  c: number[];
-  h: number[];
-  l: number[];
-  v: number[];
+export interface IndexVendorCode {
+  etm: ETMIndexVendorCode;
+  mc?: string;
+}
+
+export interface ETMIndexVendorCode {
+  id: string;
+  symbol: string;
 }
 
 export enum VendorStatus {
@@ -296,17 +437,23 @@ export enum VendorStatus {
   CLOSE = 'CLOSED',
 }
 
-export const ExchangeCodes = {
-  NSE: '50',
-  BSE: '47',
-};
+export enum IndexReturnLabel {
+  ONE_DAY = '1D',
+  ONE_WEEK = '1W',
+  ONE_MONTH = '1M',
+  THREE_MONTH = '3M',
+  SIX_MONTH = '6M',
+  ONE_YEAR = '1Y',
+  THREE_YEAR = '3Y',
+  FIVE_YEAR = '5Y',
+}
 
-export const IndexCodes = {
-  NIFTY_FIFTY: '2369',
-  SENSEX: '2365',
-};
+export enum ExchangeCode {
+  NSE = '50',
+  BSE = '47',
+}
 
-export const IndexNames = {
-  NIFTY_FIFTY: 'NIFTY',
-  SENSEX: 'SENSEX',
-};
+export enum IndexCode {
+  NIFTY_FIFTY = '2369',
+  SENSEX = '2365',
+}
