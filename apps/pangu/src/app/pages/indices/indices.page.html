@@ -447,6 +447,78 @@
       </div>
     </div>
   </div>
+
+  <!-- Constituents -->
+  <div class="relative mb-4 overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
+    <h5
+      class="mx-4 mb-4 text-xl font-semibold leading-none text-gray-900 sm:mx-0 dark:text-white"
+    >
+      Stocks
+    </h5>
+
+    @if (index.constituents && index.constituents.length > 0) {
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <thead
+        class="bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="min-w-32 p-2 text-left sm:p-4">
+            <div class="max-w-24 whitespace-nowrap">Company</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>LTP (&#8377;)</div>
+            <div>Volume</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Day P/L (&#8377;)</div>
+            <div>Day P/L (%)</div>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (constituent of index.constituents; track constituent.id) {
+        <tr
+          [routerLink]="['/' + Routes.STOCKS, constituent.vendorCode.etm]"
+          class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
+        >
+          <th scope="row" class="min-w-32 p-2 font-normal sm:p-4">
+            <div
+              class="max-w-28 truncate font-medium text-gray-900 dark:text-white"
+            >
+              {{ constituent.name }}
+            </div>
+          </th>
+          <td class="p-2 text-center sm:p-4">
+            <div>
+              {{ constituent.quote?.[index.exchange]?.price | number: '1.2-2' }}
+            </div>
+            <div class="pt-1.5 text-xs">
+              {{ constituent.quote?.[index.exchange]?.volume | number: '1.0-0'
+              }}
+            </div>
+          </td>
+          <td
+            class="p-2 text-center sm:p-4"
+            [ngClass]="constituent.quote?.[index.exchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div>
+              {{ constituent.quote?.[index.exchange]?.change?.value | number:
+              '1.2-2' }}
+            </div>
+            <div>
+              ({{ constituent.quote?.[index.exchange]?.change?.percentage |
+              number: '1.2-2' }}%)
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
   } @else {
   <div class="flex flex-1 items-center justify-center" role="status">
     <svg
