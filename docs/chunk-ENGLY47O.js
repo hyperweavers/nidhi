@@ -1,0 +1,1 @@
+import{Fa as c,Ha as a,Zb as t,_b as l,m as o,ma as i,xa as u}from"./chunk-XMCB76YJ.js";function h(d,n){!n?.injector&&u(h);let r=n?.injector??i(c),e=new o(1),b=l(()=>{let s;try{s=d()}catch(y){t(()=>e.error(y));return}t(()=>e.next(s))},{injector:r,manualCleanup:!0});return r.get(a).onDestroy(()=>{b.destroy(),e.complete()}),e.asObservable()}export{h as a};
