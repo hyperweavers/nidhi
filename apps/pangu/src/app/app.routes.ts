@@ -70,6 +70,11 @@ export const appRoutes: Route[] = [
       import('./pages/terms/terms.page').then((m) => m.TermsPage),
   },
   {
+    path: Constants.routes.DISCLAIMER,
+    loadComponent: () =>
+      import('./pages/disclaimer/disclaimer.page').then((m) => m.DisclaimerPage),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./pages/page-not-found/page-not-found.page').then(
