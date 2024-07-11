@@ -11,6 +11,7 @@ export const Constants = {
     ABOUT: 'about',
     PRIVACY: 'privacy',
     TERMS: 'terms',
+    DISCLAIMER: 'disclaimer',
   },
   api: {
     MARKET_STATUS: 'https://etapi.indiatimes.com/et-screener/index-byid',
