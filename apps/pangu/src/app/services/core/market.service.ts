@@ -253,10 +253,9 @@ export class MarketService {
       this.MAX_CHART_HISTORY_IN_DAYS,
     );
     const to = Date.now();
-    const weekdays = MarketUtils.getWeekDays(from, to);
-    const queryParams = `symbol=${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}&countback=${weekdays}`;
+    const queryParams = `symbol=${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
 
-    return from > 0 && weekdays > 0
+    return from > 0
       ? this.http.get<History>(url + queryParams).pipe(
           map(({ noData, dates, o, c, h, l, v }): ChartData[] => {
             return noData
