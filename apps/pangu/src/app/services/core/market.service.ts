@@ -254,7 +254,7 @@ export class MarketService {
     );
     const to = Date.now();
     const weekdays = MarketUtils.getWeekDays(from, to);
-    const queryParams = `symbol=${symbol}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}&countback=${weekdays}`;
+    const queryParams = `symbol=${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}&countback=${weekdays}`;
 
     return from > 0 && weekdays > 0
       ? this.http.get<History>(url + queryParams).pipe(
