@@ -21,14 +21,18 @@ export const Constants = {
       'https://etsearch.indiatimes.com/etspeeds/etsearchMdata.ep?matchCompanyName=true&ticker=',
     STOCK_QUOTE:
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
-    STOCK_CHART:
+    STOCK_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/stock/history?resolution=1D&countback=0&',
+    STOCK_INTRA_DAY_CHART:
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=', // DRREDDY&from=1720152420&to=1720152660
     INDEX_QUOTE:
       'https://etapi.indiatimes.com/et-screener/index-summary?indexId=',
     INDEX_CONSTITUENTS:
       'https://etmarketsapis.indiatimes.com/ET_Stats/getIndexByIds?pagesize=1000&sortorder=desc&company=true&',
-    INDEX_CHART:
+    INDEX_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/index/history?resolution=1D&countback=0&',
+    INDEX_INTRA_DAY_CHART:
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=in;', //NSX&from=1720152420&to=1720152660, SEN&from=1720152420&to=1720152660
   },
   settings: {
     THEME: 'theme',

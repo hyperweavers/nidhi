@@ -521,7 +521,8 @@
         </thead>
 
         <tbody>
-          @for (constituent of index.constituents; track constituent.id) {
+          @for (constituent of index.constituents; track
+          constituent.vendorCode.etm) {
           <tr
             [routerLink]="['/' + Routes.STOCKS, constituent.vendorCode.etm]"
             class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
