@@ -494,14 +494,20 @@
     @if (index.constituents && index.constituents.length > 0) {
     <div class="relative overflow-x-auto shadow sm:rounded-lg">
       <table
-        class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+        class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
       >
+        <colgroup>
+          <col width="100%" />
+          <col width="0%" />
+          <col width="0%" />
+        </colgroup>
+
         <thead
-          class="bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+          class="whitespace-nowrap bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
         >
           <tr>
-            <th scope="col" class="min-w-32 p-2 text-left sm:p-4">
-              <div class="max-w-24 whitespace-nowrap">Company</div>
+            <th scope="col" class="p-2 text-left sm:p-4">
+              <div class="whitespace-nowrap">Company</div>
             </th>
             <th scope="col" class="p-2 sm:p-4">
               <div>LTP (&#8377;)</div>
@@ -520,15 +526,13 @@
             [routerLink]="['/' + Routes.STOCKS, constituent.vendorCode.etm]"
             class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
           >
-            <th scope="row" class="min-w-32 p-2 font-normal sm:p-4">
-              <div
-                class="max-w-28 truncate font-medium text-gray-900 dark:text-white"
-              >
+            <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
+              <div class="truncate font-medium text-gray-900 dark:text-white">
                 {{ constituent.name }}
               </div>
             </th>
             <td class="p-2 text-center sm:p-4">
-              <div>
+              <div class="text-gray-900 dark:text-white">
                 {{ constituent.quote?.[index.exchange]?.price | number: '1.2-2'
                 }}
               </div>

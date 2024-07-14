@@ -1,5 +1,5 @@
 <div class="flex h-full flex-col pb-4">
-  @if (portfolio$ | async; as portfolio) {
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Summary -->
   <dl
     class="m-4 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
@@ -46,11 +46,11 @@
       </div>
     </div>
   </dl>
-  }
+  } }
 
   <!-- Table Header -->
   <div
-    class="flex flex-col items-center justify-between space-y-3 p-4 md:flex-row md:space-x-4 md:space-y-0"
+    class="flex flex-col items-center justify-between space-y-3 p-4 pt-2 md:flex-row md:space-x-4 md:space-y-0"
   >
     <!-- Search -->
     <div class="w-full md:w-64 xl:w-96">
@@ -398,14 +398,20 @@
   <!-- Table -->
   <div class="relative overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
     <table
-      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
     >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+
       <thead
-        class="bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+        class="whitespace-nowrap bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="min-w-32 p-2 text-left sm:p-4">
-            <div class="max-w-24 whitespace-nowrap">Company (Qty)</div>
+          <th scope="col" class="p-2 text-left sm:p-4">
+            <div class="whitespace-nowrap">Company (Qty)</div>
             <div>Avg. Price (&#8377;)</div>
             <div>Investment (&#8377;)</div>
           </th>
@@ -417,7 +423,7 @@
           <th scope="col" class="p-2 sm:p-4">
             <div>Total P/L (&#8377;)</div>
             <div>Total P/L (%)</div>
-            <div>Market Value (&#8377;)</div>
+            <div>Cur. Val. (&#8377;)</div>
           </th>
         </tr>
       </thead>
@@ -428,11 +434,9 @@
           [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm]"
           class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
         >
-          <th scope="row" class="min-w-32 p-2 font-normal sm:p-4">
+          <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
             <div class="flex">
-              <div
-                class="max-w-28 truncate font-medium text-gray-900 dark:text-white"
-              >
+              <div class="truncate font-medium text-gray-900 dark:text-white">
                 {{ holding.name }}
               </div>
               <div class="ps-0.5">({{ holding.quantity }})</div>
