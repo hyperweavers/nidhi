@@ -401,6 +401,17 @@ export interface History {
   v: number[];
 }
 
+export interface IntraDay {
+  s: IntraDayStatus;
+  data?: IntraDayData[];
+  nextTime?: number;
+}
+
+export interface IntraDayData {
+  time: number;
+  value: number;
+}
+
 export interface SearchResult {
   tagSeoName: string;
   marketCap: string;
@@ -456,4 +467,9 @@ export enum ExchangeCode {
 export enum IndexCode {
   NIFTY_FIFTY = '2369',
   SENSEX = '2365',
+}
+
+export enum IntraDayStatus {
+  OK = 'ok',
+  NO_DATA = 'no_data',
 }

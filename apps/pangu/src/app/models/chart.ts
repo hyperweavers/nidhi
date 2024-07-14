@@ -1,14 +1,14 @@
 import { Change } from './stock';
 
 export interface ChartData {
-  lineColor: string;
-  time: string;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
+  lineColor?: string;
+  time: string | number;
+  open?: number;
+  close?: number;
+  high?: number;
+  low?: number;
   value: number;
-  volume: number;
+  volume?: number;
   previousDayClose?: number;
   change?: Change;
 }

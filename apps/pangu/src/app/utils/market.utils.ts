@@ -26,7 +26,7 @@ export class MarketUtils {
     return new Date(date).getTime();
   }
 
-  public static getWeekDays(start: number, end: number) {
+  public static getBusinessDays(start: number, end: number) {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
@@ -43,5 +43,23 @@ export class MarketUtils {
     }
 
     return count;
+  }
+
+  public static isBusinessDay(date: Date) {
+    const day = date.getDay();
+
+    if (day == 0 || day == 6) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static getLastBusinessDay(date: Date) {
+    while (!MarketUtils.isBusinessDay(date)) {
+      date.setDate(date.getDate() - 1);
+    }
+
+    return date;
   }
 }

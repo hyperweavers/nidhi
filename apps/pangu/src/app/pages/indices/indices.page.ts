@@ -82,7 +82,7 @@ export class IndicesPage implements OnDestroy {
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
 
-  private chartData?: Map<string, ChartData>;
+  private chartData?: Map<string | number, ChartData>;
   private chart?: IChartApi;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areaSeries?: ISeriesApi<any>;
@@ -111,11 +111,11 @@ export class IndicesPage implements OnDestroy {
             .subscribe((data) => {
               if (data.length > 0) {
                 this.chartData = data.reduce(
-                  (map, obj): Map<string, ChartData> => {
+                  (map, obj): Map<string | number, ChartData> => {
                     map.set(obj.time, obj);
                     return map;
                   },
-                  new Map<string, ChartData>(),
+                  new Map<string | number, ChartData>(),
                 );
 
                 this.initChart(data);

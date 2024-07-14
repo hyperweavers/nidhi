@@ -27,6 +27,8 @@ import {
   IndexConstituents,
   IndexDetails,
   IndexQuotes,
+  IntraDay,
+  IntraDayStatus,
   SearchResult,
   VendorStatus,
 } from '../../models/market';
@@ -246,8 +248,8 @@ export class MarketService {
   ): Observable<ChartData[]> {
     const url =
       category === ChartCategory.STOCK
-        ? Constants.api.STOCK_CHART
-        : Constants.api.INDEX_CHART;
+        ? Constants.api.STOCK_HISTORIC_CHART
+        : Constants.api.INDEX_HISTORIC_CHART;
     const from = ChartUtils.getTimestampSince(
       new Date(),
       this.MAX_CHART_HISTORY_IN_DAYS,
@@ -303,6 +305,35 @@ export class MarketService {
       : of([]);
   }
 
+  // TODO: Get full data on initial request and partial data thereafter
+  public getIntraDayChart(
+    symbol: string,
+    category: ChartCategory,
+  ): Observable<ChartData[]> {
+    const url =
+      category === ChartCategory.STOCK
+        ? Constants.api.STOCK_INTRA_DAY_CHART
+        : Constants.api.INDEX_INTRA_DAY_CHART;
+    const day = MarketUtils.getLastBusinessDay(new Date());
+    const from = day.setHours(9, 15, 0, 0); // 9:15 AM IST
+    const to = day.setHours(15, 30, 0, 0); // 3:30 PM IST
+    const queryParams = `${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
+
+    return from > 0
+      ? this.poll$.pipe(
+          switchMap(() =>
+            this.http.get<IntraDay>(url + queryParams).pipe(
+              map(({ s, data }): ChartData[] => {
+                return s === IntraDayStatus.OK && data && data.length > 0
+                  ? (data as ChartData[])
+                  : [];
+              }),
+            ),
+          ),
+        )
+      : of([]);
+  }
+
   public search(query: string): Observable<Stock[]> {
     return this.http
       .get<SearchResult[]>(Constants.api.STOCK_SEARCH + query)
@@ -329,7 +360,9 @@ export class MarketService {
             (companyDetails): Stock => ({
               name: companyDetails.companyName,
               scripCode: {
-                nse: companyDetails.nseScripCode,
+                nse: companyDetails.nseScripCode.toUpperCase().endsWith('EQ')
+                  ? companyDetails.nseScripCode.slice(0, -2)
+                  : companyDetails.nseScripCode,
                 bse: companyDetails.bseScripCode,
                 isin: companyDetails.isinCode,
               },

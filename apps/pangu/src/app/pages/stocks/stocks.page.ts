@@ -19,15 +19,19 @@ import {
   createChart,
 } from 'lightweight-charts';
 import {
+  BehaviorSubject,
   Observable,
   delay,
+  distinctUntilChanged,
   distinctUntilKeyChanged,
+  mergeMap,
   switchMap,
   take,
   tap,
 } from 'rxjs';
 
 import { ChartData } from '../../models/chart';
+import { Status } from '../../models/market-status';
 import { ColorScheme } from '../../models/settings';
 import { Direction, ExchangeName, Stock } from '../../models/stock';
 import {
@@ -38,7 +42,7 @@ import { SettingsService } from '../../services/core/settings.service';
 import { ChartUtils } from '../../utils/chart.utils';
 
 enum ChartTimeRange {
-  // ONE_DAY = '1D', // TODO: Enable when intra day chart data is implemented
+  ONE_DAY = '1D',
   ONE_WEEK = '1W',
   ONE_MONTH = '1M',
   THREE_MONTHS = '3M',
@@ -66,7 +70,7 @@ export class StocksPage implements OnDestroy {
 
   public chartCrosshairData?: ChartData;
 
-  public activeChartTimeRange = ChartTimeRange.FIVE_YEAR; // TODO: Set the value as 1 day when intra day chart data is implemented
+  public activeChartTimeRange = ChartTimeRange.ONE_DAY;
   public activeExchange = ExchangeName.NSE;
 
   public isChartLoading = true;
@@ -76,7 +80,11 @@ export class StocksPage implements OnDestroy {
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
 
-  private chartData?: Map<string, ChartData>;
+  private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
+
+  private isMarketOpen = false;
+
+  private historicChartData?: Map<string | number, ChartData>;
   private chart?: IChartApi;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areaSeries?: ISeriesApi<any>;
@@ -87,23 +95,71 @@ export class StocksPage implements OnDestroy {
     marketService: MarketService,
     settingsService: SettingsService,
   ) {
+    marketService.marketStatus$
+      .pipe(untilDestroyed(this))
+      .subscribe(({ status }) => {
+        this.isMarketOpen = status === Status.OPEN;
+      });
+
     this.stock$ = toObservable(this.id).pipe(
       switchMap((id) => marketService.getStock(id, true)),
       tap((stock) => {
         if (stock && !this.chart && stock.scripCode.nse) {
-          marketService
+          const intraDayChart$ = marketService.getIntraDayChart(
+            stock.scripCode.nse,
+            ChartCategory.STOCK,
+          );
+
+          const historicChart$ = marketService
             .getHistoricalChart(stock.scripCode.nse, ChartCategory.STOCK)
-            .pipe(delay(100), take(1)) // A delay of 100ms is added to let Angular run change detection and update chart container element ref.
+            .pipe(
+              tap((data) => {
+                if (data.length > 0) {
+                  this.historicChartData = data.reduce(
+                    (map, obj): Map<string | number, ChartData> => {
+                      map.set(obj.time, obj);
+                      return map;
+                    },
+                    new Map<string | number, ChartData>(),
+                  );
+                }
+              }),
+            );
+
+          this.showIntraDayChart$
+            .pipe(
+              distinctUntilChanged(),
+              tap(() => {
+                if (this.chart) {
+                  this.chart.clearCrosshairPosition();
+
+                  this.chart.applyOptions({
+                    timeScale: {
+                      visible: false,
+                    },
+                    rightPriceScale: {
+                      visible: false,
+                    },
+                  });
+
+                  if (this.areaSeries) {
+                    this.areaSeries.setData([]);
+                  }
+                }
+
+                this.isChartLoading = true;
+              }),
+              mergeMap((val) =>
+                val
+                  ? intraDayChart$.pipe(untilDestroyed(this))
+                  : historicChart$.pipe(take(1)),
+              ),
+            )
+            .pipe(
+              delay(100), // A delay of 100ms is added to let Angular run change detection and update chart container element ref.
+            )
             .subscribe((data) => {
               if (data.length > 0) {
-                this.chartData = data.reduce(
-                  (map, obj): Map<string, ChartData> => {
-                    map.set(obj.time, obj);
-                    return map;
-                  },
-                  new Map<string, ChartData>(),
-                );
-
                 this.initChart(data);
 
                 if (this.areaSeries) {
@@ -158,24 +214,14 @@ export class StocksPage implements OnDestroy {
                               : '#111827',
                         },
                         timeScale: {
+                          visible: true,
                           borderColor:
                             colorScheme === ColorScheme.DARK
                               ? '#374151'
                               : '#E5E7EB',
                         },
                         rightPriceScale: {
-                          borderColor:
-                            colorScheme === ColorScheme.DARK
-                              ? '#374151'
-                              : '#E5E7EB',
-                        },
-                        leftPriceScale: {
-                          borderColor:
-                            colorScheme === ColorScheme.DARK
-                              ? '#374151'
-                              : '#E5E7EB',
-                        },
-                        overlayPriceScales: {
+                          visible: true,
                           borderColor:
                             colorScheme === ColorScheme.DARK
                               ? '#374151'
@@ -209,47 +255,81 @@ export class StocksPage implements OnDestroy {
     if (range) {
       this.activeChartTimeRange = range;
 
-      const to = new Date();
-      let from!: number;
+      this.showIntraDayChart$.next(range === ChartTimeRange.ONE_DAY);
 
-      switch (range) {
-        // TODO: Enable when intra day chart data is implemented
-        // case ChartTimeRange.ONE_DAY:
-        //   from = +to.toLocaleDateString();
-        //   break;
+      if (range !== ChartTimeRange.ONE_DAY) {
+        const to = new Date();
+        let from!: number;
 
-        case ChartTimeRange.ONE_WEEK:
-          from = ChartUtils.getTimestampSince(to, 10); // 10 days considered as one week as it includes weekend
-          break;
+        switch (range) {
+          case ChartTimeRange.ONE_WEEK:
+            from = ChartUtils.getTimestampSince(to, 10); // 10 days considered as one week as it includes weekend
+            break;
 
-        case ChartTimeRange.ONE_MONTH:
-          from = ChartUtils.getTimestampSince(to, 30);
-          break;
+          case ChartTimeRange.ONE_MONTH:
+            from = ChartUtils.getTimestampSince(to, 30);
+            break;
 
-        case ChartTimeRange.THREE_MONTHS:
-          from = ChartUtils.getTimestampSince(to, 90);
-          break;
+          case ChartTimeRange.THREE_MONTHS:
+            from = ChartUtils.getTimestampSince(to, 90);
+            break;
 
-        case ChartTimeRange.SIX_MONTHS:
-          from = ChartUtils.getTimestampSince(to, 180);
-          break;
+          case ChartTimeRange.SIX_MONTHS:
+            from = ChartUtils.getTimestampSince(to, 180);
+            break;
 
-        case ChartTimeRange.ONE_YEAR:
-          from = ChartUtils.getTimestampSince(to, 365);
-          break;
+          case ChartTimeRange.ONE_YEAR:
+            from = ChartUtils.getTimestampSince(to, 365);
+            break;
 
-        case ChartTimeRange.FIVE_YEAR:
-          from = ChartUtils.getTimestampSince(to, 5 * 356);
-          break;
+          case ChartTimeRange.FIVE_YEAR:
+            from = ChartUtils.getTimestampSince(to, 5 * 356);
+            break;
 
-        default:
-          console.warn(`Invalid range: ${range}`);
+          default:
+            console.warn(`Invalid range: ${range}`);
+        }
+
+        if (this.chart && from > 0) {
+          this.chart.applyOptions({
+            timeScale: {
+              timeVisible: false,
+            },
+          });
+
+          if (this.areaSeries) {
+            this.areaSeries.applyOptions({
+              lastPriceAnimation: 0,
+            });
+          }
+
+          if (this.areaSeries && this.areaSeries.data().length > 0) {
+            this.chart.timeScale().setVisibleRange({
+              from: ChartUtils.epochToUtcTimestamp(from),
+              to: ChartUtils.epochToUtcTimestamp(to.getTime()),
+            });
+          }
+        }
+
+        return;
       }
 
-      if (this.chart && from > 0) {
-        this.chart.timeScale().setVisibleRange({
-          from: ChartUtils.epochToUtcTimestamp(from),
-          to: ChartUtils.epochToUtcTimestamp(to.getTime()),
+      if (this.chart) {
+        this.chart.applyOptions({
+          timeScale: {
+            timeVisible: true,
+          },
+        });
+
+        if (this.areaSeries) {
+          this.areaSeries.applyOptions({
+            lastPriceAnimation: this.isMarketOpen ? 1 : 0,
+          });
+        }
+
+        this.chart.timeScale().setVisibleLogicalRange({
+          from: 0,
+          to: 375, // Minutes between 9:15 AM to 3:30 PM
         });
       }
     }
@@ -319,29 +399,41 @@ export class StocksPage implements OnDestroy {
 
   private initChart(data: ChartData[]): void {
     if (this.chartRef?.nativeElement && data?.length > 0) {
-      this.chart = createChart(this.chartRef.nativeElement, {
-        layout: {
-          background: { color: 'transparent' },
-        },
-        grid: {
-          horzLines: {
-            visible: false,
-          },
-          vertLines: {
-            visible: false,
-          },
-        },
-        handleScroll: false, // TODO: Fix time scale not re-rending issue before enable scrolling
-        handleScale: false,
-      });
+      const intraDay = this.showIntraDayChart$.getValue();
 
-      this.areaSeries = this.chart.addAreaSeries({
-        lineWidth: 1,
-      });
+      if (!this.chart) {
+        this.chart = createChart(this.chartRef.nativeElement, {
+          layout: {
+            background: { color: 'transparent' },
+          },
+          grid: {
+            horzLines: {
+              visible: false,
+            },
+            vertLines: {
+              visible: false,
+            },
+          },
+          handleScroll: false, // TODO: Fix time scale not re-rending issue before enable scrolling
+          handleScale: false,
+          timeScale: {
+            lockVisibleTimeRangeOnResize: true,
+            timeVisible: intraDay,
+            secondsVisible: false,
+          },
+        });
+      }
+
+      if (!this.areaSeries) {
+        this.areaSeries = this.chart.addAreaSeries({
+          lineWidth: 1,
+          lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
+        });
+      }
 
       this.areaSeries.setData(data);
 
-      this.chart.timeScale().fitContent();
+      this.setChartTimeRange(this.activeChartTimeRange);
 
       this.chart.subscribeCrosshairMove(
         this.chartCrosshairMoveEventHandler.bind(this),
@@ -352,8 +444,17 @@ export class StocksPage implements OnDestroy {
   }
 
   private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
-    if (time && this.chartData && this.chartData.size > 0) {
-      this.chartCrosshairData = this.chartData.get(time.toLocaleString());
+    if (time && this.historicChartData && this.historicChartData.size > 0) {
+      this.chartCrosshairData = this.historicChartData.get(
+        time.toLocaleString(),
+      );
+
+      // FIXME: Add a debounce to avoid max call stack error. After the fix, remove setting lineColor in chart data (at service level)
+      // if (this.areaSeries && this.chartCrosshairData?.change?.direction) {
+      //   this.areaSeries.applyOptions({
+      //     crosshairMarkerBackgroundColor: this.chartCrosshairData.change.direction === Direction.UP ? '#22c55e' : '#ef4444',
+      //   });
+      // }
     } else {
       this.chartCrosshairData = undefined;
     }
