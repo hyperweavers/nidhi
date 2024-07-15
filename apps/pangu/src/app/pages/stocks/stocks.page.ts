@@ -24,7 +24,6 @@ import {
   delay,
   distinctUntilChanged,
   distinctUntilKeyChanged,
-  mergeMap,
   switchMap,
   take,
   tap,
@@ -149,7 +148,7 @@ export class StocksPage implements OnDestroy {
 
                 this.isChartLoading = true;
               }),
-              mergeMap((val) =>
+              switchMap((val) =>
                 val
                   ? intraDayChart$.pipe(untilDestroyed(this))
                   : historicChart$.pipe(take(1)),
