@@ -1,3 +1,4 @@
+// ETM
 export interface DashboardQuery {
   companies?: Query[];
   indices?: Query[];
@@ -401,17 +402,6 @@ export interface History {
   v: number[];
 }
 
-export interface IntraDay {
-  s: IntraDayStatus;
-  data?: IntraDayData[];
-  nextTime?: number;
-}
-
-export interface IntraDayData {
-  time: number;
-  value: number;
-}
-
 export interface SearchResult {
   tagSeoName: string;
   marketCap: string;
@@ -426,21 +416,6 @@ export interface SearchResult {
   NetChange: string;
   matchtype: string;
   lastTradedPrice: string;
-}
-
-export interface StockVendorCode {
-  etm: string;
-  mc?: string;
-}
-
-export interface IndexVendorCode {
-  etm: ETMIndexVendorCode;
-  mc?: string;
-}
-
-export interface ETMIndexVendorCode {
-  id: string;
-  symbol: string;
 }
 
 export enum VendorStatus {
@@ -464,12 +439,45 @@ export enum ExchangeCode {
   BSE = '47',
 }
 
-export enum IndexCode {
+export enum IndexCodeEtm {
   NIFTY_FIFTY = '2369',
   SENSEX = '2365',
+}
+
+// MC
+export interface IntraDay {
+  s: IntraDayStatus;
+  data?: IntraDayData[];
+  nextTime?: number;
+}
+
+export interface IntraDayData {
+  time: number;
+  value: number;
 }
 
 export enum IntraDayStatus {
   OK = 'ok',
   NO_DATA = 'no_data',
+}
+
+export enum IndexCodeMc {
+  NIFTY_FIFTY = 'NSX',
+  SENSEX = 'SEN',
+}
+
+// Generic
+export interface StockVendorCode {
+  etm: string;
+  mc?: string;
+}
+
+export interface IndexVendorCode {
+  etm: ETMIndexVendorCode;
+  mc?: string;
+}
+
+export interface ETMIndexVendorCode {
+  id: string;
+  symbol: string;
 }
