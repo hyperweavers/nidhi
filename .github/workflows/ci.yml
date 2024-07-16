@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: '.nvmrc'
           cache: 'npm' # Cache node_modules
 
       - name: Install Dependencies
