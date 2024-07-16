@@ -58,6 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^7.3.0",
     "@typescript-eslint/parser": "^7.3.0",
     "@typescript-eslint/utils": "^8.0.0-alpha.28",
+    "angular-cli-ghpages": "^2.0.1",
     "autoprefixer": "^10.4.0",
     "cypress": "13.9.0",
     "eslint": "~8.57.0",
