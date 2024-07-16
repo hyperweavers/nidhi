@@ -16,6 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # This line enables distribution
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
+      - name: Setup NX Cloud
+        run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="build"
+        # Replace above command with the below one when unit and e2e tests are available/fixed
+        # run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
