@@ -29,27 +29,17 @@ jobs:
         run: npm ci
 
       - name: Lint
-        # run: npx nx run-many -t lint
-        run: npx nx run-many -t lint build
-
-      - name: Prepare
-        run: npm run deploy:pangu
+        run: npx nx run-many -t lint
 
       # Didable unit and e2e tests until available/fixed
       # - name: Lint and Run Unit & E2E Tests
-      #   run: npx nx -t lint test e2e-ci
+      #   run: npx nx run-many -t lint test e2e-ci
 
-      # - name: Deploy
-      #   run: npx nx deploy pangu
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Prepare
+        run: npm run deploy:pangu
 
-      - name: Deploy 🚀
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
-          # git-config-name: ""
-          # git-config-email: ""
-          # repository-name: ""
-          # commit-message: ""
-          # dry-run: true
+          commit-message: 'Deploy Pangu 🚀'

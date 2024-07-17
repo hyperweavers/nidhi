@@ -90,17 +90,6 @@
         "staticFilePath": "dist/apps/pangu/browser",
         "spa": true
       }
-    },
-    "deploy": {
-      "executor": "angular-cli-ghpages:deploy",
-      "options": {
-        "cname": "pangu.hyperweavers.com",
-        "repo": "https://github.com/hyperweavers/nidhi.git",
-        "branch": "main",
-        "message": "ci(pangu): publish app",
-        "name": "Hyper Weavers",
-        "email": "info@hyperweavers.com"
-      }
     }
   }
 }
