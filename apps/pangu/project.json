@@ -97,7 +97,9 @@
         "cname": "pangu.hyperweavers.com",
         "repo": "https://github.com/hyperweavers/nidhi.git",
         "branch": "main",
-        "message": "ci(pangu): publish app"
+        "message": "ci(pangu): publish app",
+        "name": "Hyper Weavers",
+        "email": "info@hyperweavers.com"
       }
     }
   }
