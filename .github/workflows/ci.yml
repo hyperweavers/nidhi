@@ -14,28 +14,42 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       # This line enables distribution
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "e2e-ci" targets have been requested
-      - run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
+      - name: Setup NX Cloud
+        run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="build"
+        # Replace above command with the below one when unit and e2e tests are available/fixed
+        # run: npx nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="e2e-ci"
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: '.nvmrc'
           cache: 'npm' # Cache node_modules
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Set NX SHAs
+        uses: nrwl/nx-set-shas@v4
 
-      - run: git branch --track main origin/main
+      - name: Track main Branch (for PRs)
         if: ${{ github.event_name == 'pull_request' }}
+        run: git branch --track main origin/main
 
-      - run: npx nx-cloud record -- nx format:check
-      - run: npx nx affected -t lint build
-      # Didable unit and e2e tests until available/fixed
-      # - run: npx nx affected -t lint test build e2e-ci
+      - name: Format
+        run: npx nx-cloud record -- nx format:check
+
+      - name: Lint & build
+        run: npx nx affected -t lint build
+
+      # Disable unit and e2e tests until available/fixed
+      # - name: Lint, Build and Run Unit & E2E Tests
+      #   run: npx nx affected -t lint test build e2e-ci
