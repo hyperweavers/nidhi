@@ -48,8 +48,8 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
-          # git-config-name:
-          # git-config-email:
-          # repository-name:
-          # commit-message:
-          dry-run: true
+          # git-config-name: ""
+          # git-config-email: ""
+          # repository-name: ""
+          # commit-message: ""
+          # dry-run: true
