@@ -4,6 +4,8 @@
 
 ## About
 
-Nidhi (_Finance in English_) is a collection of privacy focused open source personal finance management applications.
+Nidhi (_Tamil: நிதி; English: Share_) is a collection of privacy focused open source personal finance management applications.
 
-1. Pangu (_Share in English_) is a privacy focused open source personal stock portfolio management application.
+## List of Applications
+
+1. Pangu (_Tamil: பங்கு; English: Share_) is a privacy focused open source personal stock portfolio management application.
