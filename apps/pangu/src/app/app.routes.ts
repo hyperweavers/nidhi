@@ -72,7 +72,9 @@ export const appRoutes: Route[] = [
   {
     path: Constants.routes.DISCLAIMER,
     loadComponent: () =>
-      import('./pages/disclaimer/disclaimer.page').then((m) => m.DisclaimerPage),
+      import('./pages/disclaimer/disclaimer.page').then(
+        (m) => m.DisclaimerPage,
+      ),
   },
   {
     path: '**',

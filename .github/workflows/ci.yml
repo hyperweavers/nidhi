@@ -40,14 +40,13 @@ jobs:
       - name: Set NX SHAs
         uses: nrwl/nx-set-shas@v4
 
-      - name: Track main Branch (for PRs)
-        if: ${{ github.event_name == 'pull_request' }}
+      - if: ${{ github.event_name == 'pull_request' }}
         run: git branch --track main origin/main
 
       - name: Format
         run: npx nx-cloud record -- nx format:check
 
-      - name: Lint & build
+      - name: Lint & Build
         run: npx nx affected -t lint build
 
       # Disable unit and e2e tests until available/fixed

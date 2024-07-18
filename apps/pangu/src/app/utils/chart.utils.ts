@@ -2,7 +2,7 @@ import { UTCTimestamp } from 'lightweight-charts';
 
 export class ChartUtils {
   public static epochToUtcTimestamp(epoch: number): UTCTimestamp {
-    return ((epoch && epoch > 0) ? Math.trunc(epoch / 1000) : -1) as UTCTimestamp;
+    return (epoch && epoch > 0 ? Math.trunc(epoch / 1000) : -1) as UTCTimestamp;
   }
 
   public static getTimestampSince(date: Date, n: number): number {
