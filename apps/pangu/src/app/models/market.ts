@@ -459,6 +459,7 @@ export interface IntraDayData {
 export enum IntraDayStatus {
   OK = 'ok',
   NO_DATA = 'no_data',
+  ERROR = 'error',
 }
 
 export enum IndexCodeMc {

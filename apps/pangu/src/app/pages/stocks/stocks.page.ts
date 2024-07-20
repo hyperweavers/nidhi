@@ -74,6 +74,7 @@ export class StocksPage implements OnDestroy {
 
   public isChartLoading = true;
   public isChartInFullscreen = false;
+  public isChartNoData = false;
 
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
@@ -159,6 +160,8 @@ export class StocksPage implements OnDestroy {
             )
             .subscribe((data) => {
               if (data.length > 0) {
+                this.isChartNoData = false;
+
                 this.initChart(data);
 
                 if (this.areaSeries) {
@@ -180,8 +183,6 @@ export class StocksPage implements OnDestroy {
                       : 'rgba(41, 98, 255, 0.1)',
                   });
                 }
-
-                cdr.markForCheck();
 
                 settingsService.resize$
                   .pipe(untilDestroyed(this))
@@ -243,7 +244,12 @@ export class StocksPage implements OnDestroy {
                       });
                     }
                   });
+              } else {
+                this.isChartNoData = true;
               }
+
+              this.isChartLoading = false;
+              this.cdr.markForCheck();
             });
         }
       }),
@@ -397,7 +403,7 @@ export class StocksPage implements OnDestroy {
   }
 
   private initChart(data: ChartData[]): void {
-    if (this.chartRef?.nativeElement && data?.length > 0) {
+    if (this.chartRef?.nativeElement) {
       const intraDay = this.showIntraDayChart$.getValue();
 
       if (!this.chart) {
@@ -437,8 +443,6 @@ export class StocksPage implements OnDestroy {
       this.chart.subscribeCrosshairMove(
         this.chartCrosshairMoveEventHandler.bind(this),
       );
-
-      this.isChartLoading = false;
     }
   }
 
