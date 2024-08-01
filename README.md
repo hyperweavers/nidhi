@@ -4,7 +4,7 @@
 
 ## About
 
-Nidhi (_Tamil: நிதி; English: Share_) is a collection of privacy focused open source personal finance management applications.
+Nidhi (_Tamil: நிதி; English: Finance_) is a collection of privacy focused open source personal finance management applications.
 
 ## List of Applications
 
