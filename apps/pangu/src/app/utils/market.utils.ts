@@ -1,5 +1,5 @@
-import { ExchangeCode } from '../models/market';
 import { Direction, ExchangeName } from '../models/stock';
+import { ExchangeCode } from '../models/vendor/etm';
 
 export class MarketUtils {
   public static getDirection(value: number): Direction {

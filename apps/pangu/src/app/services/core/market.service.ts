@@ -18,6 +18,8 @@ import {
 import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
+import { MarketStatus, Status } from '../../models/market-status';
+import { Direction, ExchangeName, Quote, Stock } from '../../models/stock';
 import {
   CompanyDetails,
   Dashboard,
@@ -27,13 +29,10 @@ import {
   IndexConstituents,
   IndexDetails,
   IndexQuotes,
-  IntraDay,
-  IntraDayStatus,
   SearchResult,
   VendorStatus,
-} from '../../models/market';
-import { MarketStatus, Status } from '../../models/market-status';
-import { Direction, ExchangeName, Quote, Stock } from '../../models/stock';
+} from '../../models/vendor/etm';
+import { IntraDay, IntraDayStatus } from '../../models/vendor/mc';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';

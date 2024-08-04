@@ -4,8 +4,8 @@ import { Observable, combineLatest, map, shareReplay } from 'rxjs';
 import { Constants } from '../constants';
 import { Index } from '../models/index';
 import { Kpi, KpiCard } from '../models/kpi';
-import { IndexCodeEtm } from '../models/market';
 import { Portfolio } from '../models/portfolio';
+import { IndexCodeEtm } from '../models/vendor/etm';
 import { MarketService } from './core/market.service';
 import { PortfolioService } from './portfolio.service';
 

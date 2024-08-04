@@ -34,10 +34,11 @@ import {
 import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
-import { IndexCodeEtm, IndexCodeMc } from '../../models/market';
 import { Status } from '../../models/market-status';
 import { ColorScheme } from '../../models/settings';
 import { Direction, ExchangeName } from '../../models/stock';
+import { IndexCodeEtm } from '../../models/vendor/etm';
+import { IndexCodeMc } from '../../models/vendor/mc';
 import {
   ChartCategory,
   MarketService,
