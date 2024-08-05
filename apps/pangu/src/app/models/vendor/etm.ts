@@ -437,8 +437,3 @@ export enum ExchangeCode {
   NSE = '50',
   BSE = '47',
 }
-
-export enum IndexCodeEtm {
-  NIFTY_FIFTY = '2369',
-  SENSEX = '2365',
-}

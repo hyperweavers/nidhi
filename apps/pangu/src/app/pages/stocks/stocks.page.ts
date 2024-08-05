@@ -30,9 +30,9 @@ import {
 } from 'rxjs';
 
 import { ChartData } from '../../models/chart';
-import { Status } from '../../models/market-status';
+import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
-import { Direction, ExchangeName, Stock } from '../../models/stock';
+import { Stock } from '../../models/stock';
 import {
   ChartCategory,
   MarketService,
@@ -446,7 +446,7 @@ export class StocksPage implements OnDestroy {
     }
   }
 
-  private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
+  private chartCrosshairMoveEventHandler({ time }: MouseEventParams): void {
     if (time && this.historicChartData && this.historicChartData.size > 0) {
       this.chartCrosshairData = this.historicChartData.get(
         time.toLocaleString(),

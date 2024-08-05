@@ -14,8 +14,3 @@ export enum IntraDayStatus {
   NO_DATA = 'no_data',
   ERROR = 'error',
 }
-
-export enum IndexCodeMc {
-  NIFTY_FIFTY = 'NSX',
-  SENSEX = 'SEN',
-}

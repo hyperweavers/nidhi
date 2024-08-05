@@ -34,11 +34,8 @@ import {
 import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
-import { Status } from '../../models/market-status';
+import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
-import { Direction, ExchangeName } from '../../models/stock';
-import { IndexCodeEtm } from '../../models/vendor/etm';
-import { IndexCodeMc } from '../../models/vendor/mc';
 import {
   ChartCategory,
   MarketService,
@@ -119,17 +116,12 @@ export class IndicesPage implements OnDestroy {
       tap((index) => {
         if (index && !this.chart) {
           const intraDayChart$ = marketService.getIntraDayChart(
-            index.vendorCode.etm.id === IndexCodeEtm.NIFTY_FIFTY
-              ? IndexCodeMc.NIFTY_FIFTY
-              : IndexCodeMc.SENSEX,
+            index.id,
             ChartCategory.INDEX,
           );
 
           const historicChart$ = marketService
-            .getHistoricalChart(
-              index.vendorCode.etm.symbol,
-              ChartCategory.INDEX,
-            )
+            .getHistoricalChart(index.id, ChartCategory.INDEX)
             .pipe(
               tap((data) => {
                 if (data.length > 0) {
@@ -462,7 +454,7 @@ export class IndicesPage implements OnDestroy {
     }
   }
 
-  private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
+  private chartCrosshairMoveEventHandler({ time }: MouseEventParams): void {
     if (time && this.historicChartData && this.historicChartData.size > 0) {
       this.chartCrosshairData = this.historicChartData.get(
         time.toLocaleString(),

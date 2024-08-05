@@ -30,8 +30,9 @@ import { v4 as uuid } from 'uuid';
 
 import { Constants } from '../../constants';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
+import { Direction } from '../../models/market';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
-import { Direction, Stock } from '../../models/stock';
+import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';

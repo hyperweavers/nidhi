@@ -18,8 +18,14 @@ import {
 import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
-import { MarketStatus, Status } from '../../models/market-status';
-import { Direction, ExchangeName, Quote, Stock } from '../../models/stock';
+import {
+  Direction,
+  ExchangeName,
+  INDICES,
+  MarketStatus,
+  Status,
+} from '../../models/market';
+import { Quote, Stock } from '../../models/stock';
 import {
   CompanyDetails,
   Dashboard,
@@ -182,6 +188,17 @@ export class MarketService {
     );
   }
 
+  public getMainIndices(): Observable<Index[]> {
+    const indexSymbols = [];
+    const niftyFifty = INDICES.nse.find((index) => index.main === true);
+    const sensex = INDICES.bse.find((index) => index.main === true);
+
+    niftyFifty && indexSymbols.push(niftyFifty.etm.id);
+    sensex && indexSymbols.push(sensex.etm.id);
+
+    return this.getIndices(indexSymbols);
+  }
+
   public getIndices(codes: string[]): Observable<Index[]> {
     const query: DashboardQuery = {
       indices: [...codes.map((id) => ({ id }))],
@@ -204,10 +221,7 @@ export class MarketService {
                 index.exchange as ExchangeCode,
               ),
               vendorCode: {
-                etm: {
-                  id: index.indexid,
-                  symbol: index.scripCode1GivenByExhange,
-                },
+                etm: index.indexid,
               },
               quote: {
                 lastUpdated: index.dateTimeLong,
@@ -245,63 +259,77 @@ export class MarketService {
     symbol: string,
     category: ChartCategory,
   ): Observable<ChartData[]> {
-    const url =
+    const vendorSymbol =
       category === ChartCategory.STOCK
-        ? Constants.api.STOCK_HISTORIC_CHART
-        : Constants.api.INDEX_HISTORIC_CHART;
-    const from = ChartUtils.getTimestampSince(
-      new Date(),
-      this.MAX_CHART_HISTORY_IN_DAYS,
-    );
-    const to = Date.now();
-    const queryParams = `symbol=${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
+        ? symbol
+        : [...INDICES.nse, ...INDICES.bse].find(
+            (index) => index.etm.id === symbol,
+          )?.etm.symbol || '';
 
-    return from > 0
-      ? this.http.get<History>(url + queryParams).pipe(
-          map(({ noData, dates, o, c, h, l, v }): ChartData[] => {
-            return noData
-              ? []
-              : ([...new Set(dates)].map((date, i) => {
-                  const time = new Date(date).toLocaleDateString('en-CA', {
-                    timeZone: 'Asia/Kolkata',
-                  });
-                  const previousDayClose = i > 0 ? c[i - 1] : undefined;
-                  const todayClose = c[i];
+    if (symbol) {
+      const url =
+        category === ChartCategory.STOCK
+          ? Constants.api.STOCK_HISTORIC_CHART
+          : Constants.api.INDEX_HISTORIC_CHART;
+      const from = ChartUtils.getTimestampSince(
+        new Date(),
+        this.MAX_CHART_HISTORY_IN_DAYS,
+      );
+      const to = Date.now();
+      const queryParams = `symbol=${encodeURIComponent(vendorSymbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
 
-                  let changeValue, changePercent;
+      return from > 0
+        ? this.http.get<History>(url + queryParams).pipe(
+            map(({ noData, dates, o, c, h, l, v }): ChartData[] => {
+              return noData
+                ? []
+                : ([...new Set(dates)].map((date, i) => {
+                    const time = new Date(date).toLocaleDateString('en-CA', {
+                      timeZone: 'Asia/Kolkata',
+                    });
+                    const previousDayClose = i > 0 ? c[i - 1] : undefined;
+                    const todayClose = c[i];
 
-                  if (previousDayClose) {
-                    changeValue = todayClose - previousDayClose;
-                    changePercent = (changeValue / previousDayClose) * 100;
-                  }
+                    let changeValue, changePercent;
 
-                  return {
-                    time,
-                    open: o[i],
-                    close: c[i],
-                    high: h[i],
-                    low: l[i],
-                    value: c[i],
-                    volume: v[i],
-                    previousDayClose,
-                    change:
-                      changeValue !== undefined && changePercent !== undefined
-                        ? {
-                            direction: MarketUtils.getDirection(changePercent),
-                            percentage: changePercent,
-                            value: changeValue,
-                          }
-                        : undefined,
-                    lineColor:
-                      changePercent &&
-                      MarketUtils.getDirection(changePercent) === Direction.UP
-                        ? '#22c55e'
-                        : '#ef4444',
-                  };
-                }) as ChartData[]);
-          }),
-        )
-      : of([]);
+                    if (previousDayClose) {
+                      changeValue = todayClose - previousDayClose;
+                      changePercent = (changeValue / previousDayClose) * 100;
+                    }
+
+                    return {
+                      time,
+                      open: o[i],
+                      close: c[i],
+                      high: h[i],
+                      low: l[i],
+                      value: c[i],
+                      volume: v[i],
+                      previousDayClose,
+                      change:
+                        changeValue !== undefined && changePercent !== undefined
+                          ? {
+                              direction:
+                                MarketUtils.getDirection(changePercent),
+                              percentage: changePercent,
+                              value: changeValue,
+                            }
+                          : undefined,
+                      lineColor:
+                        changePercent &&
+                        MarketUtils.getDirection(changePercent) === Direction.UP
+                          ? '#22c55e'
+                          : '#ef4444',
+                    };
+                  }) as ChartData[]);
+            }),
+          )
+        : of([]);
+    } else {
+      console.error(`Stock / Index not found for symbol: ${symbol}`);
+
+      return of([]);
+    }
   }
 
   // TODO: Get full data on initial request and partial data thereafter
@@ -309,28 +337,41 @@ export class MarketService {
     symbol: string,
     category: ChartCategory,
   ): Observable<ChartData[]> {
-    const url =
+    const vendorSymbol =
       category === ChartCategory.STOCK
-        ? Constants.api.STOCK_INTRA_DAY_CHART
-        : Constants.api.INDEX_INTRA_DAY_CHART;
-    const day = MarketUtils.getLastBusinessDay(new Date());
-    const from = day.setHours(9, 15, 0, 0); // 9:15 AM IST
-    const to = day.setHours(15, 30, 0, 0); // 3:30 PM IST
-    const queryParams = `${encodeURIComponent(symbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
+        ? symbol
+        : [...INDICES.nse, ...INDICES.bse].find(
+            (index) => index.etm.id === symbol,
+          )?.mc.symbol || '';
 
-    return from > 0
-      ? this.poll$.pipe(
-          switchMap(() =>
-            this.http.get<IntraDay>(url + queryParams).pipe(
-              map(({ s, data }): ChartData[] => {
-                return s === IntraDayStatus.OK && data && data.length > 0
-                  ? (data as ChartData[])
-                  : [];
-              }),
+    if (symbol) {
+      const url =
+        category === ChartCategory.STOCK
+          ? Constants.api.STOCK_INTRA_DAY_CHART
+          : Constants.api.INDEX_INTRA_DAY_CHART;
+      const day = MarketUtils.getLastBusinessDay(new Date());
+      const from = day.setHours(9, 15, 0, 0); // 9:15 AM IST
+      const to = day.setHours(15, 30, 0, 0); // 3:30 PM IST
+      const queryParams = `${encodeURIComponent(vendorSymbol)}&from=${ChartUtils.epochToUtcTimestamp(from)}&to=${ChartUtils.epochToUtcTimestamp(to)}`;
+
+      return from > 0
+        ? this.poll$.pipe(
+            switchMap(() =>
+              this.http.get<IntraDay>(url + queryParams).pipe(
+                map(({ s, data }): ChartData[] => {
+                  return s === IntraDayStatus.OK && data && data.length > 0
+                    ? (data as ChartData[])
+                    : [];
+                }),
+              ),
             ),
-          ),
-        )
-      : of([]);
+          )
+        : of([]);
+    } else {
+      console.error(`Stock / Index not found for symbol: ${symbol}`);
+
+      return of([]);
+    }
   }
 
   public search(query: string): Observable<Stock[]> {
@@ -567,10 +608,7 @@ export class MarketService {
                     indexDetails.assetExchangeId as ExchangeCode,
                   ),
                   vendorCode: {
-                    etm: {
-                      id: indexDetails.assetId,
-                      symbol: indexDetails.assetSymbol,
-                    },
+                    etm: indexDetails.assetId,
                   },
                   quote: {
                     lastUpdated: indexDetails.dateTime,

@@ -1,5 +1,5 @@
-import { AdvanceDecline } from './index';
-import { Change, Stock } from './stock';
+import { AdvanceDecline, Change } from './market';
+import { Stock } from './stock';
 
 export interface Portfolio {
   holdings: Holding[];

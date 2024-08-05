@@ -24,7 +24,7 @@ export const Constants = {
     STOCK_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/stock/history?resolution=1D&countback=0&',
     STOCK_INTRA_DAY_CHART:
-      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=', // DRREDDY&from=1720152420&to=1720152660
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
     INDEX_QUOTE:
       'https://etapi.indiatimes.com/et-screener/index-summary?indexId=',
     INDEX_CONSTITUENTS:
@@ -32,7 +32,7 @@ export const Constants = {
     INDEX_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/index/history?resolution=1D&countback=0&',
     INDEX_INTRA_DAY_CHART:
-      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=in;', //NSX&from=1720152420&to=1720152660, SEN&from=1720152420&to=1720152660
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
   },
   settings: {
     THEME: 'theme',

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { Kpi } from '../../models/kpi';
-import { Direction } from '../../models/stock';
+import { Direction } from '../../models/market';
 import { DashboardService } from '../../services/dashboard.service';
 
 @Component({

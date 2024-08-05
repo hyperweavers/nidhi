@@ -1,11 +1,10 @@
-import { AdvanceDecline } from './index';
-import { StockVendorCode } from './market';
+import { Change, Performance, VendorCode } from './market';
 
 export interface Stock {
   id?: string; // Database UUID
   name: string;
   scripCode: ScripCode;
-  vendorCode: StockVendorCode;
+  vendorCode: VendorCode;
   quote?: ExchangeQuote;
   limits?: ExchangeLimits;
   metrics?: ExchangeMetrics;
@@ -42,10 +41,6 @@ export interface Quote {
   lastUpdated?: number;
 }
 
-export interface Change extends AdvanceDecline {
-  direction: Direction;
-}
-
 export interface ExchangeLimits {
   nse: Limits;
   bse?: Limits;
@@ -76,31 +71,4 @@ export interface Metrics {
 export interface ExchangePerformance {
   nse: Performance;
   bse?: Performance;
-}
-
-export interface Performance {
-  yearToDate?: Change;
-  weekly: Change;
-  monthly: Change;
-  quarterly: Change;
-  halfYearly: Change;
-  yearly: YearlyPerformance;
-}
-
-export interface YearlyPerformance {
-  one: Change;
-  two?: Change;
-  three?: Change;
-  five: Change;
-  ten?: Change;
-}
-
-export enum Direction {
-  UP = 1,
-  DOWN = -1,
-}
-
-export enum ExchangeName {
-  NSE = 'nse',
-  BSE = 'bse',
 }

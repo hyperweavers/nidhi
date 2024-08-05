@@ -1,7 +1,10 @@
-import { Direction, ExchangeName } from '../models/stock';
+import { Direction, ExchangeName } from '../models/market';
+import { ScripCode } from '../models/stock';
 import { ExchangeCode } from '../models/vendor/etm';
 
 export class MarketUtils {
+  public static POSITIVE_WHOLE_NUMBER_REGEXP = new RegExp(/^\d+$/);
+
   public static getDirection(value: number): Direction {
     return value >= 0 ? Direction.UP : Direction.DOWN;
   }
@@ -26,7 +29,7 @@ export class MarketUtils {
     return new Date(date).getTime();
   }
 
-  public static getBusinessDays(start: number, end: number) {
+  public static getBusinessDays(start: number, end: number): number {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
@@ -45,7 +48,7 @@ export class MarketUtils {
     return count;
   }
 
-  public static isBusinessDay(date: Date) {
+  public static isBusinessDay(date: Date): boolean {
     const day = date.getDay();
 
     if (day == 0 || day == 6) {
@@ -55,11 +58,43 @@ export class MarketUtils {
     return true;
   }
 
-  public static getLastBusinessDay(date: Date) {
+  public static getLastBusinessDay(date: Date): Date {
     while (!MarketUtils.isBusinessDay(date)) {
       date.setDate(date.getDate() - 1);
     }
 
     return date;
+  }
+
+  public static extractScripCodesFromEtSearchResult(
+    result: string,
+  ): ScripCode | null {
+    let codeString = '';
+
+    try {
+      codeString =
+        new DOMParser()
+          .parseFromString(result, 'text/html')
+          .querySelector('span')?.textContent || '';
+    } catch (error) {
+      console.error(
+        `An error occurred while trying to parse MC search result "${result}": ${error}`,
+      );
+    }
+
+    if (codeString) {
+      const codes = codeString.split('');
+      const listedInNse = !MarketUtils.POSITIVE_WHOLE_NUMBER_REGEXP.test(
+        codes[1],
+      );
+
+      return {
+        isin: codes[0],
+        nse: listedInNse ? codes[1] : '',
+        bse: listedInNse ? codes[2] : codes[1],
+      };
+    } else {
+      return null;
+    }
   }
 }

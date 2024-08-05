@@ -1,5 +1,4 @@
-import { AdvanceDecline } from './index';
-import { Change } from './stock';
+import { AdvanceDecline, Change } from './market';
 
 export interface Kpi {
   cards: KpiCard[];

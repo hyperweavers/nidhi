@@ -5,7 +5,6 @@ import { Constants } from '../constants';
 import { Index } from '../models/index';
 import { Kpi, KpiCard } from '../models/kpi';
 import { Portfolio } from '../models/portfolio';
-import { IndexCodeEtm } from '../models/vendor/etm';
 import { MarketService } from './core/market.service';
 import { PortfolioService } from './portfolio.service';
 
@@ -22,9 +21,7 @@ export class DashboardService {
     marketService: MarketService,
     portfolioService: PortfolioService,
   ) {
-    this.indices$ = marketService
-      .getIndices([IndexCodeEtm.NIFTY_FIFTY, IndexCodeEtm.SENSEX])
-      .pipe(shareReplay(1));
+    this.indices$ = marketService.getMainIndices().pipe(shareReplay(1));
 
     this.portfolio$ = portfolioService.portfolio$;
 

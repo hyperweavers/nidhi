@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, from, map, shareReplay, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { Direction } from '../models/market';
 import { Holding, Portfolio, TransactionType } from '../models/portfolio';
-import { Direction, Stock } from '../models/stock';
+import { Stock } from '../models/stock';
 import { MarketService } from './core/market.service';
 import { StorageService } from './core/storage.service';
 

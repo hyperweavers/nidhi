@@ -1,4 +1,4 @@
-import { Change } from './stock';
+import { Change } from './market';
 
 export interface ChartData {
   lineColor?: string;
