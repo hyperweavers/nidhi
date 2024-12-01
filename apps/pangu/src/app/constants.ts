@@ -1,4 +1,10 @@
 export const Constants = {
+  db: {
+    NAME: 'pangu',
+    tables: {
+      STOCKS: 'stocks',
+    },
+  },
   routes: {
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
@@ -19,6 +25,8 @@ export const Constants = {
       'https://mobilelivefeeds.indiatimes.com/ETMobileApps/mobile/dashboard',
     STOCK_SEARCH:
       'https://etsearch.indiatimes.com/etspeeds/etsearchMdata.ep?matchCompanyName=true&ticker=',
+    STOCK_SEARCH_SECONDARY:
+      'https://appfeeds.moneycontrol.com/jsonapi/search/common?format=json&category=stock&query=',
     STOCK_QUOTE:
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
     STOCK_HISTORIC_CHART:
@@ -38,5 +46,8 @@ export const Constants = {
     THEME: 'theme',
     COLOR_SCHEME: 'color_scheme',
     REFRESH_INTERVAL: 'refresh_interval',
+  },
+  placeholders: {
+    NO_VALUE: '--',
   },
 };

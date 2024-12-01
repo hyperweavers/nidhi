@@ -38,7 +38,11 @@ import {
   SearchResult,
   VendorStatus,
 } from '../../models/vendor/etm';
-import { IntraDay, IntraDayStatus } from '../../models/vendor/mc';
+import {
+  IntraDay,
+  IntraDayStatus,
+  SearchResultSecondary,
+} from '../../models/vendor/mc';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';
@@ -152,11 +156,18 @@ export class MarketService {
             return stocks.map((stock) => ({
               name: stock.companyName,
               scripCode: {
-                nse: stock.scripCode2,
-                bse: stock.scripCode,
+                nse: stock.nseScripdCode
+                  ? stock.nseScripdCode.toUpperCase().endsWith('EQ')
+                    ? stock.nseScripdCode.slice(0, -2)
+                    : stock.nseScripdCode
+                  : undefined,
+                bse: stock.scripCode || undefined,
               },
               vendorCode: {
-                etm: stock.companyId,
+                etm: {
+                  primary: stock.companyId,
+                  chart: stock.symbol,
+                },
               },
               quote: {
                 nse: {
@@ -221,7 +232,9 @@ export class MarketService {
                 index.exchange as ExchangeCode,
               ),
               vendorCode: {
-                etm: index.indexid,
+                etm: {
+                  primary: index.indexid,
+                },
               },
               quote: {
                 lastUpdated: index.dateTimeLong,
@@ -266,7 +279,7 @@ export class MarketService {
             (index) => index.etm.id === symbol,
           )?.etm.symbol || '';
 
-    if (symbol) {
+    if (vendorSymbol) {
       const url =
         category === ChartCategory.STOCK
           ? Constants.api.STOCK_HISTORIC_CHART
@@ -375,21 +388,58 @@ export class MarketService {
   }
 
   public search(query: string): Observable<Stock[]> {
-    return this.http
-      .get<SearchResult[]>(Constants.api.STOCK_SEARCH + query)
-      .pipe(
-        map((results) =>
-          results.map((result) => ({
-            name: result.tagName,
-            vendorCode: {
-              etm: result.tagId,
-            },
-            scripCode: {
-              nse: result.symbol,
-            },
-          })),
-        ),
-      );
+    return query
+      ? this.http.get<SearchResult[]>(Constants.api.STOCK_SEARCH + query).pipe(
+          map((results) =>
+            results.map(
+              (result): Stock => ({
+                name: result.tagName,
+                vendorCode: {
+                  etm: {
+                    primary: result.tagId,
+                    chart: result.symbol,
+                  },
+                },
+                scripCode: {},
+              }),
+            ),
+          ),
+        )
+      : of([]);
+  }
+
+  public searchSecondary(query: string): Observable<Stock[]> {
+    return query
+      ? this.http
+          .get<SearchResultSecondary>(
+            Constants.api.STOCK_SEARCH_SECONDARY + query,
+          )
+          .pipe(
+            map(({ result }) =>
+              result.map(
+                (searchResult): Stock => ({
+                  name: searchResult.fullnm || searchResult.name,
+                  vendorCode: {
+                    etm: {
+                      primary: '',
+                    },
+                    mc: {
+                      primary: searchResult.id,
+                    },
+                  },
+                  scripCode: {
+                    isin: searchResult.isinid || undefined,
+                    nse: searchResult.nseid || undefined,
+                    bse:
+                      parseInt(searchResult.bseid) !== 0
+                        ? searchResult.bseid
+                        : undefined,
+                  },
+                }),
+              ),
+            ),
+          )
+      : of([]);
   }
 
   private getStockDetails(code: string): Observable<Stock> {
@@ -400,188 +450,210 @@ export class MarketService {
             (companyDetails): Stock => ({
               name: companyDetails.companyName,
               scripCode: {
-                nse: companyDetails.nseScripCode.toUpperCase().endsWith('EQ')
-                  ? companyDetails.nseScripCode.slice(0, -2)
-                  : companyDetails.nseScripCode,
-                bse: companyDetails.bseScripCode,
-                isin: companyDetails.isinCode,
+                nse: companyDetails.nseScripCode
+                  ? companyDetails.nseScripCode.toUpperCase().endsWith('EQ')
+                    ? companyDetails.nseScripCode.slice(0, -2)
+                    : companyDetails.nseScripCode
+                  : undefined,
+                bse: companyDetails.bseScripCode || undefined,
+                isin: companyDetails.isinCode || undefined,
               },
               vendorCode: {
-                etm: companyDetails.companyId,
+                etm: {
+                  primary: companyDetails.companyId,
+                  chart:
+                    (companyDetails.nseScripCode && companyDetails.nse
+                      ? companyDetails.nse.symbol
+                      : companyDetails.bse?.symbol) || undefined,
+                },
               },
               details: {
                 sector: companyDetails.sectorName,
                 industry: companyDetails.industryName,
               },
               quote: {
-                nse: {
-                  lastUpdated: companyDetails.nse.updatedDate,
-                  price: companyDetails.nse.current,
-                  change: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.nse.percentChange,
-                    ),
-                    percentage: companyDetails.nse.percentChange,
-                    value: companyDetails.nse.absoluteChange,
-                  },
-                  open: companyDetails.nse.open,
-                  close: companyDetails.nse.previousClose,
-                  low: companyDetails.nse.low,
-                  high: companyDetails.nse.high,
-                  fiftyTwoWeekLow: companyDetails.nse.fiftyTwoWeekLowPrice,
-                  fiftyTwoWeekHigh: companyDetails.nse.fiftyTwoWeekHighPrice,
-                  volume: companyDetails.nse.volume,
-                },
-                bse: {
-                  lastUpdated: companyDetails.bse.updatedDate,
-                  price: companyDetails.bse.current,
-                  change: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.bse.percentChange,
-                    ),
-                    percentage: companyDetails.bse.percentChange,
-                    value: companyDetails.bse.absoluteChange,
-                  },
-                  open: companyDetails.bse.open,
-                  close: companyDetails.bse.previousClose,
-                  low: companyDetails.bse.low,
-                  high: companyDetails.bse.high,
-                  fiftyTwoWeekLow: companyDetails.bse.fiftyTwoWeekLowPrice,
-                  fiftyTwoWeekHigh: companyDetails.bse.fiftyTwoWeekHighPrice,
-                  volume: companyDetails.bse.volume,
-                },
+                nse: companyDetails.nse
+                  ? {
+                      lastUpdated: companyDetails.nse.updatedDate,
+                      price: companyDetails.nse.current,
+                      change: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.nse.percentChange,
+                        ),
+                        percentage: companyDetails.nse.percentChange,
+                        value: companyDetails.nse.absoluteChange,
+                      },
+                      open: companyDetails.nse.open,
+                      close: companyDetails.nse.previousClose,
+                      low: companyDetails.nse.low,
+                      high: companyDetails.nse.high,
+                      fiftyTwoWeekLow: companyDetails.nse.fiftyTwoWeekLowPrice,
+                      fiftyTwoWeekHigh:
+                        companyDetails.nse.fiftyTwoWeekHighPrice,
+                      volume: companyDetails.nse.volume,
+                    }
+                  : undefined,
+                bse: companyDetails.bse
+                  ? {
+                      lastUpdated: companyDetails.bse.updatedDate,
+                      price: companyDetails.bse.current,
+                      change: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.bse.percentChange,
+                        ),
+                        percentage: companyDetails.bse.percentChange,
+                        value: companyDetails.bse.absoluteChange,
+                      },
+                      open: companyDetails.bse.open,
+                      close: companyDetails.bse.previousClose,
+                      low: companyDetails.bse.low,
+                      high: companyDetails.bse.high,
+                      fiftyTwoWeekLow: companyDetails.bse.fiftyTwoWeekLowPrice,
+                      fiftyTwoWeekHigh:
+                        companyDetails.bse.fiftyTwoWeekHighPrice,
+                      volume: companyDetails.bse.volume,
+                    }
+                  : undefined,
               },
               metrics: {
-                nse: {
-                  marketCapType: companyDetails.nse.marketCapType,
-                  marketCap: companyDetails.nse.marketCap,
-                  faceValue: companyDetails.nse.faceValue,
-                  pe: companyDetails.nse.pe,
-                  pb: companyDetails.nse.pb,
-                  eps: companyDetails.nse.eps,
-                  vwap: companyDetails.nse.vwap,
-                  dividendYield: companyDetails.nse.dividendYield,
-                  bookValue: companyDetails.nse.bookValue,
-                },
-                bse: {
-                  marketCapType: companyDetails.bse.marketCapType,
-                  marketCap: companyDetails.bse.marketCap,
-                  faceValue: companyDetails.bse.faceValue,
-                  pe: companyDetails.bse.pe,
-                  pb: companyDetails.bse.pb,
-                  eps: companyDetails.bse.eps,
-                  vwap: companyDetails.bse.vwap,
-                  dividendYield: companyDetails.bse.dividendYield,
-                  bookValue: companyDetails.bse.bookValue,
-                },
+                nse: companyDetails.nse
+                  ? {
+                      marketCapType: companyDetails.nse.marketCapType,
+                      marketCap: companyDetails.nse.marketCap,
+                      faceValue: companyDetails.nse.faceValue,
+                      pe: companyDetails.nse.pe,
+                      pb: companyDetails.nse.pb,
+                      eps: companyDetails.nse.eps,
+                      vwap: companyDetails.nse.vwap,
+                      dividendYield: companyDetails.nse.dividendYield,
+                      bookValue: companyDetails.nse.bookValue,
+                    }
+                  : undefined,
+                bse: companyDetails.bse
+                  ? {
+                      marketCapType: companyDetails.bse.marketCapType,
+                      marketCap: companyDetails.bse.marketCap,
+                      faceValue: companyDetails.bse.faceValue,
+                      pe: companyDetails.bse.pe,
+                      pb: companyDetails.bse.pb,
+                      eps: companyDetails.bse.eps,
+                      vwap: companyDetails.bse.vwap,
+                      dividendYield: companyDetails.bse.dividendYield,
+                      bookValue: companyDetails.bse.bookValue,
+                    }
+                  : undefined,
               },
               performance: {
-                nse: {
-                  weekly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.nse.performanceW1,
-                    ),
-                    percentage: companyDetails.nse.performanceW1,
-                    value: companyDetails.nse.performanceValueW1,
-                  },
-                  monthly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.nse.performanceM1,
-                    ),
-                    percentage: companyDetails.nse.performanceM1,
-                    value: companyDetails.nse.performanceValueM1,
-                  },
-                  quarterly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.nse.performanceM3,
-                    ),
-                    percentage: companyDetails.nse.performanceM3,
-                    value: companyDetails.nse.performanceValueM3,
-                  },
-                  halfYearly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.nse.performanceM6,
-                    ),
-                    percentage: companyDetails.nse.performanceM6,
-                    value: companyDetails.nse.performanceValueM6,
-                  },
-                  yearly: {
-                    one: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.nse.performanceY1,
-                      ),
-                      percentage: companyDetails.nse.performanceY1,
-                      value: companyDetails.nse.performanceValueY1,
-                    },
-                    three: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.nse.performanceY3,
-                      ),
-                      percentage: companyDetails.nse.performanceY3,
-                      value: companyDetails.nse.performanceValueY3,
-                    },
-                    five: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.nse.performanceY5,
-                      ),
-                      percentage: companyDetails.nse.performanceY5,
-                      value: companyDetails.nse.performanceValueY5,
-                    },
-                  },
-                },
-                bse: {
-                  weekly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.bse.performanceW1,
-                    ),
-                    percentage: companyDetails.bse.performanceW1,
-                    value: companyDetails.bse.performanceValueW1,
-                  },
-                  monthly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.bse.performanceM1,
-                    ),
-                    percentage: companyDetails.bse.performanceM1,
-                    value: companyDetails.bse.performanceValueM1,
-                  },
-                  quarterly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.bse.performanceM3,
-                    ),
-                    percentage: companyDetails.bse.performanceM3,
-                    value: companyDetails.bse.performanceValueM3,
-                  },
-                  halfYearly: {
-                    direction: MarketUtils.getDirection(
-                      companyDetails.bse.performanceM6,
-                    ),
-                    percentage: companyDetails.bse.performanceM6,
-                    value: companyDetails.bse.performanceValueM6,
-                  },
-                  yearly: {
-                    one: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.bse.performanceY1,
-                      ),
-                      percentage: companyDetails.bse.performanceY1,
-                      value: companyDetails.bse.performanceValueY1,
-                    },
-                    three: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.bse.performanceY3,
-                      ),
-                      percentage: companyDetails.bse.performanceY3,
-                      value: companyDetails.bse.performanceValueY3,
-                    },
-                    five: {
-                      direction: MarketUtils.getDirection(
-                        companyDetails.bse.performanceY5,
-                      ),
-                      percentage: companyDetails.bse.performanceY5,
-                      value: companyDetails.bse.performanceValueY5,
-                    },
-                  },
-                },
+                nse: companyDetails.nse
+                  ? {
+                      weekly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.nse.performanceW1,
+                        ),
+                        percentage: companyDetails.nse.performanceW1,
+                        value: companyDetails.nse.performanceValueW1,
+                      },
+                      monthly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.nse.performanceM1,
+                        ),
+                        percentage: companyDetails.nse.performanceM1,
+                        value: companyDetails.nse.performanceValueM1,
+                      },
+                      quarterly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.nse.performanceM3,
+                        ),
+                        percentage: companyDetails.nse.performanceM3,
+                        value: companyDetails.nse.performanceValueM3,
+                      },
+                      halfYearly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.nse.performanceM6,
+                        ),
+                        percentage: companyDetails.nse.performanceM6,
+                        value: companyDetails.nse.performanceValueM6,
+                      },
+                      yearly: {
+                        one: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.nse.performanceY1,
+                          ),
+                          percentage: companyDetails.nse.performanceY1,
+                          value: companyDetails.nse.performanceValueY1,
+                        },
+                        three: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.nse.performanceY3,
+                          ),
+                          percentage: companyDetails.nse.performanceY3,
+                          value: companyDetails.nse.performanceValueY3,
+                        },
+                        five: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.nse.performanceY5,
+                          ),
+                          percentage: companyDetails.nse.performanceY5,
+                          value: companyDetails.nse.performanceValueY5,
+                        },
+                      },
+                    }
+                  : undefined,
+                bse: companyDetails.bse
+                  ? {
+                      weekly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.bse.performanceW1,
+                        ),
+                        percentage: companyDetails.bse.performanceW1,
+                        value: companyDetails.bse.performanceValueW1,
+                      },
+                      monthly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.bse.performanceM1,
+                        ),
+                        percentage: companyDetails.bse.performanceM1,
+                        value: companyDetails.bse.performanceValueM1,
+                      },
+                      quarterly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.bse.performanceM3,
+                        ),
+                        percentage: companyDetails.bse.performanceM3,
+                        value: companyDetails.bse.performanceValueM3,
+                      },
+                      halfYearly: {
+                        direction: MarketUtils.getDirection(
+                          companyDetails.bse.performanceM6,
+                        ),
+                        percentage: companyDetails.bse.performanceM6,
+                        value: companyDetails.bse.performanceValueM6,
+                      },
+                      yearly: {
+                        one: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.bse.performanceY1,
+                          ),
+                          percentage: companyDetails.bse.performanceY1,
+                          value: companyDetails.bse.performanceValueY1,
+                        },
+                        three: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.bse.performanceY3,
+                          ),
+                          percentage: companyDetails.bse.performanceY3,
+                          value: companyDetails.bse.performanceValueY3,
+                        },
+                        five: {
+                          direction: MarketUtils.getDirection(
+                            companyDetails.bse.performanceY5,
+                          ),
+                          percentage: companyDetails.bse.performanceY5,
+                          value: companyDetails.bse.performanceValueY5,
+                        },
+                      },
+                    }
+                  : undefined,
               },
             }),
           ),
@@ -608,7 +680,9 @@ export class MarketService {
                     indexDetails.assetExchangeId as ExchangeCode,
                   ),
                   vendorCode: {
-                    etm: indexDetails.assetId,
+                    etm: {
+                      primary: indexDetails.assetId,
+                    },
                   },
                   quote: {
                     lastUpdated: indexDetails.dateTime,
@@ -713,7 +787,10 @@ export class MarketService {
                       const stock: Stock = {
                         name: company.companyName,
                         vendorCode: {
-                          etm: company.companyId,
+                          etm: {
+                            primary: company.companyId,
+                            chart: company.symbol,
+                          },
                         },
                         scripCode: {
                           nse:

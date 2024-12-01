@@ -431,7 +431,7 @@
       <tbody>
         @for (holding of portfolio.holdings; track holding.id) {
         <tr
-          [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm]"
+          [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm.primary]"
           class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
         >
           <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
@@ -580,7 +580,7 @@
           @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
           && stocks.length > 0 ) {
           <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-            @for (stock of stocks; track stock.scripCode.nse) {
+            @for (stock of stocks; track stock.vendorCode.etm.primary) {
             <li
               (click)="selectStock(stock)"
               class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"

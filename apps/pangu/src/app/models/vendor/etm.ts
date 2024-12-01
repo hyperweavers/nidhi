@@ -66,7 +66,7 @@ export interface Company {
   bargraphvalue: string;
   previousclose: string;
   companyId: string;
-  scripCode2: string;
+  scripCode2?: string;
   companyTypeLang: string;
   exchange: string;
   fiftyTwoWeekLowPrice: string;
@@ -112,8 +112,8 @@ export interface Currency {
 }
 
 export interface CompanyDetails {
-  nse: ExchangeData;
-  bse: ExchangeData;
+  nse?: ExchangeData;
+  bse?: ExchangeData;
   etRank: number;
   etRankYear: number;
   smeFlag: boolean;
@@ -127,8 +127,8 @@ export interface CompanyDetails {
   companyShortName: string;
   preMarket: boolean;
   seoName: string;
-  nseScripCode: string;
-  bseScripCode: string;
+  nseScripCode?: string;
+  bseScripCode?: string;
   foFlag: boolean;
   mdaFlag: number;
   companyType: string;
@@ -415,6 +415,11 @@ export interface SearchResult {
   NetChange: string;
   matchtype: string;
   lastTradedPrice: string;
+}
+
+export interface VendorCode {
+  primary: string;
+  chart?: string;
 }
 
 export enum VendorStatus {

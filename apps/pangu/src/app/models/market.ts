@@ -1,3 +1,6 @@
+import { VendorCode as EtmVendorCode } from './vendor/etm';
+import { VendorCode as McVendorCode } from './vendor/mc';
+
 export interface MarketStatus {
   lastUpdated: number;
   status: Status;
@@ -6,8 +9,8 @@ export interface MarketStatus {
 }
 
 export interface VendorCode {
-  etm: string;
-  mc?: string;
+  etm: EtmVendorCode;
+  mc?: McVendorCode;
 }
 
 export interface AdvanceDecline {

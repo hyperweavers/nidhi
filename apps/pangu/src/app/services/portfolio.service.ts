@@ -20,15 +20,17 @@ export class PortfolioService {
         switchMap((storageStocks) => {
           return marketService
             .getStocks(
-              storageStocks.map((storageStock) => storageStock.vendorCode.etm),
+              storageStocks.map(
+                (storageStock) => storageStock.vendorCode.etm.primary,
+              ),
             )
             .pipe(
               map((marketStocks: Stock[]): Portfolio => {
                 const holdings = marketStocks.map((marketStock): Holding => {
                   const storageStock = storageStocks.find(
                     (storageStock) =>
-                      storageStock.vendorCode.etm ===
-                      marketStock.vendorCode.etm,
+                      storageStock.vendorCode.etm.primary ===
+                      marketStock.vendorCode.etm.primary,
                   );
                   const quantity =
                     storageStock?.transactions.reduce(

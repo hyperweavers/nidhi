@@ -22,8 +22,10 @@ import {
   filter,
   iif,
   map,
+  of,
   share,
   switchMap,
+  take,
   tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -115,8 +117,8 @@ export class PortfolioPage implements OnInit {
   constructor(
     private cdr: ChangeDetectorRef,
     private storageService: StorageService,
+    private marketService: MarketService,
     portfolioService: PortfolioService,
-    marketService: MarketService,
   ) {
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
@@ -196,7 +198,7 @@ export class PortfolioPage implements OnInit {
       switchMap((query) =>
         iif(
           () => this.transactionType === TransactionType.BUY,
-          marketService.search(query),
+          this.marketService.search(query),
           portfolioService.portfolio$.pipe(
             map((portfolio) =>
               portfolio.holdings.filter(
@@ -279,9 +281,80 @@ export class PortfolioPage implements OnInit {
   }
 
   public selectStock(stock: Stock | Holding): void {
-    this.selectedStock = stock;
+    if (!stock.scripCode.isin) {
+      this.marketService
+        .getStock(stock.vendorCode.etm.primary, true)
+        .pipe(
+          switchMap((stockDetails) => {
+            if (
+              stockDetails &&
+              (stockDetails.scripCode.nse || stockDetails.scripCode.bse)
+            ) {
+              return this.marketService
+                .searchSecondary(
+                  stockDetails.scripCode.nse ||
+                    stockDetails.scripCode.bse ||
+                    '',
+                )
+                .pipe(
+                  map((searchResults) => {
+                    if (searchResults.length > 0) {
+                      const stockDetailsSecondary = searchResults.find(
+                        (result) =>
+                          (result.scripCode.isin &&
+                            result.scripCode.isin ===
+                              stockDetails.scripCode.isin) ||
+                          (result.scripCode.nse &&
+                            result.scripCode.nse ===
+                              stockDetails.scripCode.nse) ||
+                          (result.scripCode.bse &&
+                            result.scripCode.bse ===
+                              stockDetails.scripCode.bse),
+                      );
 
-    this.name.set(stock.name);
+                      return stockDetailsSecondary
+                        ? {
+                            ...stockDetails,
+                            vendorCode: {
+                              ...stockDetails.vendorCode,
+                              mc: stockDetailsSecondary.vendorCode.mc,
+                            },
+                          }
+                        : stockDetails;
+                    } else {
+                      return stockDetails;
+                    }
+                  }),
+                );
+            } else {
+              return of(null);
+            }
+          }),
+          take(1),
+        )
+        .subscribe((combinedStockDetails) => {
+          if (combinedStockDetails) {
+            this.selectedStock = {
+              ...stock,
+              scripCode: combinedStockDetails.scripCode,
+              vendorCode: {
+                ...stock.vendorCode,
+                mc: combinedStockDetails.vendorCode.mc,
+              },
+            };
+
+            this.name.set(stock.name);
+          } else {
+            this.showTransactionFormError(
+              'Unable to get the details of the selected stock!',
+            );
+          }
+        });
+    } else {
+      this.selectedStock = stock;
+
+      this.name.set(stock.name);
+    }
 
     this.showSearchResults = false;
   }

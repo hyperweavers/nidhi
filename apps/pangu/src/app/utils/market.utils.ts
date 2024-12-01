@@ -66,7 +66,7 @@ export class MarketUtils {
     return date;
   }
 
-  public static extractScripCodesFromEtSearchResult(
+  public static extractScripCodesFromMcSearchResult(
     result: string,
   ): ScripCode | null {
     let codeString = '';

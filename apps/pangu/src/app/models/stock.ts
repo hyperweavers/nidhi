@@ -13,9 +13,9 @@ export interface Stock {
 }
 
 export interface ScripCode {
+  isin?: string; // TODO: Abstract vendor inside market service by using isin and/or passing stock object to market service.
   nse?: string;
   bse?: string;
-  isin?: string;
 }
 
 export interface Details {
@@ -42,7 +42,7 @@ export interface Quote {
 }
 
 export interface ExchangeLimits {
-  nse: Limits;
+  nse?: Limits;
   bse?: Limits;
 }
 
@@ -52,7 +52,7 @@ export interface Limits {
 }
 
 export interface ExchangeMetrics {
-  nse: Metrics;
+  nse?: Metrics;
   bse?: Metrics;
 }
 
@@ -69,6 +69,6 @@ export interface Metrics {
 }
 
 export interface ExchangePerformance {
-  nse: Performance;
+  nse?: Performance;
   bse?: Performance;
 }

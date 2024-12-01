@@ -5,26 +5,31 @@
     <div class="flex space-x-4">
       <div class="flex-1 text-2xl font-semibold">{{ stock.name }}</div>
 
-      <!-- TODO: Not all stocks listed in both exchanges. Need to review while implementing site wide search. -->
       <div>
         <div class="inline-flex h-8 rounded-md shadow-sm" role="group">
+          @if (stock.scripCode.nse) {
           <button
             (click)="setExchange(ExchangeName.NSE)"
             type="button"
             class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-10 items-center rounded-s-lg border border-r-0 border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="activeExchange === ExchangeName.NSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            [class.rounded-lg]="!stock.scripCode.bse"
+            [attr.disabled]="!stock.scripCode.bse"
           >
             NSE
           </button>
-
+          } @if (stock.scripCode.bse) {
           <button
             (click)="setExchange(ExchangeName.BSE)"
             type="button"
             class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-10 items-center rounded-e-lg border border-gray-200 px-2 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
             [ngClass]="activeExchange === ExchangeName.BSE ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            [class.rounded-lg]="!stock.scripCode.nse"
+            [attr.disabled]="!stock.scripCode.nse"
           >
             BSE
           </button>
+          }
         </div>
       </div>
     </div>
@@ -584,19 +589,25 @@
         <div class="flex justify-between">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">NSE</div>
-            <div class="flex">{{ stock.scripCode.nse }}</div>
+            <div class="flex">
+              {{ stock.scripCode.nse || NO_VALUE_PLACEHOLDER }}
+            </div>
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">BSE</div>
-            <div class="flex">{{ stock.scripCode.bse }}</div>
+            <div class="flex">
+              {{ stock.scripCode.bse || NO_VALUE_PLACEHOLDER }}
+            </div>
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               ISIN
             </div>
-            <div class="flex">{{ stock.scripCode.isin }}</div>
+            <div class="flex">
+              {{ stock.scripCode.isin || NO_VALUE_PLACEHOLDER }}
+            </div>
           </div>
         </div>
 
@@ -605,14 +616,18 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Sector
             </div>
-            <div class="flex">{{ stock.details?.sector }}</div>
+            <div class="flex">
+              {{ stock.details?.sector || NO_VALUE_PLACEHOLDER }}
+            </div>
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Industry
             </div>
-            <div class="flex">{{ stock.details?.industry }}</div>
+            <div class="flex">
+              {{ stock.details?.industry || NO_VALUE_PLACEHOLDER }}
+            </div>
           </div>
 
           <div class="flex-1">
@@ -620,7 +635,8 @@
               Market Cap Type
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.marketCapType }}
+              {{ stock.metrics?.[activeExchange]?.marketCapType ||
+              NO_VALUE_PLACEHOLDER }}
             </div>
           </div>
         </div>
