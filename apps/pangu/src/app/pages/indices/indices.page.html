@@ -536,7 +536,7 @@
           @for (constituent of index.constituents; track
           constituent.vendorCode.etm) {
           <tr
-            [routerLink]="['/' + Routes.STOCKS, constituent.vendorCode.etm]"
+            [routerLink]="['/' + Routes.STOCKS, constituent.vendorCode.etm.primary]"
             class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
           >
             <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">

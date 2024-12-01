@@ -1,484 +1,868 @@
-// ETM
-export interface DashboardQuery {
-  companies?: Query[];
-  indices?: Query[];
-  commodities?: Query[];
-  currencies?: Query[];
+import { VendorCode as EtmVendorCode } from './vendor/etm';
+import { VendorCode as McVendorCode } from './vendor/mc';
+
+export interface MarketStatus {
+  lastUpdated: number;
+  status: Status;
+  startTime: number;
+  endTime: number;
 }
 
-export interface Query {
-  id: string;
-  exchange?: string;
+export interface VendorCode {
+  etm: EtmVendorCode;
+  mc?: McVendorCode;
 }
 
-export interface Dashboard {
-  indices?: Index[];
-  companies?: Company[];
-  commodities?: Commodity[];
-  currencies?: Currency[];
-}
-
-export interface Index {
-  dateTime: string;
-  declines: string;
-  netChange: string;
-  noChange: string;
-  percentChange: string;
-  dateTimeYear: string;
-  entityType: string;
-  indexName: string;
-  declinesPercentange: string;
-  dateTimeLong: number;
-  fandoFlag: string;
-  scripCode2GivenByExchange: string;
-  advances: string;
-  scripCode1GivenByExhange: string;
-  segment: string;
-  currentIndexValue: string;
-  indexid: string;
-  exchange: string;
-  noChangePercentage: string;
-  shortName: string;
-  advancesPercentange: string;
-  seoname: string;
-}
-
-export interface Company {
-  dateTime: string;
-  symbol: string;
-  companyName: string;
-  companyShortName: string;
-  seoName: string;
-  high: string;
-  fiftyTwoWeekHighPrice: string;
-  low: string;
-  segment: string;
-  scripCode: string;
-  lastTradedPrice: string;
-  percentChange: string;
-  companyType: string;
-  isBank: string;
-  entityType: string;
-  nseScripdCode: string;
-  change: string;
-  volumeInK: string;
-  stockRating: string;
-  dateTimeLong: number;
-  bargraphvalue: string;
-  previousclose: string;
-  companyId: string;
-  scripCode2: string;
-  companyTypeLang: string;
-  exchange: string;
-  fiftyTwoWeekLowPrice: string;
-}
-
-export interface Commodity {
-  dateTime: string;
-  netChange: string;
-  symbol: string;
-  percentChange: string;
-  openInterest: string;
-  dateTimeYear: string;
-  priceQuotationUnit: string;
-  commodityHead: string;
-  volume: string;
-  expiryDate: string;
-  expiryDate2: string;
-  entitytype: string;
-  lowPrice: string;
-  segment: string;
-  commodityName2: string;
-  spotSymbol: string;
-  highPrice: string;
-  contractName: string;
-  lastTradedPrice: string;
-  commodityName: string;
-}
-
-export interface Currency {
-  dateTime: string;
-  percentChange: string;
-  dateTimeYear: string;
-  change: string;
-  highRate: string;
-  lowRate: string;
-  currencyPairName: string;
-  toCountryName: string;
-  fromCountryName: string;
-  entitytype: string;
-  toCurrencyName: string;
-  spotRate: string;
-  fromCurrencyName: string;
-}
-
-export interface CompanyDetails {
-  nse: ExchangeData;
-  bse: ExchangeData;
-  etRank: number;
-  etRankYear: number;
-  smeFlag: boolean;
-  industryId: string;
-  denmarkId: string[];
-  industryName: string;
-  sectorId: number;
-  sectorName: string;
-  companyId: string;
-  companyName: string;
-  companyShortName: string;
-  preMarket: boolean;
-  seoName: string;
-  nseScripCode: string;
-  bseScripCode: string;
-  foFlag: boolean;
-  mdaFlag: number;
-  companyType: string;
-  stockFlag: StockFlag;
-  isinCode: string;
-  listingFlag: boolean;
-  nifty100: boolean;
-  failoverStatus: boolean;
-}
-
-export interface ExchangeData {
-  exchangeID: string;
-  segment: string;
-  updatedDateTime: string;
-  symbol: string;
-  marketCapType: string;
-  pe: number;
-  pb: number;
-  pbAdjusted: number;
-  eps: number;
-  dividendYield: number;
-  performanceD1: number;
-  performanceW1: number;
-  performanceM1: number;
-  performanceM3: number;
-  performanceM6: number;
-  performanceY1: number;
-  performanceY3: number;
-  performanceY5: number;
-  performanceValueD1: number;
-  performanceValueW1: number;
-  performanceValueM1: number;
-  performanceValueM3: number;
-  performanceValueM6: number;
-  performanceValueY1: number;
-  performanceValueY3: number;
-  performanceValueY5: number;
-  bookValue: number;
-  priceToSales: number;
-  month1Beta: number;
-  month3Beta: number;
-  month6Beta: number;
-  year1Beta: number;
-  year3Beta: number;
-  percentChange: number;
-  absoluteChange: number;
-  high: number;
-  low: number;
-  open: number;
-  previousClose: number;
-  volume: number;
-  vwap: number;
-  avgDelivery: number;
-  faceValue: number;
-  marketCap: number;
-  current: number;
-  fiftyTwoWeekLowPrice: number;
-  fiftyTwoWeekHighPrice: number;
-  listingFlag: boolean;
-  preMarket: boolean;
-  mcapRank: number;
-  updatedDate: number;
-}
-
-export interface StockFlag {
-  date: string;
-  Insights: boolean;
-  brands: boolean;
-  Peer: boolean;
-  Refinitive: boolean;
-  AnnualReport: boolean;
-  companyId: string;
-  mdaFlag: boolean;
-  CorporateActions: boolean;
-  ShareHolding: boolean;
-  Financials: boolean;
-  Forecast: boolean;
-  MFOwnership: boolean;
-  foFlag: boolean;
-}
-
-export interface IndexQuotes {
-  marketStatusDto: OperatingStatus;
-  indicesList: IndexQuote[];
-  diiData: FiiDiiData;
-  fiiData: FiiDiiData;
-}
-
-export interface IndexQuote {
-  indexId: string;
-  indexName: string;
-  seoName: string;
-  percentChange: number;
-  r1Week: number;
-  r1Month: number;
-  r3Month: number;
-  r1Year: number;
-  r3Year: number;
-  r5Year: number;
-  r6Month: number;
-  change1Week: number;
-  change1Month: number;
-  change3Month: number;
-  change6Month: number;
-  change1Year: number;
-  change3Year: number;
-  change5Year: number;
-  dateTime: string;
-  exchange: string;
-  symbol: string;
-  lastTradedPrice: number;
-  netChange: number;
-  advances: number;
-  advancesPerChange: number;
-  declines: number;
-  declinesPerChange: number;
-  graphURL: string;
-}
-
-export interface FiiDiiData {
-  serviceName: string;
-  date: number;
-  netInvestment: number;
-}
-
-export interface OperatingStatus {
-  currentMarketStatus: VendorStatus;
-  currentTime: number;
-  instrumentName: string;
-  purpose: string;
-  tradingStartTime: string;
-  tradingEndTime: string;
-}
-
-export interface IndexDetails {
-  assetName: string;
-  assetId: string;
-  assetExchangeId: string;
-  assetSymbol: string;
-  advances: number;
-  declines: number;
-  advancesPercentage: number;
-  declinesPercentage: number;
-  lastTradedPrice: number;
-  netChange: number;
-  percentChange: number;
-  dateTime: number;
-  highPrice: number;
-  lowPrice: number;
-  fiftyTwoWeekHigh: number;
-  fiftyTwoWeekLow: number;
-  keyMetrics: IndexKeyMetrics;
-  returns: IndexReturns[];
-  r1Week: number;
-  r1Month: number;
-  r3Month: number;
-  r6Month: number;
-  r1Year: number;
-  r3Year: number;
-  r5Year: number;
-  change1Week: number;
-  change1Month: number;
-  change3Month: number;
-  change6Month: number;
-  change1Year: number;
-  change3Year: number;
-  change5Year: number;
-}
-
-export interface IndexKeyMetrics {
-  openPrice: number;
-  highPrice: number;
-  lowPrice: number;
-  previousClose: number;
-  marketCap: number;
-  peRatio: number;
-  pbRatio: number;
-  dividendYield: number;
-}
-
-export interface IndexReturns {
-  label: IndexReturnLabel;
-  returnPercentage: number;
-  high: number;
-  low: number;
-}
-
-export interface IndexConstituents {
-  searchresult: IndexConstituentsResult[];
-  pagesummary: IndexConstituentsSummary;
-}
-
-export interface IndexConstituentsResult {
-  fiftyTwoWeekHighIndexValue: number;
-  fiftyTwoWeekLowIndexValue: number;
-  datetimeStr: string;
-  dateTime: number;
-  indexId: string;
-  indexName: string;
-  exchange: string;
-  exchangeId: string;
-  scripCode1GivenByExhange: string;
-  scripCode2GivenByExhange: string;
-  futureOptionflag: number;
-  seoName: string;
-  openIndexValue: number;
-  highIndexValue: number;
-  lowIndexValue: number;
-  closeIndexValue: number;
-  currentIndexValue: number;
-  netChange: number;
-  perChange: number;
-  changeValue: number;
-  noChange: number;
-  noChangePerChange: number;
-  advances: number;
-  advancesPerChange: number;
-  declines: number;
-  declinesPerChange: number;
-  companies: IndexConstituentsCompany[];
-}
-
-export interface IndexConstituentsCompany {
-  companyId: string;
-  seoName: string;
-  companyName: string;
-  companyShortName: string;
-  change: number;
-  percentChange: number;
-  volumeInLacs: number;
-  current: number;
-  turnover: number;
-  monthChange: number;
-  yearChange: number;
-  monthPerChange: number;
-  yearPerChange: number;
-  bseScripCode: string;
-  nseScripCode: string;
-  symbol: string;
-  companyType: string;
-  eventCount: number;
-  open: number;
-  high: number;
-  low: number;
-  monthHighPrice: number;
-  monthLowPrice: number;
-  fiftyTwoWeekHighPrice: number;
-  fiftyTwoWeekLowPrice: number;
-}
-
-export interface IndexConstituentsSummary {
-  totalRecords: number;
-  totalpages: number;
-  pagesize: number;
-  indexvalue: string;
-  pageno: number;
-  exchange: string;
-  lasttradeddate: string;
-}
-
-export interface History {
-  s: string;
-  noData: boolean;
-  dates: string[];
-  t: number[];
-  o: number[];
-  c: number[];
-  h: number[];
-  l: number[];
-  v: number[];
-}
-
-export interface SearchResult {
-  tagSeoName: string;
-  marketCap: string;
-  symbol: string;
-  percentChange: string;
-  tagId: string;
-  entityType: string;
-  tagName: string;
-  shortNameEt: string;
-  DateTime: string;
-  volume: string;
-  NetChange: string;
-  matchtype: string;
-  lastTradedPrice: string;
-}
-
-export enum VendorStatus {
-  LIVE = 'Live',
-  CLOSE = 'CLOSED',
-}
-
-export enum IndexReturnLabel {
-  ONE_DAY = '1D',
-  ONE_WEEK = '1W',
-  ONE_MONTH = '1M',
-  THREE_MONTH = '3M',
-  SIX_MONTH = '6M',
-  ONE_YEAR = '1Y',
-  THREE_YEAR = '3Y',
-  FIVE_YEAR = '5Y',
-}
-
-export enum ExchangeCode {
-  NSE = '50',
-  BSE = '47',
-}
-
-export enum IndexCodeEtm {
-  NIFTY_FIFTY = '2369',
-  SENSEX = '2365',
-}
-
-// MC
-export interface IntraDay {
-  s: IntraDayStatus;
-  data?: IntraDayData[];
-  nextTime?: number;
-}
-
-export interface IntraDayData {
-  time: number;
+export interface AdvanceDecline {
+  percentage: number;
   value: number;
 }
 
-export enum IntraDayStatus {
-  OK = 'ok',
-  NO_DATA = 'no_data',
-  ERROR = 'error',
+export interface Change extends AdvanceDecline {
+  direction: Direction;
 }
 
-export enum IndexCodeMc {
-  NIFTY_FIFTY = 'NSX',
-  SENSEX = 'SEN',
+export interface Performance {
+  yearToDate?: Change;
+  weekly: Change;
+  monthly: Change;
+  quarterly: Change;
+  halfYearly: Change;
+  yearly: YearlyPerformance;
 }
 
-// Generic
-export interface StockVendorCode {
-  etm: string;
-  mc?: string;
+export interface YearlyPerformance {
+  one: Change;
+  two?: Change;
+  three?: Change;
+  five: Change;
+  ten?: Change;
 }
 
-export interface IndexVendorCode {
-  etm: ETMIndexVendorCode;
-  mc?: string;
+export enum Status {
+  OPEN,
+  CLOSED,
 }
 
-export interface ETMIndexVendorCode {
-  id: string;
-  symbol: string;
+export enum ExchangeName {
+  NSE = 'nse',
+  BSE = 'bse',
 }
+
+export enum Direction {
+  UP = 1,
+  DOWN = -1,
+}
+
+// TODO: Review index names and sort
+export const INDICES = {
+  nse: [
+    {
+      name: 'Nifty Pharma',
+      etm: {
+        id: '13017',
+        symbol: 'CNXPHARMA',
+      },
+      mc: {
+        id: '41',
+        symbol: 'in;cpr',
+      },
+    },
+    {
+      name: 'Nifty Financial Services',
+      etm: {
+        id: '13655',
+        symbol: 'FINNIFTY',
+      },
+      mc: {
+        id: '47',
+        symbol: 'in;cnxf',
+      },
+    },
+    {
+      name: 'Nifty Private Bank',
+      etm: {
+        id: '15270',
+        symbol: 'NIFTYPBI',
+      },
+      mc: {
+        id: '79',
+        symbol: 'in;nxb',
+      },
+    },
+    {
+      name: 'Nifty Bank',
+      etm: {
+        id: '1913',
+        symbol: 'BANKNIFTY',
+      },
+      mc: {
+        id: '23',
+        symbol: 'in;nbx',
+      },
+    },
+    {
+      name: 'Nifty Media',
+      etm: {
+        id: '13604',
+        symbol: 'CNXMEDIA',
+      },
+      mc: {
+        id: '50',
+        symbol: 'in;cnmx',
+      },
+    },
+    {
+      name: 'Nifty Services Sector',
+      etm: {
+        id: '13021',
+        symbol: 'CNXSSI',
+      },
+      mc: {
+        id: '44',
+        symbol: 'in;crv',
+      },
+    },
+    {
+      name: 'Nifty FMCG',
+      etm: {
+        id: '13027',
+        symbol: 'CNXFMCG',
+      },
+      mc: {
+        id: '39',
+        symbol: 'in;cfm',
+      },
+    },
+    {
+      name: 'Nifty India Consumption',
+      etm: {
+        id: '13653',
+        symbol: 'CNXCONSUM',
+      },
+      mc: {
+        id: '56',
+        symbol: 'in;cnxc',
+      },
+    },
+    {
+      name: 'Nifty SmallCap 100',
+      etm: {
+        id: '13532',
+        symbol: 'CNXSCAP',
+      },
+      mc: {
+        id: '53',
+        symbol: 'in;cnxs',
+      },
+    },
+    {
+      name: 'Nifty SmallCap 250',
+      etm: {
+        id: '15499',
+        symbol: 'NIFSC250',
+      },
+      mc: {
+        id: '114',
+        symbol: 'mc;nscapt',
+      },
+    },
+    {
+      name: 'Nifty SmallCap 50',
+      etm: {
+        id: '15431',
+        symbol: 'NIFSC50',
+      },
+      mc: {
+        id: '113',
+        symbol: 'mc;nscapf',
+      },
+    },
+    {
+      name: 'Nifty MidSmallCap 400',
+      etm: {
+        id: '15436',
+        symbol: 'NIFMSC400',
+      },
+      mc: {
+        id: '112',
+        symbol: 'mc;nmsml',
+      },
+    },
+    {
+      name: 'Nifty MidCap 100',
+      etm: {
+        id: '2495',
+        symbol: 'CNXMIDCAP',
+      },
+      mc: {
+        id: '27',
+        symbol: 'in;ccx',
+      },
+    },
+    {
+      name: 'Nifty MidCap 150',
+      etm: {
+        id: '15430',
+        symbol: 'NIFMC150',
+      },
+      mc: {
+        id: '111',
+        symbol: 'mc;nmcapo',
+      },
+    },
+    {
+      name: 'Nifty LargeMidCap 250',
+      etm: {
+        id: '16207',
+        symbol: 'NIFTYLMC250',
+      },
+      mc: {
+        id: '124',
+        symbol: 'mc;larmid',
+      },
+    },
+    {
+      name: 'Nifty 500',
+      etm: {
+        id: '2371',
+        symbol: 'CNX500',
+      },
+      mc: {
+        id: '7',
+        symbol: 'in;ncx',
+      },
+    },
+    {
+      name: 'Nifty 200',
+      etm: {
+        id: '13602',
+        symbol: 'CNX200',
+      },
+      mc: {
+        id: '49',
+        symbol: 'in;cnxt',
+      },
+    },
+    {
+      name: 'Nifty 100',
+      etm: {
+        id: '2510',
+        symbol: 'CNX100',
+      },
+      mc: {
+        id: '28',
+        symbol: 'in;nnx',
+      },
+    },
+    {
+      name: 'Nifty 50',
+      main: true,
+      etm: {
+        id: '2369',
+        symbol: 'NSE Index',
+      },
+      mc: {
+        id: '9',
+        symbol: 'in;NSX',
+      },
+    },
+    {
+      name: 'Nifty Oil & Gas',
+      etm: {
+        id: '32289',
+        symbol: 'NIFTYOILGAS',
+      },
+      mc: {
+        id: '126',
+        symbol: 'mc;oilgas',
+      },
+    },
+    {
+      name: 'Nifty Next 50',
+      etm: {
+        id: '2346',
+        symbol: 'NIFTYNXT50',
+      },
+      mc: {
+        id: '6',
+        symbol: 'in;cjn',
+      },
+    },
+    {
+      name: 'Nifty Energy',
+      etm: {
+        id: '13016',
+        symbol: 'CNXENERGY',
+      },
+      mc: {
+        id: '38',
+        symbol: 'in;cgy',
+      },
+    },
+    {
+      name: 'Nifty MidCap 50',
+      etm: {
+        id: '2907',
+        symbol: 'MIDCAP50',
+      },
+      mc: {
+        id: '31',
+        symbol: 'in;mfy',
+      },
+    },
+    {
+      name: 'Nifty Infrastructure',
+      etm: {
+        id: '13022',
+        symbol: 'CNXINFRA',
+      },
+      mc: {
+        id: '35',
+        symbol: 'in;cfr',
+      },
+    },
+    {
+      name: 'Nifty India Manufacturing',
+      etm: {
+        id: '47194',
+        symbol: 'NIFINDIAMANU',
+      },
+      mc: {
+        id: '133',
+        symbol: 'mc;nindiamfg',
+      },
+    },
+    {
+      name: 'Nifty PSU Bank',
+      etm: {
+        id: '13026',
+        symbol: 'CNXPSUBANK',
+      },
+      mc: {
+        id: '43',
+        symbol: 'in;cuk',
+      },
+    },
+    {
+      name: 'Nifty PSE',
+      etm: {
+        id: '13029',
+        symbol: 'CNXPSE',
+      },
+      mc: {
+        id: '42',
+        symbol: 'in;cps',
+      },
+    },
+    {
+      name: 'Nifty CPSE',
+      etm: {
+        id: '14214',
+        symbol: 'CPSE',
+      },
+      mc: {
+        id: '61',
+        symbol: 'in;nxe',
+      },
+    },
+    {
+      name: 'Nifty MNC',
+      etm: {
+        id: '13019',
+        symbol: 'CNXMNC',
+      },
+      mc: {
+        id: '40',
+        symbol: 'in;cxc',
+      },
+    },
+    {
+      name: 'Nifty Commodities',
+      etm: {
+        id: '13654',
+        symbol: 'CNXCOMMO',
+      },
+      mc: {
+        id: '48',
+        symbol: 'in;cnxz',
+      },
+    },
+    {
+      name: 'Nifty IT',
+      etm: {
+        id: '186',
+        symbol: 'CNXIT',
+      },
+      mc: {
+        id: '19',
+        symbol: 'in;cnit',
+      },
+    },
+    {
+      name: 'Nifty Metal',
+      etm: {
+        id: '13605',
+        symbol: 'CNXMETAL',
+      },
+      mc: {
+        id: '51',
+        symbol: 'in;CNXM',
+      },
+    },
+    {
+      name: 'Nifty Auto',
+      etm: {
+        id: '13603',
+        symbol: 'CNXAUTO',
+      },
+      mc: {
+        id: '52',
+        symbol: 'in;cnxa',
+      },
+    },
+    {
+      name: 'Nifty Realty',
+      etm: {
+        id: '13030',
+        symbol: 'CNXREALTY',
+      },
+      mc: {
+        id: '34',
+        symbol: 'in;crl',
+      },
+    },
+  ],
+  bse: [
+    {
+      name: 'BSE SME IPO',
+      etm: {
+        id: '13794',
+        symbol: 'SMEIPO',
+      },
+      mc: {
+        id: '58',
+        symbol: 'in;zpo',
+      },
+    },
+    {
+      name: 'BSE Healthcare',
+      etm: {
+        id: '2276',
+        symbol: 'BSE HC',
+      },
+      mc: {
+        id: '15',
+        symbol: 'IN;HAX',
+      },
+    },
+    {
+      name: 'BSE Power',
+      etm: {
+        id: '12356',
+        symbol: 'POWER',
+      },
+      mc: {
+        id: '30',
+        symbol: 'in;bpo',
+      },
+    },
+    {
+      name: 'BSE IPO',
+      etm: {
+        id: '12725',
+        symbol: 'BSEIPO',
+      },
+      mc: {
+        id: '33',
+        symbol: 'in;bip',
+      },
+    },
+    {
+      name: 'BSE SmallCap',
+      etm: {
+        id: '2022',
+        symbol: 'SMLCAP',
+      },
+      mc: {
+        id: '26',
+        symbol: 'in;BCX',
+      },
+    },
+    {
+      name: 'BSE Telecommunication',
+      etm: {
+        id: '14917',
+        symbol: 'TELCOM',
+      },
+      mc: {
+        id: '76',
+        symbol: 'in;tez',
+      },
+    },
+    {
+      name: 'BSE Bankex',
+      etm: {
+        id: '2647',
+        symbol: 'BANKEX',
+      },
+      mc: {
+        id: '18',
+        symbol: 'IN;bkx',
+      },
+    },
+    {
+      name: 'BSE Fast Moving Consumer Goods',
+      etm: {
+        id: '2274',
+        symbol: 'BSEFMC',
+      },
+      mc: {
+        id: '14',
+        symbol: 'IN;FMX',
+      },
+    },
+    {
+      name: 'BSE SENSEX Next 50',
+      etm: {
+        id: '15817',
+        symbol: 'SNXT50',
+      },
+      mc: {
+        id: '101',
+        symbol: 'in;bxn',
+      },
+    },
+    {
+      name: 'BSE Utilities',
+      etm: {
+        id: '14848',
+        symbol: 'UTILS',
+      },
+      mc: {
+        id: '77',
+        symbol: 'in;bsu',
+      },
+    },
+    {
+      name: 'BSE 150 MidCap',
+      etm: {
+        id: '16178',
+        symbol: 'MID150',
+      },
+      mc: {
+        id: '103',
+        symbol: 'in;MCD',
+      },
+    },
+    {
+      name: 'BSE 400 MidSmallCap',
+      etm: {
+        id: '16177',
+        symbol: 'MSL400',
+      },
+      mc: {
+        id: '106',
+        symbol: 'in;MSI',
+      },
+    },
+    {
+      name: 'BSE 250 SmallCap',
+      etm: {
+        id: '16179',
+        symbol: 'SML250',
+      },
+      mc: {
+        id: '104',
+        symbol: 'in;SCI',
+      },
+    },
+    {
+      name: 'BSE Consumer Durables',
+      etm: {
+        id: '2275',
+        symbol: 'BSE CD',
+      },
+      mc: {
+        id: '16',
+        symbol: 'IN;CDX',
+      },
+    },
+    {
+      name: 'BSE AllCap',
+      etm: {
+        id: '14912',
+        symbol: 'ALLCAP',
+      },
+      mc: {
+        id: '67',
+        symbol: 'IN;bsx',
+      },
+    },
+    {
+      name: 'BSE 500',
+      etm: {
+        id: '2342',
+        symbol: 'BSE500',
+      },
+      mc: {
+        id: '12',
+        symbol: 'IN;BNX',
+      },
+    },
+    {
+      name: 'BSE LargeCap',
+      etm: {
+        id: '14852',
+        symbol: 'LRGCAP',
+      },
+      mc: {
+        id: '73',
+        symbol: 'in;blp',
+      },
+    },
+    {
+      name: 'BSE 200',
+      etm: {
+        id: '2364',
+        symbol: 'BSE200',
+      },
+      mc: {
+        id: '2',
+        symbol: 'IN;SEI',
+      },
+    },
+    {
+      name: 'BSE 250 LargeMidCap',
+      etm: {
+        id: '16181',
+        symbol: 'LMI250',
+      },
+      mc: {
+        id: '105',
+        symbol: 'in;LMI',
+      },
+    },
+    {
+      name: 'BSE SmallCap Select',
+      etm: {
+        id: '14959',
+        symbol: 'SMLSEL',
+      },
+      mc: {
+        id: '75',
+        symbol: 'in;cey',
+      },
+    },
+    {
+      name: 'BSE Sensex',
+      main: true,
+      etm: {
+        id: '2365',
+        symbol: 'SENSEX',
+      },
+      mc: {
+        id: '4',
+        symbol: 'in;SEN',
+      },
+    },
+    {
+      name: 'BSE 100',
+      etm: {
+        id: '2340',
+        symbol: 'BSE100',
+      },
+      mc: {
+        id: '1',
+        symbol: 'IN;NTL',
+      },
+    },
+    {
+      name: 'BSE MidCap',
+      etm: {
+        id: '1906',
+        symbol: 'MIDCAP',
+      },
+      mc: {
+        id: '25',
+        symbol: 'in;bmx',
+      },
+    },
+    {
+      name: 'BSE Sensex 50',
+      etm: {
+        id: '15648',
+        symbol: 'SNSX50',
+      },
+      mc: {
+        id: '100',
+        symbol: 'in;bxx',
+      },
+    },
+    {
+      name: 'BSE India Infrastructure',
+      etm: {
+        id: '14354',
+        symbol: 'INFRA',
+      },
+      mc: {
+        id: '62',
+        symbol: 'mc;binfra',
+      },
+    },
+    {
+      name: 'BSE Oil & Gas',
+      etm: {
+        id: '2555',
+        symbol: 'OILGAS',
+      },
+      mc: {
+        id: '22',
+        symbol: 'IN;ogx',
+      },
+    },
+    {
+      name: 'BSE Energy',
+      etm: {
+        id: '14911',
+        symbol: 'ENERGY',
+      },
+      mc: {
+        id: '70',
+        symbol: 'in;bsq',
+      },
+    },
+    {
+      name: 'BSE Industrials',
+      etm: {
+        id: '14856',
+        symbol: 'INDSTR',
+      },
+      mc: {
+        id: '72',
+        symbol: 'in;scx',
+      },
+    },
+    {
+      name: 'BSE CPSE',
+      etm: {
+        id: '14537',
+        symbol: 'CPSE',
+      },
+      mc: {
+        id: '63',
+        symbol: 'mc;bcpse',
+      },
+    },
+    {
+      name: 'BSE PSU',
+      etm: {
+        id: '6929',
+        symbol: 'BSEPSU',
+      },
+      mc: {
+        id: '11',
+        symbol: 'in;pbx',
+      },
+    },
+    {
+      name: 'BSE Capital Goods',
+      etm: {
+        id: '2273',
+        symbol: 'BSE CG',
+      },
+      mc: {
+        id: '13',
+        symbol: 'IN;CGX',
+      },
+    },
+    {
+      name: 'BSE MidCap Select',
+      etm: {
+        id: '14958',
+        symbol: 'MIDSEL',
+      },
+      mc: {
+        id: '74',
+        symbol: 'in;ihb',
+      },
+    },
+    {
+      name: 'BSE TECk',
+      etm: {
+        id: '10968',
+        symbol: 'TECK',
+      },
+      mc: {
+        id: '10',
+        symbol: 'in;tkx',
+      },
+    },
+    {
+      name: 'BSE Bharat 22',
+      etm: {
+        id: '16021',
+        symbol: 'BHRT22',
+      },
+      mc: {
+        id: '102',
+        symbol: 'in;bin',
+      },
+    },
+    {
+      name: 'BSE India Manufacturing',
+      etm: {
+        id: '14854',
+        symbol: 'MFG',
+      },
+      mc: {
+        id: '66',
+        symbol: 'in;mfg',
+      },
+    },
+    {
+      name: 'BSE Information Technology',
+      etm: {
+        id: '2157',
+        symbol: 'BSE IT',
+      },
+      mc: {
+        id: '17',
+        symbol: 'IN;ifx',
+      },
+    },
+    {
+      name: 'BSE Auto',
+      etm: {
+        id: '2416',
+        symbol: 'AUTO',
+      },
+      mc: {
+        id: '20',
+        symbol: 'IN;aox',
+      },
+    },
+    {
+      name: 'BSE Metal',
+      etm: {
+        id: '2449',
+        symbol: 'METAL',
+      },
+      mc: {
+        id: '21',
+        symbol: 'IN;MLX',
+      },
+    },
+    {
+      name: 'BSE Realty',
+      etm: {
+        id: '2739',
+        symbol: 'REALTY',
+      },
+      mc: {
+        id: '29',
+        symbol: 'in;rea',
+      },
+    },
+  ],
+};

@@ -1,11 +1,17 @@
-import { IndexVendorCode } from './market';
-import { Change, ExchangeName, Performance, Stock } from './stock';
+import {
+  AdvanceDecline,
+  Change,
+  ExchangeName,
+  Performance,
+  VendorCode,
+} from './market';
+import { Stock } from './stock';
 
 export interface Index {
   id: string;
   name: string;
   exchange: ExchangeName;
-  vendorCode: IndexVendorCode;
+  vendorCode: VendorCode;
   quote?: Quote;
   metrics?: Metrics;
   performance?: Performance;
@@ -26,19 +32,9 @@ export interface Quote {
   decline?: AdvanceDecline;
 }
 
-export interface AdvanceDecline {
-  percentage: number;
-  value: number;
-}
-
 export interface Metrics {
   marketCap: number;
   pe: number;
   pb: number;
   dividendYield: number;
-}
-
-export enum IndexName {
-  NIFTY_FIFTY = 'NIFTY',
-  SENSEX = 'SENSEX',
 }

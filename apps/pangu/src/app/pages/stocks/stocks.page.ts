@@ -29,10 +29,11 @@ import {
   tap,
 } from 'rxjs';
 
+import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
-import { Status } from '../../models/market-status';
+import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
-import { Direction, ExchangeName, Stock } from '../../models/stock';
+import { Stock } from '../../models/stock';
 import {
   ChartCategory,
   MarketService,
@@ -79,6 +80,7 @@ export class StocksPage implements OnDestroy {
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
+  public readonly NO_VALUE_PLACEHOLDER = Constants.placeholders.NO_VALUE;
 
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
 
@@ -104,14 +106,27 @@ export class StocksPage implements OnDestroy {
     this.stock$ = toObservable(this.id).pipe(
       switchMap((id) => marketService.getStock(id, true)),
       tap((stock) => {
-        if (stock && !this.chart && stock.scripCode.nse) {
+        if (stock && !stock.scripCode.nse) {
+          this.activeExchange = ExchangeName.BSE;
+        }
+
+        if (
+          stock &&
+          !this.chart &&
+          (stock.scripCode.nse || stock.scripCode.bse)
+        ) {
           const intraDayChart$ = marketService.getIntraDayChart(
-            stock.scripCode.nse,
+            (this.activeExchange === ExchangeName.NSE
+              ? stock.scripCode.nse
+              : stock.scripCode.bse) || '',
             ChartCategory.STOCK,
           );
 
           const historicChart$ = marketService
-            .getHistoricalChart(stock.scripCode.nse, ChartCategory.STOCK)
+            .getHistoricalChart(
+              stock.vendorCode.etm.chart || '',
+              ChartCategory.STOCK,
+            )
             .pipe(
               tap((data) => {
                 if (data.length > 0) {
@@ -165,19 +180,24 @@ export class StocksPage implements OnDestroy {
                 this.initChart(data);
 
                 if (this.areaSeries) {
+                  const direction =
+                    this.activeExchange === ExchangeName.NSE
+                      ? stock.quote?.nse?.change?.direction
+                      : stock.quote?.bse?.change?.direction;
+
                   this.areaSeries.applyOptions({
-                    lineColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    lineColor: direction
+                      ? direction === Direction.UP
                         ? '#22c55e'
                         : '#ef4444'
                       : '#2962FF',
-                    topColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    topColor: direction
+                      ? direction === Direction.UP
                         ? 'rgba(34, 197, 94, 0.4)'
                         : 'rgba(239, 68, 68, 0.4)'
                       : 'rgba(41, 98, 255, 0.4)',
-                    bottomColor: stock.quote?.nse?.change?.direction
-                      ? stock.quote.nse.change.direction === Direction.UP
+                    bottomColor: direction
+                      ? direction === Direction.UP
                         ? 'rgba(34, 197, 94, 0.1)'
                         : 'rgba(239, 68, 68, 0.1)'
                       : 'rgba(41, 98, 255, 0.1)',
@@ -446,7 +466,7 @@ export class StocksPage implements OnDestroy {
     }
   }
 
-  private chartCrosshairMoveEventHandler({ time }: MouseEventParams) {
+  private chartCrosshairMoveEventHandler({ time }: MouseEventParams): void {
     if (time && this.historicChartData && this.historicChartData.size > 0) {
       this.chartCrosshairData = this.historicChartData.get(
         time.toLocaleString(),

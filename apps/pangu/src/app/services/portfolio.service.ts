@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, from, map, shareReplay, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { Direction } from '../models/market';
 import { Holding, Portfolio, TransactionType } from '../models/portfolio';
-import { Direction, Stock } from '../models/stock';
+import { Stock } from '../models/stock';
 import { MarketService } from './core/market.service';
 import { StorageService } from './core/storage.service';
 
@@ -19,15 +20,17 @@ export class PortfolioService {
         switchMap((storageStocks) => {
           return marketService
             .getStocks(
-              storageStocks.map((storageStock) => storageStock.vendorCode.etm),
+              storageStocks.map(
+                (storageStock) => storageStock.vendorCode.etm.primary,
+              ),
             )
             .pipe(
               map((marketStocks: Stock[]): Portfolio => {
                 const holdings = marketStocks.map((marketStock): Holding => {
                   const storageStock = storageStocks.find(
                     (storageStock) =>
-                      storageStock.vendorCode.etm ===
-                      marketStock.vendorCode.etm,
+                      storageStock.vendorCode.etm.primary ===
+                      marketStock.vendorCode.etm.primary,
                   );
                   const quantity =
                     storageStock?.transactions.reduce(

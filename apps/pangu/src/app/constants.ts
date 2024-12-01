@@ -1,4 +1,10 @@
 export const Constants = {
+  db: {
+    NAME: 'pangu',
+    tables: {
+      STOCKS: 'stocks',
+    },
+  },
   routes: {
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
@@ -19,12 +25,14 @@ export const Constants = {
       'https://mobilelivefeeds.indiatimes.com/ETMobileApps/mobile/dashboard',
     STOCK_SEARCH:
       'https://etsearch.indiatimes.com/etspeeds/etsearchMdata.ep?matchCompanyName=true&ticker=',
+    STOCK_SEARCH_SECONDARY:
+      'https://appfeeds.moneycontrol.com/jsonapi/search/common?format=json&category=stock&query=',
     STOCK_QUOTE:
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
     STOCK_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/stock/history?resolution=1D&countback=0&',
     STOCK_INTRA_DAY_CHART:
-      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=', // DRREDDY&from=1720152420&to=1720152660
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
     INDEX_QUOTE:
       'https://etapi.indiatimes.com/et-screener/index-summary?indexId=',
     INDEX_CONSTITUENTS:
@@ -32,11 +40,14 @@ export const Constants = {
     INDEX_HISTORIC_CHART:
       'https://etelection.indiatimes.com/ET_Charts/india-market/index/history?resolution=1D&countback=0&',
     INDEX_INTRA_DAY_CHART:
-      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=in;', //NSX&from=1720152420&to=1720152660, SEN&from=1720152420&to=1720152660
+      'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
   },
   settings: {
     THEME: 'theme',
     COLOR_SCHEME: 'color_scheme',
     REFRESH_INTERVAL: 'refresh_interval',
+  },
+  placeholders: {
+    NO_VALUE: '--',
   },
 };

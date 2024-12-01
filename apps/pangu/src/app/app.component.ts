@@ -23,7 +23,7 @@ import { Observable, filter, map, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
-import { MarketStatus, Status } from './models/market-status';
+import { MarketStatus, Status } from './models/market';
 import { MarketService } from './services/core/market.service';
 import { SettingsService } from './services/core/settings.service';
 
@@ -153,8 +153,10 @@ export class AppComponent implements OnInit {
     ) {
       try {
         await navigator.share(shareData);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(
+          `An error occurred while trying to share the app: ${error}`,
+        );
       } finally {
         shared = true;
       }
