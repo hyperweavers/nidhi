@@ -73,16 +73,15 @@
   "generators": {
     "@nx/angular:application": {
       "bundler": "esbuild",
+      "unitTestRunner": "jest",
       "e2eTestRunner": "cypress",
       "style": "scss",
-      "addTailwind": true,
-      "projectNameAndRootFormat": "as-provided"
+      "addTailwind": true
     },
     "@nx/angular:component": {
       "style": "scss",
       "changeDetection": "OnPush",
-      "type": "page",
-      "nameAndDirectoryFormat": "as-provided"
+      "type": "page"
     }
   },
   "nxCloudAccessToken": "ZDcxZTIyNmItZGRmNy00OGM1LTk5Y2MtYmY2ZGY3OWU0ODYyfHJlYWQtd3JpdGU=",
