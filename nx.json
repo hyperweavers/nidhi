@@ -50,7 +50,7 @@
       "inputs": ["production", "^production"]
     },
     "e2e-ci--**/*": {
-      "dependsOn": ["^pangu:build"]
+      "dependsOn": ["^pangu:build", "^build"]
     }
   },
   "plugins": [
@@ -72,10 +72,11 @@
   ],
   "generators": {
     "@nx/angular:application": {
-      "bundler": "esbuild",
-      "unitTestRunner": "jest",
       "e2eTestRunner": "cypress",
+      "linter": "eslint",
       "style": "scss",
+      "unitTestRunner": "jest",
+      "bundler": "esbuild",
       "addTailwind": true
     },
     "@nx/angular:component": {
