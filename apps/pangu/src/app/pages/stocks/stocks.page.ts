@@ -54,7 +54,6 @@ enum ChartTimeRange {
 @UntilDestroy()
 @Component({
   selector: 'app-stocks',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './stocks.page.html',
   styleUrl: './stocks.page.scss',

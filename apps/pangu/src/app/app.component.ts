@@ -29,7 +29,6 @@ import { SettingsService } from './services/core/settings.service';
 
 @UntilDestroy()
 @Component({
-  standalone: true,
   imports: [CommonModule, RouterModule, RouterLink],
   selector: 'app-root',
   templateUrl: './app.component.html',

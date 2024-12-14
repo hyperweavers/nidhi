@@ -63,7 +63,6 @@ enum PortfolioSortOrder {
 
 @Component({
   selector: 'app-portfolio',
-  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, DrawerClosedDirective],
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.scss',

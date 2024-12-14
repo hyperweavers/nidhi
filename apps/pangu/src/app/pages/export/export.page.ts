@@ -11,7 +11,6 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-export',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './export.page.html',
   styleUrl: './export.page.scss',
