@@ -6,7 +6,7 @@
   </h2>
 
   <form (ngSubmit)="calculateAmortization()" class="mt-4">
-    <section class="grid grid-cols-1 mb-6 md:grid-cols-2 md:gap-10">
+    <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
       <main>
         <div class="mb-6 flex">
           <label
@@ -518,6 +518,14 @@
   <ul
     class="mt-6 flex flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
   >
+    <li class="me-2" (click)="activeTab = Tabs.CHARTS">
+      <p
+        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+        [class.active]="activeTab === Tabs.CHARTS"
+      >
+        Chart
+      </p>
+    </li>
     <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
       <p
         class="inline-block cursor-pointer rounded-t-lg p-4"
@@ -532,14 +540,6 @@
         [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
       >
         Financial Year Summary
-      </p>
-    </li>
-    <li class="me-2" (click)="activeTab = Tabs.CHARTS">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        [class.active]="activeTab === Tabs.CHARTS"
-      >
-        Chart
       </p>
     </li>
   </ul>
@@ -779,11 +779,13 @@
       ></apx-chart>
     </div>
 
-    <div class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800">
+    <div
+      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    >
       <h2
         class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
       >
-      Amortization Schedule
+        Amortization Schedule
       </h2>
       <apx-chart
         [series]="emiChartOptions.series"
@@ -798,11 +800,14 @@
       ></apx-chart>
     </div>
 
-    <div class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800">
+    @if (interestRateType === InterestRateType.FLOATING) {
+    <div
+      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    >
       <h2
         class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
       >
-        Interest Rate Revisions & Prepayments
+        Interest Rate Revisions
       </h2>
       <apx-chart
         [series]="revisionChartOptions.series"
@@ -816,48 +821,7 @@
         [legend]="revisionChartOptions.legend"
       ></apx-chart>
     </div>
+  }
   </section>
   }
 </div>
-
-<!-- <div>
-  <h3>EMI Chart</h3>
-  <div style="width: 800px; height: 400px">
-    <canvas
-      #emiChart
-      baseChart
-      [data]="emiChartData"
-      [options]="emiChartOptions"
-      [type]="'line'"
-    >
-    </canvas>
-  </div>
-</div>
-
-<div>
-  <h3>Revision Chart</h3>
-  <div style="width: 800px; height: 400px">
-    <canvas
-      #revisionChart
-      baseChart
-      [data]="revisionChartData"
-      [options]="revisionChartOptions"
-      [type]="'line'"
-    >
-    </canvas>
-  </div>
-</div>
-
-<div>
-  <h3>Total Payments Chart</h3>
-  <h4>Total Payments: {{ totalPayments | number : "1.0-0" }}</h4>
-  <div style="width: 400px; height: 400px">
-    <canvas
-      #totalPaymentsChart
-      baseChart
-      [data]="totalPaymentsChartData"
-      [options]="totalPaymentsChartOptions"
-      [type]="'doughnut'"
-    ></canvas>
-  </div>
-</div> -->

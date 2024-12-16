@@ -77,7 +77,7 @@ type DonutChartOptions = {
 export class LoanEmiCalculatorPage implements OnInit {
   @ViewChild('loanStartDateInput', { static: true })
   private loanStartDateInput?: ElementRef;
-  @ViewChild('chart', { static: true }) chart!: ChartComponent;
+  @ViewChild('chart', { static: false }) chart!: ChartComponent;
 
   readonly PAGE_SIZE = 12;
 
@@ -113,7 +113,7 @@ export class LoanEmiCalculatorPage implements OnInit {
   prepaymentAdjustmentType: RevisionAdjustmentType =
     RevisionAdjustmentType.TENURE;
 
-  activeTab = Tabs.CHARTS; // TODO: change
+  activeTab = Tabs.CHARTS;
 
   amortizationSchedulePage = 0;
   financialYearSummaryPage = 0;
@@ -125,6 +125,9 @@ export class LoanEmiCalculatorPage implements OnInit {
       height: 320,
       width: '100%',
       type: 'donut',
+      animations: {
+        enabled: false,
+      },
     },
     stroke: {
       colors: ['transparent'],
@@ -206,6 +209,7 @@ export class LoanEmiCalculatorPage implements OnInit {
     chart: {
       width: '100%',
       height: 400,
+      offsetY: 5,
       type: 'line',
       fontFamily: 'Inter, sans-serif',
       dropShadow: {
@@ -215,6 +219,9 @@ export class LoanEmiCalculatorPage implements OnInit {
         show: false,
       },
       zoom: {
+        enabled: false,
+      },
+      animations: {
         enabled: false,
       },
     },
@@ -241,7 +248,8 @@ export class LoanEmiCalculatorPage implements OnInit {
       },
     },
     legend: {
-      show: false,
+      show: true,
+      position: 'bottom',
     },
     series: [
       {
@@ -256,8 +264,9 @@ export class LoanEmiCalculatorPage implements OnInit {
       },
     ],
     xaxis: {
-      categories: [],
+      type: 'numeric',
       labels: {
+        rotate: 0,
         show: true,
         style: {
           fontFamily: 'Inter, sans-serif',
@@ -270,10 +279,32 @@ export class LoanEmiCalculatorPage implements OnInit {
       axisTicks: {
         show: false,
       },
-      tickAmount: 30,
+      tickAmount: 20,
+      title: {
+        text: 'Month',
+        offsetY: -5,
+        style: {
+          fontFamily: 'Inter, sans-serif',
+          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
+        },
+      },
     },
     yaxis: {
-      show: false,
+      labels: {
+        show: true,
+        style: {
+          fontFamily: 'Inter, sans-serif',
+          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
+        },
+      },
+      title: {
+        text: 'Amount',
+        offsetY: -25,
+        style: {
+          fontFamily: 'Inter, sans-serif',
+          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
+        },
+      },
     },
   };
 
@@ -282,13 +313,16 @@ export class LoanEmiCalculatorPage implements OnInit {
     series: [
       {
         ...this.emiChartOptions.series[0],
-        name: 'Interest Rate (%)',
-      },
-      {
-        ...this.emiChartOptions.series[1],
-        name: 'Prepayment Amount',
+        name: 'Interest Rate',
       },
     ],
+    yaxis: {
+      ...this.emiChartOptions.yaxis,
+      title: {
+        ...this.emiChartOptions.yaxis.title,
+        text: 'Interest Rate',
+      },
+    },
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -568,9 +602,12 @@ export class LoanEmiCalculatorPage implements OnInit {
     );
 
     // Update charts
-    this.updateEmiChart();
-    this.updateRevisionChart();
     this.updateTotalPaymentsChart();
+    this.updateEmiChart();
+
+    if (this.interestRateType === InterestRateType.FLOATING) {
+      this.updateRevisionChart();
+    }
   }
 
   private calculateMonthlyPayment(
@@ -592,17 +629,13 @@ export class LoanEmiCalculatorPage implements OnInit {
   }
 
   private updateEmiChart() {
-    const labels = this.amortizationSchedule.map((payment) =>
-      payment.month.toString(),
-    );
     const principalData = this.amortizationSchedule.map(
       (payment) => payment.principal,
     );
     const interestData = this.amortizationSchedule.map(
       (payment) => payment.interest,
     );
-    console.log(labels);
-    this.emiChartOptions.xaxis.categories = labels;
+
     this.emiChartOptions.series = [
       {
         ...this.emiChartOptions.series[0],
@@ -616,14 +649,8 @@ export class LoanEmiCalculatorPage implements OnInit {
   }
 
   private updateRevisionChart() {
-    // Use months from amortizationSchedule for labels
-    const labels = this.amortizationSchedule.map((payment) =>
-      payment.month.toString(),
-    );
-
     // Initialize data arrays
     const rateChangeData = new Array(this.amortizationSchedule.length);
-    const prepaymentData = new Array(this.amortizationSchedule.length).fill(0);
 
     let currentRate = this.annualInterestRate;
     let rateChangeIndex = 0;
@@ -643,24 +670,11 @@ export class LoanEmiCalculatorPage implements OnInit {
       rateChangeData[i] = currentRate;
     }
 
-    // Populate prepaymentData with zeros where there are no prepayments
-    this.prepayments.forEach((prepayment) => {
-      const index = prepayment.month - 1;
-      if (index >= 0 && index < prepaymentData.length) {
-        prepaymentData[index] = prepayment.amount;
-      }
-    });
-
     // Update the chart data
-    this.revisionChartOptions.xaxis.categories = labels;
     this.revisionChartOptions.series = [
       {
         ...this.revisionChartOptions.series[0],
         data: rateChangeData,
-      },
-      {
-        ...this.revisionChartOptions.series[1],
-        data: prepaymentData,
       },
     ];
   }
