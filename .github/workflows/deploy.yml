@@ -43,10 +43,10 @@ jobs:
 
       - name: Prepare ${{ matrix.app }} App for Deployment
         run: |
-          cd dist/apps/pangu/browser
+          cd dist/apps/${{ matrix.app }}/browser
           cp index.html 404.html
 
-      - name: Deploy
+      - name: Deploy ${{ matrix.app }} App
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
