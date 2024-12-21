@@ -7,7 +7,6 @@ import { SettingsService } from '../../services/core/settings.service';
 
 @Component({
   selector: 'app-settings',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './settings.page.html',
   styleUrl: './settings.page.scss',

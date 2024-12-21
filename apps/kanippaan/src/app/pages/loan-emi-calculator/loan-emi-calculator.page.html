@@ -1,0 +1,827 @@
+<div class="p-4 text-gray-500 dark:text-gray-400">
+  <h2
+    class="mb-10 mt-4 block text-center text-2xl font-semibold text-gray-900 dark:text-white"
+  >
+    Loan EMI Calculator
+  </h2>
+
+  <form (ngSubmit)="calculateAmortization()" class="mt-4">
+    <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
+      <main>
+        <div class="mb-6 flex">
+          <label
+            class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
+            >Interest Rate Type</label
+          >
+          <div class="flex">
+            <div class="me-4 flex items-center">
+              <input
+                id="floating"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="interestRateType"
+                [value]="InterestRateType.FLOATING"
+                (change)="calculateAmortization()"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="floating"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Floating</label
+              >
+            </div>
+            <div class="flex items-center">
+              <input
+                id="fixed"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="interestRateType"
+                [value]="InterestRateType.FIXED"
+                (change)="calculateAmortization()"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="fixed"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Fixed</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="principal"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Principal Amount</label
+          >
+          <input
+            type="number"
+            id="principal"
+            [(ngModel)]="principalAmount"
+            (change)="calculateAmortization()"
+            name="principal"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="interest"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Annual Interest Rate (%)</label
+          >
+          <input
+            type="number"
+            id="interest"
+            [(ngModel)]="annualInterestRate"
+            (change)="calculateAmortization()"
+            name="interest"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="tenure"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Loan Term (years)</label
+          >
+          <input
+            type="number"
+            id="tenure"
+            [(ngModel)]="loanTermYears"
+            (change)="calculateAmortization()"
+            name="tenure"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+        </div>
+
+        <div class="mb-6">
+          <label
+            for="loan-start-date"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Loan Start Date</label
+          >
+          <div class="relative">
+            <div
+              class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
+            >
+              <svg
+                class="h-4 w-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </div>
+            <input
+              #loanStartDateInput
+              type="text"
+              id="loan-start-date"
+              [ngModel]="loanStartDate | date : 'dd/MM/yyyy'"
+              (ngModelChange)="onLoanStartDateChange($event)"
+              name="loan-start-date"
+              class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              placeholder="DD/MM/YYYY"
+              required
+              readonly
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            for="emi-due-day"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >EMI Due Day</label
+          >
+          <input
+            type="number"
+            id="emi-due-day"
+            [(ngModel)]="emiDebitDay"
+            (change)="calculateAmortization()"
+            name="emi-due-day"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+        </div>
+      </main>
+
+      <aside>
+        @if(interestRateType === InterestRateType.FLOATING) {
+        <section class="mb-6">
+          <h2
+            class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Interest Rate Revisions
+          </h2>
+
+          <div class="grid grid-cols-4 gap-4">
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Month
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Interest
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Adjust
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Add/Remove
+              </h2>
+            </div>
+
+            @for (change of rateChanges; track change.month; let i = $index) {
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [value]="change.month"
+                name="revised-month-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [value]="change.newRate"
+                name="revised-interest-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <select
+                name="revised-adjustment-type-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              >
+                <option
+                  [value]="RevisionAdjustmentType.TENURE"
+                  [selected]="change.adjustmentType === RevisionAdjustmentType.TENURE"
+                >
+                  Tenure
+                </option>
+                <option
+                  [value]="RevisionAdjustmentType.EMI"
+                  [selected]="change.adjustmentType === RevisionAdjustmentType.EMI"
+                >
+                  EMI
+                </option>
+              </select>
+            </div>
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                (click)="removeRateChange(i)"
+                class="border-primary-700 text-primary-700 hover:bg-primary-700 focus:ring-primary-300 dark:border-primary-500 dark:text-primary-500 dark:hover:bg-primary-500 dark:focus:ring-primary-800 inline-flex items-center rounded-full border p-1 text-center text-sm font-medium hover:text-white focus:outline-none focus:ring-4 dark:hover:text-white"
+              >
+                <svg
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12h14"
+                  />
+                </svg>
+                <span class="sr-only">Remove</span>
+              </button>
+            </div>
+            }
+
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [(ngModel)]="rateChangeMonth"
+                name="revised-month"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [(ngModel)]="rateChangeNewRate"
+                name="revised-interest"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <select
+                name="revised-adjustment-type"
+                [ngModel]="rateChangeAdjustmentType"
+                (ngModelChange)="onRateChangeAdjustmentTypeChange($event)"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              >
+                <option [value]="RevisionAdjustmentType.TENURE">Tenure</option>
+                <option [value]="RevisionAdjustmentType.EMI">EMI</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                (click)="addRateChange()"
+                class="border-primary-700 text-primary-700 hover:bg-primary-700 focus:ring-primary-300 dark:border-primary-500 dark:text-primary-500 dark:hover:bg-primary-500 dark:focus:ring-primary-800 inline-flex items-center rounded-full border p-1 text-center text-sm font-medium hover:text-white focus:outline-none focus:ring-4 dark:hover:text-white"
+              >
+                <svg
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12h14m-7 7V5"
+                  />
+                </svg>
+                <span class="sr-only">Add</span>
+              </button>
+            </div>
+          </div>
+        </section>
+        }
+
+        <section>
+          <h2
+            class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Prepayments
+          </h2>
+
+          <div class="grid grid-cols-4 gap-4">
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Month
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Amount
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Adjust
+              </h2>
+            </div>
+            <div class="flex items-center justify-center">
+              <h2
+                class="block text-xs font-medium text-gray-900 dark:text-white"
+              >
+                Add/Remove
+              </h2>
+            </div>
+
+            @for (prepayment of prepayments; track prepayment.month; let i =
+            $index) {
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [value]="prepayment.month"
+                name="prepayment-month-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [value]="prepayment.amount"
+                name="prepayment-amount-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <select
+                name="prepayment-adjustment-type-{{ i }}"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                disabled
+              >
+                <option
+                  [value]="RevisionAdjustmentType.TENURE"
+                  [selected]="prepayment.adjustmentType === RevisionAdjustmentType.TENURE"
+                >
+                  Tenure
+                </option>
+                <option
+                  [value]="RevisionAdjustmentType.EMI"
+                  [selected]="prepayment.adjustmentType === RevisionAdjustmentType.EMI"
+                >
+                  EMI
+                </option>
+              </select>
+            </div>
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                (click)="removePrepayment(i)"
+                class="border-primary-700 text-primary-700 hover:bg-primary-700 focus:ring-primary-300 dark:border-primary-500 dark:text-primary-500 dark:hover:bg-primary-500 dark:focus:ring-primary-800 inline-flex items-center rounded-full border p-1 text-center text-sm font-medium hover:text-white focus:outline-none focus:ring-4 dark:hover:text-white"
+              >
+                <svg
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12h14"
+                  />
+                </svg>
+                <span class="sr-only">Remove</span>
+              </button>
+            </div>
+            }
+
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [(ngModel)]="prepaymentMonth"
+                name="prepayment-month"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <input
+                type="number"
+                [(ngModel)]="prepaymentAmount"
+                name="prepayment-amount"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="flex items-center justify-center">
+              <select
+                name="prepayment-adjustment-type"
+                [ngModel]="prepaymentAdjustmentType"
+                (ngModelChange)="onPrepaymentAdjustmentTypeChange($event)"
+                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              >
+                <option [value]="RevisionAdjustmentType.TENURE">Tenure</option>
+                <option [value]="RevisionAdjustmentType.EMI">EMI</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-center">
+              <button
+                type="button"
+                (click)="addPrepayment()"
+                class="border-primary-700 text-primary-700 hover:bg-primary-700 focus:ring-primary-300 dark:border-primary-500 dark:text-primary-500 dark:hover:bg-primary-500 dark:focus:ring-primary-800 inline-flex items-center rounded-full border p-1 text-center text-sm font-medium hover:text-white focus:outline-none focus:ring-4 dark:hover:text-white"
+              >
+                <svg
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 12h14m-7 7V5"
+                  />
+                </svg>
+                <span class="sr-only">Add</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <div class="flex w-full justify-center md:mt-0">
+      <button
+        type="submit"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 sm:w-auto"
+      >
+        Calculate
+      </button>
+    </div>
+  </form>
+
+  @if (monthlyPayment) {
+  <h2
+    class="mt-6 text-center text-xl font-bold leading-none tracking-tight text-gray-900 dark:text-white"
+  >
+    Monthly Payment =
+    <mark
+      class="bg-primary-600 dark:bg-primary-500 rounded px-2 py-1 text-2xl font-extrabold text-white"
+      >{{ monthlyPayment | number : "1.0-0" }}</mark
+    >
+  </h2>
+  }
+
+  <ul
+    class="mt-6 flex flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
+  >
+    <li class="me-2" (click)="activeTab = Tabs.CHARTS">
+      <p
+        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+        [class.active]="activeTab === Tabs.CHARTS"
+      >
+        Chart
+      </p>
+    </li>
+    <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
+      <p
+        class="inline-block cursor-pointer rounded-t-lg p-4"
+        [class.active]="activeTab === Tabs.AMORTIZATION_SCHEDULE"
+      >
+        Amortization Schedule
+      </p>
+    </li>
+    <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
+      <p
+        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+        [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
+      >
+        Financial Year Summary
+      </p>
+    </li>
+  </ul>
+
+  @if(activeTab === Tabs.AMORTIZATION_SCHEDULE && amortizationSchedule.length >
+  0) {
+  <section class="relative mt-4 overflow-x-auto rounded-lg">
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <thead
+        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-6 py-3">EMI</th>
+          <th scope="col" class="px-6 py-3">Month</th>
+          <th scope="col" class="px-6 py-3">Total Payment</th>
+          <th scope="col" class="px-6 py-3">Principal</th>
+          <th scope="col" class="px-6 py-3">Interest</th>
+          <th scope="col" class="px-6 py-3">Total Interest</th>
+          <th scope="col" class="px-6 py-3">Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (payment of amortizationSchedule.slice((amortizationSchedulePage *
+        PAGE_SIZE), (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE >
+        amortizationSchedule.length ? amortizationSchedule.length :
+        (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE); track
+        payment.month) {
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <td class="px-6 py-4">{{ payment.month }}</td>
+          <td class="px-6 py-4">
+            {{ payment.paymentDate | date : "MMM yyyy" }}
+          </td>
+          <td class="px-6 py-4">{{ payment.payment | number : "1.0-0" }}</td>
+          <td class="px-6 py-4">{{ payment.principal | number : "1.0-0" }}</td>
+          <td class="px-6 py-4">{{ payment.interest | number : "1.0-0" }}</td>
+          <td class="px-6 py-4">
+            {{ payment.totalInterest | number : "1.0-0" }}
+          </td>
+          <td class="px-6 py-4">{{ payment.balance | number : "1.0-0" }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="mt-2 flex flex-col items-center">
+      <span class="text-sm text-gray-700 dark:text-gray-400">
+        Showing
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ (amortizationSchedulePage * PAGE_SIZE) + 1 }}</span
+        >
+        to
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE >
+          amortizationSchedule.length ? amortizationSchedule.length :
+          (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE}}</span
+        >
+        of
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ amortizationSchedule.length }}</span
+        >
+        Entries
+      </span>
+      <div class="xs:mt-0 mt-2 inline-flex">
+        <button
+          (click)="amortizationSchedulePage = amortizationSchedulePage - 1"
+          [disabled]="amortizationSchedulePage === 0"
+          class="inline-flex h-8 items-center justify-center rounded-s bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          <svg
+            class="me-2 h-3.5 w-3.5 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 5H1m0 0 4 4M1 5l4-4"
+            />
+          </svg>
+          Prev
+        </button>
+        <button
+          (click)="amortizationSchedulePage = amortizationSchedulePage + 1"
+          [disabled]="((amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE) >= amortizationSchedule.length"
+          class="flex h-8 items-center justify-center rounded-e border-0 border-s border-gray-700 bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          Next
+          <svg
+            class="ms-2 h-3.5 w-3.5 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+  } @if(activeTab === Tabs.FINANCIAL_YEAR_SUMMARY &&
+  financialYearSummaries.length > 0) {
+  <section class="relative mt-4 overflow-x-auto rounded-lg">
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <thead
+        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-6 py-3">Financial Year</th>
+          <th scope="col" class="px-6 py-3">Total Principal Paid</th>
+          <th scope="col" class="px-6 py-3">Total Interest Paid</th>
+          <th scope="col" class="px-6 py-3">Total Amount Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (summary of financialYearSummaries.slice((financialYearSummaryPage
+        * PAGE_SIZE), (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE >
+        financialYearSummaries.length ? financialYearSummaries.length :
+        (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE); track
+        summary.financialYear) {
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <td class="px-6 py-4">{{ summary.financialYear }}</td>
+          <td class="px-6 py-4">
+            {{ summary.totalPrincipal | number : "1.0-0" }}
+          </td>
+          <td class="px-6 py-4">
+            {{ summary.totalInterest | number : "1.0-0" }}
+          </td>
+          <td class="px-6 py-4">
+            {{ summary.totalAmountPaid | number : "1.0-0" }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="mt-2 flex flex-col items-center">
+      <span class="text-sm text-gray-700 dark:text-gray-400">
+        Showing
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ (financialYearSummaryPage * PAGE_SIZE) + 1 }}</span
+        >
+        to
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE >
+          financialYearSummaries.length ? financialYearSummaries.length :
+          (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE}}</span
+        >
+        of
+        <span class="font-semibold text-gray-900 dark:text-white"
+          >{{ financialYearSummaries.length }}</span
+        >
+        Entries
+      </span>
+      <div class="xs:mt-0 mt-2 inline-flex">
+        <button
+          (click)="financialYearSummaryPage = financialYearSummaryPage - 1"
+          [disabled]="financialYearSummaryPage === 0"
+          class="inline-flex h-8 items-center justify-center rounded-s bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          <svg
+            class="me-2 h-3.5 w-3.5 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 5H1m0 0 4 4M1 5l4-4"
+            />
+          </svg>
+          Prev
+        </button>
+        <button
+          (click)="financialYearSummaryPage = financialYearSummaryPage + 1"
+          [disabled]="((financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE) >= financialYearSummaries.length"
+          class="flex h-8 items-center justify-center rounded-e border-0 border-s border-gray-700 bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          Next
+          <svg
+            class="ms-2 h-3.5 w-3.5 rtl:rotate-180"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 10"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M1 5h12m0 0L9 1m4 4L9 9"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+  } @if(activeTab === Tabs.CHARTS) {
+  <section class="mt-4">
+    <div class="w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800">
+      <h2
+        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+      >
+        Total Payments
+      </h2>
+      <apx-chart
+        [series]="paymentsChartOptions.series"
+        [colors]="paymentsChartOptions.colors"
+        [chart]="paymentsChartOptions.chart"
+        [stroke]="paymentsChartOptions.stroke"
+        [plotOptions]="paymentsChartOptions.plotOptions"
+        [grid]="paymentsChartOptions.grid"
+        [labels]="paymentsChartOptions.labels"
+        [dataLabels]="paymentsChartOptions.dataLabels"
+        [legend]="paymentsChartOptions.legend"
+        [xaxis]="paymentsChartOptions.xaxis"
+        [yaxis]="paymentsChartOptions.yaxis"
+      ></apx-chart>
+    </div>
+
+    <div
+      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    >
+      <h2
+        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+      >
+        Amortization Schedule
+      </h2>
+      <apx-chart
+        [series]="emiChartOptions.series"
+        [chart]="emiChartOptions.chart"
+        [xaxis]="emiChartOptions.xaxis"
+        [yaxis]="emiChartOptions.yaxis"
+        [grid]="emiChartOptions.grid"
+        [tooltip]="emiChartOptions.tooltip"
+        [dataLabels]="emiChartOptions.dataLabels"
+        [stroke]="emiChartOptions.stroke"
+        [legend]="emiChartOptions.legend"
+      ></apx-chart>
+    </div>
+
+    @if (interestRateType === InterestRateType.FLOATING) {
+    <div
+      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    >
+      <h2
+        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+      >
+        Interest Rate Revisions
+      </h2>
+      <apx-chart
+        [series]="revisionChartOptions.series"
+        [chart]="revisionChartOptions.chart"
+        [xaxis]="revisionChartOptions.xaxis"
+        [yaxis]="revisionChartOptions.yaxis"
+        [grid]="revisionChartOptions.grid"
+        [tooltip]="revisionChartOptions.tooltip"
+        [dataLabels]="revisionChartOptions.dataLabels"
+        [stroke]="revisionChartOptions.stroke"
+        [legend]="revisionChartOptions.legend"
+      ></apx-chart>
+    </div>
+    }
+  </section>
+  }
+</div>

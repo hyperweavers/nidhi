@@ -9,7 +9,6 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-delete',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './delete.page.html',
   styleUrl: './delete.page.scss',

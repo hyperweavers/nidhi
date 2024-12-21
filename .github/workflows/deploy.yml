@@ -12,6 +12,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [kanippaan, pangu]
 
     steps:
       - name: Checkout
@@ -35,11 +38,19 @@ jobs:
       # - name: Lint and Run Unit & E2E Tests
       #   run: npx nx run-many -t lint test e2e-ci
 
-      - name: Build & Prepare
-        run: npm run deploy:pangu
+      - name: Build ${{ matrix.app }} App
+        run: npx nx build ${{ matrix.app }} --configuration production --base-href ./
+
+      - name: Prepare ${{ matrix.app }} App for Deployment
+        run: |
+          cd dist/apps/pangu/browser
+          cp index.html 404.html
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build
-          commit-message: 'Deploy Pangu 🚀'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          folder: dist/apps/${{ matrix.app }}/browser
+          repository-name: 'hyperweavers/${{ matrix.app }}-site'
+          branch: 'main'
+          commit-message: 'Deploy ${{ matrix.app }} App 🚀'

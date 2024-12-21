@@ -9,7 +9,6 @@ import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',

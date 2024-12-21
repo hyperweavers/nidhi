@@ -56,7 +56,6 @@ enum ChartTimeRange {
 @UntilDestroy()
 @Component({
   selector: 'app-indices',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './indices.page.html',
   styleUrl: './indices.page.scss',

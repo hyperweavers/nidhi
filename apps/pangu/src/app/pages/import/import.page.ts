@@ -12,7 +12,6 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-import',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './import.page.html',
   styleUrl: './import.page.scss',
