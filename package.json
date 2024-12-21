@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "deploy:pangu": "rm -rf build && nx build pangu --configuration production --base-href ./ && mv dist/apps/pangu/browser build && cp build/index.html build/404.html && echo pangu.hyperweavers.com > build/CNAME",
     "prepare": "husky install"
   },
   "private": true,
