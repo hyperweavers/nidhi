@@ -1,7 +1,7 @@
 export const Constants = {
   routes: {
     HOME: 'home',
-    LOAN_EMI: 'loan-emi-calculator',
+    LOAN_EMI_CALCULATOR: 'loan-emi-calculator',
     SETTINGS: 'settings',
     ABOUT: 'about',
     PRIVACY: 'privacy',

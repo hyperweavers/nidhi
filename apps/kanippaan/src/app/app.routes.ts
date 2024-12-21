@@ -10,9 +10,11 @@ export const appRoutes: Route[] = [
       import('./pages/home/home.page').then((m) => m.HomePage),
   },
   {
-    path: Constants.routes.LOAN_EMI,
+    path: Constants.routes.LOAN_EMI_CALCULATOR,
     loadComponent: () =>
-      import('./pages/loan-emi-calculator/loan-emi-calculator.page').then((m) => m.LoanEmiCalculatorPage),
+      import('./pages/loan-emi-calculator/loan-emi-calculator.page').then(
+        (m) => m.LoanEmiCalculatorPage,
+      ),
   },
   {
     path: Constants.routes.SETTINGS,
