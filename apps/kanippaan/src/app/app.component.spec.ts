@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { ServiceWorkerModule } from '@angular/service-worker';
+
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
@@ -10,6 +12,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         AppComponent,
+        ServiceWorkerModule.register('ngsw-worker.js', { enabled: false }),
       ],
       providers: [provideRouter([])],
     }).compileComponents();
