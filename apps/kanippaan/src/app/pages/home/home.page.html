@@ -2,13 +2,42 @@
   <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
     <div
       routerLink="/{{ Routes.LOAN_EMI_CALCULATOR }}"
-      class="cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-12 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
     >
-      <div class="w-full">
+      <div class="w-full flex flex-col items-center justify-center">
+        <img class="size-16 mb-4" src="icons/loan-emi.svg" alt="Loan EMI Calculator" />
         <h3
-          class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
+          class="text-xl font-bold leading-none text-gray-900 dark:text-white"
         >
           Loan EMI Calculator
+        </h3>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ Routes.FIXED_DEPOSIT_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="w-full flex flex-col items-center justify-center">
+        <img class="size-16 mb-4" src="icons/fixed-deposit.svg" alt="Fixed Deposit Calculator" />
+        <h3
+          class="text-xl font-bold leading-none text-gray-900 dark:text-white"
+        >
+          Fixed Deposit Calculator
+        </h3>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="w-full flex flex-col items-center justify-center">
+        <img class="size-16 mb-4" src="icons/gold-jewellery-price.svg" alt="Gold Jewellery Price Calculator" />
+        <h3
+          class="text-xl truncate font-bold leading-none text-gray-900 dark:text-white"
+        >
+          Gold Jewellery Price Calculator
         </h3>
       </div>
     </div>

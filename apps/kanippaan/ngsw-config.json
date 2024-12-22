@@ -26,5 +26,20 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "gold-price-api",
+      "urls": [
+        "https://api-new.nacjewellers.com/graphql"
+      ],
+      "version": 1,
+      "cacheConfig": {
+        "maxSize": 1,
+        "maxAge": "12h",
+        "timeout": "10s",
+        "strategy": "freshness"
+      }
+    }
   ]
 }

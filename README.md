@@ -9,3 +9,4 @@ Nidhi (_Tamil: நிதி; English: Finance_) is a collection of privacy focus
 ## List of Applications
 
 1. Pangu (_Tamil: பங்கு; English: Share_) is a privacy focused open source personal stock portfolio management application.
+2. Kanippaan (_Tamil: கணிப்பான்; English: Calculator_) is a set of privacy focused open source financial calculators and utilities.
