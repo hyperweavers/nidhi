@@ -13,12 +13,16 @@ export class DataService {
   constructor(private http: HttpClient) {
     this.goldRate$ = this.http
       .post(Constants.api.GOLD_PRICE, {
-        'query': "query{allDailyMetalPrices(condition:{isActive:true,displayName:\"Gold 22K\"}){nodes{displayPrice updatedAt}}}"
+        query:
+          'query{allDailyMetalPrices(condition:{isActive:true,displayName:"Gold 22K"}){nodes{displayPrice updatedAt}}}',
       })
       .pipe(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map((res: any) => res?.data?.allDailyMetalPrices?.nodes[0]?.displayPrice || 0),
-        distinctUntilChanged()
+        map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (res: any) =>
+            res?.data?.allDailyMetalPrices?.nodes[0]?.displayPrice || 0,
+        ),
+        distinctUntilChanged(),
       );
   }
 }

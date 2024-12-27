@@ -19,12 +19,16 @@ export const appRoutes: Route[] = [
   {
     path: Constants.routes.FIXED_DEPOSIT_CALCULATOR,
     loadComponent: () =>
-      import('./pages/fixed-deposit-calculator/fixed-deposit-calculator.page').then((m) => m.FixedDepositCalculatorPage),
+      import(
+        './pages/fixed-deposit-calculator/fixed-deposit-calculator.page'
+      ).then((m) => m.FixedDepositCalculatorPage),
   },
   {
     path: Constants.routes.GOLD_JEWELLER_PRICE_CALCULATOR,
     loadComponent: () =>
-      import('./pages/gold-jewellery-price-calculator/gold-jewellery-price-calculator.page').then((m) => m.GoldJewelleryPriceCalculatorPage),
+      import(
+        './pages/gold-jewellery-price-calculator/gold-jewellery-price-calculator.page'
+      ).then((m) => m.GoldJewelleryPriceCalculatorPage),
   },
   {
     path: Constants.routes.SETTINGS,

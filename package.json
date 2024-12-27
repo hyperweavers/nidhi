@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "license": "AGPL-3.0-or-later",
   "scripts": {
+    "generate-icons:pangu": "npx pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && npx nx format pangu",
+    "generate-icons:kanippaan": "npx pwa-asset-generator apps/kanippaan/public/icons/logo.svg apps/kanippaan/public/icons/ --manifest apps/kanippaan/public/manifest.webmanifest --index apps/kanippaan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format kanippaan",
     "prepare": "husky install"
   },
   "private": true,
@@ -20,7 +22,6 @@
     "@ngneat/until-destroy": "^10.0.0",
     "@nx/angular": "20.2.2",
     "chart.js": "^4.4.7",
-    "date-fns": "^4.1.0",
     "dexie": "^4.0.4",
     "dexie-export-import": "^4.1.2",
     "flowbite": "^2.3.0",

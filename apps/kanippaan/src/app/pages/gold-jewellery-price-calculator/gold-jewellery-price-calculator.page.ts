@@ -45,17 +45,20 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
   totalAmountPayable = 0;
 
   // Chart Data
-  priceBreakdownChartData: ChartData<ChartType.DOUGHNUT, number[], string | string[]> =
-    {
-      labels: ['Gold', 'W/VA', 'MC', 'Tax'],
-      datasets: [
-        {
-          ...commonDoughnutChartDataset,
-          backgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
-          hoverBackgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
-        },
-      ],
-    };
+  priceBreakdownChartData: ChartData<
+    ChartType.DOUGHNUT,
+    number[],
+    string | string[]
+  > = {
+    labels: ['Gold', 'W/VA', 'MC', 'Tax'],
+    datasets: [
+      {
+        ...commonDoughnutChartDataset,
+        backgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
+        hoverBackgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
+      },
+    ],
+  };
 
   priceBreakdownChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
     getDoughnutChartOptions((context) => {

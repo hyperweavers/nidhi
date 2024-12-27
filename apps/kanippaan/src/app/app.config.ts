@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import {
   ApplicationConfig,
   isDevMode,
@@ -5,9 +6,21 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideHttpClient } from '@angular/common/http';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { provideCharts } from 'ng2-charts';
 
+import {
+  ArcElement,
+  BarController,
+  BarElement,
+  CategoryScale,
+  DoughnutController,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip,
+} from 'chart.js';
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -19,6 +32,20 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     provideHttpClient(),
-    provideCharts(withDefaultRegisterables()),
+    provideCharts({
+      registerables: [
+        BarController,
+        BarElement,
+        CategoryScale,
+        LinearScale,
+        DoughnutController,
+        ArcElement,
+        LineController,
+        LineElement,
+        PointElement,
+        Legend,
+        Tooltip,
+      ],
+    }),
   ],
 };

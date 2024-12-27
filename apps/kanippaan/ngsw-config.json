@@ -30,9 +30,7 @@
   "dataGroups": [
     {
       "name": "gold-price-api",
-      "urls": [
-        "https://api-new.nacjewellers.com/graphql"
-      ],
+      "urls": ["https://api-new.nacjewellers.com/graphql"],
       "version": 1,
       "cacheConfig": {
         "maxSize": 1,
