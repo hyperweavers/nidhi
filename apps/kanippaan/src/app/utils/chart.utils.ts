@@ -217,7 +217,6 @@ export const getLineChartOptions = (
   ) => string | string[] | void,
 ): ChartConfiguration['options'] => {
   return {
-    clip: false,
     responsive: true,
     maintainAspectRatio: false,
     interaction: {

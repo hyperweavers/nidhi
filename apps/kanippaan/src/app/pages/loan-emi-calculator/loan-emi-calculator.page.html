@@ -197,8 +197,8 @@
                 Add/Remove
               </h2>
             </div>
-
-            @for (change of rateChanges; track change.month; let i = $index) {
+            @if (rateChanges.length > 0) { @for (change of rateChanges; track
+            change.month; let i = $index) {
             <div class="flex items-center justify-center">
               <input
                 type="number"
@@ -262,6 +262,12 @@
                 </svg>
                 <span class="sr-only">Remove</span>
               </button>
+            </div>
+            }} @else {
+            <div
+              class="col-span-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+            >
+              To add interest rate revision, click the below + button.
             </div>
             }
 
@@ -362,9 +368,8 @@
                 Add/Remove
               </h2>
             </div>
-
-            @for (prepayment of prepayments; track prepayment.month; let i =
-            $index) {
+            @if (prepayments.length > 0) { @for (prepayment of prepayments;
+            track prepayment.month; let i = $index) {
             <div class="flex items-center justify-center">
               <input
                 type="number"
@@ -428,6 +433,12 @@
                 </svg>
                 <span class="sr-only">Remove</span>
               </button>
+            </div>
+            } } @else {
+            <div
+              class="col-span-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+            >
+              To add prepayment, click the below + button.
             </div>
             }
 
@@ -711,7 +722,24 @@
               {{ payment.paymentDate | date : "MMM yy" }}
             </td>
             <td class="p-2 text-center sm:p-4">
-              {{ payment.payment | number : "1.0-0" }}
+              @if (payment.month === 0) {
+              <span
+                class="cursor-help underline decoration-yellow-400 decoration-dotted"
+                data-tooltip-target="tooltip-pre-emi-payment"
+                data-tooltip-placement="bottom"
+                >{{ payment.payment | number : "1.0-0" }}</span
+              >
+
+              <div
+                id="tooltip-pre-emi-payment"
+                role="tooltip"
+                class="tooltip invisible absolute z-10 inline-block max-w-sm rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm dark:bg-gray-700"
+              >
+                Interest needs to be paid for the period between loan start date
+                and first EMI due date.
+                <div class="tooltip-arrow" data-popper-arrow></div>
+              </div>
+              } @else { {{ payment.payment | number : "1.0-0" }} }
             </td>
             <td class="p-2 text-center sm:p-4">
               {{ payment.principal | number : "1.0-0" }}

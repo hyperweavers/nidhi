@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
+import { Flowbite } from '../../decorators/flowbite.decorator';
 import {
   Amortization,
   FinancialYearSummary,
@@ -47,6 +48,7 @@ enum Charts {
   REVISIONS,
 }
 
+@Flowbite()
 @Component({
   selector: 'app-home',
   imports: [CommonModule, FormsModule, BaseChartDirective],
@@ -345,9 +347,81 @@ export class LoanEmiCalculatorPage implements OnInit {
       { principal: number; interest: number; totalPayment: number }
     >();
 
+    // Pre-EMI Interest Calculation
+    let preEmiInterest = 0;
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    const nextDayOfLoanStartDate = new Date(this.loanStartDate);
+    nextDayOfLoanStartDate.setDate(nextDayOfLoanStartDate.getDate() + 1);
+
+    if (paymentDate > nextDayOfLoanStartDate) {
+      // Number of days between loan start and first payment date
+      const diffDays = Math.floor(
+        (paymentDate.getTime() - nextDayOfLoanStartDate.getTime()) / msPerDay,
+      );
+
+      if (diffDays > 0) {
+        // Estimate partial interest for these days
+        const dailyRate = currentRate / 100 / 12 / 30;
+        preEmiInterest = P * dailyRate * diffDays;
+
+        // Add pre-EMI interest to totals
+        totalInterest += preEmiInterest;
+        this.totalInterestPaid = Math.ceil(preEmiInterest);
+
+        // Determine the date on which we post pre-EMI interest (day before first EMI)
+        const preEmiDate = new Date(paymentDate);
+        preEmiDate.setDate(preEmiDate.getDate() - 1);
+
+        // Determine the relevant financial year for pre-EMI interest
+        const fyStartDate = new Date(
+          preEmiDate.getFullYear(),
+          this.financialYearStartMonth - 1,
+          1,
+        );
+        if (preEmiDate < fyStartDate) {
+          fyStartDate.setFullYear(fyStartDate.getFullYear() - 1);
+        }
+        const fyString = `${fyStartDate.getFullYear().toString().slice(-2)}-${(
+          fyStartDate.getFullYear() + 1
+        )
+          .toString()
+          .slice(-2)}`;
+
+        // Add/accumulate into our FY totals
+        if (!fyTotals.has(fyString)) {
+          fyTotals.set(fyString, {
+            principal: 0,
+            interest: 0,
+            totalPayment: 0,
+          });
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const preEmiFyTotals = fyTotals.get(fyString)!;
+        preEmiFyTotals.interest += preEmiInterest;
+        preEmiFyTotals.totalPayment += preEmiInterest;
+
+        // Add an entry in the amortization schedule
+        this.amortizationSchedule.push({
+          month: 0,
+          paymentDate: preEmiDate,
+          payment: Math.ceil(preEmiInterest),
+          principal: 0,
+          interest: Math.ceil(preEmiInterest),
+          totalInterest: Math.ceil(totalInterest),
+          balance: Math.ceil(balance),
+          interestRate: currentRate,
+        });
+      }
+    }
+
+    // Add one more month to skip a complete cycle after the due date
+    paymentDate.setMonth(paymentDate.getMonth() + 1);
+
     // Initialize totals
     this.totalPrincipalPaid = 0;
-    this.totalInterestPaid = 0;
+    // Incorporate any pre-EMI interest already calculated
+    this.totalInterestPaid = Math.ceil(preEmiInterest);
     this.totalPayments = 0;
 
     while (balance > 0 && currentMonth <= maxTenure) {
@@ -642,6 +716,8 @@ export class LoanEmiCalculatorPage implements OnInit {
           this.loanStartDate = new Date(
             `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
           );
+
+          this.calculateAmortization();
         },
       );
 
