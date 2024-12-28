@@ -1,4 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { GoldJewelleryPriceCalculatorPage } from './gold-jewellery-price-calculator.page';
 
 describe('GoldJewelleryPriceCalculatorPage', () => {
@@ -8,6 +10,7 @@ describe('GoldJewelleryPriceCalculatorPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GoldJewelleryPriceCalculatorPage],
+      providers: [provideHttpClient()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GoldJewelleryPriceCalculatorPage);
