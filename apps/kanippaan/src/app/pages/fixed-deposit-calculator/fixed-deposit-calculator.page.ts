@@ -103,8 +103,8 @@ export class FixedDepositCalculatorPage implements OnInit {
   maturityAmount = 0;
   interestEarned = 0;
 
-  interestPayoutType: InterestPayoutType = InterestPayoutType.Maturity; // Default value
-  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly; // Default value
+  interestPayoutType: InterestPayoutType = InterestPayoutType.Maturity; // Default to maturity
+  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly; // Default to quarterly
 
   investmentStartDate: Date = new Date(); // Default to today's date
   maturityDate: Date | null = null; // Initialize as null
@@ -196,6 +196,7 @@ export class FixedDepositCalculatorPage implements OnInit {
 
     this.calculateMaturityAmount();
   }
+
   @HostListener('window:fullscreenchange')
   onFullscreenChange() {
     if (this.document.fullscreenElement) {
@@ -210,7 +211,6 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.calculateMaturityAmount();
   }
 
-  // Handle changes in compounding frequency
   onCompoundingFrequencyChange() {
     const availablePayoutTypes = this.getAvailableInterestPayoutTypes();
     if (!availablePayoutTypes.includes(this.interestPayoutType)) {
@@ -241,7 +241,7 @@ export class FixedDepositCalculatorPage implements OnInit {
   }
 
   onTabChange(tab: Tabs) {
-    this.activeTab = +tab; // Convert `tab` from string to number
+    this.activeTab = Number(tab);
   }
 
   toggleFullscreen(chart: Charts) {
@@ -454,7 +454,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     let openingBalance = principal;
     let yearIndex = 1;
 
-    // Number of compounding periods per year, based on your setting
+    // Number of compounding periods per year
     const n = this.getFrequencyValue(this.compoundingFrequency);
 
     while (currentDate < maturityDate) {

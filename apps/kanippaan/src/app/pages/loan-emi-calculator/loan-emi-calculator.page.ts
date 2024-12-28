@@ -228,7 +228,7 @@ export class LoanEmiCalculatorPage implements OnInit {
   }
 
   onTabChange(tab: Tabs) {
-    this.activeTab = +tab; // Convert `tab` from string to number
+    this.activeTab = Number(tab);
   }
 
   addRateChange() {
@@ -388,7 +388,7 @@ export class LoanEmiCalculatorPage implements OnInit {
           .toString()
           .slice(-2)}`;
 
-        // Add/accumulate into our FY totals
+        // Add/accumulate into FY totals
         if (!fyTotals.has(fyString)) {
           fyTotals.set(fyString, {
             principal: 0,
