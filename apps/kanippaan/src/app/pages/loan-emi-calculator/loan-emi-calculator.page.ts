@@ -50,7 +50,7 @@ enum Charts {
 
 @Flowbite()
 @Component({
-  selector: 'app-home',
+  selector: 'app-loan-emi-calculator',
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe],
   templateUrl: './loan-emi-calculator.page.html',

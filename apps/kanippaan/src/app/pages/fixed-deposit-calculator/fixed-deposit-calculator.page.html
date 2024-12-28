@@ -146,7 +146,7 @@
           <label
             for="investment-start-date"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-            >Investment Start Date</label
+            >Deposit Start Date</label
           >
           <div class="relative">
             <div
@@ -211,6 +211,15 @@
               {{ interestEarned | number: '1.0-0' }}
             </p>
 
+            <p
+              class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
+            >
+              Maturity Amount
+            </p>
+            <p class="text-right font-bold text-black dark:text-white">
+              {{ maturityAmount | number: '1.0-0' }}
+            </p>
+
             @if (maturityDate) {
             <p
               class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
@@ -237,7 +246,7 @@
                 class="absolute -top-5 left-0 flex h-full w-full flex-col items-center justify-center"
               >
                 <div class="text-2xl font-bold text-black dark:text-white">
-                  {{ (depositAmount + interestEarned) | number:'1.0-0' }}
+                  {{ maturityAmount | number:'1.0-0' }}
                 </div>
                 <div>Total</div>
               </div>

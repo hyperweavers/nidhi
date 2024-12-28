@@ -145,7 +145,7 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   yearlySummaryChartOptions: ChartConfiguration['options'] = getBarChartOptions(
     'Year',
-    'Interest',
+    'Amount',
     true,
     true,
     (context): string => {
