@@ -1,6 +1,6 @@
 <div class="p-4 text-gray-500 dark:text-gray-400">
   <h2
-    class="mb-10 mt-4 block text-center text-2xl font-semibold text-gray-900 dark:text-white"
+    class="m-4 mt-0 block text-center text-2xl font-semibold text-gray-900 sm:mb-10 sm:mt-4 dark:text-white"
   >
     Loan EMI Calculator
   </h2>
@@ -159,7 +159,7 @@
         </div>
       </main>
 
-      <aside>
+      <aside class="mt-6 md:mt-0">
         @if(interestRateType === InterestRateType.FLOATING) {
         <section class="mb-6">
           <h2
@@ -197,8 +197,8 @@
                 Add/Remove
               </h2>
             </div>
-
-            @for (change of rateChanges; track change.month; let i = $index) {
+            @if (rateChanges.length > 0) { @for (change of rateChanges; track
+            change.month; let i = $index) {
             <div class="flex items-center justify-center">
               <input
                 type="number"
@@ -262,6 +262,12 @@
                 </svg>
                 <span class="sr-only">Remove</span>
               </button>
+            </div>
+            }} @else {
+            <div
+              class="col-span-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+            >
+              To add interest rate revision, click the below + button.
             </div>
             }
 
@@ -362,9 +368,8 @@
                 Add/Remove
               </h2>
             </div>
-
-            @for (prepayment of prepayments; track prepayment.month; let i =
-            $index) {
+            @if (prepayments.length > 0) { @for (prepayment of prepayments;
+            track prepayment.month; let i = $index) {
             <div class="flex items-center justify-center">
               <input
                 type="number"
@@ -428,6 +433,12 @@
                 </svg>
                 <span class="sr-only">Remove</span>
               </button>
+            </div>
+            } } @else {
+            <div
+              class="col-span-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+            >
+              To add prepayment, click the below + button.
             </div>
             }
 
@@ -504,28 +515,79 @@
   </form>
 
   @if (monthlyPayment) {
-  <h2
-    class="mt-6 text-center text-xl font-bold leading-none tracking-tight text-gray-900 dark:text-white"
+  <h3
+    class="mt-10 text-center text-xl font-bold leading-none tracking-tight text-gray-900 dark:text-white"
   >
     Monthly Payment =
     <mark
       class="bg-primary-600 dark:bg-primary-500 rounded px-2 py-1 text-2xl font-extrabold text-white"
       >{{ monthlyPayment | number : "1.0-0" }}</mark
     >
-  </h2>
+  </h3>
+
+  <section
+    class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+  >
+    <h2
+      class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+    >
+      Principal & Interest Breakdown
+    </h2>
+    <div class="relative mt-6">
+      <div
+        class="absolute -top-5 left-0 flex h-full w-full flex-col items-center justify-center"
+      >
+        <div class="text-2xl font-bold text-black dark:text-white">
+          {{ totalPayments | number:'1.0-0' }}
+        </div>
+        <div>Total</div>
+      </div>
+      <div class="relative h-80 w-full">
+        <canvas
+          #paymentsChart
+          baseChart
+          [type]="ChartType.DOUGHNUT"
+          [data]="paymentsChartData"
+          [options]="paymentsChartOptions"
+        >
+        </canvas>
+      </div>
+    </div>
+  </section>
   }
 
+  <!-- Tabs Select -->
+  <div class="mt-6 flex items-center sm:hidden">
+    <label
+      for="tabs"
+      class="me-2 text-sm font-medium text-gray-900 dark:text-white"
+      >View</label
+    >
+    <select
+      id="tabs"
+      [ngModel]="activeTab"
+      (ngModelChange)="onTabChange($event)"
+      class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+    >
+      <option [value]="Tabs.AMORTIZATION_SCHEDULE">
+        Amortization Schedule
+      </option>
+      <option [value]="Tabs.FINANCIAL_YEAR_SUMMARY">
+        Financial Year Summary
+      </option>
+      @if (interestRateType === InterestRateType.FLOATING && rateChanges.length
+      > 0) {
+      <option [value]="Tabs.INTEREST_RATE_REVISIONS">
+        Interest Rate Revisions
+      </option>
+      }
+    </select>
+  </div>
+
+  <!-- Tabs -->
   <ul
-    class="mt-6 flex flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400"
+    class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
   >
-    <li class="me-2" (click)="activeTab = Tabs.CHARTS">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        [class.active]="activeTab === Tabs.CHARTS"
-      >
-        Chart
-      </p>
-    </li>
     <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
       <p
         class="inline-block cursor-pointer rounded-t-lg p-4"
@@ -542,61 +604,169 @@
         Financial Year Summary
       </p>
     </li>
+    @if (interestRateType === InterestRateType.FLOATING && rateChanges.length >
+    0) {
+    <li class="me-2" (click)="activeTab = Tabs.INTEREST_RATE_REVISIONS">
+      <p
+        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+        [class.active]="activeTab === Tabs.INTEREST_RATE_REVISIONS"
+      >
+        Interest Rate Revisions
+      </p>
+    </li>
+    }
   </ul>
 
   @if(activeTab === Tabs.AMORTIZATION_SCHEDULE && amortizationSchedule.length >
   0) {
-  <section class="relative mt-4 overflow-x-auto rounded-lg">
-    <table
-      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+  <section
+    class="mt-4 w-full rounded-lg bg-white p-4 px-2 shadow md:p-6 dark:bg-gray-800"
+  >
+    <div
+      #emiChartContainer
+      class="relative w-full bg-white dark:bg-gray-800"
+      [ngClass]="isChartInFullscreen ? 'h-full' : 'h-96'"
     >
-      <thead
-        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      <canvas
+        #emiChart
+        baseChart
+        [type]="ChartType.LINE"
+        [data]="emiChartData"
+        [options]="emiChartOptions"
+        [plugins]="emiAndRevisionsChartPlugins || []"
+        [class.m-4]="isChartInFullscreen"
       >
-        <tr>
-          <th scope="col" class="px-6 py-3">EMI</th>
-          <th scope="col" class="px-6 py-3">Month</th>
-          <th scope="col" class="px-6 py-3">Total Payment</th>
-          <th scope="col" class="px-6 py-3">Principal</th>
-          <th scope="col" class="px-6 py-3">Interest</th>
-          <th scope="col" class="px-6 py-3">Total Interest</th>
-          <th scope="col" class="px-6 py-3">Balance</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (payment of amortizationSchedule.slice((amortizationSchedulePage *
-        PAGE_SIZE), (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE >
-        amortizationSchedule.length ? amortizationSchedule.length :
-        (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE); track
-        payment.month) {
-        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-          <td class="px-6 py-4">{{ payment.month }}</td>
-          <td class="px-6 py-4">
-            {{ payment.paymentDate | date : "MMM yyyy" }}
-          </td>
-          <td class="px-6 py-4">{{ payment.payment | number : "1.0-0" }}</td>
-          <td class="px-6 py-4">{{ payment.principal | number : "1.0-0" }}</td>
-          <td class="px-6 py-4">{{ payment.interest | number : "1.0-0" }}</td>
-          <td class="px-6 py-4">
-            {{ payment.totalInterest | number : "1.0-0" }}
-          </td>
-          <td class="px-6 py-4">{{ payment.balance | number : "1.0-0" }}</td>
-        </tr>
-        }
-      </tbody>
-    </table>
+      </canvas>
+
+      <div
+        class="absolute"
+        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
+      >
+        <button
+          (click)="toggleFullscreen(Charts.EMI)"
+          type="button"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          @if (isChartInFullscreen) {
+          <span class="sr-only">Minimize</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+            />
+          </svg>
+          } @else {
+          <span class="sr-only">Expand</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6 pb-4 sm:pb-0">
+    <div class="relative overflow-x-auto rounded-lg">
+      <table
+        class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+      >
+        <thead
+          class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">EMI</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Month</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Payment</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Principal</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of amortizationSchedule.slice((amortizationSchedulePage
+          * pageSize), (amortizationSchedulePage * pageSize) + pageSize >
+          amortizationSchedule.length ? amortizationSchedule.length :
+          (amortizationSchedulePage * pageSize) + pageSize); track
+          payment.month) {
+          <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+            <td class="p-2 text-center sm:p-4">{{ payment.month }}</td>
+            <td class="whitespace-nowrap p-2 text-center sm:p-4">
+              {{ payment.paymentDate | date : "MMM yy" }}
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              @if (payment.month === 0) {
+              <span
+                class="cursor-help underline decoration-yellow-400 decoration-dotted"
+                data-tooltip-target="tooltip-pre-emi-payment"
+                data-tooltip-placement="bottom"
+                >{{ payment.payment | number : "1.0-0" }}</span
+              >
+
+              <div
+                id="tooltip-pre-emi-payment"
+                role="tooltip"
+                class="tooltip invisible absolute z-10 inline-block max-w-sm rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm dark:bg-gray-700"
+              >
+                Interest needs to be paid for the period between loan start date
+                and first EMI due date.
+                <div class="tooltip-arrow" data-popper-arrow></div>
+              </div>
+              } @else { {{ payment.payment | number : "1.0-0" }} }
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              {{ payment.principal | number : "1.0-0" }}
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              {{ payment.interest | number : "1.0-0" }}
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              {{ payment.balance | number : "1.0-0" }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div class="mt-2 flex flex-col items-center">
       <span class="text-sm text-gray-700 dark:text-gray-400">
         Showing
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (amortizationSchedulePage * PAGE_SIZE) + 1 }}</span
+          >{{ (amortizationSchedulePage * pageSize) + 1 }}</span
         >
         to
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE >
+          >{{ (amortizationSchedulePage * pageSize) + pageSize >
           amortizationSchedule.length ? amortizationSchedule.length :
-          (amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE}}</span
+          (amortizationSchedulePage * pageSize) + pageSize}}</span
         >
         of
         <span class="font-semibold text-gray-900 dark:text-white"
@@ -629,7 +799,7 @@
         </button>
         <button
           (click)="amortizationSchedulePage = amortizationSchedulePage + 1"
-          [disabled]="((amortizationSchedulePage * PAGE_SIZE) + PAGE_SIZE) >= amortizationSchedule.length"
+          [disabled]="((amortizationSchedulePage * pageSize) + pageSize) >= amortizationSchedule.length"
           class="flex h-8 items-center justify-center rounded-e border-0 border-s border-gray-700 bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
           Next
@@ -654,53 +824,56 @@
   </section>
   } @if(activeTab === Tabs.FINANCIAL_YEAR_SUMMARY &&
   financialYearSummaries.length > 0) {
-  <section class="relative mt-4 overflow-x-auto rounded-lg">
-    <table
-      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
-    >
-      <thead
-        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+  <section class="mt-4 pb-4 sm:pb-0">
+    <div class="relative overflow-x-auto rounded-lg">
+      <table
+        class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
       >
-        <tr>
-          <th scope="col" class="px-6 py-3">Financial Year</th>
-          <th scope="col" class="px-6 py-3">Total Principal Paid</th>
-          <th scope="col" class="px-6 py-3">Total Interest Paid</th>
-          <th scope="col" class="px-6 py-3">Total Amount Paid</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (summary of financialYearSummaries.slice((financialYearSummaryPage
-        * PAGE_SIZE), (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE >
-        financialYearSummaries.length ? financialYearSummaries.length :
-        (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE); track
-        summary.financialYear) {
-        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-          <td class="px-6 py-4">{{ summary.financialYear }}</td>
-          <td class="px-6 py-4">
-            {{ summary.totalPrincipal | number : "1.0-0" }}
-          </td>
-          <td class="px-6 py-4">
-            {{ summary.totalInterest | number : "1.0-0" }}
-          </td>
-          <td class="px-6 py-4">
-            {{ summary.totalAmountPaid | number : "1.0-0" }}
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
+        <thead
+          class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Year</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Principal</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (summary of
+          financialYearSummaries.slice((financialYearSummaryPage * pageSize),
+          (financialYearSummaryPage * pageSize) + pageSize >
+          financialYearSummaries.length ? financialYearSummaries.length :
+          (financialYearSummaryPage * pageSize) + pageSize); track
+          summary.financialYear) {
+          <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+            <td class="p-2 text-center sm:p-4">{{ summary.financialYear }}</td>
+            <td class="p-2 text-center sm:p-4">
+              {{ summary.totalPrincipal | number : "1.0-0" }}
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              {{ summary.totalInterest | number : "1.0-0" }}
+            </td>
+            <td class="p-2 text-center sm:p-4">
+              {{ summary.totalAmountPaid | number : "1.0-0" }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div class="mt-2 flex flex-col items-center">
       <span class="text-sm text-gray-700 dark:text-gray-400">
         Showing
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (financialYearSummaryPage * PAGE_SIZE) + 1 }}</span
+          >{{ (financialYearSummaryPage * pageSize) + 1 }}</span
         >
         to
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE >
+          >{{ (financialYearSummaryPage * pageSize) + pageSize >
           financialYearSummaries.length ? financialYearSummaries.length :
-          (financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE}}</span
+          (financialYearSummaryPage * pageSize) + pageSize}}</span
         >
         of
         <span class="font-semibold text-gray-900 dark:text-white"
@@ -733,7 +906,7 @@
         </button>
         <button
           (click)="financialYearSummaryPage = financialYearSummaryPage + 1"
-          [disabled]="((financialYearSummaryPage * PAGE_SIZE) + PAGE_SIZE) >= financialYearSummaries.length"
+          [disabled]="((financialYearSummaryPage * pageSize) + pageSize) >= financialYearSummaries.length"
           class="flex h-8 items-center justify-center rounded-e border-0 border-s border-gray-700 bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
           Next
@@ -756,70 +929,83 @@
       </div>
     </div>
   </section>
-  } @if(activeTab === Tabs.CHARTS) {
+  } @if(interestRateType === InterestRateType.FLOATING && rateChanges.length > 0
+  && activeTab === Tabs.INTEREST_RATE_REVISIONS) {
   <section class="mt-4">
-    <div class="w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800">
-      <h2
-        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Total Payments
-      </h2>
-      <apx-chart
-        [series]="paymentsChartOptions.series"
-        [colors]="paymentsChartOptions.colors"
-        [chart]="paymentsChartOptions.chart"
-        [stroke]="paymentsChartOptions.stroke"
-        [plotOptions]="paymentsChartOptions.plotOptions"
-        [grid]="paymentsChartOptions.grid"
-        [labels]="paymentsChartOptions.labels"
-        [dataLabels]="paymentsChartOptions.dataLabels"
-        [legend]="paymentsChartOptions.legend"
-        [xaxis]="paymentsChartOptions.xaxis"
-        [yaxis]="paymentsChartOptions.yaxis"
-      ></apx-chart>
-    </div>
-
+    @if (interestRateType === InterestRateType.FLOATING && rateChanges.length >
+    0) {
     <div
-      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+      class="mt-6 w-full rounded-lg bg-white p-4 px-2 shadow md:p-6 dark:bg-gray-800"
     >
-      <h2
-        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
+      <div
+        #revisionsChartContainer
+        class="relative w-full bg-white dark:bg-gray-800"
+        [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
       >
-        Amortization Schedule
-      </h2>
-      <apx-chart
-        [series]="emiChartOptions.series"
-        [chart]="emiChartOptions.chart"
-        [xaxis]="emiChartOptions.xaxis"
-        [yaxis]="emiChartOptions.yaxis"
-        [grid]="emiChartOptions.grid"
-        [tooltip]="emiChartOptions.tooltip"
-        [dataLabels]="emiChartOptions.dataLabels"
-        [stroke]="emiChartOptions.stroke"
-        [legend]="emiChartOptions.legend"
-      ></apx-chart>
-    </div>
+        <canvas
+          #revisionsChart
+          baseChart
+          [type]="ChartType.LINE"
+          [data]="revisionsChartData"
+          [options]="revisionsChartOptions"
+          [plugins]="emiAndRevisionsChartPlugins || []"
+          [class.m-4]="isChartInFullscreen"
+        >
+        </canvas>
 
-    @if (interestRateType === InterestRateType.FLOATING) {
-    <div
-      class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
-    >
-      <h2
-        class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Interest Rate Revisions
-      </h2>
-      <apx-chart
-        [series]="revisionChartOptions.series"
-        [chart]="revisionChartOptions.chart"
-        [xaxis]="revisionChartOptions.xaxis"
-        [yaxis]="revisionChartOptions.yaxis"
-        [grid]="revisionChartOptions.grid"
-        [tooltip]="revisionChartOptions.tooltip"
-        [dataLabels]="revisionChartOptions.dataLabels"
-        [stroke]="revisionChartOptions.stroke"
-        [legend]="revisionChartOptions.legend"
-      ></apx-chart>
+        <div
+          class="absolute"
+          [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
+        >
+          <button
+            (click)="toggleFullscreen(Charts.REVISIONS)"
+            type="button"
+            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            @if (isChartInFullscreen) {
+            <span class="sr-only">Minimize</span>
+
+            <svg
+              class="h-6 w-6"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+              />
+            </svg>
+            } @else {
+            <span class="sr-only">Expand</span>
+
+            <svg
+              class="h-6 w-6"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+              />
+            </svg>
+            }
+          </button>
+        </div>
+      </div>
     </div>
     }
   </section>

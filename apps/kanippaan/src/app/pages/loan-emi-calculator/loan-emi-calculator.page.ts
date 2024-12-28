@@ -1,28 +1,19 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
+  HostListener,
+  Inject,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexDataLabels,
-  ApexGrid,
-  ApexLegend,
-  ApexNonAxisChartSeries,
-  ApexPlotOptions,
-  ApexStroke,
-  ApexTooltip,
-  ApexXAxis,
-  ApexYAxis,
-  ChartComponent,
-  NgApexchartsModule,
-} from 'ng-apexcharts';
+import { ChartConfiguration, ChartData } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 
+import { Flowbite } from '../../decorators/flowbite.decorator';
 import {
   Amortization,
   FinancialYearSummary,
@@ -31,6 +22,16 @@ import {
   Prepayment,
   RevisionAdjustmentType,
 } from '../../models/loan';
+import {
+  ChartType,
+  getDoughnutChartOptions,
+  getLineChartOptions,
+  increaseLegendSpacing,
+  lineChartPrimaryDataset,
+  lineChartSecondaryDataset,
+  principalInterestDoughnutChartDatasets,
+  verticalHoverLine,
+} from '../../utils/chart.utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
@@ -38,38 +39,20 @@ declare const Datepicker: any;
 enum Tabs {
   AMORTIZATION_SCHEDULE,
   FINANCIAL_YEAR_SUMMARY,
-  CHARTS,
+  INTEREST_RATE_REVISIONS,
 }
 
-type LineChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  dataLabels: ApexDataLabels;
-  stroke: ApexStroke;
-  legend: ApexLegend;
-  tooltip: ApexTooltip;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-};
+enum Charts {
+  PAYMENTS,
+  EMI,
+  REVISIONS,
+}
 
-type DonutChartOptions = {
-  series: ApexNonAxisChartSeries;
-  colors: string[];
-  chart: ApexChart;
-  stroke: ApexStroke;
-  plotOptions: ApexPlotOptions;
-  grid: ApexGrid;
-  labels: string[];
-  dataLabels: ApexDataLabels;
-  legend: ApexLegend;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-};
-
+@Flowbite()
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, NgApexchartsModule],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
+  providers: [DecimalPipe],
   templateUrl: './loan-emi-calculator.page.html',
   styleUrl: './loan-emi-calculator.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,13 +60,23 @@ type DonutChartOptions = {
 export class LoanEmiCalculatorPage implements OnInit {
   @ViewChild('loanStartDateInput', { static: true })
   private loanStartDateInput?: ElementRef;
-  @ViewChild('chart', { static: false }) chart!: ChartComponent;
+  @ViewChild('emiChart', { read: BaseChartDirective })
+  emiChart!: BaseChartDirective;
+  @ViewChild('revisionChart', { read: BaseChartDirective })
+  revisionChart!: BaseChartDirective;
+  @ViewChild('paymentsChart', { read: BaseChartDirective })
+  paymentsChart!: BaseChartDirective;
+  @ViewChild('emiChartContainer') private emiChartContainer?: ElementRef;
+  @ViewChild('revisionsChartContainer')
+  private revisionsChartContainer?: ElementRef;
 
-  readonly PAGE_SIZE = 12;
+  readonly pageSize = 12;
 
+  readonly ChartType = ChartType;
   readonly InterestRateType = InterestRateType;
   readonly RevisionAdjustmentType = RevisionAdjustmentType;
   readonly Tabs = Tabs;
+  readonly Charts = Charts;
 
   principalAmount = 2500000;
   annualInterestRate = 9;
@@ -99,8 +92,8 @@ export class LoanEmiCalculatorPage implements OnInit {
   prepayments: Prepayment[] = [];
   financialYearSummaries: FinancialYearSummary[] = [];
 
-  totalPrincipalPaid = 0;
-  totalInterestPaid = 0;
+  private totalPrincipalPaid = 0;
+  private totalInterestPaid = 0;
   totalPayments = 0;
 
   rateChangeMonth = 1;
@@ -113,225 +106,112 @@ export class LoanEmiCalculatorPage implements OnInit {
   prepaymentAdjustmentType: RevisionAdjustmentType =
     RevisionAdjustmentType.TENURE;
 
-  activeTab = Tabs.CHARTS;
+  activeTab = Tabs.AMORTIZATION_SCHEDULE;
 
   amortizationSchedulePage = 0;
   financialYearSummaryPage = 0;
 
-  paymentsChartOptions: DonutChartOptions = {
-    series: [],
-    colors: ['#1C64F2', '#E74694'],
-    chart: {
-      height: 320,
-      width: '100%',
-      type: 'donut',
-      animations: {
-        enabled: false,
-      },
-    },
-    stroke: {
-      colors: ['transparent'],
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          labels: {
-            show: true,
-            name: {
-              show: true,
-              fontFamily: 'Inter, sans-serif',
-              offsetY: 20,
-            },
-            total: {
-              showAlways: true,
-              show: true,
-              label: 'Total',
-              fontFamily: 'Inter, sans-serif',
-              formatter: function (w) {
-                const sum = w.globals.seriesTotals.reduce(
-                  (a: number, b: number) => {
-                    return a + b;
-                  },
-                  0,
-                );
-                return sum;
-              },
-            },
-            value: {
-              show: true,
-              fontFamily: 'Inter, sans-serif',
-              offsetY: -20,
-              formatter: function (value) {
-                return value;
-              },
-            },
-          },
-          size: '80%',
-        },
-      },
-    },
-    grid: {
-      padding: {
-        top: -2,
-      },
-    },
+  isChartInFullscreen = false;
+
+  paymentsChartData: ChartData<
+    ChartType.DOUGHNUT,
+    number[],
+    string | string[]
+  > = {
     labels: ['Principal', 'Interest'],
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      position: 'bottom',
-      fontFamily: 'Inter, sans-serif',
-    },
-    yaxis: {
-      labels: {
-        formatter: function (value) {
-          return `${value}`;
-        },
-      },
-    },
-    xaxis: {
-      labels: {
-        formatter: function (value) {
-          return value;
-        },
-      },
-      axisTicks: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-    },
+    datasets: principalInterestDoughnutChartDatasets,
   };
 
-  emiChartOptions: LineChartOptions = {
-    chart: {
-      width: '100%',
-      height: 400,
-      offsetY: 5,
-      type: 'line',
-      fontFamily: 'Inter, sans-serif',
-      dropShadow: {
-        enabled: false,
-      },
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false,
-      },
-      animations: {
-        enabled: false,
-      },
-    },
-    tooltip: {
-      enabled: true,
-      x: {
-        show: false,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 6,
-      curve: 'smooth',
-    },
-    grid: {
-      show: true,
-      strokeDashArray: 4,
-      padding: {
-        left: 2,
-        right: 2,
-        top: -26,
-      },
-    },
-    legend: {
-      show: true,
-      position: 'bottom',
-    },
-    series: [
+  paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
+    getDoughnutChartOptions((context) => {
+      return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
+    });
+
+  emiChartData: ChartData<ChartType.LINE> = {
+    labels: [],
+    datasets: [
       {
-        name: 'Principal',
-        data: [],
-        color: '#1A56DB',
+        ...lineChartPrimaryDataset,
+        label: 'Principal',
       },
       {
-        name: 'Interest',
-        data: [],
-        color: '#7E3AF2',
+        ...lineChartSecondaryDataset,
+        label: 'Interest',
       },
     ],
-    xaxis: {
-      type: 'numeric',
-      labels: {
-        rotate: 0,
-        show: true,
-        style: {
-          fontFamily: 'Inter, sans-serif',
-          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
-        },
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-      tickAmount: 20,
-      title: {
-        text: 'Month',
-        offsetY: -5,
-        style: {
-          fontFamily: 'Inter, sans-serif',
-          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
-        },
-      },
-    },
-    yaxis: {
-      labels: {
-        show: true,
-        style: {
-          fontFamily: 'Inter, sans-serif',
-          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
-        },
-      },
-      title: {
-        text: 'Amount',
-        offsetY: -25,
-        style: {
-          fontFamily: 'Inter, sans-serif',
-          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
-        },
-      },
-    },
   };
 
-  revisionChartOptions: LineChartOptions = {
-    ...this.emiChartOptions,
-    series: [
+  emiChartOptions: ChartConfiguration['options'] = getLineChartOptions(
+    'EMI',
+    'Amount',
+    false,
+    (context) => {
+      const label = context.dataset.label || '';
+      const value = context.parsed.y;
+
+      return label && value
+        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+        : '';
+    },
+    (tooltipItems) => {
+      return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+    },
+  );
+
+  revisionsChartData: ChartData<ChartType.LINE> = {
+    labels: [],
+    datasets: [
       {
-        ...this.emiChartOptions.series[0],
-        name: 'Interest Rate',
+        ...lineChartPrimaryDataset,
+        label: 'Interest Rate',
       },
     ],
-    yaxis: {
-      ...this.emiChartOptions.yaxis,
-      title: {
-        ...this.emiChartOptions.yaxis.title,
-        text: 'Interest Rate',
-      },
-    },
   };
+
+  revisionsChartOptions: ChartConfiguration['options'] = getLineChartOptions(
+    'EMI',
+    'Interest Rate',
+    false,
+    (context) => {
+      const label = context.dataset.label || '';
+      const value = context.parsed.y;
+
+      return label && value
+        ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
+        : '';
+    },
+    (tooltipItems) => {
+      return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+    },
+  );
+
+  emiAndRevisionsChartPlugins: ChartConfiguration['plugins'] = [
+    verticalHoverLine,
+    increaseLegendSpacing,
+  ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
+
+  constructor(
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly decimalPipe: DecimalPipe,
+  ) {}
 
   ngOnInit() {
     this.initDatePicker();
 
     this.calculateAmortization();
+  }
+
+  @HostListener('window:fullscreenchange')
+  onFullscreenChange() {
+    if (this.document.fullscreenElement) {
+      this.isChartInFullscreen = true;
+    } else {
+      this.isChartInFullscreen = false;
+    }
   }
 
   onLoanStartDateChange(dateString: string) {
@@ -345,6 +225,10 @@ export class LoanEmiCalculatorPage implements OnInit {
 
   onPrepaymentAdjustmentTypeChange(type: RevisionAdjustmentType) {
     this.prepaymentAdjustmentType = Number(type);
+  }
+
+  onTabChange(tab: Tabs) {
+    this.activeTab = Number(tab);
   }
 
   addRateChange() {
@@ -377,6 +261,50 @@ export class LoanEmiCalculatorPage implements OnInit {
   removePrepayment(index: number) {
     this.prepayments.splice(index, 1);
     this.calculateAmortization();
+  }
+
+  toggleFullscreen(chart: Charts) {
+    if (this.document.fullscreenElement) {
+      this.document.exitFullscreen();
+    } else {
+      let container: ElementRef | undefined;
+
+      switch (chart) {
+        case Charts.EMI:
+          container = this.emiChartContainer;
+          break;
+
+        case Charts.REVISIONS:
+          container = this.revisionsChartContainer;
+          break;
+
+        case Charts.PAYMENTS:
+        default:
+          return;
+      }
+
+      if (container) {
+        container.nativeElement
+          .requestFullscreen()
+          .then(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (screen.orientation as any)
+              .lock('landscape')
+              .catch((error: Error) => {
+                console.error(
+                  `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
+                );
+              });
+
+            this.cdr.markForCheck();
+          })
+          .catch((error: Error) => {
+            console.error(
+              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+            );
+          });
+      }
+    }
   }
 
   calculateAmortization() {
@@ -419,9 +347,81 @@ export class LoanEmiCalculatorPage implements OnInit {
       { principal: number; interest: number; totalPayment: number }
     >();
 
+    // Pre-EMI Interest Calculation
+    let preEmiInterest = 0;
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    const nextDayOfLoanStartDate = new Date(this.loanStartDate);
+    nextDayOfLoanStartDate.setDate(nextDayOfLoanStartDate.getDate() + 1);
+
+    if (paymentDate > nextDayOfLoanStartDate) {
+      // Number of days between loan start and first payment date
+      const diffDays = Math.floor(
+        (paymentDate.getTime() - nextDayOfLoanStartDate.getTime()) / msPerDay,
+      );
+
+      if (diffDays > 0) {
+        // Estimate partial interest for these days
+        const dailyRate = currentRate / 100 / 12 / 30;
+        preEmiInterest = P * dailyRate * diffDays;
+
+        // Add pre-EMI interest to totals
+        totalInterest += preEmiInterest;
+        this.totalInterestPaid = Math.ceil(preEmiInterest);
+
+        // Determine the date on which we post pre-EMI interest (day before first EMI)
+        const preEmiDate = new Date(paymentDate);
+        preEmiDate.setDate(preEmiDate.getDate() - 1);
+
+        // Determine the relevant financial year for pre-EMI interest
+        const fyStartDate = new Date(
+          preEmiDate.getFullYear(),
+          this.financialYearStartMonth - 1,
+          1,
+        );
+        if (preEmiDate < fyStartDate) {
+          fyStartDate.setFullYear(fyStartDate.getFullYear() - 1);
+        }
+        const fyString = `${fyStartDate.getFullYear().toString().slice(-2)}-${(
+          fyStartDate.getFullYear() + 1
+        )
+          .toString()
+          .slice(-2)}`;
+
+        // Add/accumulate into FY totals
+        if (!fyTotals.has(fyString)) {
+          fyTotals.set(fyString, {
+            principal: 0,
+            interest: 0,
+            totalPayment: 0,
+          });
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const preEmiFyTotals = fyTotals.get(fyString)!;
+        preEmiFyTotals.interest += preEmiInterest;
+        preEmiFyTotals.totalPayment += preEmiInterest;
+
+        // Add an entry in the amortization schedule
+        this.amortizationSchedule.push({
+          month: 0,
+          paymentDate: preEmiDate,
+          payment: Math.ceil(preEmiInterest),
+          principal: 0,
+          interest: Math.ceil(preEmiInterest),
+          totalInterest: Math.ceil(totalInterest),
+          balance: Math.ceil(balance),
+          interestRate: currentRate,
+        });
+      }
+    }
+
+    // Add one more month to skip a complete cycle after the due date
+    paymentDate.setMonth(paymentDate.getMonth() + 1);
+
     // Initialize totals
     this.totalPrincipalPaid = 0;
-    this.totalInterestPaid = 0;
+    // Incorporate any pre-EMI interest already calculated
+    this.totalInterestPaid = Math.ceil(preEmiInterest);
     this.totalPayments = 0;
 
     while (balance > 0 && currentMonth <= maxTenure) {
@@ -540,7 +540,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       if (paymentDate < fyStartDate) {
         fyStartDate.setFullYear(fyStartDate.getFullYear() - 1);
       }
-      const fyString = `${fyStartDate.getFullYear()}-${(
+      const fyString = `${fyStartDate.getFullYear().toString().slice(-2)}-${(
         fyStartDate.getFullYear() + 1
       )
         .toString()
@@ -602,7 +602,7 @@ export class LoanEmiCalculatorPage implements OnInit {
     );
 
     // Update charts
-    this.updateTotalPaymentsChart();
+    this.updatePaymentsChart();
     this.updateEmiChart();
 
     if (this.interestRateType === InterestRateType.FLOATING) {
@@ -628,7 +628,20 @@ export class LoanEmiCalculatorPage implements OnInit {
     return Math.ceil(-Math.log(1 - (balance * r) / emi) / Math.log(1 + r));
   }
 
+  private updatePaymentsChart() {
+    this.paymentsChartData.datasets[0].data = [
+      Math.ceil(this.totalPrincipalPaid),
+      Math.ceil(this.totalInterestPaid),
+    ];
+
+    // Refresh the chart
+    if (this.paymentsChart) {
+      this.paymentsChart.update();
+    }
+  }
+
   private updateEmiChart() {
+    const labels = this.amortizationSchedule.map((payment) => payment.month);
     const principalData = this.amortizationSchedule.map(
       (payment) => payment.principal,
     );
@@ -636,19 +649,19 @@ export class LoanEmiCalculatorPage implements OnInit {
       (payment) => payment.interest,
     );
 
-    this.emiChartOptions.series = [
-      {
-        ...this.emiChartOptions.series[0],
-        data: principalData,
-      },
-      {
-        ...this.emiChartOptions.series[1],
-        data: interestData,
-      },
-    ];
+    this.emiChartData.labels = labels;
+    this.emiChartData.datasets[0].data = principalData;
+    this.emiChartData.datasets[1].data = interestData;
+
+    // Refresh the chart
+    if (this.emiChart) {
+      this.emiChart.update();
+    }
   }
 
   private updateRevisionChart() {
+    const labels = this.amortizationSchedule.map((payment) => payment.month);
+
     // Initialize data arrays
     const rateChangeData = new Array(this.amortizationSchedule.length);
 
@@ -670,27 +683,20 @@ export class LoanEmiCalculatorPage implements OnInit {
       rateChangeData[i] = currentRate;
     }
 
-    // Update the chart data
-    this.revisionChartOptions.series = [
-      {
-        ...this.revisionChartOptions.series[0],
-        data: rateChangeData,
-      },
-    ];
+    this.revisionsChartData.labels = labels;
+    this.revisionsChartData.datasets[0].data = rateChangeData;
+
+    // Refresh the chart
+    if (this.revisionChart) {
+      this.revisionChart.update();
+    }
   }
 
-  private updateTotalPaymentsChart() {
-    this.paymentsChartOptions.series = [
-      this.totalPrincipalPaid,
-      this.totalInterestPaid,
-    ];
-  }
-
-  private resetDatepicker(): void {
+  private resetDatepicker() {
     this.datepicker?.setDate(Date.now(), { clear: true });
   }
 
-  private initDatePicker(): void {
+  private initDatePicker() {
     if (this.loanStartDateInput) {
       this.datepicker = new Datepicker(this.loanStartDateInput.nativeElement, {
         autohide: true,
@@ -710,6 +716,8 @@ export class LoanEmiCalculatorPage implements OnInit {
           this.loanStartDate = new Date(
             `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
           );
+
+          this.calculateAmortization();
         },
       );
 

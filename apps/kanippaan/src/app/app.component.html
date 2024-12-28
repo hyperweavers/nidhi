@@ -206,10 +206,10 @@
               </svg>
             </button>
 
-            <a href="/" class="ml-2 flex md:mr-24">
+            <a href="/" class="flex md:ml-2 md:mr-24">
               <img
                 src="./icons/logo.svg"
-                class="mr-3 h-8 w-8"
+                class="h-8 w-8"
                 alt="Kanippaan Logo"
               />
               <span
@@ -355,6 +355,26 @@
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
                       class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Loan EMI</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.FIXED_DEPOSIT_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Fixed Deposit</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Gold Jewellery Price</a
                     >
                   </li>
                 </ul>

@@ -12,25 +12,13 @@ module.exports = {
   darkMode: 'class',
   theme: {
     fontFamily: {
-      'logo': [
-        'Poppins',
-        'ui-sans-serif',
-        'system-ui',
-      ],
-      'sans': [
-        'Inter',
-        'ui-sans-serif',
-        'system-ui',
-      ]
+      logo: ['Poppins', 'ui-sans-serif', 'system-ui'],
+      sans: ['Inter', 'ui-sans-serif', 'system-ui'],
     },
     colors: {
       primary: colors.indigo,
     },
     extend: {},
   },
-  plugins: [
-    require('flowbite/plugin')({
-      charts: true,
-    }),
-  ],
+  plugins: [require('flowbite/plugin')()],
 };

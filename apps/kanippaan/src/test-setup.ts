@@ -1,3 +1,4 @@
+import 'jest-canvas-mock';
 import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
 
 setupZoneTestEnv({
@@ -25,3 +26,9 @@ Object.defineProperty(window, 'matchMedia', {
 import { Datepicker } from 'flowbite';
 // @ts-expect-error https://stackoverflow.com/questions/72732164/jest-referenceerror-on-globally-defined-js-constants-within-angular-components
 global.DatePicker = Datepicker;
+
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));

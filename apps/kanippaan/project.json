@@ -28,7 +28,6 @@
         "styles": ["apps/kanippaan/src/styles.scss"],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js",
-          "node_modules/apexcharts/dist/apexcharts.min.js"
         ]
       },
       "configurations": {
@@ -37,7 +36,7 @@
             {
               "type": "initial",
               "maximumWarning": "500kb",
-              "maximumError": "2mb"
+              "maximumError": "1mb"
             },
             {
               "type": "anyComponentStyle",
