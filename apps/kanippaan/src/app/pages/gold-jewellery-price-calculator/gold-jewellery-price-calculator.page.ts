@@ -11,12 +11,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
+import { ChartType } from '../../models/chart';
 import { DataService } from '../../services/core/data.service';
-import {
-  ChartType,
-  commonDoughnutChartDataset,
-  getDoughnutChartOptions,
-} from '../../utils/chart.utils';
+import { ChartUtils } from '../../utils/chart.utils';
 
 @UntilDestroy()
 @Component({
@@ -53,7 +50,7 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
     labels: ['Gold', 'W/VA', 'MC', 'Tax'],
     datasets: [
       {
-        ...commonDoughnutChartDataset,
+        ...ChartUtils.commonDoughnutChartDataset,
         backgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
         hoverBackgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
       },
@@ -61,7 +58,7 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
   };
 
   priceBreakdownChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    getDoughnutChartOptions((context) => {
+    ChartUtils.getDoughnutChartOptions((context) => {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 

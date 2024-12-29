@@ -13,30 +13,13 @@ import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
-import {
-  barChartPrimaryDataset,
-  barChartSecondaryDataset,
-  ChartType,
-  getBarChartOptions,
-  getDoughnutChartOptions,
-  principalInterestDoughnutChartDatasets,
-} from '../../utils/chart.utils';
+import { ChartType } from '../../models/chart';
+import { CompoundingFrequency, InterestPayoutType } from '../../models/deposit';
+import { ChartUtils } from '../../utils/chart.utils';
+import { DateUtils } from '../../utils/date.utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
-
-enum InterestPayoutType {
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  Maturity = 'Maturity',
-}
-
-enum CompoundingFrequency {
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  HalfYearly = 'Half Yearly',
-  Yearly = 'Yearly',
-}
 
 enum Tabs {
   YEARLY_ACCUMULATION_SCHEDULE,
@@ -91,7 +74,7 @@ export class FixedDepositCalculatorPage implements OnInit {
   readonly Charts = Charts;
 
   private interestPayoutTypeValues = Object.values(InterestPayoutType);
-  compoundingFrequencyValues = Object.values(CompoundingFrequency);
+  compoundingFrequencyValues = Object.values(CompoundingFrequency).slice(-1); // Exclude "None"
 
   depositAmount = 100000;
   annualInterestRate = 7;
@@ -121,11 +104,11 @@ export class FixedDepositCalculatorPage implements OnInit {
   depositChartData: ChartData<ChartType.DOUGHNUT, number[], string | string[]> =
     {
       labels: ['Principal', 'Interest'],
-      datasets: principalInterestDoughnutChartDatasets,
+      datasets: ChartUtils.doughnutChartDualDatasets,
     };
 
   depositChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    getDoughnutChartOptions((context): string => {
+    ChartUtils.getDoughnutChartOptions((context): string => {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 
@@ -133,53 +116,60 @@ export class FixedDepositCalculatorPage implements OnInit {
     labels: [],
     datasets: [
       {
-        ...barChartPrimaryDataset,
+        ...ChartUtils.barChartPrimaryDataset,
         label: 'Interest',
       },
       {
-        ...barChartSecondaryDataset,
+        ...ChartUtils.barChartSecondaryDataset,
         label: 'Balance',
       },
     ],
   };
 
-  yearlySummaryChartOptions: ChartConfiguration['options'] = getBarChartOptions(
-    'Year',
-    'Amount',
-    true,
-    true,
-    (context): string => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+  yearlySummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Year',
+      'Amount',
+      true,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-        : '';
-    },
-    (tooltipItems): string => {
-      return tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '';
-    },
-  );
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string => {
+        return tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '';
+      },
+    );
 
   payoutScheduleChartData: ChartData<ChartType.BAR> = {
     labels: [],
     datasets: [
       {
-        ...barChartPrimaryDataset,
+        ...ChartUtils.barChartPrimaryDataset,
         label: 'Interest',
       },
     ],
   };
 
   payoutScheduleChartOptions: ChartConfiguration['options'] =
-    getBarChartOptions('Month', 'Interest', false, true, (context): string => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+    ChartUtils.getBarChartOptions(
+      'Month',
+      'Interest',
+      false,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-        : '';
-    });
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+    );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
@@ -230,9 +220,11 @@ export class FixedDepositCalculatorPage implements OnInit {
   }
 
   getAvailableInterestPayoutTypes(): InterestPayoutType[] {
-    const compoundingValue = this.getFrequencyValue(this.compoundingFrequency);
+    const compoundingValue = DateUtils.convertFrequencyToValue(
+      this.compoundingFrequency,
+    );
     return this.interestPayoutTypeValues.filter((payoutType) => {
-      const payoutValue = this.getFrequencyValue(payoutType);
+      const payoutValue = DateUtils.convertFrequencyToValue(payoutType);
       return (
         payoutValue <= compoundingValue ||
         payoutType === InterestPayoutType.Maturity
@@ -292,7 +284,11 @@ export class FixedDepositCalculatorPage implements OnInit {
     const principal = this.depositAmount;
 
     // Convert deposit term to years
-    const timeInYears = this.getTimeInYears();
+    const timeInYears = DateUtils.ConvertDepositTermToYears(
+      this.depositTermYears,
+      this.depositTermMonths,
+      this.depositTermDays,
+    );
 
     if (timeInYears <= 0 || !this.investmentStartDate) {
       // Reset values if invalid input
@@ -304,7 +300,12 @@ export class FixedDepositCalculatorPage implements OnInit {
     }
 
     // Calculate maturity date
-    this.calculateMaturityDate();
+    this.maturityDate = DateUtils.getDepositMaturityDate(
+      this.investmentStartDate,
+      this.depositTermYears,
+      this.depositTermMonths,
+      this.depositTermDays,
+    );
 
     // Generate the payout schedule
     this.generatePayoutSchedule();
@@ -352,7 +353,12 @@ export class FixedDepositCalculatorPage implements OnInit {
 
     // Ensure maturity date is calculated
     if (!this.maturityDate) {
-      this.calculateMaturityDate();
+      this.maturityDate = DateUtils.getDepositMaturityDate(
+        this.investmentStartDate,
+        this.depositTermYears,
+        this.depositTermMonths,
+        this.depositTermDays,
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -379,9 +385,9 @@ export class FixedDepositCalculatorPage implements OnInit {
         frequency === InterestPayoutType.Quarterly ||
         frequency === CompoundingFrequency.Quarterly
       ) {
-        nextDate = this.getNextFinancialQuarterDate(currentDate);
+        nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
       } else {
-        nextDate = this.getNextCompoundingDate(
+        nextDate = DateUtils.getNextCompoundingDate(
           currentDate,
           frequency as CompoundingFrequency,
         );
@@ -393,26 +399,29 @@ export class FixedDepositCalculatorPage implements OnInit {
       }
 
       // Calculate days in period
-      const daysInPeriod = this.differenceInDays(nextDate, currentDate);
+      const daysInPeriod = DateUtils.getDifferenceInDays(nextDate, currentDate);
 
       // Interest calculation
       const interestAmount =
         (principal * annualRate * daysInPeriod) /
-        this.getDaysInYear(currentDate.getFullYear());
+        DateUtils.getDaysInYear(currentDate.getFullYear());
 
       // For "Maturity" payout type, accumulate interest
       if (this.interestPayoutType === InterestPayoutType.Maturity) {
         // Accumulate interest
-        const totalDays = this.differenceInDays(
+        const totalDays = DateUtils.getDifferenceInDays(
           nextDate,
           this.investmentStartDate,
         );
         const accumulatedAmount =
           principal *
           Math.pow(
-            1 + annualRate / this.getFrequencyValue(this.compoundingFrequency),
-            (this.getFrequencyValue(this.compoundingFrequency) * totalDays) /
-              this.getDaysInYear(this.investmentStartDate.getFullYear()),
+            1 +
+              annualRate /
+                DateUtils.convertFrequencyToValue(this.compoundingFrequency),
+            (DateUtils.convertFrequencyToValue(this.compoundingFrequency) *
+              totalDays) /
+              DateUtils.getDaysInYear(this.investmentStartDate.getFullYear()),
           );
         const interestAccumulated = accumulatedAmount - principal;
         this.payoutSchedule.push({
@@ -444,7 +453,12 @@ export class FixedDepositCalculatorPage implements OnInit {
     const annualRate = this.annualInterestRate / 100;
 
     if (!this.maturityDate) {
-      this.calculateMaturityDate();
+      this.maturityDate = DateUtils.getDepositMaturityDate(
+        this.investmentStartDate,
+        this.depositTermYears,
+        this.depositTermMonths,
+        this.depositTermDays,
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -455,7 +469,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     let yearIndex = 1;
 
     // Number of compounding periods per year
-    const n = this.getFrequencyValue(this.compoundingFrequency);
+    const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
 
     while (currentDate < maturityDate) {
       const nextYearDate = new Date(currentDate);
@@ -466,9 +480,12 @@ export class FixedDepositCalculatorPage implements OnInit {
       }
 
       // How many days in this "yearly" period
-      const daysInPeriod = this.differenceInDays(nextYearDate, currentDate);
+      const daysInPeriod = DateUtils.getDifferenceInDays(
+        nextYearDate,
+        currentDate,
+      );
       const fractionOfYear =
-        daysInPeriod / this.getDaysInYear(currentDate.getFullYear());
+        daysInPeriod / DateUtils.getDaysInYear(currentDate.getFullYear());
 
       // Compound the balance for fractionOfYear
       const newBalance =
@@ -492,109 +509,6 @@ export class FixedDepositCalculatorPage implements OnInit {
     }
 
     this.updateYearlySummaryChartData();
-  }
-
-  private getNextFinancialQuarterDate(date: Date): Date {
-    const year = date.getFullYear();
-
-    // End dates of financial quarters: Mar 31, Jun 30, Sep 30, Dec 31
-    const quarterEndDates = [
-      new Date(year, 2, 31), // March 31
-      new Date(year, 5, 30), // June 30
-      new Date(year, 8, 30), // September 30
-      new Date(year, 11, 31), // December 31
-    ];
-
-    for (const quarterEnd of quarterEndDates) {
-      if (date < quarterEnd) {
-        return quarterEnd;
-      }
-    }
-
-    // If the current date is after Dec 31, jump to the next year's Mar 31
-    return new Date(year + 1, 2, 31);
-  }
-
-  private getNextCompoundingDate(
-    date: Date,
-    frequency: CompoundingFrequency | InterestPayoutType,
-  ): Date {
-    let nextDate = new Date(date);
-
-    if (
-      frequency === CompoundingFrequency.Monthly ||
-      frequency === InterestPayoutType.Monthly
-    ) {
-      nextDate.setMonth(nextDate.getMonth() + 1);
-    } else if (
-      frequency === CompoundingFrequency.Quarterly ||
-      frequency === InterestPayoutType.Quarterly
-    ) {
-      nextDate = this.getNextFinancialQuarterDate(nextDate);
-    } else if (frequency === CompoundingFrequency.HalfYearly) {
-      nextDate.setMonth(nextDate.getMonth() + 6);
-    } else if (frequency === CompoundingFrequency.Yearly) {
-      nextDate.setFullYear(nextDate.getFullYear() + 1);
-    } else {
-      // Default to yearly if frequency is unrecognized
-      nextDate.setFullYear(nextDate.getFullYear() + 1);
-    }
-
-    return nextDate;
-  }
-
-  private calculateMaturityDate() {
-    this.maturityDate = new Date(this.investmentStartDate);
-    this.maturityDate.setFullYear(
-      this.maturityDate.getFullYear() + this.depositTermYears,
-    );
-    this.maturityDate.setMonth(
-      this.maturityDate.getMonth() + this.depositTermMonths,
-    );
-    this.maturityDate.setDate(
-      this.maturityDate.getDate() + this.depositTermDays,
-    );
-  }
-
-  private getTimeInYears(): number {
-    const years = this.depositTermYears || 0;
-    const months = this.depositTermMonths || 0;
-    const days = this.depositTermDays || 0;
-
-    return years + months / 12 + days / 365;
-  }
-
-  private getFrequencyValue(
-    frequency: InterestPayoutType | CompoundingFrequency,
-  ): number {
-    switch (frequency) {
-      case InterestPayoutType.Monthly:
-      case CompoundingFrequency.Monthly:
-        return 12;
-      case InterestPayoutType.Quarterly:
-      case CompoundingFrequency.Quarterly:
-        return 4;
-      case CompoundingFrequency.HalfYearly:
-        return 2;
-      case CompoundingFrequency.Yearly:
-        return 1;
-      case InterestPayoutType.Maturity:
-        return 1; // Treated as a single payout
-      default:
-        return 1;
-    }
-  }
-
-  private differenceInDays(date1: Date, date2: Date): number {
-    const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
-    const diffInTime = date1.getTime() - date2.getTime();
-    return Math.round(diffInTime / oneDay);
-  }
-
-  private getDaysInYear(year: number): number {
-    // True if the year is divisible by 400,
-    // or if it is divisible by 4 but not by 100
-    return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0) ? 366 : 365;
   }
 
   // Update chart data

@@ -7,372 +7,376 @@ import {
   TooltipModel,
 } from 'chart.js';
 
-const chartPrimaryColor = '#1A56DB';
-const chartSecondaryColor = '#FF6384';
-const chartComponentsTextColor = '#9CA3AF';
-const chartGridColor = 'rgba(156, 163, 175, 0.2)';
+import { ChartType } from '../models/chart';
 
-export enum ChartType {
-  BAR = 'bar',
-  BUBBLE = 'bubble',
-  DOUGHNUT = 'doughnut',
-  LINE = 'line',
-  PIE = 'pie',
-  POLAR_AREA = 'polarArea',
-  RADAR = 'radar',
-  SCATTER = 'scatter',
-}
+export class ChartUtils {
+  private static primaryColor = '#1A56DB';
+  private static secondaryColor = '#FF6384';
+  private static componentsTextColor = '#9CA3AF';
+  private static gridColor = 'rgba(156, 163, 175, 0.2)';
+  private static verticalLineColor = 'rgba(156, 163, 175, 0.5)';
+  private static fallbackColor = '#fff';
 
-export const commonDoughnutChartDataset: ChartDataset<
-  ChartType.DOUGHNUT,
-  number[]
-> = {
-  data: [],
-  borderWidth: 0,
-  hoverBorderWidth: 0,
-};
+  static commonDoughnutChartDataset: ChartDataset<
+    ChartType.DOUGHNUT,
+    number[]
+  > = {
+    data: [],
+    borderWidth: 0,
+    hoverBorderWidth: 0,
+  };
 
-export const principalInterestDoughnutChartDatasets: ChartDataset<
-  ChartType.DOUGHNUT,
-  number[]
->[] = [
-  {
-    ...commonDoughnutChartDataset,
-    borderColor: [chartPrimaryColor, chartSecondaryColor],
-    hoverBorderColor: [chartPrimaryColor, chartSecondaryColor],
-    backgroundColor: [chartPrimaryColor, chartSecondaryColor],
-    hoverBackgroundColor: [chartPrimaryColor, chartSecondaryColor],
-  },
-];
+  static doughnutChartDualDatasets: ChartDataset<
+    ChartType.DOUGHNUT,
+    number[]
+  >[] = [
+    {
+      ...ChartUtils.commonDoughnutChartDataset,
+      borderColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
+      hoverBorderColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
+      backgroundColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
+      hoverBackgroundColor: [
+        ChartUtils.primaryColor,
+        ChartUtils.secondaryColor,
+      ],
+    },
+  ];
 
-export const commonLineChartDataset: ChartDataset<
-  ChartType.LINE,
-  (number | Point | null)[]
-> = {
-  data: [],
-  borderWidth: 4,
-  tension: 0.4,
-  pointHoverRadius: 6,
-  spanGaps: true,
-  pointRadius: 0,
-  pointHoverBorderWidth: 0,
-  borderCapStyle: 'round',
-};
+  static commonLineChartDataset: ChartDataset<
+    ChartType.LINE,
+    (number | Point | null)[]
+  > = {
+    data: [],
+    borderWidth: 4,
+    tension: 0.4,
+    pointHoverRadius: 6,
+    spanGaps: true,
+    pointRadius: 0,
+    pointHoverBorderWidth: 0,
+    borderCapStyle: 'round',
+  };
 
-export const lineChartPrimaryDataset: ChartDataset<
-  ChartType.LINE,
-  (number | Point | null)[]
-> = {
-  ...commonLineChartDataset,
-  borderColor: chartPrimaryColor,
-  hoverBorderColor: chartPrimaryColor,
-  backgroundColor: chartPrimaryColor,
-  hoverBackgroundColor: chartPrimaryColor,
-};
+  static lineChartPrimaryDataset: ChartDataset<
+    ChartType.LINE,
+    (number | Point | null)[]
+  > = {
+    ...ChartUtils.commonLineChartDataset,
+    borderColor: ChartUtils.primaryColor,
+    hoverBorderColor: ChartUtils.primaryColor,
+    backgroundColor: ChartUtils.primaryColor,
+    hoverBackgroundColor: ChartUtils.primaryColor,
+  };
 
-export const lineChartSecondaryDataset: ChartDataset<
-  ChartType.LINE,
-  (number | Point | null)[]
-> = {
-  ...commonLineChartDataset,
-  borderColor: chartSecondaryColor,
-  hoverBorderColor: chartSecondaryColor,
-  backgroundColor: chartSecondaryColor,
-  hoverBackgroundColor: chartSecondaryColor,
-};
+  static lineChartSecondaryDataset: ChartDataset<
+    ChartType.LINE,
+    (number | Point | null)[]
+  > = {
+    ...ChartUtils.commonLineChartDataset,
+    borderColor: ChartUtils.secondaryColor,
+    hoverBorderColor: ChartUtils.secondaryColor,
+    backgroundColor: ChartUtils.secondaryColor,
+    hoverBackgroundColor: ChartUtils.secondaryColor,
+  };
 
-export const commonBarChartDataset: ChartDataset<
-  ChartType.BAR,
-  (number | [number, number] | null)[]
-> = {
-  barThickness: 'flex',
-  maxBarThickness: 15,
-  minBarLength: 2,
-  data: [],
-};
+  static commonBarChartDataset: ChartDataset<
+    ChartType.BAR,
+    (number | [number, number] | null)[]
+  > = {
+    barThickness: 'flex',
+    maxBarThickness: 15,
+    minBarLength: 2,
+    data: [],
+  };
 
-export const commonBarChartDatasetWithGap: ChartDataset<
-  ChartType.BAR,
-  (number | [number, number] | null)[]
-> = {
-  barThickness: 'flex',
-  maxBarThickness: 20,
-  borderColor: 'transparent',
-  borderWidth: 2,
-  minBarLength: 2,
-  data: [],
-};
+  static commonBarChartDatasetWithGap: ChartDataset<
+    ChartType.BAR,
+    (number | [number, number] | null)[]
+  > = {
+    barThickness: 'flex',
+    maxBarThickness: 20,
+    borderColor: 'transparent',
+    borderWidth: 2,
+    minBarLength: 2,
+    data: [],
+  };
 
-export const barChartPrimaryDataset: ChartDataset<
-  ChartType.BAR,
-  (number | [number, number] | null)[]
-> = {
-  ...commonBarChartDataset,
-  borderColor: chartPrimaryColor,
-  hoverBorderColor: chartPrimaryColor,
-  backgroundColor: chartPrimaryColor,
-  hoverBackgroundColor: chartPrimaryColor,
-};
+  static barChartPrimaryDataset: ChartDataset<
+    ChartType.BAR,
+    (number | [number, number] | null)[]
+  > = {
+    ...ChartUtils.commonBarChartDataset,
+    borderColor: ChartUtils.primaryColor,
+    hoverBorderColor: ChartUtils.primaryColor,
+    backgroundColor: ChartUtils.primaryColor,
+    hoverBackgroundColor: ChartUtils.primaryColor,
+  };
 
-export const barChartSecondaryDataset: ChartDataset<
-  ChartType.BAR,
-  (number | [number, number] | null)[]
-> = {
-  ...commonBarChartDataset,
-  borderColor: chartSecondaryColor,
-  hoverBorderColor: chartSecondaryColor,
-  backgroundColor: chartSecondaryColor,
-  hoverBackgroundColor: chartSecondaryColor,
-};
+  static barChartSecondaryDataset: ChartDataset<
+    ChartType.BAR,
+    (number | [number, number] | null)[]
+  > = {
+    ...ChartUtils.commonBarChartDataset,
+    borderColor: ChartUtils.secondaryColor,
+    hoverBorderColor: ChartUtils.secondaryColor,
+    backgroundColor: ChartUtils.secondaryColor,
+    hoverBackgroundColor: ChartUtils.secondaryColor,
+  };
 
-export const verticalHoverLine: Plugin<ChartType.LINE> = {
-  id: 'verticalHoverLine',
-  beforeDatasetsDraw(chart) {
-    const {
-      ctx,
-      chartArea: { top, bottom },
-    } = chart;
-    ctx.save();
+  static verticalHoverLine: Plugin<ChartType.LINE> = {
+    id: 'verticalHoverLine',
+    beforeDatasetsDraw(chart) {
+      const {
+        ctx,
+        chartArea: { top, bottom },
+      } = chart;
+      ctx.save();
 
-    chart.getDatasetMeta(0).data.forEach((dataPoint) => {
-      if (dataPoint.active === true) {
-        ctx.beginPath();
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = 'rgba(156, 163, 175, 0.5)';
-        ctx.moveTo(dataPoint.x, top);
-        ctx.lineTo(dataPoint.x, bottom);
-        ctx.stroke();
+      chart.getDatasetMeta(0).data.forEach((dataPoint) => {
+        if (dataPoint.active === true) {
+          ctx.beginPath();
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = ChartUtils.verticalLineColor;
+          ctx.moveTo(dataPoint.x, top);
+          ctx.lineTo(dataPoint.x, bottom);
+          ctx.stroke();
+        }
+      });
+    },
+  };
+
+  static increaseLegendSpacing: Plugin<ChartType.LINE> = {
+    id: 'increaseLegendSpacing',
+    beforeInit(chart) {
+      const legend = chart.legend;
+      if (legend && legend.fit) {
+        const originalFit = legend.fit;
+        legend.fit = function fit() {
+          originalFit.call(this);
+          this.height += 20;
+        };
       }
-    });
-  },
-};
-
-export const increaseLegendSpacing: Plugin<ChartType.LINE> = {
-  id: 'increaseLegendSpacing',
-  beforeInit(chart) {
-    const legend = chart.legend;
-    if (legend && legend.fit) {
-      const originalFit = legend.fit;
-      legend.fit = function fit() {
-        originalFit.call(this);
-        this.height += 20;
-      };
-    }
-  },
-};
-
-export const getDoughnutChartOptions = (
-  tooltipLabelCallback?: (
-    this: TooltipModel<ChartType.DOUGHNUT>,
-    tooltipItem: TooltipItem<ChartType.DOUGHNUT>,
-  ) => string | void | string[],
-): ChartConfiguration<ChartType.DOUGHNUT>['options'] => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  cutout: '70%',
-  plugins: {
-    legend: {
-      position: 'bottom',
-      labels: {
-        color: chartComponentsTextColor,
-        usePointStyle: true,
-        padding: 25,
-        boxWidth: 9,
-        boxHeight: 9,
-      },
-      onClick: () => ({}),
-    },
-    tooltip: {
-      boxWidth: 8,
-      boxHeight: 8,
-      bodySpacing: 5,
-      boxPadding: 5,
-      callbacks: {
-        label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
-        labelColor: (context) => ({
-          borderColor: context.dataset.backgroundColor
-            ? (context.dataset.backgroundColor as string[])[context.dataIndex]
-            : '#fff',
-          backgroundColor: context.dataset.backgroundColor
-            ? (context.dataset.backgroundColor as string[])[context.dataIndex]
-            : '#fff',
-          borderWidth: 3,
-        }),
-      },
-    },
-  },
-});
-
-export const getLineChartOptions = (
-  xAxisScaleTitle?: string,
-  yAxisScaleTitle?: string,
-  showCaret?: boolean,
-  tooltipLabelCallback?: (
-    this: TooltipModel<ChartType.LINE>,
-    tooltipItem: TooltipItem<ChartType.LINE>,
-  ) => string | void | string[],
-  tooltipTitleCallback?: (
-    this: TooltipModel<ChartType.LINE>,
-    tooltipItems: TooltipItem<ChartType.LINE>[],
-  ) => string | string[] | void,
-): ChartConfiguration['options'] => {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        labels: {
-          color: chartComponentsTextColor,
-          usePointStyle: true,
-          padding: 25,
-          boxWidth: 6,
-          boxHeight: 6,
-        },
-        onClick: () => ({}),
-      },
-      tooltip: {
-        caretSize: showCaret ? 5 : 0,
-        boxWidth: 8,
-        boxHeight: 8,
-        bodySpacing: 5,
-        boxPadding: 5,
-        callbacks: {
-          title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
-          label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
-        },
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: !!xAxisScaleTitle,
-          color: chartComponentsTextColor,
-          text: xAxisScaleTitle || '',
-        },
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: chartComponentsTextColor,
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: !!yAxisScaleTitle,
-          color: chartComponentsTextColor,
-          text: yAxisScaleTitle || '',
-        },
-        grid: {
-          drawTicks: false,
-          color: chartGridColor,
-        },
-        border: {
-          display: false,
-          dash: [5, 3],
-        },
-        ticks: {
-          color: chartComponentsTextColor,
-          padding: 10,
-        },
-      },
     },
   };
-};
 
-export const getBarChartOptions = (
-  xAxisScaleTitle?: string,
-  yAxisScaleTitle?: string,
-  stacked?: boolean,
-  showCaret?: boolean,
-  tooltipLabelCallback?: (
-    this: TooltipModel<ChartType.BAR>,
-    tooltipItem: TooltipItem<ChartType.BAR>,
-  ) => string | void | string[],
-  tooltipTitleCallback?: (
-    this: TooltipModel<ChartType.BAR>,
-    tooltipItems: TooltipItem<ChartType.BAR>[],
-  ) => string | string[] | void,
-): ChartConfiguration['options'] => {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        labels: {
-          color: chartComponentsTextColor,
-          usePointStyle: true,
-          padding: 25,
-          boxWidth: 9,
-          boxHeight: 9,
+  static getDoughnutChartOptions(
+    tooltipLabelCallback?: (
+      this: TooltipModel<ChartType.DOUGHNUT>,
+      tooltipItem: TooltipItem<ChartType.DOUGHNUT>,
+    ) => string | void | string[],
+  ): ChartConfiguration<ChartType.DOUGHNUT>['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: this.componentsTextColor,
+            usePointStyle: true,
+            padding: 25,
+            boxWidth: 9,
+            boxHeight: 9,
+          },
+          onClick: () => ({}),
         },
-        onClick: () => ({}),
-      },
-      tooltip: {
-        caretSize: showCaret ? 5 : 0,
-        boxWidth: 8,
-        boxHeight: 8,
-        bodySpacing: 5,
-        boxPadding: 5,
-        callbacks: {
-          title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
-          label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
-          labelColor: (context) => ({
-            borderColor: context.dataset.backgroundColor
-              ? context.dataset.backgroundColor.toString()
-              : '#fff',
-            backgroundColor: context.dataset.backgroundColor
-              ? context.dataset.backgroundColor.toString()
-              : '#fff',
-            borderWidth: 3,
-          }),
+        tooltip: {
+          boxWidth: 8,
+          boxHeight: 8,
+          bodySpacing: 5,
+          boxPadding: 5,
+          callbacks: {
+            label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
+            labelColor: (context) => ({
+              borderColor: context.dataset.backgroundColor
+                ? (context.dataset.backgroundColor as string[])[
+                    context.dataIndex
+                  ]
+                : ChartUtils.fallbackColor,
+              backgroundColor: context.dataset.backgroundColor
+                ? (context.dataset.backgroundColor as string[])[
+                    context.dataIndex
+                  ]
+                : ChartUtils.fallbackColor,
+              borderWidth: 3,
+            }),
+          },
         },
       },
-    },
-    scales: {
-      x: {
-        stacked: true,
-        title: {
-          display: !!xAxisScaleTitle,
-          color: chartComponentsTextColor,
-          text: xAxisScaleTitle || '',
+    };
+  }
+
+  static getLineChartOptions(
+    xAxisScaleTitle?: string,
+    yAxisScaleTitle?: string,
+    showCaret?: boolean,
+    tooltipLabelCallback?: (
+      this: TooltipModel<ChartType.LINE>,
+      tooltipItem: TooltipItem<ChartType.LINE>,
+    ) => string | void | string[],
+    tooltipTitleCallback?: (
+      this: TooltipModel<ChartType.LINE>,
+      tooltipItems: TooltipItem<ChartType.LINE>[],
+    ) => string | string[] | void,
+  ): ChartConfiguration['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: ChartUtils.componentsTextColor,
+            usePointStyle: true,
+            padding: 25,
+            boxWidth: 6,
+            boxHeight: 6,
+          },
+          onClick: () => ({}),
         },
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: chartComponentsTextColor,
+        tooltip: {
+          caretSize: showCaret ? 5 : 0,
+          boxWidth: 8,
+          boxHeight: 8,
+          bodySpacing: 5,
+          boxPadding: 5,
+          callbacks: {
+            title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
+            label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
+          },
         },
       },
-      y: {
-        stacked: true,
-        beginAtZero: true,
-        title: {
-          display: !!yAxisScaleTitle,
-          color: chartComponentsTextColor,
-          text: yAxisScaleTitle || '',
+      scales: {
+        x: {
+          title: {
+            display: !!xAxisScaleTitle,
+            color: ChartUtils.componentsTextColor,
+            text: xAxisScaleTitle || '',
+          },
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: ChartUtils.componentsTextColor,
+          },
         },
-        grid: {
-          drawTicks: false,
-          color: chartGridColor,
-        },
-        border: {
-          display: false,
-          dash: [5, 3],
-        },
-        ticks: {
-          color: chartComponentsTextColor,
-          padding: 10,
+        y: {
+          beginAtZero: true,
+          title: {
+            display: !!yAxisScaleTitle,
+            color: ChartUtils.componentsTextColor,
+            text: yAxisScaleTitle || '',
+          },
+          grid: {
+            drawTicks: false,
+            color: ChartUtils.gridColor,
+          },
+          border: {
+            display: false,
+            dash: [5, 3],
+          },
+          ticks: {
+            color: ChartUtils.componentsTextColor,
+            padding: 10,
+          },
         },
       },
-    },
-  };
-};
+    };
+  }
+
+  static getBarChartOptions(
+    xAxisScaleTitle?: string,
+    yAxisScaleTitle?: string,
+    stacked?: boolean,
+    showCaret?: boolean,
+    tooltipLabelCallback?: (
+      this: TooltipModel<ChartType.BAR>,
+      tooltipItem: TooltipItem<ChartType.BAR>,
+    ) => string | void | string[],
+    tooltipTitleCallback?: (
+      this: TooltipModel<ChartType.BAR>,
+      tooltipItems: TooltipItem<ChartType.BAR>[],
+    ) => string | string[] | void,
+  ): ChartConfiguration['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: ChartUtils.componentsTextColor,
+            usePointStyle: true,
+            padding: 25,
+            boxWidth: 9,
+            boxHeight: 9,
+          },
+          onClick: () => ({}),
+        },
+        tooltip: {
+          caretSize: showCaret ? 5 : 0,
+          boxWidth: 8,
+          boxHeight: 8,
+          bodySpacing: 5,
+          boxPadding: 5,
+          callbacks: {
+            title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
+            label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
+            labelColor: (context) => ({
+              borderColor: context.dataset.backgroundColor
+                ? context.dataset.backgroundColor.toString()
+                : ChartUtils.fallbackColor,
+              backgroundColor: context.dataset.backgroundColor
+                ? context.dataset.backgroundColor.toString()
+                : ChartUtils.fallbackColor,
+              borderWidth: 3,
+            }),
+          },
+        },
+      },
+      scales: {
+        x: {
+          stacked: stacked,
+          title: {
+            display: !!xAxisScaleTitle,
+            color: ChartUtils.componentsTextColor,
+            text: xAxisScaleTitle || '',
+          },
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: ChartUtils.componentsTextColor,
+          },
+        },
+        y: {
+          stacked: stacked,
+          beginAtZero: true,
+          title: {
+            display: !!yAxisScaleTitle,
+            color: ChartUtils.componentsTextColor,
+            text: yAxisScaleTitle || '',
+          },
+          grid: {
+            drawTicks: false,
+            color: ChartUtils.gridColor,
+          },
+          border: {
+            display: false,
+            dash: [5, 3],
+          },
+          ticks: {
+            color: ChartUtils.componentsTextColor,
+            padding: 10,
+          },
+        },
+      },
+    };
+  }
+}

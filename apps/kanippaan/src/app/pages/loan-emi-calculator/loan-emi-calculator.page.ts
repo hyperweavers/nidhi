@@ -14,6 +14,7 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { Flowbite } from '../../decorators/flowbite.decorator';
+import { ChartType } from '../../models/chart';
 import {
   Amortization,
   FinancialYearSummary,
@@ -22,16 +23,7 @@ import {
   Prepayment,
   RevisionAdjustmentType,
 } from '../../models/loan';
-import {
-  ChartType,
-  getDoughnutChartOptions,
-  getLineChartOptions,
-  increaseLegendSpacing,
-  lineChartPrimaryDataset,
-  lineChartSecondaryDataset,
-  principalInterestDoughnutChartDatasets,
-  verticalHoverLine,
-} from '../../utils/chart.utils';
+import { ChartUtils } from '../../utils/chart.utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
@@ -119,11 +111,11 @@ export class LoanEmiCalculatorPage implements OnInit {
     string | string[]
   > = {
     labels: ['Principal', 'Interest'],
-    datasets: principalInterestDoughnutChartDatasets,
+    datasets: ChartUtils.doughnutChartDualDatasets,
   };
 
   paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    getDoughnutChartOptions((context) => {
+    ChartUtils.getDoughnutChartOptions((context) => {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 
@@ -131,63 +123,65 @@ export class LoanEmiCalculatorPage implements OnInit {
     labels: [],
     datasets: [
       {
-        ...lineChartPrimaryDataset,
+        ...ChartUtils.lineChartPrimaryDataset,
         label: 'Principal',
       },
       {
-        ...lineChartSecondaryDataset,
+        ...ChartUtils.lineChartSecondaryDataset,
         label: 'Interest',
       },
     ],
   };
 
-  emiChartOptions: ChartConfiguration['options'] = getLineChartOptions(
-    'EMI',
-    'Amount',
-    false,
-    (context) => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+  emiChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getLineChartOptions(
+      'EMI',
+      'Amount',
+      false,
+      (context) => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-        : '';
-    },
-    (tooltipItems) => {
-      return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
-    },
-  );
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems) => {
+        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+      },
+    );
 
   revisionsChartData: ChartData<ChartType.LINE> = {
     labels: [],
     datasets: [
       {
-        ...lineChartPrimaryDataset,
+        ...ChartUtils.lineChartPrimaryDataset,
         label: 'Interest Rate',
       },
     ],
   };
 
-  revisionsChartOptions: ChartConfiguration['options'] = getLineChartOptions(
-    'EMI',
-    'Interest Rate',
-    false,
-    (context) => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+  revisionsChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getLineChartOptions(
+      'EMI',
+      'Interest Rate',
+      false,
+      (context) => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
-        : '';
-    },
-    (tooltipItems) => {
-      return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
-    },
-  );
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
+          : '';
+      },
+      (tooltipItems) => {
+        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+      },
+    );
 
   emiAndRevisionsChartPlugins: ChartConfiguration['plugins'] = [
-    verticalHoverLine,
-    increaseLegendSpacing,
+    ChartUtils.verticalHoverLine,
+    ChartUtils.increaseLegendSpacing,
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
