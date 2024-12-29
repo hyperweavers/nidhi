@@ -84,7 +84,6 @@ export class ChartUtils {
   > = {
     barThickness: 'flex',
     maxBarThickness: 15,
-    minBarLength: 2,
     data: [],
   };
 
@@ -96,7 +95,6 @@ export class ChartUtils {
     maxBarThickness: 20,
     borderColor: 'transparent',
     borderWidth: 2,
-    minBarLength: 2,
     data: [],
   };
 

@@ -74,7 +74,7 @@ export class FixedDepositCalculatorPage implements OnInit {
   readonly Charts = Charts;
 
   private interestPayoutTypeValues = Object.values(InterestPayoutType);
-  compoundingFrequencyValues = Object.values(CompoundingFrequency).slice(-1); // Exclude "None"
+  compoundingFrequencyValues = Object.values(CompoundingFrequency).slice(1); // Exclude None
 
   depositAmount = 100000;
   annualInterestRate = 7;
@@ -284,7 +284,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     const principal = this.depositAmount;
 
     // Convert deposit term to years
-    const timeInYears = DateUtils.ConvertDepositTermToYears(
+    const timeInYears = DateUtils.convertDepositTermToYears(
       this.depositTermYears,
       this.depositTermMonths,
       this.depositTermDays,
@@ -361,8 +361,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const maturityDate = new Date(this.maturityDate!);
+    const maturityDate = new Date(this.maturityDate);
     let currentDate = new Date(this.investmentStartDate);
 
     let frequency;
@@ -373,6 +372,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     }
 
     while (currentDate < maturityDate) {
+      // Pick the next compounding or payout date
       let nextDate: Date;
 
       if (
@@ -387,6 +387,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       ) {
         nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
       } else {
+        // Default to yearly compounding schedule
         nextDate = DateUtils.getNextCompoundingDate(
           currentDate,
           frequency as CompoundingFrequency,
@@ -398,38 +399,45 @@ export class FixedDepositCalculatorPage implements OnInit {
         nextDate = new Date(maturityDate);
       }
 
-      // Calculate days in period
-      const daysInPeriod = DateUtils.getDifferenceInDays(nextDate, currentDate);
+      // Start interest from the day after currentDate
+      const interestStartDate = new Date(currentDate);
+      interestStartDate.setDate(interestStartDate.getDate() + 1);
 
-      // Interest calculation
-      const interestAmount =
-        (principal * annualRate * daysInPeriod) /
-        DateUtils.getDaysInYear(currentDate.getFullYear());
+      // If the start date is already at or beyond nextDate, skip just this iteration
+      if (interestStartDate >= nextDate) {
+        currentDate = nextDate;
+        // Move on
+        continue;
+      }
 
-      // For "Maturity" payout type, accumulate interest
+      // Calculate how many days in this segment
+      const daysInPeriod = DateUtils.getDifferenceInDays(
+        nextDate,
+        interestStartDate,
+      );
+
       if (this.interestPayoutType === InterestPayoutType.Maturity) {
-        // Accumulate interest
+        // For "Maturity", track total compound accumulation since the day after the initial deposit
         const totalDays = DateUtils.getDifferenceInDays(
           nextDate,
-          this.investmentStartDate,
+          new Date(this.investmentStartDate.getTime() + 24 * 60 * 60 * 1000),
         );
+
+        // Number of compounding periods per year
+        const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+
+        // Compound from the day after the deposit start
         const accumulatedAmount =
-          principal *
-          Math.pow(
-            1 +
-              annualRate /
-                DateUtils.convertFrequencyToValue(this.compoundingFrequency),
-            (DateUtils.convertFrequencyToValue(this.compoundingFrequency) *
-              totalDays) /
-              DateUtils.getDaysInYear(this.investmentStartDate.getFullYear()),
-          );
+          principal * Math.pow(1 + annualRate / n, (n * totalDays) / 365);
+
         const interestAccumulated = accumulatedAmount - principal;
         this.payoutSchedule.push({
           date: new Date(nextDate),
           interestAmount: interestAccumulated,
         });
       } else {
-        // Pro-rata interest
+        // For monthly or quarterly payouts, do pro‐rata interest
+        const interestAmount = (principal * annualRate * daysInPeriod) / 365;
         this.payoutSchedule.push({
           date: new Date(nextDate),
           interestAmount: interestAmount,
@@ -449,65 +457,60 @@ export class FixedDepositCalculatorPage implements OnInit {
   private generateYearlySummary() {
     this.yearlySummary = [];
 
-    const principal = this.depositAmount;
-    const annualRate = this.annualInterestRate / 100;
-
-    if (!this.maturityDate) {
-      this.maturityDate = DateUtils.getDepositMaturityDate(
-        this.investmentStartDate,
-        this.depositTermYears,
-        this.depositTermMonths,
-        this.depositTermDays,
-      );
+    // Make sure the payout schedule is up to date
+    if (this.payoutSchedule.length === 0) {
+      this.generatePayoutSchedule();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const maturityDate = new Date(this.maturityDate!);
+    // Sort the payout schedule by date (in case it isn’t already)
+    this.payoutSchedule.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    let currentDate = new Date(this.investmentStartDate);
-    let openingBalance = principal;
-    let yearIndex = 1;
+    // Track a running principal if interest is reinvested (Maturity mode)
+    // or a fixed principal if interest is not reinvested (Monthly/Quarterly).
+    let runningBalance = this.depositAmount;
+    // Store data for each calendar year, then push to yearlySummary once
+    // a year boundary crossed.
+    let currentYear = this.investmentStartDate.getFullYear();
+    let openingBalance = runningBalance;
+    let interestAccumulatedThisYear = 0;
 
-    // Number of compounding periods per year
-    const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
-
-    while (currentDate < maturityDate) {
-      const nextYearDate = new Date(currentDate);
-      nextYearDate.setFullYear(nextYearDate.getFullYear() + 1);
-
-      if (nextYearDate > maturityDate) {
-        nextYearDate.setTime(maturityDate.getTime());
-      }
-
-      // How many days in this "yearly" period
-      const daysInPeriod = DateUtils.getDifferenceInDays(
-        nextYearDate,
-        currentDate,
-      );
-      const fractionOfYear =
-        daysInPeriod / DateUtils.getDaysInYear(currentDate.getFullYear());
-
-      // Compound the balance for fractionOfYear
-      const newBalance =
-        openingBalance * Math.pow(1 + annualRate / n, n * fractionOfYear);
-      const interestForPeriod = newBalance - openingBalance;
-
+    // Helper to finalize a year’s summary (when the next payout crosses into a new year)
+    const finalizeYear = () => {
       this.yearlySummary.push({
-        year: yearIndex,
+        year: currentYear,
         openingBalance: openingBalance,
-        interestEarned: interestForPeriod,
-        closingBalance: newBalance,
+        interestEarned: interestAccumulatedThisYear,
+        closingBalance: runningBalance,
       });
+    };
 
-      openingBalance = newBalance;
-      currentDate = nextYearDate;
-      yearIndex++;
+    // Iterate over each payout in the schedule
+    for (const payout of this.payoutSchedule) {
+      const payoutYear = payout.date.getFullYear();
 
-      if (currentDate >= maturityDate) {
-        break;
+      // While moving into a new year, finalize the old year, then reset
+      while (payoutYear > currentYear) {
+        finalizeYear();
+        currentYear++;
+        openingBalance = runningBalance;
+        interestAccumulatedThisYear = 0;
       }
+
+      // If interest is retained (Maturity mode), update running balance
+      // If interest is paid out monthly/quarterly (not reinvested),
+      // then the principal doesn’t grow through the year.
+      if (this.interestPayoutType === InterestPayoutType.Maturity) {
+        runningBalance = this.depositAmount + payout.interestAmount;
+      }
+
+      // Track interest earned this year
+      interestAccumulatedThisYear = payout.interestAmount;
     }
 
+    // At the end, finalize the last partial year
+    finalizeYear();
+
+    // Update the chart data
     this.updateYearlySummaryChartData();
   }
 
@@ -585,6 +588,8 @@ export class FixedDepositCalculatorPage implements OnInit {
           this.investmentStartDate = new Date(
             `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
           );
+
+          this.calculateMaturityAmount();
         },
       );
 

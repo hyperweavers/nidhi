@@ -6,10 +6,10 @@ export enum InterestPayoutType {
 }
 
 export enum CompoundingFrequency {
+  None = 'None',
   Monthly = 'Monthly',
   Quarterly = 'Quarterly',
   Yearly = 'Yearly',
-  None = 'None',
 }
 
 export interface YearlySummary {

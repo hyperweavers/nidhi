@@ -58,7 +58,7 @@ export class DateUtils {
     return maturityDate;
   }
 
-  static ConvertDepositTermToYears(
+  static convertDepositTermToYears(
     depositTermYears: number,
     depositTermMonths: number,
     depositTermDays = 0,
@@ -95,12 +95,6 @@ export class DateUtils {
     const diffInTime = date1.getTime() - date2.getTime();
 
     return Math.round(diffInTime / oneDay);
-  }
-
-  static getDaysInYear(year: number): number {
-    // True if the year is divisible by 400,
-    // or if it is divisible by 4 but not by 100
-    return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0) ? 366 : 365;
   }
 
   // Returns the number of full months between date1 and date2.
