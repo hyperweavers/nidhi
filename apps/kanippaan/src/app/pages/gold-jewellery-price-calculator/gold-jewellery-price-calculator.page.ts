@@ -51,8 +51,8 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
     datasets: [
       {
         ...ChartUtils.commonDoughnutChartDataset,
-        backgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
-        hoverBackgroundColor: ['#FBBF24', '#FF6384', '#7E3AF2', '#1A56DB'],
+        backgroundColor: ['#1A56DB', '#E74694', '#7E3AF2', '#FACA15'],
+        hoverBackgroundColor: ['#1A56DB', '#E74694', '#7E3AF2', '#FACA15'],
       },
     ],
   };

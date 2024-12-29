@@ -11,7 +11,7 @@ import { ChartType } from '../models/chart';
 
 export class ChartUtils {
   private static primaryColor = '#1A56DB';
-  private static secondaryColor = '#FF6384';
+  private static secondaryColor = '#E74694';
   private static componentsTextColor = '#9CA3AF';
   private static gridColor = 'rgba(156, 163, 175, 0.2)';
   private static verticalLineColor = 'rgba(156, 163, 175, 0.5)';

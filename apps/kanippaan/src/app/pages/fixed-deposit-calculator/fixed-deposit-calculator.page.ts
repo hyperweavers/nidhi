@@ -117,11 +117,11 @@ export class FixedDepositCalculatorPage implements OnInit {
     datasets: [
       {
         ...ChartUtils.barChartPrimaryDataset,
-        label: 'Interest',
+        label: 'Year-End Balance',
       },
       {
         ...ChartUtils.barChartSecondaryDataset,
-        label: 'Balance',
+        label: 'Yearly Interest',
       },
     ],
   };
@@ -149,7 +149,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     labels: [],
     datasets: [
       {
-        ...ChartUtils.barChartPrimaryDataset,
+        ...ChartUtils.barChartSecondaryDataset,
         label: 'Interest',
       },
     ],
@@ -532,10 +532,10 @@ export class FixedDepositCalculatorPage implements OnInit {
       (item) => item.year,
     );
     this.yearlySummaryChartData.datasets[0].data = this.yearlySummary.map(
-      (item) => item.interestEarned,
+      (item) => item.closingBalance,
     );
     this.yearlySummaryChartData.datasets[1].data = this.yearlySummary.map(
-      (item) => item.closingBalance,
+      (item) => item.interestEarned,
     );
 
     // Refresh the chart if needed
