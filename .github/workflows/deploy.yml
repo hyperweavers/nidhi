@@ -10,11 +10,27 @@ permissions:
   contents: write
 
 jobs:
+  detect-affected-apps:
+    runs-on: ubuntu-latest
+    outputs:
+      affected_apps: ${{ steps.set-affected.outputs.affected_apps }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: set-affected
+        run: |
+          affected=$(npx nx show projects --affected --type app --json)
+          echo "affected_apps=affected" >> $GITHUB_OUTPUT
+
   deploy:
+    needs: detect-affected-apps
+    if: needs.detect-affected-apps.outputs.affected_apps != '[]'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [kanippaan, pangu]
+        app: ${{ fromJson(needs.detect-affected-apps.outputs.affected_apps) }}
 
     steps:
       - name: Checkout
@@ -32,11 +48,11 @@ jobs:
         run: npm ci
 
       - name: Lint and Run Unit Tests
-        run: npx nx run-many -t lint test
+        run: npx nx affected --target=lint,test --parallel
 
       # Disabled e2e tests until available
       # - name: Lint and Run Unit & E2E Tests
-      #   run: npx nx run-many -t lint test e2e-ci
+      #   run: npx nx affected --target=lint,test,e2e-ci --parallel
 
       - name: Build ${{ matrix.app }} App
         run: npx nx build ${{ matrix.app }} --configuration production --base-href ./
