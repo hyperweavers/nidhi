@@ -31,7 +31,7 @@ jobs:
       - name: Detect Affected Apps
         id: affected-apps
         run: |
-          affected=$(npx --yes nx show projects --affected --type app --json)
+          affected=$(npx --yes nx show projects --affected --type app --base=main~1 --head=main --json)
           echo $affected
           echo "apps=$affected" >> $GITHUB_OUTPUT
 
