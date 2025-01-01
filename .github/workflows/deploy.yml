@@ -21,7 +21,7 @@ jobs:
 
       - id: set-affected
         run: |
-          affected=$(npx nx show projects --affected --type app --json)
+          affected=$(npx --yes nx show projects --affected --type app --json)
           echo "affected_apps=affected" >> $GITHUB_OUTPUT
 
   deploy:
