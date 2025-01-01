@@ -39,5 +39,5 @@ export interface FinancialYearSummary {
 
 export interface PayoutSchedule {
   date: Date;
-  interestAmount: number;
+  interest: number;
 }

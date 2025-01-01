@@ -398,7 +398,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     } else {
       this.maturityAmount = principal;
       this.interestEarned = this.payoutSchedule.reduce(
-        (total, payout) => total + payout.interestAmount,
+        (total, payout) => total + payout.interest,
         0,
       );
     }
@@ -484,7 +484,7 @@ export class FixedDepositCalculatorPage implements OnInit {
 
       this.payoutSchedule.push({
         date: new Date(nextDate),
-        interestAmount,
+        interest: interestAmount,
       });
 
       if (nextDate >= maturityDate) {
@@ -495,10 +495,8 @@ export class FixedDepositCalculatorPage implements OnInit {
 
     this.averagePayout =
       this.payoutSchedule.length > 0
-        ? this.payoutSchedule.reduce(
-            (acc, cv) => (acc += cv.interestAmount),
-            0,
-          ) / this.payoutSchedule.length
+        ? this.payoutSchedule.reduce((acc, cv) => (acc += cv.interest), 0) /
+          this.payoutSchedule.length
         : 0;
 
     this.payoutSchedulePage = 0;
@@ -626,8 +624,8 @@ export class FixedDepositCalculatorPage implements OnInit {
           interestAccumulatedThisYear = 0;
         }
 
-        interestAccumulatedThisYear += payout.interestAmount;
-        interestAccumulatedOverall += payout.interestAmount;
+        interestAccumulatedThisYear += payout.interest;
+        interestAccumulatedOverall += payout.interest;
         runningBalance = this.depositAmount;
       }
     }
@@ -699,7 +697,7 @@ export class FixedDepositCalculatorPage implements OnInit {
           interestAccumulatedThisYear = 0;
         }
 
-        interestAccumulatedThisYear += payout.interestAmount;
+        interestAccumulatedThisYear += payout.interest;
         runningBalance = openingBalance + interestAccumulatedThisYear;
       }
     }
