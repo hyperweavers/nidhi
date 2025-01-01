@@ -41,7 +41,7 @@ jobs:
           echo "apps=$affected" >> $GITHUB_OUTPUT
 
   deploy:
-    name: Deploy ${{ matrix.app }}
+    name: Deploy
     needs: find-affected-apps
     if: needs.find-affected-apps.outputs.apps != '[]'
     runs-on: ubuntu-latest
