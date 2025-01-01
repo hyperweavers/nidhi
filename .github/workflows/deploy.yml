@@ -1,6 +1,7 @@
 name: Deploy
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -19,9 +20,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm' # Cache node_modules
+
+      - name: Install Dependencies
+        run: npm ci
+
       - id: set-affected
         run: |
-          affected=$(npx --yes nx show projects --affected --type app --json)
+          affected=$(npx nx show projects --affected --type app --json)
           echo "affected_apps=affected" >> $GITHUB_OUTPUT
 
   deploy:
