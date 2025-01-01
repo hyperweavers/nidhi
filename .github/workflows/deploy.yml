@@ -36,6 +36,8 @@ jobs:
       - name: Detect Affected Apps
         id: affected-apps
         run: |
+          git status
+          git branch -r
           npx --yes nx show projects --affected --type app --base=main~1 --head=main --json
           affected=$(npx --yes nx show projects --affected --type app --base=main~1 --head=main --json)
           echo $affected
