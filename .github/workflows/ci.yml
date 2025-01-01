@@ -47,8 +47,8 @@ jobs:
         run: npx nx-cloud record -- nx format:check
 
       - name: Lint, Build and Run Unit Tests
-        run: npx nx affected -t lint test build
+        run: npx nx affected --target=lint,test,build --parallel
 
       # Disabled e2e tests until available
       # - name: Lint, Build and Run Unit & E2E Tests
-      #   run: npx nx affected -t lint test build e2e-ci
+      #   run: npx nx affected --target=lint,test,build,e2e-ci --parallel

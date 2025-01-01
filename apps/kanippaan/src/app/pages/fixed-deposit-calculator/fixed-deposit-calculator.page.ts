@@ -13,54 +13,38 @@ import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
+import { Flowbite } from '../../decorators/flowbite.decorator';
+import { ChartType } from '../../models/chart';
 import {
-  barChartPrimaryDataset,
-  barChartSecondaryDataset,
-  ChartType,
-  getBarChartOptions,
-  getDoughnutChartOptions,
-  principalInterestDoughnutChartDatasets,
-} from '../../utils/chart.utils';
+  AnnualSummary,
+  CompoundingFrequency,
+  CompoundingSummary,
+  FinancialYearSummary,
+  InterestPayoutType,
+  PayoutSchedule,
+} from '../../models/deposit';
+import { ChartUtils } from '../../utils/chart.utils';
+import { DateUtils } from '../../utils/date.utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
 
-enum InterestPayoutType {
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  Maturity = 'Maturity',
-}
-
-enum CompoundingFrequency {
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  HalfYearly = 'Half Yearly',
-  Yearly = 'Yearly',
-}
-
 enum Tabs {
-  YEARLY_ACCUMULATION_SCHEDULE,
-  INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE,
+  ANNUAL_SUMMARY,
+  COMPOUNDING_SUMMARY,
+  FINANCIAL_YEAR_SUMMARY,
+  PAYOUT_SCHEDULE,
 }
 
 enum Charts {
   EARNINGS,
-  YEARLY_SUMMARY,
+  ANNUAL_SUMMARY,
+  COMPOUNDING_SUMMARY,
+  FINANCIAL_YEAR_SUMMARY,
   PAYOUT_SCHEDULE,
 }
 
-interface Schedule {
-  date: Date;
-  interestAmount: number;
-}
-
-interface YearlySummary {
-  year: number;
-  openingBalance: number;
-  interestEarned: number;
-  closingBalance: number;
-}
-
+@Flowbite()
 @Component({
   selector: 'app-fixed-deposit-calculator',
   templateUrl: './fixed-deposit-calculator.page.html',
@@ -72,16 +56,22 @@ interface YearlySummary {
 export class FixedDepositCalculatorPage implements OnInit {
   @ViewChild('investmentStartDateInput', { static: true })
   private investmentStartDateInput?: ElementRef;
+
   @ViewChild('earningsChart', { read: BaseChartDirective })
   earningsChart!: BaseChartDirective;
-  @ViewChild('yearlySummaryChart', { read: BaseChartDirective })
-  yearlySummaryChart!: BaseChartDirective;
-  @ViewChild('payoutScheduleChart', { read: BaseChartDirective })
-  payoutScheduleChart!: BaseChartDirective;
-  @ViewChild('yearlySummaryChartContainer')
-  private yearlySummaryChartContainer?: ElementRef;
-  @ViewChild('payoutScheduleChartContainer')
-  private payoutScheduleChartContainer?: ElementRef;
+  @ViewChild('annualSummaryChart', { read: BaseChartDirective })
+  annualSummaryChart!: BaseChartDirective;
+  @ViewChild('compoundingSummaryChart', { read: BaseChartDirective })
+  compoundingSummaryChart!: BaseChartDirective;
+  @ViewChild('financialYearSummaryChart', { read: BaseChartDirective })
+  financialYearSummaryChart!: BaseChartDirective;
+
+  @ViewChild('annualSummaryChartContainer')
+  private annualSummaryChartContainer?: ElementRef;
+  @ViewChild('compoundingSummaryChartContainer')
+  private compoundingSummaryChartContainer?: ElementRef;
+  @ViewChild('financialYearSummaryChartContainer')
+  private financialYearSummaryChartContainer?: ElementRef;
 
   readonly pageSize = 12;
 
@@ -91,95 +81,166 @@ export class FixedDepositCalculatorPage implements OnInit {
   readonly Charts = Charts;
 
   private interestPayoutTypeValues = Object.values(InterestPayoutType);
-  compoundingFrequencyValues = Object.values(CompoundingFrequency);
+  compoundingFrequencyValues = Object.values(CompoundingFrequency).slice(1); // Exclude None
 
   depositAmount = 100000;
   annualInterestRate = 7;
-
   depositTermYears = 5;
   depositTermMonths = 0;
   depositTermDays = 0;
+  interestPayoutType: InterestPayoutType = InterestPayoutType.Maturity;
+  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly;
+  investmentStartDate: Date = new Date();
 
   maturityAmount = 0;
   interestEarned = 0;
+  maturityDate: Date | null = null;
+  effectiveYield = 0;
+  averagePayout = 0;
 
-  interestPayoutType: InterestPayoutType = InterestPayoutType.Maturity; // Default to maturity
-  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly; // Default to quarterly
+  annualSummary: AnnualSummary[] = [];
+  compoundingSummary: CompoundingSummary[] = [];
+  financialYearSummary: FinancialYearSummary[] = [];
+  payoutSchedule: PayoutSchedule[] = [];
 
-  investmentStartDate: Date = new Date(); // Default to today's date
-  maturityDate: Date | null = null; // Initialize as null
+  private financialYearStartMonth = 3; // Default to April
 
+  activeTab: Tabs = Tabs.ANNUAL_SUMMARY;
+
+  compoundingSummaryPage = 0;
   payoutSchedulePage = 0;
-
-  payoutSchedule: Schedule[] = [];
-  yearlySummary: YearlySummary[] = [];
-
-  activeTab: Tabs = Tabs.YEARLY_ACCUMULATION_SCHEDULE;
 
   isChartInFullscreen = false;
 
   depositChartData: ChartData<ChartType.DOUGHNUT, number[], string | string[]> =
     {
       labels: ['Principal', 'Interest'],
-      datasets: principalInterestDoughnutChartDatasets,
+      datasets: [
+        {
+          ...ChartUtils.defaultDoughnutChartDataset,
+          ...ChartUtils.getDoughnutChartColors([
+            ChartUtils.colorBlue,
+            ChartUtils.colorGreen,
+          ]),
+        },
+      ],
     };
 
   depositChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    getDoughnutChartOptions((context): string => {
+    ChartUtils.getDoughnutChartOptions((context): string => {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 
-  yearlySummaryChartData: ChartData<ChartType.BAR> = {
+  annualSummaryChartData: ChartData<ChartType.BAR> = {
     labels: [],
     datasets: [
       {
-        ...barChartPrimaryDataset,
-        label: 'Interest',
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorBlue),
+        label: 'Principal',
       },
       {
-        ...barChartSecondaryDataset,
-        label: 'Balance',
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Compounded Interest',
+      },
+      {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorYellow),
+        label: 'Annual Interest',
       },
     ],
   };
 
-  yearlySummaryChartOptions: ChartConfiguration['options'] = getBarChartOptions(
-    'Year',
-    'Interest',
-    true,
-    true,
-    (context): string => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+  annualSummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Year',
+      'Amount',
+      true,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-        : '';
-    },
-    (tooltipItems): string => {
-      return tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '';
-    },
-  );
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string => {
+        return tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '';
+      },
+      (tooltipItems): string => {
+        return tooltipItems.length > 0
+          ? `Total Interest: ${
+              this.decimalPipe.transform(
+                tooltipItems.reduce(
+                  (acc, cv) => (acc += cv?.parsed?.y || 0),
+                  0,
+                ) - this.depositAmount,
+                '1.0-0',
+              ) || ''
+            }`
+          : '';
+      },
+    );
 
-  payoutScheduleChartData: ChartData<ChartType.BAR> = {
+  compoundingSummaryChartData: ChartData<ChartType.BAR> = {
     labels: [],
     datasets: [
       {
-        ...barChartPrimaryDataset,
-        label: 'Interest',
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Interest Earned',
       },
     ],
   };
 
-  payoutScheduleChartOptions: ChartConfiguration['options'] =
-    getBarChartOptions('Month', 'Interest', false, true, (context): string => {
-      const label = context.dataset.label || '';
-      const value = context.parsed.y;
+  compoundingSummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Month',
+      'Amount',
+      false,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
 
-      return label && value
-        ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-        : '';
-    });
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string =>
+        tooltipItems[0]?.label ? `Month: ${tooltipItems[0].label}` : '',
+    );
+
+  financialYearSummaryChartData: ChartData<ChartType.BAR> = {
+    labels: [],
+    datasets: [
+      {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Interest Earned',
+      },
+    ],
+  };
+
+  financialYearSummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Financial Year',
+      'Amount',
+      true,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
+
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string =>
+        tooltipItems[0]?.label ? `FY: ${tooltipItems[0].label}` : '',
+    );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
@@ -199,15 +260,12 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   @HostListener('window:fullscreenchange')
   onFullscreenChange() {
-    if (this.document.fullscreenElement) {
-      this.isChartInFullscreen = true;
-    } else {
-      this.isChartInFullscreen = false;
-    }
+    this.isChartInFullscreen = !!this.document.fullscreenElement;
   }
 
   onInvestmentStartDateChange(dateString: string) {
     this.investmentStartDate = new Date(dateString);
+
     this.calculateMaturityAmount();
   }
 
@@ -216,23 +274,16 @@ export class FixedDepositCalculatorPage implements OnInit {
     if (!availablePayoutTypes.includes(this.interestPayoutType)) {
       this.interestPayoutType = InterestPayoutType.Maturity;
     }
-    this.calculateMaturityAmount();
-  }
-
-  onInterestPayoutTypeChange() {
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
-      this.activeTab = Tabs.YEARLY_ACCUMULATION_SCHEDULE;
-    } else {
-      this.activeTab = Tabs.INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE;
-    }
 
     this.calculateMaturityAmount();
   }
 
   getAvailableInterestPayoutTypes(): InterestPayoutType[] {
-    const compoundingValue = this.getFrequencyValue(this.compoundingFrequency);
+    const compoundingValue = DateUtils.convertFrequencyToValue(
+      this.compoundingFrequency,
+    );
     return this.interestPayoutTypeValues.filter((payoutType) => {
-      const payoutValue = this.getFrequencyValue(payoutType);
+      const payoutValue = DateUtils.convertFrequencyToValue(payoutType);
       return (
         payoutValue <= compoundingValue ||
         payoutType === InterestPayoutType.Maturity
@@ -251,14 +302,19 @@ export class FixedDepositCalculatorPage implements OnInit {
       let container: ElementRef | undefined;
 
       switch (chart) {
-        case Charts.YEARLY_SUMMARY:
-          container = this.yearlySummaryChartContainer;
+        case Charts.ANNUAL_SUMMARY:
+          container = this.annualSummaryChartContainer;
+          break;
+
+        case Charts.COMPOUNDING_SUMMARY:
+          container = this.compoundingSummaryChartContainer;
+          break;
+
+        case Charts.FINANCIAL_YEAR_SUMMARY:
+          container = this.financialYearSummaryChartContainer;
           break;
 
         case Charts.PAYOUT_SCHEDULE:
-          container = this.payoutScheduleChartContainer;
-          break;
-
         case Charts.EARNINGS:
         default:
           return;
@@ -291,72 +347,89 @@ export class FixedDepositCalculatorPage implements OnInit {
   calculateMaturityAmount() {
     const principal = this.depositAmount;
 
-    // Convert deposit term to years
-    const timeInYears = this.getTimeInYears();
+    const timeInYears = DateUtils.convertDepositTermToYears(
+      this.depositTermYears,
+      this.depositTermMonths,
+      this.depositTermDays,
+    );
 
+    // Reset values if invalid input
     if (timeInYears <= 0 || !this.investmentStartDate) {
-      // Reset values if invalid input
       this.maturityAmount = 0;
       this.interestEarned = 0;
       this.maturityDate = null;
+      this.effectiveYield = 0;
+      this.averagePayout = 0;
+      this.annualSummary = [];
+      this.compoundingSummary = [];
+      this.financialYearSummary = [];
       this.payoutSchedule = [];
       return;
     }
 
-    // Calculate maturity date
-    this.calculateMaturityDate();
-
-    // Generate the payout schedule
-    this.generatePayoutSchedule();
+    this.maturityDate = DateUtils.getDepositMaturityDate(
+      this.investmentStartDate,
+      this.depositTermYears,
+      this.depositTermMonths,
+      this.depositTermDays,
+    );
 
     if (this.interestPayoutType === InterestPayoutType.Maturity) {
-      // Ensure the schedule has just been generated
-      if (this.payoutSchedule.length > 0) {
-        const lastEntry = this.payoutSchedule[this.payoutSchedule.length - 1];
-        // The schedule’s lastEntry.interestAmount is the accumulated interest so far
-        const accumulatedInterest = lastEntry.interestAmount;
-        this.maturityAmount = principal + accumulatedInterest;
-        this.interestEarned = accumulatedInterest;
+      this.payoutSchedule = [];
+      this.averagePayout = 0;
+
+      this.generateCompoundingSummary(principal);
+    } else {
+      this.compoundingSummary = [];
+
+      this.generatePayoutSchedule(principal);
+    }
+
+    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+      if (this.compoundingSummary.length > 0) {
+        const lastEntry =
+          this.compoundingSummary[this.compoundingSummary.length - 1];
+        this.maturityAmount = lastEntry.closingBalance;
+        this.interestEarned = lastEntry.closingBalance - this.depositAmount;
       } else {
-        // Fallback if somehow there is no payout schedule
         this.maturityAmount = principal;
         this.interestEarned = 0;
       }
     } else {
-      // The existing block for monthly/quarterly payouts remains as is
       this.maturityAmount = principal;
       this.interestEarned = this.payoutSchedule.reduce(
-        (total, payout) => total + payout.interestAmount,
+        (total, payout) => total + payout.interest,
         0,
       );
     }
 
-    // If the total tenure is more than 1 year, generate the yearly summary
-    if (
-      this.interestPayoutType === InterestPayoutType.Maturity &&
-      timeInYears > 1
-    ) {
-      this.generateYearlySummary();
+    if (this.maturityAmount > 0 && principal > 0 && timeInYears > 0) {
+      // Simple interest rate that would yield the same total interest
+      // over the same time period:
+      this.effectiveYield =
+        (this.interestEarned / (principal * timeInYears)) * 100;
     } else {
-      this.yearlySummary = [];
+      this.effectiveYield = 0;
     }
 
-    // Update the chart data
-    this.updateChartData();
+    this.generateAnnualSummary();
+    this.generateFinancialYearSummary();
+
+    this.activeTab = Tabs.ANNUAL_SUMMARY;
+
+    this.updateEarningsChartData();
   }
 
-  private generatePayoutSchedule() {
+  private generatePayoutSchedule(principal: number) {
     this.payoutSchedule = [];
-    const principal = this.depositAmount;
-    const annualRate = this.annualInterestRate / 100;
+    this.averagePayout = 0;
 
-    // Ensure maturity date is calculated
     if (!this.maturityDate) {
-      this.calculateMaturityDate();
+      return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const maturityDate = new Date(this.maturityDate!);
+    const annualRate = this.annualInterestRate / 100;
+    const maturityDate = new Date(this.maturityDate);
     let currentDate = new Date(this.investmentStartDate);
 
     let frequency;
@@ -368,7 +441,6 @@ export class FixedDepositCalculatorPage implements OnInit {
 
     while (currentDate < maturityDate) {
       let nextDate: Date;
-
       if (
         frequency === InterestPayoutType.Monthly ||
         frequency === CompoundingFrequency.Monthly
@@ -379,268 +451,358 @@ export class FixedDepositCalculatorPage implements OnInit {
         frequency === InterestPayoutType.Quarterly ||
         frequency === CompoundingFrequency.Quarterly
       ) {
-        nextDate = this.getNextFinancialQuarterDate(currentDate);
+        nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
       } else {
-        nextDate = this.getNextCompoundingDate(
+        // Default to yearly compounding frequency
+        nextDate = DateUtils.getNextCompoundingDate(
           currentDate,
           frequency as CompoundingFrequency,
         );
       }
 
-      // Ensure nextDate does not exceed maturityDate
       if (nextDate > maturityDate) {
         nextDate = new Date(maturityDate);
       }
 
-      // Calculate days in period
-      const daysInPeriod = this.differenceInDays(nextDate, currentDate);
+      const interestStartDate = new Date(currentDate);
+      interestStartDate.setDate(interestStartDate.getDate() + 1);
 
-      // Interest calculation
-      const interestAmount =
-        (principal * annualRate * daysInPeriod) /
-        this.getDaysInYear(currentDate.getFullYear());
-
-      // For "Maturity" payout type, accumulate interest
-      if (this.interestPayoutType === InterestPayoutType.Maturity) {
-        // Accumulate interest
-        const totalDays = this.differenceInDays(
-          nextDate,
-          this.investmentStartDate,
-        );
-        const accumulatedAmount =
-          principal *
-          Math.pow(
-            1 + annualRate / this.getFrequencyValue(this.compoundingFrequency),
-            (this.getFrequencyValue(this.compoundingFrequency) * totalDays) /
-              this.getDaysInYear(this.investmentStartDate.getFullYear()),
-          );
-        const interestAccumulated = accumulatedAmount - principal;
-        this.payoutSchedule.push({
-          date: new Date(nextDate),
-          interestAmount: interestAccumulated,
-        });
-      } else {
-        // Pro-rata interest
-        this.payoutSchedule.push({
-          date: new Date(nextDate),
-          interestAmount: interestAmount,
-        });
+      if (interestStartDate >= nextDate) {
+        currentDate = nextDate;
+        continue;
       }
+
+      const totalDays = DateUtils.getDifferenceInDays(
+        new Date(nextDate.getTime() + 24 * 60 * 60 * 1000),
+        interestStartDate,
+      );
+
+      const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+      const closingBalance =
+        principal * Math.pow(1 + annualRate / n, (n * totalDays) / 365);
+      const interestAmount = closingBalance - principal;
+
+      this.payoutSchedule.push({
+        date: new Date(nextDate),
+        interest: interestAmount,
+      });
 
       if (nextDate >= maturityDate) {
         break;
       }
-
       currentDate = nextDate;
     }
 
-    this.updatePayoutScheduleChart();
+    this.averagePayout =
+      this.payoutSchedule.length > 0
+        ? this.payoutSchedule.reduce((acc, cv) => (acc += cv.interest), 0) /
+          this.payoutSchedule.length
+        : 0;
+
+    this.payoutSchedulePage = 0;
   }
 
-  private generateYearlySummary() {
-    this.yearlySummary = [];
-
-    const principal = this.depositAmount;
-    const annualRate = this.annualInterestRate / 100;
+  private generateCompoundingSummary(principal: number) {
+    this.compoundingSummary = [];
 
     if (!this.maturityDate) {
-      this.calculateMaturityDate();
+      return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const maturityDate = new Date(this.maturityDate!);
-
+    const annualRate = this.annualInterestRate / 100;
+    const maturityDate = new Date(this.maturityDate);
     let currentDate = new Date(this.investmentStartDate);
-    let openingBalance = principal;
-    let yearIndex = 1;
 
-    // Number of compounding periods per year
-    const n = this.getFrequencyValue(this.compoundingFrequency);
+    let currentBalance = principal;
 
     while (currentDate < maturityDate) {
-      const nextYearDate = new Date(currentDate);
-      nextYearDate.setFullYear(nextYearDate.getFullYear() + 1);
-
-      if (nextYearDate > maturityDate) {
-        nextYearDate.setTime(maturityDate.getTime());
+      let nextDate: Date;
+      if (this.compoundingFrequency === CompoundingFrequency.Monthly) {
+        nextDate = new Date(currentDate);
+        nextDate.setMonth(nextDate.getMonth() + 1);
+      } else if (this.compoundingFrequency === CompoundingFrequency.Quarterly) {
+        nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
+      } else {
+        nextDate = DateUtils.getNextCompoundingDate(
+          currentDate,
+          this.compoundingFrequency,
+        );
       }
 
-      // How many days in this "yearly" period
-      const daysInPeriod = this.differenceInDays(nextYearDate, currentDate);
-      const fractionOfYear =
-        daysInPeriod / this.getDaysInYear(currentDate.getFullYear());
+      if (nextDate > maturityDate) {
+        nextDate = new Date(maturityDate);
+      }
 
-      // Compound the balance for fractionOfYear
-      const newBalance =
-        openingBalance * Math.pow(1 + annualRate / n, n * fractionOfYear);
-      const interestForPeriod = newBalance - openingBalance;
+      const interestStartDate = new Date(currentDate);
+      interestStartDate.setDate(interestStartDate.getDate() + 1);
 
-      this.yearlySummary.push({
-        year: yearIndex,
-        openingBalance: openingBalance,
-        interestEarned: interestForPeriod,
-        closingBalance: newBalance,
+      if (interestStartDate >= nextDate) {
+        currentDate = nextDate;
+        continue;
+      }
+
+      const totalDays = DateUtils.getDifferenceInDays(
+        nextDate,
+        new Date(this.investmentStartDate.getTime() + 24 * 60 * 60 * 1000),
+      );
+
+      const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+      const closingBalance =
+        principal * Math.pow(1 + annualRate / n, (n * totalDays) / 365);
+      const interestEarned = closingBalance - currentBalance;
+
+      this.compoundingSummary.push({
+        date: nextDate,
+        openingBalance: currentBalance,
+        amountDeposited: this.depositAmount,
+        interestEarned,
+        closingBalance,
       });
 
-      openingBalance = newBalance;
-      currentDate = nextYearDate;
-      yearIndex++;
+      currentBalance = closingBalance;
+      currentDate = nextDate;
 
-      if (currentDate >= maturityDate) {
+      if (nextDate >= maturityDate) {
         break;
       }
     }
 
-    this.updateYearlySummaryChartData();
+    this.compoundingSummaryPage = 0;
+
+    this.updateCompoundingSummaryChartData();
   }
 
-  private getNextFinancialQuarterDate(date: Date): Date {
-    const year = date.getFullYear();
+  private generateAnnualSummary() {
+    this.annualSummary = [];
 
-    // End dates of financial quarters: Mar 31, Jun 30, Sep 30, Dec 31
-    const quarterEndDates = [
-      new Date(year, 2, 31), // March 31
-      new Date(year, 5, 30), // June 30
-      new Date(year, 8, 30), // September 30
-      new Date(year, 11, 31), // December 31
-    ];
+    let runningBalance = this.depositAmount;
+    let currentYear = this.investmentStartDate.getFullYear();
+    let openingBalance = runningBalance;
+    let interestAccumulatedThisYear = 0;
+    let interestAccumulatedOverall = 0;
 
-    for (const quarterEnd of quarterEndDates) {
-      if (date < quarterEnd) {
-        return quarterEnd;
+    const finalizeYear = () => {
+      this.annualSummary.push({
+        year: currentYear,
+        yearlyInterestEarned: interestAccumulatedThisYear,
+        totalInterestEarned: interestAccumulatedOverall,
+        totalDeposits: this.depositAmount,
+        openingBalance:
+          this.interestPayoutType === InterestPayoutType.Maturity
+            ? openingBalance
+            : this.depositAmount,
+        closingBalance:
+          this.interestPayoutType === InterestPayoutType.Maturity
+            ? runningBalance
+            : this.depositAmount,
+      });
+    };
+
+    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+      for (const summary of this.compoundingSummary) {
+        const payoutYear = summary.date.getFullYear();
+
+        if (payoutYear > currentYear) {
+          finalizeYear();
+          currentYear++;
+          openingBalance = runningBalance;
+          interestAccumulatedThisYear = 0;
+        }
+
+        interestAccumulatedThisYear += summary.interestEarned;
+        interestAccumulatedOverall += summary.interestEarned;
+        runningBalance = openingBalance + interestAccumulatedThisYear;
+      }
+    } else {
+      for (const payout of this.payoutSchedule) {
+        const payoutYear = payout.date.getFullYear();
+
+        if (payoutYear > currentYear) {
+          finalizeYear();
+          currentYear++;
+          openingBalance = this.depositAmount;
+          interestAccumulatedThisYear = 0;
+        }
+
+        interestAccumulatedThisYear += payout.interest;
+        interestAccumulatedOverall += payout.interest;
+        runningBalance = this.depositAmount;
       }
     }
 
-    // If the current date is after Dec 31, jump to the next year's Mar 31
-    return new Date(year + 1, 2, 31);
+    finalizeYear();
+
+    this.updateAnnualSummaryChartData();
   }
 
-  private getNextCompoundingDate(
-    date: Date,
-    frequency: CompoundingFrequency | InterestPayoutType,
-  ): Date {
-    let nextDate = new Date(date);
+  private generateFinancialYearSummary() {
+    this.financialYearSummary = [];
 
-    if (
-      frequency === CompoundingFrequency.Monthly ||
-      frequency === InterestPayoutType.Monthly
-    ) {
-      nextDate.setMonth(nextDate.getMonth() + 1);
-    } else if (
-      frequency === CompoundingFrequency.Quarterly ||
-      frequency === InterestPayoutType.Quarterly
-    ) {
-      nextDate = this.getNextFinancialQuarterDate(nextDate);
-    } else if (frequency === CompoundingFrequency.HalfYearly) {
-      nextDate.setMonth(nextDate.getMonth() + 6);
-    } else if (frequency === CompoundingFrequency.Yearly) {
-      nextDate.setFullYear(nextDate.getFullYear() + 1);
+    let runningBalance = this.depositAmount;
+    let fyStartDate = new Date(
+      this.investmentStartDate.getFullYear(),
+      this.financialYearStartMonth,
+      1,
+    );
+    let fyEndDate = new Date(
+      fyStartDate.getFullYear() + 1,
+      this.financialYearStartMonth - 1,
+      31,
+    );
+    let openingBalance = runningBalance;
+    let interestAccumulatedThisYear = 0;
+
+    const finalizeYear = () => {
+      this.financialYearSummary.push({
+        financialYearLabel: `${fyStartDate.getFullYear().toString().slice(-2)}-${fyEndDate.getFullYear().toString().slice(-2)}`,
+        openingBalance,
+        amountDeposited: this.depositAmount,
+        interestEarned: interestAccumulatedThisYear,
+        closingBalance: runningBalance,
+      });
+    };
+
+    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+      for (const summary of this.compoundingSummary) {
+        const payoutDate = new Date(summary.date);
+
+        if (payoutDate > fyEndDate) {
+          finalizeYear();
+          fyStartDate = new Date(fyEndDate);
+          fyEndDate = new Date(
+            fyStartDate.getFullYear() + 1,
+            this.financialYearStartMonth - 1,
+            31,
+          );
+          openingBalance = runningBalance;
+          interestAccumulatedThisYear = 0;
+        }
+
+        interestAccumulatedThisYear += summary.interestEarned;
+        runningBalance = openingBalance + interestAccumulatedThisYear;
+      }
     } else {
-      // Default to yearly if frequency is unrecognized
-      nextDate.setFullYear(nextDate.getFullYear() + 1);
+      for (const payout of this.payoutSchedule) {
+        const payoutDate = new Date(payout.date);
+
+        if (payoutDate > fyEndDate) {
+          finalizeYear();
+          fyStartDate = new Date(fyEndDate);
+          fyEndDate = new Date(
+            fyStartDate.getFullYear() + 1,
+            this.financialYearStartMonth - 1,
+            31,
+          );
+          openingBalance = runningBalance;
+          interestAccumulatedThisYear = 0;
+        }
+
+        interestAccumulatedThisYear += payout.interest;
+        runningBalance = openingBalance + interestAccumulatedThisYear;
+      }
     }
 
-    return nextDate;
+    finalizeYear();
+
+    this.updateFinancialYearSummaryChartData();
   }
 
-  private calculateMaturityDate() {
-    this.maturityDate = new Date(this.investmentStartDate);
-    this.maturityDate.setFullYear(
-      this.maturityDate.getFullYear() + this.depositTermYears,
-    );
-    this.maturityDate.setMonth(
-      this.maturityDate.getMonth() + this.depositTermMonths,
-    );
-    this.maturityDate.setDate(
-      this.maturityDate.getDate() + this.depositTermDays,
-    );
-  }
-
-  private getTimeInYears(): number {
-    const years = this.depositTermYears || 0;
-    const months = this.depositTermMonths || 0;
-    const days = this.depositTermDays || 0;
-
-    return years + months / 12 + days / 365;
-  }
-
-  private getFrequencyValue(
-    frequency: InterestPayoutType | CompoundingFrequency,
-  ): number {
-    switch (frequency) {
-      case InterestPayoutType.Monthly:
-      case CompoundingFrequency.Monthly:
-        return 12;
-      case InterestPayoutType.Quarterly:
-      case CompoundingFrequency.Quarterly:
-        return 4;
-      case CompoundingFrequency.HalfYearly:
-        return 2;
-      case CompoundingFrequency.Yearly:
-        return 1;
-      case InterestPayoutType.Maturity:
-        return 1; // Treated as a single payout
-      default:
-        return 1;
-    }
-  }
-
-  private differenceInDays(date1: Date, date2: Date): number {
-    const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
-    const diffInTime = date1.getTime() - date2.getTime();
-    return Math.round(diffInTime / oneDay);
-  }
-
-  private getDaysInYear(year: number): number {
-    // True if the year is divisible by 400,
-    // or if it is divisible by 4 but not by 100
-    return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0) ? 366 : 365;
-  }
-
-  // Update chart data
-  private updateChartData() {
+  private updateEarningsChartData() {
     this.depositChartData.datasets[0].data = [
       Math.floor(this.depositAmount),
       Math.floor(this.interestEarned),
     ];
-
-    // Refresh the chart
     if (this.earningsChart) {
       this.earningsChart.update();
     }
   }
 
-  private updateYearlySummaryChartData() {
-    this.yearlySummaryChartData.labels = this.yearlySummary.map(
+  private updateAnnualSummaryChartData() {
+    this.annualSummaryChartData.labels = this.annualSummary.map(
       (item) => item.year,
     );
-    this.yearlySummaryChartData.datasets[0].data = this.yearlySummary.map(
-      (item) => item.interestEarned,
-    );
-    this.yearlySummaryChartData.datasets[1].data = this.yearlySummary.map(
-      (item) => item.closingBalance,
-    );
+    this.annualSummaryChartData.datasets[0].data = new Array(
+      this.annualSummary.length,
+    ).fill(this.depositAmount);
 
-    // Refresh the chart if needed
-    if (this.yearlySummaryChart) {
-      this.yearlySummaryChart.update();
+    if (this.annualSummaryChartData.datasets.length === 2) {
+      this.annualSummaryChartData.datasets[2] =
+        this.annualSummaryChartData.datasets[1];
+      this.annualSummaryChartData.datasets[1] = {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Compounded Interest',
+      };
+    }
+
+    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+      this.annualSummaryChartData.datasets[1].data = this.annualSummary.map(
+        (item) => item.openingBalance - this.depositAmount,
+      );
+      this.annualSummaryChartData.datasets[2].data = this.annualSummary.map(
+        (item) => item.closingBalance - item.openingBalance,
+      );
+    } else {
+      if (
+        this.interestPayoutType.toString() !==
+        this.compoundingFrequency.toString()
+      ) {
+        this.annualSummaryChartData.datasets[1].data = this.annualSummary.map(
+          (item) => {
+            const compoundingFrequencyPerAnnum =
+              DateUtils.convertFrequencyToValue(this.compoundingFrequency) || 1;
+
+            return (
+              (compoundingFrequencyPerAnnum - 1) *
+              (item.yearlyInterestEarned / compoundingFrequencyPerAnnum)
+            );
+          },
+        );
+        this.annualSummaryChartData.datasets[2].data = this.annualSummary.map(
+          (item) =>
+            item.yearlyInterestEarned /
+            (DateUtils.convertFrequencyToValue(this.compoundingFrequency) || 1),
+        );
+      } else {
+        this.annualSummaryChartData.datasets[1].data = [];
+        this.annualSummaryChartData.datasets[2].data = this.annualSummary.map(
+          (item) => item.yearlyInterestEarned,
+        );
+      }
+    }
+
+    this.annualSummaryChartData.datasets =
+      this.annualSummaryChartData.datasets.filter((ds) => ds.data.length > 0);
+
+    if (this.annualSummaryChart) {
+      this.annualSummaryChart.update();
     }
   }
 
-  private updatePayoutScheduleChart() {
-    const labels = this.payoutSchedule.map((payout) =>
-      this.datePipe.transform(payout.date, 'MMM yy'),
+  private updateCompoundingSummaryChartData() {
+    this.compoundingSummaryChartData.labels = this.compoundingSummary.map(
+      (item) => this.datePipe.transform(item.date, 'MMM yy'),
     );
-    const payoutData = this.payoutSchedule.map(
-      (payout) => payout.interestAmount,
+    this.compoundingSummaryChartData.datasets[0].data =
+      this.compoundingSummary.map(
+        (item) => item.openingBalance - this.depositAmount,
+      );
+
+    if (this.compoundingSummaryChart) {
+      this.compoundingSummaryChart.update();
+    }
+  }
+
+  private updateFinancialYearSummaryChartData(): void {
+    this.financialYearSummaryChartData.labels = this.financialYearSummary.map(
+      (item) => item.financialYearLabel,
     );
 
-    this.payoutScheduleChartData.labels = labels;
-    this.payoutScheduleChartData.datasets[0].data = payoutData;
+    this.financialYearSummaryChartData.datasets[0].data =
+      this.financialYearSummary.map((item) => item.interestEarned);
 
-    // Refresh the chart
-    if (this.payoutScheduleChart) {
-      this.payoutScheduleChart.update();
+    if (this.financialYearSummaryChart) {
+      this.financialYearSummaryChart.update();
     }
   }
 
@@ -667,10 +829,10 @@ export class FixedDepositCalculatorPage implements OnInit {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {
           const dateFragments = e.target.value.split('/');
-
           this.investmentStartDate = new Date(
             `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
           );
+          this.calculateMaturityAmount();
         },
       );
 
