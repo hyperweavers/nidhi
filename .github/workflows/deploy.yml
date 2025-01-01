@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   find-affected-apps:
+    name: Find Affected Apps
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.affected-apps.outputs.apps }}
@@ -36,11 +37,11 @@ jobs:
       - name: Detect Affected Apps
         id: affected-apps
         run: |
-          affected=$(npx --yes nx show projects --affected --type app --base=origin/main~3 --head=origin/main --json)
-          echo $affected
+          affected=$(npx --yes nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json)
           echo "apps=$affected" >> $GITHUB_OUTPUT
 
   deploy:
+    name: Deploy ${{ matrix.app }}
     needs: find-affected-apps
     if: needs.find-affected-apps.outputs.apps != '[]'
     runs-on: ubuntu-latest
