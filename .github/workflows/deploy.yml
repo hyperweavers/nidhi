@@ -21,27 +21,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm' # Cache node_modules
+      # - name: Setup Node.js Environment
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version-file: '.nvmrc'
+      #     cache: 'npm' # Cache node_modules
 
-      - name: Install Dependencies
-        run: npm ci
+      # - name: Install Dependencies
+      #   run: npm ci
 
-      - if: github.ref != 'refs/heads/main'
-        run: git rev-parse --verify main || git remote set-branches origin main && git fetch --depth 1 origin main && git branch main origin/main
+      - name: Set NX SHAs
+        uses: nrwl/nx-set-shas@v4
+
+      # - if: github.ref != 'refs/heads/main'
+      #   run: git rev-parse --verify main || git remote set-branches origin main && git fetch --depth 1 origin main && git branch main origin/main
 
       - name: Detect Affected Apps
         id: affected-apps
         run: |
-          git status
-          git branch -r
+          # git status
+          # git branch -r
           npx --yes nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json
-          affected=$(npx --yes nx show projects --affected --type app --base=main~1 --head=main --json)
-          echo $affected
-          echo "apps=$affected" >> $GITHUB_OUTPUT
+          # affected=$(npx --yes nx show projects --affected --type app --base=main~1 --head=main --json)
+          # echo $affected
+          # echo "apps=$affected" >> $GITHUB_OUTPUT
 
   deploy:
     needs: find-affected-apps
