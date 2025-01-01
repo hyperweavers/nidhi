@@ -1,7 +1,6 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,12 +10,14 @@ permissions:
   contents: write
 
 jobs:
-  detect-affected-apps:
+  find-affected-apps:
+    name: Find Affected Apps
     runs-on: ubuntu-latest
     outputs:
-      affected_apps: ${{ steps.set-affected.outputs.affected_apps }}
+      apps: ${{ steps.affected-apps.outputs.apps }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -29,24 +30,27 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - id: set-affected
+      - name: Set NX SHAs
+        uses: nrwl/nx-set-shas@v4
+
+      - name: Detect Affected Apps
+        id: affected-apps
         run: |
-          affected=$(npx nx show projects --affected --type app --json)
-          echo "affected_apps=affected" >> $GITHUB_OUTPUT
+          affected=$(npx --yes nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json)
+          echo "apps=$affected" >> $GITHUB_OUTPUT
 
   deploy:
-    needs: detect-affected-apps
-    if: needs.detect-affected-apps.outputs.affected_apps != '[]'
+    name: Deploy
+    needs: find-affected-apps
+    if: needs.find-affected-apps.outputs.apps != '[]'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: ${{ fromJson(needs.detect-affected-apps.outputs.affected_apps) }}
+        app: ${{ fromJson(needs.find-affected-apps.outputs.apps) }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
