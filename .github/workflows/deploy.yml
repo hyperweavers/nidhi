@@ -38,7 +38,7 @@ jobs:
         run: |
           git status
           git branch -r
-          npx --yes nx show projects --affected --type app --base=main~1 --head=main --json
+          npx --yes nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json
           affected=$(npx --yes nx show projects --affected --type app --base=main~1 --head=main --json)
           echo $affected
           echo "apps=$affected" >> $GITHUB_OUTPUT
