@@ -305,7 +305,7 @@
                 class="absolute -top-5 left-0 flex h-full w-full flex-col items-center justify-center"
               >
                 <div class="text-2xl font-bold text-black dark:text-white">
-                  {{ maturityAmount | number:'1.0-0' }}
+                  {{ (depositAmount + interestEarned) | number:'1.0-0' }}
                 </div>
                 <div>Total</div>
               </div>
