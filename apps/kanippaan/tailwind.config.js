@@ -16,7 +16,7 @@ module.exports = {
       sans: ['Inter', 'ui-sans-serif', 'system-ui'],
     },
     colors: {
-      primary: colors.indigo,
+      primary: colors.pink,
     },
     extend: {},
   },

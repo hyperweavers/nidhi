@@ -76,7 +76,7 @@ export class LoanEmiCalculatorPage implements OnInit {
   interestRateType: InterestRateType = InterestRateType.FLOATING;
   loanStartDate: Date = new Date();
   emiDebitDay = 5;
-  financialYearStartMonth = 4; // Default to April
+  private financialYearStartMonth = 3; // Default to April
 
   monthlyPayment = 0;
   amortizationSchedule: Amortization[] = [];
@@ -111,7 +111,15 @@ export class LoanEmiCalculatorPage implements OnInit {
     string | string[]
   > = {
     labels: ['Principal', 'Interest'],
-    datasets: ChartUtils.doughnutChartDualDatasets,
+    datasets: [
+      {
+        ...ChartUtils.defaultDoughnutChartDataset,
+        ...ChartUtils.getDoughnutChartColors([
+          ChartUtils.colorBlue,
+          ChartUtils.colorYellow,
+        ]),
+      },
+    ],
   };
 
   paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
@@ -123,11 +131,13 @@ export class LoanEmiCalculatorPage implements OnInit {
     labels: [],
     datasets: [
       {
-        ...ChartUtils.lineChartPrimaryDataset,
+        ...ChartUtils.defaultLineChartDataset,
+        ...ChartUtils.getLineChartColor(ChartUtils.colorBlue),
         label: 'Principal',
       },
       {
-        ...ChartUtils.lineChartSecondaryDataset,
+        ...ChartUtils.defaultLineChartDataset,
+        ...ChartUtils.getLineChartColor(ChartUtils.colorYellow),
         label: 'Interest',
       },
     ],
@@ -155,7 +165,8 @@ export class LoanEmiCalculatorPage implements OnInit {
     labels: [],
     datasets: [
       {
-        ...ChartUtils.lineChartPrimaryDataset,
+        ...ChartUtils.defaultLineChartDataset,
+        ...ChartUtils.getLineChartColor(ChartUtils.colorPurple),
         label: 'Interest Rate',
       },
     ],
@@ -370,7 +381,7 @@ export class LoanEmiCalculatorPage implements OnInit {
         // Determine the relevant financial year for pre-EMI interest
         const fyStartDate = new Date(
           preEmiDate.getFullYear(),
-          this.financialYearStartMonth - 1,
+          this.financialYearStartMonth,
           1,
         );
         if (preEmiDate < fyStartDate) {
@@ -461,7 +472,7 @@ export class LoanEmiCalculatorPage implements OnInit {
         const prepaymentDate = new Date(paymentDate); // Prepayment occurs on payment date
         const prepaymentFyStartDate = new Date(
           prepaymentDate.getFullYear(),
-          this.financialYearStartMonth - 1,
+          this.financialYearStartMonth,
           1,
         );
         if (prepaymentDate < prepaymentFyStartDate) {
@@ -528,7 +539,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       // Determine the financial year for the current payment
       const fyStartDate = new Date(
         paymentDate.getFullYear(),
-        this.financialYearStartMonth - 1,
+        this.financialYearStartMonth,
         1,
       );
       if (paymentDate < fyStartDate) {
@@ -594,6 +605,9 @@ export class LoanEmiCalculatorPage implements OnInit {
       this.prepaymentAmount,
       this.monthlyPayment,
     );
+
+    this.amortizationSchedulePage = 0;
+    this.financialYearSummaryPage = 0;
 
     // Update charts
     this.updatePaymentsChart();

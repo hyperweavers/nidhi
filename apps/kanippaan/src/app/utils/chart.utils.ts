@@ -10,14 +10,17 @@ import {
 import { ChartType } from '../models/chart';
 
 export class ChartUtils {
-  private static primaryColor = '#1A56DB';
-  private static secondaryColor = '#E74694';
-  private static componentsTextColor = '#9CA3AF';
-  private static gridColor = 'rgba(156, 163, 175, 0.2)';
-  private static verticalLineColor = 'rgba(156, 163, 175, 0.5)';
-  private static fallbackColor = '#fff';
+  static readonly colorBlue = '#0066CC';
+  static readonly colorGreen = '#63993D';
+  static readonly colorYellow = '#FACA15';
+  static readonly colorPurple = '#876FD4';
+  static readonly colorGray = '#9CA3AF';
+  static readonly defaultColor = '#707070';
 
-  static commonDoughnutChartDataset: ChartDataset<
+  private static readonly gridColor = 'rgba(163, 163, 163, 0.2)';
+  private static readonly verticalLineColor = 'rgba(163, 163, 163, 0.5)';
+
+  static readonly defaultDoughnutChartDataset: ChartDataset<
     ChartType.DOUGHNUT,
     number[]
   > = {
@@ -26,23 +29,7 @@ export class ChartUtils {
     hoverBorderWidth: 0,
   };
 
-  static doughnutChartDualDatasets: ChartDataset<
-    ChartType.DOUGHNUT,
-    number[]
-  >[] = [
-    {
-      ...ChartUtils.commonDoughnutChartDataset,
-      borderColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
-      hoverBorderColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
-      backgroundColor: [ChartUtils.primaryColor, ChartUtils.secondaryColor],
-      hoverBackgroundColor: [
-        ChartUtils.primaryColor,
-        ChartUtils.secondaryColor,
-      ],
-    },
-  ];
-
-  static commonLineChartDataset: ChartDataset<
+  static readonly defaultLineChartDataset: ChartDataset<
     ChartType.LINE,
     (number | Point | null)[]
   > = {
@@ -56,29 +43,7 @@ export class ChartUtils {
     borderCapStyle: 'round',
   };
 
-  static lineChartPrimaryDataset: ChartDataset<
-    ChartType.LINE,
-    (number | Point | null)[]
-  > = {
-    ...ChartUtils.commonLineChartDataset,
-    borderColor: ChartUtils.primaryColor,
-    hoverBorderColor: ChartUtils.primaryColor,
-    backgroundColor: ChartUtils.primaryColor,
-    hoverBackgroundColor: ChartUtils.primaryColor,
-  };
-
-  static lineChartSecondaryDataset: ChartDataset<
-    ChartType.LINE,
-    (number | Point | null)[]
-  > = {
-    ...ChartUtils.commonLineChartDataset,
-    borderColor: ChartUtils.secondaryColor,
-    hoverBorderColor: ChartUtils.secondaryColor,
-    backgroundColor: ChartUtils.secondaryColor,
-    hoverBackgroundColor: ChartUtils.secondaryColor,
-  };
-
-  static commonBarChartDataset: ChartDataset<
+  static readonly defaultBarChartDataset: ChartDataset<
     ChartType.BAR,
     (number | [number, number] | null)[]
   > = {
@@ -87,40 +52,17 @@ export class ChartUtils {
     data: [],
   };
 
-  static commonBarChartDatasetWithGap: ChartDataset<
+  static readonly commonBarChartDatasetWithGap: ChartDataset<
     ChartType.BAR,
     (number | [number, number] | null)[]
   > = {
-    barThickness: 'flex',
+    ...ChartUtils.defaultBarChartDataset,
     maxBarThickness: 20,
     borderColor: 'transparent',
     borderWidth: 2,
-    data: [],
   };
 
-  static barChartPrimaryDataset: ChartDataset<
-    ChartType.BAR,
-    (number | [number, number] | null)[]
-  > = {
-    ...ChartUtils.commonBarChartDataset,
-    borderColor: ChartUtils.primaryColor,
-    hoverBorderColor: ChartUtils.primaryColor,
-    backgroundColor: ChartUtils.primaryColor,
-    hoverBackgroundColor: ChartUtils.primaryColor,
-  };
-
-  static barChartSecondaryDataset: ChartDataset<
-    ChartType.BAR,
-    (number | [number, number] | null)[]
-  > = {
-    ...ChartUtils.commonBarChartDataset,
-    borderColor: ChartUtils.secondaryColor,
-    hoverBorderColor: ChartUtils.secondaryColor,
-    backgroundColor: ChartUtils.secondaryColor,
-    hoverBackgroundColor: ChartUtils.secondaryColor,
-  };
-
-  static verticalHoverLine: Plugin<ChartType.LINE> = {
+  static readonly verticalHoverLine: Plugin<ChartType.LINE> = {
     id: 'verticalHoverLine',
     beforeDatasetsDraw(chart) {
       const {
@@ -142,7 +84,7 @@ export class ChartUtils {
     },
   };
 
-  static increaseLegendSpacing: Plugin<ChartType.LINE> = {
+  static readonly increaseLegendSpacing: Plugin<ChartType.LINE> = {
     id: 'increaseLegendSpacing',
     beforeInit(chart) {
       const legend = chart.legend;
@@ -155,6 +97,41 @@ export class ChartUtils {
       }
     },
   };
+
+  static getDoughnutChartColors(
+    colors: string[],
+  ): Partial<ChartDataset<ChartType.DOUGHNUT, number[]>> {
+    return {
+      borderColor: colors,
+      hoverBorderColor: colors,
+      backgroundColor: colors,
+      hoverBackgroundColor: colors,
+    };
+  }
+
+  static getLineChartColor(
+    color: string,
+  ): Partial<ChartDataset<ChartType.LINE, (number | Point | null)[]>> {
+    return {
+      borderColor: color,
+      hoverBorderColor: color,
+      backgroundColor: color,
+      hoverBackgroundColor: color,
+    };
+  }
+
+  static getBarChartColor(
+    color: string,
+  ): Partial<
+    ChartDataset<ChartType.BAR, (number | [number, number] | null)[]>
+  > {
+    return {
+      borderColor: color,
+      hoverBorderColor: color,
+      backgroundColor: color,
+      hoverBackgroundColor: color,
+    };
+  }
 
   static getDoughnutChartOptions(
     tooltipLabelCallback?: (
@@ -170,7 +147,7 @@ export class ChartUtils {
         legend: {
           position: 'bottom',
           labels: {
-            color: this.componentsTextColor,
+            color: this.colorGray,
             usePointStyle: true,
             padding: 25,
             boxWidth: 9,
@@ -190,12 +167,12 @@ export class ChartUtils {
                 ? (context.dataset.backgroundColor as string[])[
                     context.dataIndex
                   ]
-                : ChartUtils.fallbackColor,
+                : ChartUtils.defaultColor,
               backgroundColor: context.dataset.backgroundColor
                 ? (context.dataset.backgroundColor as string[])[
                     context.dataIndex
                   ]
-                : ChartUtils.fallbackColor,
+                : ChartUtils.defaultColor,
               borderWidth: 3,
             }),
           },
@@ -216,6 +193,10 @@ export class ChartUtils {
       this: TooltipModel<ChartType.LINE>,
       tooltipItems: TooltipItem<ChartType.LINE>[],
     ) => string | string[] | void,
+    tooltipFooterCallback?: (
+      this: TooltipModel<ChartType.LINE>,
+      tooltipItems: TooltipItem<ChartType.LINE>[],
+    ) => string | string[] | void,
   ): ChartConfiguration['options'] {
     return {
       responsive: true,
@@ -227,7 +208,7 @@ export class ChartUtils {
       plugins: {
         legend: {
           labels: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             usePointStyle: true,
             padding: 25,
             boxWidth: 6,
@@ -244,6 +225,7 @@ export class ChartUtils {
           callbacks: {
             title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
             label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
+            footer: tooltipFooterCallback ? tooltipFooterCallback : undefined,
           },
         },
       },
@@ -251,21 +233,21 @@ export class ChartUtils {
         x: {
           title: {
             display: !!xAxisScaleTitle,
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             text: xAxisScaleTitle || '',
           },
           grid: {
             display: false,
           },
           ticks: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
           },
         },
         y: {
           beginAtZero: true,
           title: {
             display: !!yAxisScaleTitle,
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             text: yAxisScaleTitle || '',
           },
           grid: {
@@ -277,7 +259,7 @@ export class ChartUtils {
             dash: [5, 3],
           },
           ticks: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             padding: 10,
           },
         },
@@ -298,6 +280,10 @@ export class ChartUtils {
       this: TooltipModel<ChartType.BAR>,
       tooltipItems: TooltipItem<ChartType.BAR>[],
     ) => string | string[] | void,
+    tooltipFooterCallback?: (
+      this: TooltipModel<ChartType.BAR>,
+      tooltipItems: TooltipItem<ChartType.BAR>[],
+    ) => string | string[] | void,
   ): ChartConfiguration['options'] {
     return {
       responsive: true,
@@ -309,7 +295,7 @@ export class ChartUtils {
       plugins: {
         legend: {
           labels: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             usePointStyle: true,
             padding: 25,
             boxWidth: 9,
@@ -326,13 +312,14 @@ export class ChartUtils {
           callbacks: {
             title: tooltipTitleCallback ? tooltipTitleCallback : undefined,
             label: tooltipLabelCallback ? tooltipLabelCallback : undefined,
+            footer: tooltipFooterCallback ? tooltipFooterCallback : undefined,
             labelColor: (context) => ({
               borderColor: context.dataset.backgroundColor
                 ? context.dataset.backgroundColor.toString()
-                : ChartUtils.fallbackColor,
+                : ChartUtils.defaultColor,
               backgroundColor: context.dataset.backgroundColor
                 ? context.dataset.backgroundColor.toString()
-                : ChartUtils.fallbackColor,
+                : ChartUtils.defaultColor,
               borderWidth: 3,
             }),
           },
@@ -343,14 +330,14 @@ export class ChartUtils {
           stacked: stacked,
           title: {
             display: !!xAxisScaleTitle,
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             text: xAxisScaleTitle || '',
           },
           grid: {
             display: false,
           },
           ticks: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
           },
         },
         y: {
@@ -358,7 +345,7 @@ export class ChartUtils {
           beginAtZero: true,
           title: {
             display: !!yAxisScaleTitle,
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             text: yAxisScaleTitle || '',
           },
           grid: {
@@ -370,7 +357,7 @@ export class ChartUtils {
             dash: [5, 3],
           },
           ticks: {
-            color: ChartUtils.componentsTextColor,
+            color: ChartUtils.colorGray,
             padding: 10,
           },
         },

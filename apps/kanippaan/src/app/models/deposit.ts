@@ -12,9 +12,32 @@ export enum CompoundingFrequency {
   Yearly = 'Yearly',
 }
 
-export interface YearlySummary {
+export interface AnnualSummary {
   year: number;
+  yearlyInterestEarned: number;
+  totalInterestEarned: number;
+  totalDeposits: number;
   openingBalance: number;
+  closingBalance: number;
+}
+
+export interface CompoundingSummary {
+  date: Date;
+  openingBalance: number;
+  amountDeposited: number;
   interestEarned: number;
   closingBalance: number;
+}
+
+export interface FinancialYearSummary {
+  financialYearLabel: string;
+  openingBalance: number;
+  amountDeposited: number;
+  interestEarned: number;
+  closingBalance: number;
+}
+
+export interface PayoutSchedule {
+  date: Date;
+  interestAmount: number;
 }

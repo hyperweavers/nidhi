@@ -71,7 +71,7 @@
           <label
             for="interest"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-            >Annual Interest Rate (%)</label
+            >Annual Interest Rate</label
           >
           <input
             type="number"
@@ -520,7 +520,7 @@
   >
     Monthly Payment =
     <mark
-      class="bg-primary-600 dark:bg-primary-500 rounded px-2 py-1 text-2xl font-extrabold text-white"
+      class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
       >{{ monthlyPayment | number : "1.0-0" }}</mark
     >
   </h3>
@@ -556,66 +556,68 @@
   </section>
   }
 
-  <!-- Tabs Select -->
-  <div class="mt-6 flex items-center sm:hidden">
-    <label
-      for="tabs"
-      class="me-2 text-sm font-medium text-gray-900 dark:text-white"
-      >View</label
+  <div class="mt-10">
+    <!-- Tabs Select -->
+    <div class="mt-6 flex items-center sm:hidden">
+      <label
+        for="tabs"
+        class="me-2 text-sm font-medium text-gray-900 dark:text-white"
+        >View</label
+      >
+      <select
+        id="tabs"
+        [ngModel]="activeTab"
+        (ngModelChange)="onTabChange($event)"
+        class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+      >
+        <option [value]="Tabs.AMORTIZATION_SCHEDULE">
+          Amortization Schedule
+        </option>
+        <option [value]="Tabs.FINANCIAL_YEAR_SUMMARY">
+          Financial Year Summary
+        </option>
+        @if (interestRateType === InterestRateType.FLOATING &&
+        rateChanges.length > 0) {
+        <option [value]="Tabs.INTEREST_RATE_REVISIONS">
+          Interest Rate Revisions
+        </option>
+        }
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <ul
+      class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
-    <select
-      id="tabs"
-      [ngModel]="activeTab"
-      (ngModelChange)="onTabChange($event)"
-      class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-    >
-      <option [value]="Tabs.AMORTIZATION_SCHEDULE">
-        Amortization Schedule
-      </option>
-      <option [value]="Tabs.FINANCIAL_YEAR_SUMMARY">
-        Financial Year Summary
-      </option>
+      <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4"
+          [class.active]="activeTab === Tabs.AMORTIZATION_SCHEDULE"
+        >
+          Amortization Schedule
+        </p>
+      </li>
+      <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
+        >
+          Financial Year Summary
+        </p>
+      </li>
       @if (interestRateType === InterestRateType.FLOATING && rateChanges.length
       > 0) {
-      <option [value]="Tabs.INTEREST_RATE_REVISIONS">
-        Interest Rate Revisions
-      </option>
+      <li class="me-2" (click)="activeTab = Tabs.INTEREST_RATE_REVISIONS">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          [class.active]="activeTab === Tabs.INTEREST_RATE_REVISIONS"
+        >
+          Interest Rate Revisions
+        </p>
+      </li>
       }
-    </select>
+    </ul>
   </div>
-
-  <!-- Tabs -->
-  <ul
-    class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
-  >
-    <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4"
-        [class.active]="activeTab === Tabs.AMORTIZATION_SCHEDULE"
-      >
-        Amortization Schedule
-      </p>
-    </li>
-    <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
-      >
-        Financial Year Summary
-      </p>
-    </li>
-    @if (interestRateType === InterestRateType.FLOATING && rateChanges.length >
-    0) {
-    <li class="me-2" (click)="activeTab = Tabs.INTEREST_RATE_REVISIONS">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        [class.active]="activeTab === Tabs.INTEREST_RATE_REVISIONS"
-      >
-        Interest Rate Revisions
-      </p>
-    </li>
-    }
-  </ul>
 
   @if(activeTab === Tabs.AMORTIZATION_SCHEDULE && amortizationSchedule.length >
   0) {

@@ -134,7 +134,7 @@
               Gold Price
             </p>
             <p class="text-right font-bold text-black dark:text-white">
-              &#8377; {{ goldPrice | number : '1.0-0' }}
+              {{ goldPrice | number : '1.0-0' }}
             </p>
 
             <p
@@ -143,7 +143,7 @@
               Wastage/Value Addition (W/VA)
             </p>
             <p class="text-right font-bold text-black dark:text-white">
-              &#8377; {{ wastageValue | number : '1.0-0' }}
+              {{ wastageValue | number : '1.0-0' }}
             </p>
             <p
               class="col-span-2 leading-none tracking-tight text-gray-800 dark:text-gray-300"
@@ -151,7 +151,7 @@
               Making Charge (MC)
             </p>
             <p class="text-right font-bold text-black dark:text-white">
-              &#8377; {{ makingCharge | number : '1.0-0' }}
+              {{ makingCharge | number : '1.0-0' }}
             </p>
             <p
               class="col-span-2 leading-none tracking-tight text-gray-800 dark:text-gray-300"
@@ -159,7 +159,7 @@
               Tax
             </p>
             <p class="text-right font-bold text-black dark:text-white">
-              &#8377; {{ tax | number : '1.0-0' }}
+              {{ tax | number : '1.0-0' }}
             </p>
           </div>
 
@@ -168,8 +168,8 @@
           >
             Total =
             <mark
-              class="bg-primary-600 dark:bg-primary-500 rounded px-2 py-1 text-2xl font-extrabold text-white"
-              >&#8377; {{ totalAmountPayable | number : '1.0-0' }}</mark
+              class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
+              >{{ totalAmountPayable | number : '1.0-0' }}</mark
             >
           </h3>
 

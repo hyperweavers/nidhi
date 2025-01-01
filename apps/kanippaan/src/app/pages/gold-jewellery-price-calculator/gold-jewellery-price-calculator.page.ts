@@ -50,9 +50,13 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
     labels: ['Gold', 'W/VA', 'MC', 'Tax'],
     datasets: [
       {
-        ...ChartUtils.commonDoughnutChartDataset,
-        backgroundColor: ['#1A56DB', '#E74694', '#7E3AF2', '#FACA15'],
-        hoverBackgroundColor: ['#1A56DB', '#E74694', '#7E3AF2', '#FACA15'],
+        ...ChartUtils.defaultDoughnutChartDataset,
+        ...ChartUtils.getDoughnutChartColors([
+          ChartUtils.colorGreen,
+          ChartUtils.colorYellow,
+          ChartUtils.colorPurple,
+          ChartUtils.colorBlue,
+        ]),
       },
     ],
   };
