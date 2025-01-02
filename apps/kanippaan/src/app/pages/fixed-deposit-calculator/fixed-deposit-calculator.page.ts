@@ -15,6 +15,7 @@ import { BaseChartDirective } from 'ng2-charts';
 
 import { Flowbite } from '../../decorators/flowbite.decorator';
 import { ChartType } from '../../models/chart';
+import { EnumObject } from '../../models/common';
 import {
   AnnualSummary,
   CompoundingFrequency,
@@ -80,8 +81,15 @@ export class FixedDepositCalculatorPage implements OnInit {
   readonly Tabs = Tabs;
   readonly Charts = Charts;
 
-  private interestPayoutTypeValues = Object.values(InterestPayoutType);
-  compoundingFrequencyValues = Object.values(CompoundingFrequency).slice(1); // Exclude None
+  interestPayoutTypesMap: Map<string, InterestPayoutType> = new Map(
+    Object.entries(InterestPayoutType).map(
+      (entry) => [entry[1], entry[0]] as [string, InterestPayoutType],
+    ),
+  );
+  availableCompoundingFrequencies: Array<EnumObject<CompoundingFrequency>> =
+    Object.entries(CompoundingFrequency)
+      .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
+      .map((payoutType) => ({ key: payoutType[0], value: payoutType[1] }));
 
   depositAmount = 100000;
   annualInterestRate = 7;
@@ -270,7 +278,10 @@ export class FixedDepositCalculatorPage implements OnInit {
   }
 
   onCompoundingFrequencyChange() {
-    const availablePayoutTypes = this.getAvailableInterestPayoutTypes();
+    const availablePayoutTypes = this.getAvailableInterestPayoutTypes().map(
+      (entry) => entry.key,
+    );
+
     if (!availablePayoutTypes.includes(this.interestPayoutType)) {
       this.interestPayoutType = InterestPayoutType.Maturity;
     }
@@ -278,17 +289,13 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.calculateMaturityAmount();
   }
 
-  getAvailableInterestPayoutTypes(): InterestPayoutType[] {
-    const compoundingValue = DateUtils.convertFrequencyToValue(
-      this.compoundingFrequency,
-    );
-    return this.interestPayoutTypeValues.filter((payoutType) => {
-      const payoutValue = DateUtils.convertFrequencyToValue(payoutType);
-      return (
-        payoutValue <= compoundingValue ||
-        payoutType === InterestPayoutType.Maturity
+  getAvailableInterestPayoutTypes(): Array<EnumObject<InterestPayoutType>> {
+    return Array.from(this.interestPayoutTypesMap)
+      .map((entry) => ({ key: entry[0], value: entry[1] }))
+      .filter(
+        (payoutType) =>
+          Number(payoutType.key) <= Number(this.compoundingFrequency),
       );
-    });
   }
 
   onTabChange(tab: Tabs) {
@@ -346,7 +353,7 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   calculateMaturityAmount() {
     const principal = this.depositAmount;
-
+    const annualRate = this.annualInterestRate / 100;
     const timeInYears = DateUtils.convertDepositTermToYears(
       this.depositTermYears,
       this.depositTermMonths,
@@ -378,11 +385,11 @@ export class FixedDepositCalculatorPage implements OnInit {
       this.payoutSchedule = [];
       this.averagePayout = 0;
 
-      this.generateCompoundingSummary(principal);
+      this.generateCompoundingSummary(annualRate);
     } else {
       this.compoundingSummary = [];
 
-      this.generatePayoutSchedule(principal);
+      this.generatePayoutSchedule(annualRate, timeInYears);
     }
 
     if (this.interestPayoutType === InterestPayoutType.Maturity) {
@@ -420,7 +427,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.updateEarningsChartData();
   }
 
-  private generatePayoutSchedule(principal: number) {
+  private generatePayoutSchedule(annualRate: number, timeInYears: number) {
     this.payoutSchedule = [];
     this.averagePayout = 0;
 
@@ -428,44 +435,21 @@ export class FixedDepositCalculatorPage implements OnInit {
       return;
     }
 
-    const annualRate = this.annualInterestRate / 100;
+    const principal = this.depositAmount;
     const maturityDate = new Date(this.maturityDate);
     let currentDate = new Date(this.investmentStartDate);
 
-    let frequency;
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
-      frequency = this.compoundingFrequency;
-    } else {
-      frequency = this.interestPayoutType;
-    }
-
     while (currentDate < maturityDate) {
-      let nextDate: Date;
-      if (
-        frequency === InterestPayoutType.Monthly ||
-        frequency === CompoundingFrequency.Monthly
-      ) {
-        nextDate = new Date(currentDate);
-        nextDate.setMonth(nextDate.getMonth() + 1);
-      } else if (
-        frequency === InterestPayoutType.Quarterly ||
-        frequency === CompoundingFrequency.Quarterly
-      ) {
-        nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
-      } else {
-        // Default to yearly compounding frequency
-        nextDate = DateUtils.getNextCompoundingDate(
-          currentDate,
-          frequency as CompoundingFrequency,
-        );
-      }
+      let nextDate = DateUtils.getNextCompoundingOrPayoutDate(
+        currentDate,
+        this.interestPayoutType,
+      );
 
-      if (nextDate > maturityDate) {
+      if (!nextDate || nextDate > maturityDate) {
         nextDate = new Date(maturityDate);
       }
 
       const interestStartDate = new Date(currentDate);
-      interestStartDate.setDate(interestStartDate.getDate() + 1);
 
       if (interestStartDate >= nextDate) {
         currentDate = nextDate;
@@ -473,13 +457,14 @@ export class FixedDepositCalculatorPage implements OnInit {
       }
 
       const totalDays = DateUtils.getDifferenceInDays(
-        new Date(nextDate.getTime() + 24 * 60 * 60 * 1000),
+        nextDate,
         interestStartDate,
       );
 
-      const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+      const n = Number(this.compoundingFrequency);
       const closingBalance =
-        principal * Math.pow(1 + annualRate / n, (n * totalDays) / 365);
+        principal *
+        Math.pow(1 + annualRate / n, (n * totalDays) / DateUtils.YEAR_IN_DAYS);
       const interestAmount = closingBalance - principal;
 
       this.payoutSchedule.push({
@@ -496,59 +481,56 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.averagePayout =
       this.payoutSchedule.length > 0
         ? this.payoutSchedule.reduce((acc, cv) => (acc += cv.interest), 0) /
-          this.payoutSchedule.length
+          (Number(this.interestPayoutType) * timeInYears)
         : 0;
 
     this.payoutSchedulePage = 0;
   }
 
-  private generateCompoundingSummary(principal: number) {
+  private generateCompoundingSummary(annualRate: number) {
     this.compoundingSummary = [];
 
     if (!this.maturityDate) {
       return;
     }
 
-    const annualRate = this.annualInterestRate / 100;
+    const principal = this.depositAmount;
     const maturityDate = new Date(this.maturityDate);
     let currentDate = new Date(this.investmentStartDate);
 
     let currentBalance = principal;
 
     while (currentDate < maturityDate) {
-      let nextDate: Date;
-      if (this.compoundingFrequency === CompoundingFrequency.Monthly) {
-        nextDate = new Date(currentDate);
-        nextDate.setMonth(nextDate.getMonth() + 1);
-      } else if (this.compoundingFrequency === CompoundingFrequency.Quarterly) {
-        nextDate = DateUtils.getNextFinancialQuarterEndDate(currentDate);
-      } else {
-        nextDate = DateUtils.getNextCompoundingDate(
-          currentDate,
-          this.compoundingFrequency,
-        );
-      }
+      const interestStartDate = new Date(currentDate);
 
-      if (nextDate > maturityDate) {
+      let nextDate = DateUtils.getNextCompoundingOrPayoutDate(
+        currentDate,
+        this.compoundingFrequency,
+      );
+
+      if (!nextDate || nextDate > maturityDate) {
         nextDate = new Date(maturityDate);
       }
-
-      const interestStartDate = new Date(currentDate);
-      interestStartDate.setDate(interestStartDate.getDate() + 1);
 
       if (interestStartDate >= nextDate) {
         currentDate = nextDate;
         continue;
       }
 
-      const totalDays = DateUtils.getDifferenceInDays(
+      let totalDays = DateUtils.getDifferenceInDays(
         nextDate,
-        new Date(this.investmentStartDate.getTime() + 24 * 60 * 60 * 1000),
+        this.investmentStartDate,
       );
 
-      const n = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+      // Interest rate will be calculated until a day before the maturity date
+      if (nextDate >= maturityDate) {
+        totalDays -= 1;
+      }
+
+      const n = Number(this.compoundingFrequency);
       const closingBalance =
-        principal * Math.pow(1 + annualRate / n, (n * totalDays) / 365);
+        principal *
+        Math.pow(1 + annualRate / n, (n * totalDays) / DateUtils.YEAR_IN_DAYS);
       const interestEarned = closingBalance - currentBalance;
 
       this.compoundingSummary.push({
@@ -747,11 +729,11 @@ export class FixedDepositCalculatorPage implements OnInit {
         this.interestPayoutType.toString() !==
         this.compoundingFrequency.toString()
       ) {
+        const compoundingFrequencyPerAnnum =
+          Number(this.compoundingFrequency) || 1;
+
         this.annualSummaryChartData.datasets[1].data = this.annualSummary.map(
           (item) => {
-            const compoundingFrequencyPerAnnum =
-              DateUtils.convertFrequencyToValue(this.compoundingFrequency) || 1;
-
             return (
               (compoundingFrequencyPerAnnum - 1) *
               (item.yearlyInterestEarned / compoundingFrequencyPerAnnum)
@@ -759,9 +741,7 @@ export class FixedDepositCalculatorPage implements OnInit {
           },
         );
         this.annualSummaryChartData.datasets[2].data = this.annualSummary.map(
-          (item) =>
-            item.yearlyInterestEarned /
-            (DateUtils.convertFrequencyToValue(this.compoundingFrequency) || 1),
+          (item) => item.yearlyInterestEarned / compoundingFrequencyPerAnnum,
         );
       } else {
         this.annualSummaryChartData.datasets[1].data = [];

@@ -127,8 +127,9 @@
             placeholder=""
             required
           >
-            @for (frequency of compoundingFrequencyValues; track frequency) {
-            <option [ngValue]="frequency">{{ frequency }}</option>
+            @for (frequency of availableCompoundingFrequencies; track
+            frequency.key) {
+            <option [ngValue]="frequency.value">{{ frequency.key }}</option>
             }
           </select>
         </div>
@@ -150,8 +151,8 @@
             required
           >
             @for (payoutType of getAvailableInterestPayoutTypes(); track
-            payoutType) {
-            <option [ngValue]="payoutType">{{ payoutType }}</option>
+            payoutType.key) {
+            <option [ngValue]="payoutType.key">{{ payoutType.value }}</option>
             }
           </select>
         </div>
@@ -279,8 +280,8 @@
               class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
             >
               {{ interestPayoutType === InterestPayoutType.Maturity ? 'Maturity
-              Amount' : 'Average ' + InterestPayoutType[interestPayoutType] + '
-              Payout' }}
+              Amount' : 'Average ' +
+              interestPayoutTypesMap.get(interestPayoutType) + ' Payout' }}
             </p>
             <p class="text-right font-bold text-black dark:text-white">
               <span
