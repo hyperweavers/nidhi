@@ -1,3 +1,26 @@
+/*
+FD Formula:
+
+M = P * Math.pow((1 + ((r/100)/n)), (n*t))
+
+Where,
+  M = Maturity amount
+  P = Principal amount
+  r = Annual rate of interest
+  n = Number of compounding in a year
+  t = Number of years
+
+Let's assume a investment of 10,000 for 3 years at 10% interest rate compounded quarterly.
+
+At the time of maturity, the calculations are as follows:
+M = 10000 * Math.pow((1 + ((10/100)/4)), (4*3))
+M = 10000 * Math.pow((1 + 0.025), 12)
+M = 10000 * Math.pow(1.025, 12)
+M = 13449 (approximately)
+
+Thus, interest earned comes to 13,449 - 10,000 = 3,449.
+*/
+
 import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -89,7 +112,10 @@ export class FixedDepositCalculatorPage implements OnInit {
   availableCompoundingFrequencies: Array<EnumObject<CompoundingFrequency>> =
     Object.entries(CompoundingFrequency)
       .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
-      .map((payoutType) => ({ key: payoutType[0], value: payoutType[1] }));
+      .map((payoutType) => ({
+        key: payoutType[0],
+        value: payoutType[1],
+      }));
 
   depositAmount = 100000;
   annualInterestRate = 7;
@@ -371,6 +397,12 @@ export class FixedDepositCalculatorPage implements OnInit {
       this.compoundingSummary = [];
       this.financialYearSummary = [];
       this.payoutSchedule = [];
+
+      this.updateEarningsChartData();
+      this.updateAnnualSummaryChartData();
+      this.updateCompoundingSummaryChartData();
+      this.updateFinancialYearSummaryChartData();
+
       return;
     }
 
