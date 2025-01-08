@@ -41,3 +41,11 @@ export interface PayoutSchedule {
   date: Date;
   interest: number;
 }
+
+export interface InstallmentSummary {
+  installment: number;
+  date: Date;
+  deposit: number;
+  interest: number;
+  balance: number;
+}

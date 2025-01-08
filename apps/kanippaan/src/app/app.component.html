@@ -371,6 +371,16 @@
                   <li>
                     <a
                       (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.RECURRING_DEPOSIT_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Recurring Deposit</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
                       routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
                       class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"

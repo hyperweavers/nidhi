@@ -1,3 +1,30 @@
+/*
+RD Formula:
+
+M = P * Math.pow((1 + ((r/100)/n)), (t*n))
+
+Where,
+  M = Maturity amount
+  P = Periodic investment amount
+  r = Annual rate of interest
+  n = Number of compounding in a year
+  t = Number of years
+
+This formula computes the amount for each month. Calculate the monthly amount
+for each month and then add all the amounts to get the maturity value at the
+end of the tenure.
+
+Let's assume a monthly investment of 5,000 for 1 year at 8% interest rate compounded quarterly.
+
+For the first month, 2000 * Math.pow((1 + ((8/100)/4)), ((1/12)*4)) = 2013
+For the second month, 2000 * Math.pow((1 + ((8/100)/4)), ((2/12)*4)) = 2027
+For the third month, 2000 * Math.pow((1 + ((8/100)/4)), ((3/12)*4)) = 2040
+...
+For the last month, 2000 * Math.pow((1 + ((8/100)/4)), ((12/12)*4)) = 2165
+
+Thus, the maturity amount is 25,059, interest earned comes to 25,059 - 24,000 = 1,059.
+*/
+
 import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -11,10 +38,18 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
+import { addMonths } from 'date-fns';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { ChartType } from '../../models/chart';
-import { CompoundingFrequency } from '../../models/deposit';
+import { EnumObject } from '../../models/common';
+import {
+  AnnualSummary,
+  CompoundingFrequency,
+  CompoundingSummary,
+  FinancialYearSummary,
+  InstallmentSummary,
+} from '../../models/deposit';
 import { ChartUtils } from '../../utils/chart.utils';
 import { DateUtils } from '../../utils/date.utils';
 
@@ -22,22 +57,16 @@ import { DateUtils } from '../../utils/date.utils';
 declare const Datepicker: any;
 
 enum Tabs {
-  YEARLY_ACCUMULATION_SCHEDULE,
-  INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE,
+  ANNUAL_SUMMARY,
+  COMPOUNDING_SUMMARY,
+  FINANCIAL_YEAR_SUMMARY,
 }
 
 enum Charts {
   EARNINGS,
-  YEARLY_SUMMARY,
-  PAYOUT_SCHEDULE,
-}
-
-interface YearlySummary {
-  year: number;
-  openingBalance: number;
-  amountDeposited: number;
-  interestEarned: number;
-  closingBalance: number;
+  ANNUAL_SUMMARY,
+  COMPOUNDING_SUMMARY,
+  FINANCIAL_YEAR_SUMMARY,
 }
 
 @Component({
@@ -51,73 +80,104 @@ interface YearlySummary {
 export class RecurringDepositCalculatorPage implements OnInit {
   @ViewChild('investmentStartDateInput', { static: true })
   private investmentStartDateInput?: ElementRef;
+
   @ViewChild('earningsChart', { read: BaseChartDirective })
   private earningsChart!: BaseChartDirective;
-  @ViewChild('yearlySummaryChart', { read: BaseChartDirective })
-  private yearlySummaryChart!: BaseChartDirective;
-  @ViewChild('yearlySummaryChartContainer')
-  private yearlySummaryChartContainer?: ElementRef;
+  @ViewChild('annualSummaryChart', { read: BaseChartDirective })
+  private annualSummaryChart!: BaseChartDirective;
+  @ViewChild('compoundingSummaryChart', { read: BaseChartDirective })
+  private compoundingSummaryChart!: BaseChartDirective;
+  @ViewChild('financialYearSummaryChart', { read: BaseChartDirective })
+  private financialYearSummaryChart!: BaseChartDirective;
 
-  readonly pageSize = 12; // Not strictly needed if you won't be paginating anything anymore
+  @ViewChild('annualSummaryChartContainer')
+  private annualSummaryChartContainer?: ElementRef;
+  @ViewChild('compoundingSummaryChartContainer')
+  private compoundingSummaryChartContainer?: ElementRef;
+  @ViewChild('financialYearSummaryChartContainer')
+  private financialYearSummaryChartContainer?: ElementRef;
+
+  readonly pageSize = 12;
 
   readonly ChartType = ChartType;
   readonly Tabs = Tabs;
   readonly Charts = Charts;
 
-  compoundingFrequencyValues = Object.values(CompoundingFrequency);
+  availableCompoundingFrequencies: Array<EnumObject<CompoundingFrequency>> =
+    Object.entries(CompoundingFrequency)
+      .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
+      .map((payoutType) => ({
+        key: payoutType[0],
+        value: payoutType[1],
+      }));
 
-  // Instead of a single lump-sum deposit, use a monthlyDeposit
   monthlyDeposit = 2000;
   annualInterestRate = 7;
 
   depositTermYears = 5;
   depositTermMonths = 0;
-  // depositTermDays = 0;
 
   totalDeposit = 0;
   interestEarned = 0;
   maturityAmount = 0;
 
-  // Always pay interest at maturity for a recurring deposit
-  // so no need to store user-selected payout type
-  // or any related logic
-  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly; // You could allow user selection, or fix this
+  compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly;
   investmentStartDate: Date = new Date();
   maturityDate: Date | null = null;
 
-  // This will hold the per-year breakdown of how the savings grow
-  yearlySummary: YearlySummary[] = [];
+  private installmentSummary: InstallmentSummary[] = [];
+  annualSummary: AnnualSummary[] = [];
+  compoundingSummary: CompoundingSummary[] = [];
+  financialYearSummary: FinancialYearSummary[] = [];
 
-  activeTab: Tabs = Tabs.YEARLY_ACCUMULATION_SCHEDULE;
+  activeTab: Tabs = Tabs.ANNUAL_SUMMARY;
+
+  compoundingSummaryPage = 0;
 
   isChartInFullscreen = false;
 
   depositChartData: ChartData<ChartType.DOUGHNUT, number[], string | string[]> =
     {
       labels: ['Deposits', 'Interest'],
-      datasets: ChartUtils.doughnutChartDualDatasets,
+      datasets: [
+        {
+          ...ChartUtils.defaultDoughnutChartDataset,
+          ...ChartUtils.getDoughnutChartColors([
+            ChartUtils.colorBlue,
+            ChartUtils.colorGreen,
+          ]),
+        },
+      ],
     };
 
   depositChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    ChartUtils.getDoughnutChartOptions((context): string => {
-      return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
-    });
+    ChartUtils.getDoughnutChartOptions(
+      (context): string =>
+        this.decimalPipe.transform(context.parsed, '1.0-0') || '',
+    );
 
-  yearlySummaryChartData: ChartData<ChartType.BAR> = {
+  annualSummaryChartData: ChartData<ChartType.BAR> = {
     labels: [],
     datasets: [
       {
-        ...ChartUtils.barChartPrimaryDataset,
-        label: 'Year-End Balance',
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorBlue),
+        label: 'Total Deposits',
       },
       {
-        ...ChartUtils.barChartSecondaryDataset,
-        label: 'Yearly Interest',
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Compounded Interest',
+      },
+      {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorYellow),
+        label: 'Annual Interest',
       },
     ],
   };
 
-  yearlySummaryChartOptions: ChartConfiguration['options'] =
+  annualSummaryChartOptions: ChartConfiguration['options'] =
     ChartUtils.getBarChartOptions(
       'Year',
       'Amount',
@@ -126,13 +186,84 @@ export class RecurringDepositCalculatorPage implements OnInit {
       (context): string => {
         const label = context.dataset.label || '';
         const value = context.parsed.y;
+
         return label && value
           ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
           : '';
       },
+      (tooltipItems): string =>
+        tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '',
       (tooltipItems): string => {
-        return tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '';
+        return tooltipItems.length > 0
+          ? `Closing Balance: ${
+              this.decimalPipe.transform(
+                tooltipItems.reduce(
+                  (acc, cv) => (acc += cv?.parsed?.y || 0),
+                  0,
+                ),
+                '1.0-0',
+              ) || ''
+            }`
+          : '';
       },
+    );
+
+  compoundingSummaryChartData: ChartData<ChartType.BAR> = {
+    labels: [],
+    datasets: [
+      {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Interest Earned',
+      },
+    ],
+  };
+
+  compoundingSummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Month',
+      'Amount',
+      false,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
+
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string =>
+        tooltipItems[0]?.label ? `Month: ${tooltipItems[0].label}` : '',
+    );
+
+  financialYearSummaryChartData: ChartData<ChartType.BAR> = {
+    labels: [],
+    datasets: [
+      {
+        ...ChartUtils.defaultBarChartDataset,
+        ...ChartUtils.getBarChartColor(ChartUtils.colorGreen),
+        label: 'Interest Earned',
+      },
+    ],
+  };
+
+  financialYearSummaryChartOptions: ChartConfiguration['options'] =
+    ChartUtils.getBarChartOptions(
+      'Financial Year',
+      'Amount',
+      true,
+      true,
+      (context): string => {
+        const label = context.dataset.label || '';
+        const value = context.parsed.y;
+
+        return label && value
+          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
+          : '';
+      },
+      (tooltipItems): string =>
+        tooltipItems[0]?.label ? `FY: ${tooltipItems[0].label}` : '',
     );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,20 +278,18 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
   ngOnInit() {
     this.initDatePicker();
+
     this.calculateMaturityAmount();
   }
 
   @HostListener('window:fullscreenchange')
   onFullscreenChange() {
-    if (this.document.fullscreenElement) {
-      this.isChartInFullscreen = true;
-    } else {
-      this.isChartInFullscreen = false;
-    }
+    this.isChartInFullscreen = !!this.document.fullscreenElement;
   }
 
   onInvestmentStartDateChange(dateString: string) {
     this.investmentStartDate = new Date(dateString);
+
     this.calculateMaturityAmount();
   }
 
@@ -175,13 +304,17 @@ export class RecurringDepositCalculatorPage implements OnInit {
       let container: ElementRef | undefined;
 
       switch (chart) {
-        case Charts.YEARLY_SUMMARY:
-          container = this.yearlySummaryChartContainer;
+        case Charts.ANNUAL_SUMMARY:
+          container = this.annualSummaryChartContainer;
           break;
 
-        // case Charts.PAYOUT_SCHEDULE:
-        //   container = this.payoutScheduleChartContainer;
-        //   break;
+        case Charts.COMPOUNDING_SUMMARY:
+          container = this.compoundingSummaryChartContainer;
+          break;
+
+        case Charts.FINANCIAL_YEAR_SUMMARY:
+          container = this.financialYearSummaryChartContainer;
+          break;
 
         case Charts.EARNINGS:
         default:
@@ -213,160 +346,246 @@ export class RecurringDepositCalculatorPage implements OnInit {
   }
 
   calculateMaturityAmount() {
-    // Reset if invalid input
     const timeInYears = DateUtils.convertDepositTermToYears(
       this.depositTermYears,
       this.depositTermMonths,
     );
 
+    // Reset if invalid input
     if (timeInYears <= 0) {
+      this.totalDeposit = 0;
       this.maturityAmount = 0;
       this.interestEarned = 0;
       this.maturityDate = null;
-      this.yearlySummary = [];
-      this.updateChartData();
+      this.installmentSummary = [];
+      this.annualSummary = [];
+      this.compoundingSummary = [];
+      this.financialYearSummary = [];
+
+      this.updateEarningsChartData();
+      this.updateAnnualSummaryChartData();
+      this.updateCompoundingSummaryChartData();
+      this.updateFinancialYearSummaryChartData();
+
       return;
     }
 
-    // Calculate our final maturity date
     this.maturityDate = DateUtils.getDepositMaturityDate(
       this.investmentStartDate,
       this.depositTermYears,
       this.depositTermMonths,
     );
 
-    // Convert annual interest rate to a fraction
-    // Example: 7 -> 0.07
+    this.installmentSummary = [];
+
     const annualRate = this.annualInterestRate / 100;
+    const compoundingFrequency = Number(this.compoundingFrequency);
+    const compoundingInterest = annualRate / compoundingFrequency;
+    const totalInstallments = timeInYears * 12;
 
-    // Determine compounding frequency (n) based on the enum
-    // e.g., 12 for monthly, 4 for quarterly, etc.
-    const freq = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
+    for (let i = 0; i <= totalInstallments; i++) {
+      let date: Date;
+      let deposit: number;
+      let interest: number;
+      let balance: number;
 
-    // Calculate total number of periods for the given term
-    // (freq * number of years).
-    // For instance, if freq=12 and depositTermYears=5, n=60
-    const n = freq * this.depositTermYears;
+      if (i === 0) {
+        date = new Date(this.investmentStartDate);
+        deposit = this.monthlyDeposit;
+        balance = deposit;
+        interest = 0;
+      } else if (i === totalInstallments) {
+        date = addMonths(this.investmentStartDate, i);
+        deposit = 0;
+        balance =
+          this.monthlyDeposit *
+            Math.pow(1 + compoundingInterest, (i / 12) * compoundingFrequency) -
+          this.monthlyDeposit;
+        interest = balance;
+      } else {
+        date = addMonths(this.investmentStartDate, i);
+        deposit = this.monthlyDeposit;
+        balance =
+          this.monthlyDeposit *
+          Math.pow(1 + compoundingInterest, (i / 12) * compoundingFrequency);
+        interest = balance - deposit;
+      }
 
-    // Compute the periodic interest i (annualRate / freq):
-    const i = annualRate / freq;
-
-    // Apply the formula:
-    // M = R * ( (1 + i)^n - 1 ) / ( 1 - (1 + i)^(-1/3) )
-    // R = monthlyDeposit in this example
-    const numerator = Math.pow(1 + i, n) - 1;
-    const denominator = 1 - Math.pow(1 + i, -1 / 3);
-    this.maturityAmount = this.monthlyDeposit * (numerator / denominator);
-
-    // For a recurring deposit, total deposits = monthlyDeposit * (12 * depositTermYears)
-    this.totalDeposit = this.monthlyDeposit * this.depositTermYears * 12;
-
-    // Finally, total interest is M - total deposits
-    this.interestEarned = this.maturityAmount - this.totalDeposit;
-
-    // If the tenure is more than 1 year, you can still generate a year-by-year summary
-    if (timeInYears >= 1) {
-      this.generateYearlySummary();
-    } else {
-      this.yearlySummary = [];
+      this.installmentSummary.push({
+        installment: i,
+        date,
+        deposit,
+        interest,
+        balance,
+      });
     }
 
-    this.updateChartData();
+    if (this.installmentSummary.length > 0) {
+      this.totalDeposit = this.monthlyDeposit * totalInstallments;
+      this.maturityAmount = this.installmentSummary.reduce(
+        (acc, cv) => (acc += cv.balance),
+        0,
+      );
+      this.interestEarned = this.maturityAmount - this.totalDeposit;
+    } else {
+      this.totalDeposit = 0;
+      this.maturityAmount = 0;
+      this.interestEarned = 0;
+    }
+
+    this.generateAnnualSummary();
+    this.generateCompoundingSummary();
+    this.generateFinancialYearSummary();
+
+    this.activeTab = Tabs.ANNUAL_SUMMARY;
+
+    this.updateEarningsChartData();
   }
 
-  private generateYearlySummary(): void {
-    this.yearlySummary = [];
+  private generateAnnualSummary(): void {
+    this.annualSummary = [];
 
-    // Include partial months as fractional years
-    const depositTermInYears =
-      this.depositTermYears + this.depositTermMonths / 12;
+    let currentYear = this.investmentStartDate.getFullYear();
+    let interestAccumulatedThisYear = 0;
+    let interestAccumulatedOverall = 0;
+    let totalDeposits = 0;
+    let openingBalance = 0;
+    let closingBalance = 0;
 
-    // Convert annual interest to a fraction (e.g., 7 -> 0.07)
-    const annualRate = this.annualInterestRate / 100;
-
-    // Determine the compounding frequency (times per year), // e.g. 12 for monthly, 4 for quarterly, etc.
-    const freq = DateUtils.convertFrequencyToValue(this.compoundingFrequency);
-
-    // Periodic rate (i)
-    const i = annualRate / freq;
-
-    // Keep track of the results from the previous iteration
-    let prevMaturityValue = 0;
-    let prevDeposited = 0;
-
-    // ----------------------------------------------------------------------------
-    // calculateYearlySegment
-    // ----------------------------------------------------------------------------
-    // Internal helper to compute an RD snapshot at a certain “yearFraction” // (which may be an integer or partial).
-    const calculateYearlySegment = (
-      yearFraction: number,
-      isPartial = false,
-    ): void => {
-      // How many total compounding periods have elapsed up to this fraction // e.g., if freq=4 and yearFraction=2.5 => n=10
-      const n = freq * yearFraction;
-
-      // Apply the same formula you use in calculateMaturityAmount():
-      // M = R * ( (1 + i)^n - 1 ) / ( 1 - (1 + i)^(-1/3) )
-      // with R = monthlyDeposit
-      const numerator = Math.pow(1 + i, n) - 1;
-      const denominator = 1 - Math.pow(1 + i, -1 / 3);
-      const maturityValue = this.monthlyDeposit * (numerator / denominator);
-
-      // Total deposits up to this point (yearFraction may be partial)
-      // For a purely monthly deposit, multiply monthlyDeposit * (12 * yearFraction).
-      // Round down only if you want partial months to be exact.
-      const totalDeposited = this.monthlyDeposit * 12 * yearFraction;
-
-      // Interest up to this point
-      const totalInterest = maturityValue - totalDeposited;
-
-      // Interest earned in this particular segment
-      const interestThisYear =
-        totalInterest - (prevMaturityValue - prevDeposited);
-
-      // Amount deposited in this segment (year or partial-year)
-      const depositThisYear = totalDeposited - prevDeposited;
-
-      // Opening balance is the maturity value from the previous snapshot
-      const openingBalance = prevMaturityValue;
-      // New closing balance at this snapshot
-      const closingBalance = maturityValue;
-
-      // Build the summary entry
-      this.yearlySummary.push({
-        // If partial leftover, you could label it “Year 5.4” or similar
-        year: isPartial ? Math.round(yearFraction * 100) / 100 : yearFraction,
+    const finalizeYear = () => {
+      this.annualSummary.push({
+        year: currentYear,
+        yearlyInterestEarned: interestAccumulatedThisYear,
+        totalInterestEarned: interestAccumulatedOverall,
+        totalDeposits,
         openingBalance,
-        amountDeposited: depositThisYear,
-        interestEarned: interestThisYear,
         closingBalance,
       });
-
-      // Update “previous” trackers
-      prevMaturityValue = maturityValue;
-      prevDeposited = totalDeposited;
     };
 
-    // Loop year by year, and handle any leftover partial year
-    let currentYear = 1;
-    while (currentYear <= Math.floor(depositTermInYears)) {
-      calculateYearlySegment(currentYear);
-      currentYear++;
+    for (const summary of this.installmentSummary) {
+      const installmentYear = summary.date.getFullYear();
+
+      if (installmentYear > currentYear) {
+        finalizeYear();
+        currentYear++;
+        interestAccumulatedThisYear = 0;
+        totalDeposits = 0;
+        openingBalance = closingBalance;
+      }
+
+      totalDeposits += summary.deposit;
+      interestAccumulatedThisYear += summary.interest;
+      interestAccumulatedOverall += summary.interest;
+      closingBalance += summary.balance;
     }
 
-    // If there is a leftover fraction of a year, handle that partial portion
-    const leftover = depositTermInYears - Math.floor(depositTermInYears);
-    if (leftover > 0) {
-      // We treat partial leftover as (full years + leftover part)
-      const partialSegment = Math.floor(depositTermInYears) + leftover;
-      calculateYearlySegment(partialSegment, true);
-    }
+    finalizeYear();
 
-    this.updateYearlySummaryChartData();
+    this.updateAnnualSummaryChartData();
   }
 
-  // Update chart data for the final ring chart
-  private updateChartData() {
+  private generateCompoundingSummary() {
+    this.compoundingSummary = [];
+
+    let compoundingDate = DateUtils.getNextCompoundingOrPayoutDate(
+      this.investmentStartDate,
+      this.compoundingFrequency,
+    );
+    let openingBalance = 0;
+    let amountDeposited = 0;
+    let interestEarned = 0;
+    let closingBalance = 0;
+
+    if (!compoundingDate) {
+      return;
+    }
+
+    const finalizeYear = () => {
+      this.compoundingSummary.push({
+        date: compoundingDate as Date,
+        openingBalance,
+        amountDeposited,
+        interestEarned,
+        closingBalance,
+      });
+    };
+
+    for (const summary of this.installmentSummary) {
+      const installmentDate = new Date(summary.date);
+
+      if (installmentDate > compoundingDate) {
+        finalizeYear();
+        compoundingDate = DateUtils.getNextCompoundingOrPayoutDate(
+          installmentDate,
+          this.compoundingFrequency,
+        );
+        openingBalance = closingBalance;
+        amountDeposited = 0;
+        interestEarned = 0;
+
+        if (!compoundingDate) {
+          break;
+        }
+      }
+
+      amountDeposited += summary.deposit;
+      interestEarned += summary.interest;
+      closingBalance += summary.balance;
+    }
+
+    finalizeYear();
+
+    this.compoundingSummaryPage = 0;
+
+    this.updateCompoundingSummaryChartData();
+  }
+
+  private generateFinancialYearSummary(): void {
+    this.financialYearSummary = [];
+
+    let openingBalance = 0;
+    let amountDeposited = 0;
+    let interestEarned = 0;
+    let closingBalance = 0;
+    let fy = DateUtils.getFinancialYear(this.investmentStartDate);
+    let fyStartDate = fy.start;
+    let fyEndDate = fy.end;
+
+    const finalizeYear = () => {
+      this.financialYearSummary.push({
+        financialYearLabel: `${fyStartDate.getFullYear().toString().slice(-2)}-${fyEndDate.getFullYear().toString().slice(-2)}`,
+        openingBalance,
+        amountDeposited,
+        interestEarned,
+        closingBalance,
+      });
+    };
+
+    for (const summary of this.installmentSummary) {
+      const installmentDate = new Date(summary.date);
+
+      if (installmentDate > fyEndDate) {
+        finalizeYear();
+        fy = DateUtils.getFinancialYear(installmentDate);
+        fyStartDate = fy.start;
+        fyEndDate = fy.end;
+        openingBalance = closingBalance;
+        amountDeposited = 0;
+        interestEarned = 0;
+      }
+
+      amountDeposited += summary.deposit;
+      interestEarned += summary.interest;
+      closingBalance += summary.balance;
+    }
+
+    finalizeYear();
+
+    this.updateFinancialYearSummaryChartData();
+  }
+
+  private updateEarningsChartData() {
     this.depositChartData.datasets[0].data = [
       Math.floor(this.totalDeposit),
       Math.floor(this.interestEarned),
@@ -376,19 +595,53 @@ export class RecurringDepositCalculatorPage implements OnInit {
     }
   }
 
-  private updateYearlySummaryChartData() {
-    this.yearlySummaryChartData.labels = this.yearlySummary.map(
+  private updateAnnualSummaryChartData() {
+    this.annualSummaryChartData.labels = this.annualSummary.map(
       (item) => item.year,
     );
-    this.yearlySummaryChartData.datasets[0].data = this.yearlySummary.map(
-      (item) => item.closingBalance,
+    this.annualSummaryChartData.datasets[0].data = this.annualSummary.map(
+      (item) => item.closingBalance - item.totalInterestEarned,
     );
-    this.yearlySummaryChartData.datasets[1].data = this.yearlySummary.map(
-      (item) => item.interestEarned,
+    this.annualSummaryChartData.datasets[1].data = this.annualSummary.map(
+      (item) => item.totalInterestEarned - item.yearlyInterestEarned,
+    );
+    this.annualSummaryChartData.datasets[2].data = this.annualSummary.map(
+      (item) => item.yearlyInterestEarned,
     );
 
-    if (this.yearlySummaryChart) {
-      this.yearlySummaryChart.update();
+    if (this.annualSummaryChart) {
+      this.annualSummaryChart.update();
+    }
+  }
+
+  private updateCompoundingSummaryChartData() {
+    this.compoundingSummaryChartData.labels = this.compoundingSummary.map(
+      (item) => this.datePipe.transform(item.date, 'MMM yy'),
+    );
+    this.compoundingSummaryChartData.datasets[0].data =
+      this.compoundingSummary.map(
+        (item, index) =>
+          item.closingBalance -
+          Math.min(index + 1, this.compoundingSummary.length - 1) *
+            (12 / Number(this.compoundingFrequency)) *
+            this.monthlyDeposit,
+      );
+
+    if (this.compoundingSummaryChart) {
+      this.compoundingSummaryChart.update();
+    }
+  }
+
+  private updateFinancialYearSummaryChartData(): void {
+    this.financialYearSummaryChartData.labels = this.financialYearSummary.map(
+      (item) => item.financialYearLabel,
+    );
+
+    this.financialYearSummaryChartData.datasets[0].data =
+      this.financialYearSummary.map((item) => item.interestEarned);
+
+    if (this.financialYearSummaryChart) {
+      this.financialYearSummaryChart.update();
     }
   }
 
