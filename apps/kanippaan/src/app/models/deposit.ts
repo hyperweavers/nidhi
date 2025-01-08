@@ -1,15 +1,15 @@
 export enum InterestPayoutType {
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  Yearly = 'Yearly',
-  Maturity = 'Maturity',
+  Monthly = '12',
+  Quarterly = '4',
+  Yearly = '1',
+  Maturity = '0',
 }
 
 export enum CompoundingFrequency {
-  None = 'None',
-  Monthly = 'Monthly',
-  Quarterly = 'Quarterly',
-  Yearly = 'Yearly',
+  None = '0',
+  Monthly = '12',
+  Quarterly = '4',
+  Yearly = '1',
 }
 
 export interface AnnualSummary {
@@ -40,4 +40,12 @@ export interface FinancialYearSummary {
 export interface PayoutSchedule {
   date: Date;
   interest: number;
+}
+
+export interface InstallmentSummary {
+  installment: number;
+  date: Date;
+  deposit: number;
+  interest: number;
+  balance: number;
 }

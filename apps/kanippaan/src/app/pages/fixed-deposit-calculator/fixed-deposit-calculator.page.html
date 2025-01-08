@@ -127,8 +127,9 @@
             placeholder=""
             required
           >
-            @for (frequency of compoundingFrequencyValues; track frequency) {
-            <option [ngValue]="frequency">{{ frequency }}</option>
+            @for (frequency of availableCompoundingFrequencies; track
+            frequency.key) {
+            <option [ngValue]="frequency.value">{{ frequency.key }}</option>
             }
           </select>
         </div>
@@ -150,8 +151,8 @@
             required
           >
             @for (payoutType of getAvailableInterestPayoutTypes(); track
-            payoutType) {
-            <option [ngValue]="payoutType">{{ payoutType }}</option>
+            payoutType.key) {
+            <option [ngValue]="payoutType.key">{{ payoutType.value }}</option>
             }
           </select>
         </div>
@@ -279,8 +280,8 @@
               class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
             >
               {{ interestPayoutType === InterestPayoutType.Maturity ? 'Maturity
-              Amount' : 'Average ' + InterestPayoutType[interestPayoutType] + '
-              Payout' }}
+              Amount' : 'Average ' +
+              interestPayoutTypesMap.get(interestPayoutType) + ' Payout' }}
             </p>
             <p class="text-right font-bold text-black dark:text-white">
               <span
@@ -305,7 +306,7 @@
                 class="absolute -top-5 left-0 flex h-full w-full flex-col items-center justify-center"
               >
                 <div class="text-2xl font-bold text-black dark:text-white">
-                  {{ maturityAmount | number:'1.0-0' }}
+                  {{ (depositAmount + interestEarned) | number:'1.0-0' }}
                 </div>
                 <div>Total</div>
               </div>
@@ -480,7 +481,7 @@
         class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="p-2 py-3 text-center sm:p-4">Year</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Calender Year</th>
           @if (interestPayoutType === InterestPayoutType.Maturity) {
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Opening Balance
@@ -610,7 +611,9 @@
           class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
         >
           <tr>
-            <th scope="col" class="p-2 py-3 text-center sm:p-4">Date</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Compounding Date
+            </th>
             <th scope="col" class="p-2 py-3 text-center sm:p-4">
               Opening Balance
             </th>
@@ -728,8 +731,12 @@
           class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
         >
           <tr>
-            <th scope="col" class="p-2 py-3 text-center sm:p-4">Date</th>
-            <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Payment Date
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Payment Amount
+            </th>
           </tr>
         </thead>
         <tbody>

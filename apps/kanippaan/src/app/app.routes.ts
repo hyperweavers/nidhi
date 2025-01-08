@@ -24,6 +24,13 @@ export const appRoutes: Route[] = [
       ).then((m) => m.FixedDepositCalculatorPage),
   },
   {
+    path: Constants.routes.RECURRING_DEPOSIT_CALCULATOR,
+    loadComponent: () =>
+      import(
+        './pages/recurring-deposit-calculator/recurring-deposit-calculator.page'
+      ).then((m) => m.RecurringDepositCalculatorPage),
+  },
+  {
     path: Constants.routes.GOLD_JEWELLER_PRICE_CALCULATOR,
     loadComponent: () =>
       import(

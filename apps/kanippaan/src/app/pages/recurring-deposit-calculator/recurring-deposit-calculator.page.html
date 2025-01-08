@@ -32,7 +32,7 @@
           <label
             for="annual-interest-rate"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-            >Annual Interest Rate (%)</label
+            >Annual Interest Rate</label
           >
           <input
             type="number"
@@ -49,13 +49,17 @@
         <!-- Deposit Term -->
         <div class="mb-6">
           <label
-            for="deposit-term"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
             >Deposit Term</label
           >
           <div class="grid grid-cols-2 gap-2">
             <!-- Years -->
-            <div>
+            <div class="flex flex-col items-center sm:flex-row">
+              <label
+                for="deposit-term-years"
+                class="mb-2 block text-xs font-medium text-gray-900 sm:mb-0 sm:mr-2 dark:text-white"
+                >Years</label
+              >
               <input
                 type="number"
                 min="0"
@@ -68,7 +72,12 @@
               />
             </div>
             <!-- Months -->
-            <div>
+            <div class="flex flex-col items-center sm:flex-row">
+              <label
+                for="deposit-term-months"
+                class="mb-2 block text-xs font-medium text-gray-900 sm:mb-0 sm:mr-2 dark:text-white"
+                >Months</label
+              >
               <input
                 type="number"
                 min="0"
@@ -80,19 +89,6 @@
                 placeholder="Months"
               />
             </div>
-            <!-- Days -->
-            <!-- <div>
-              <input
-                type="number"
-                min="0"
-                id="deposit-term-days"
-                name="depositTermDays"
-                [(ngModel)]="depositTermDays"
-                (change)="calculateMaturityAmount()"
-                class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                placeholder="Days"
-              />
-            </div> -->
           </div>
         </div>
 
@@ -112,8 +108,9 @@
             placeholder=""
             required
           >
-            @for (frequency of compoundingFrequencyValues; track frequency) {
-            <option [ngValue]="frequency">{{ frequency }}</option>
+            @for (frequency of availableCompoundingFrequencies; track
+            frequency.key) {
+            <option [ngValue]="frequency.value">{{ frequency.key }}</option>
             }
           </select>
         </div>
@@ -194,7 +191,10 @@
               Maturity Amount
             </p>
             <p class="text-right font-bold text-black dark:text-white">
-              {{ maturityAmount | number: '1.0-0' }}
+              <span
+                class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
+                >{{ maturityAmount | number: '1.0-0' }}</span
+              >
             </p>
 
             @if (maturityDate) {
@@ -244,69 +244,80 @@
     </section>
   </form>
 
-  <!-- Tabs Select -->
-  <div class="mt-6 flex items-center sm:hidden">
-    <label
-      for="tabs"
-      class="me-2 text-sm font-medium text-gray-900 dark:text-white"
-      >View</label
+  <div class="mt-10">
+    <!-- Tabs Select -->
+    <div class="mt-6 flex items-center sm:hidden">
+      <label
+        for="tabs"
+        class="me-2 text-sm font-medium text-gray-900 dark:text-white"
+        >View</label
+      >
+      <select
+        id="tabs"
+        [ngModel]="activeTab"
+        (ngModelChange)="onTabChange($event)"
+        class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+      >
+        @if (annualSummary.length > 0) {
+        <option [value]="Tabs.ANNUAL_SUMMARY">Annual Summary</option>
+        } @if (compoundingSummary.length > 0) {
+        <option [value]="Tabs.COMPOUNDING_SUMMARY">Compounding Summary</option>
+        }
+        <option [value]="Tabs.FINANCIAL_YEAR_SUMMARY">
+          Financial Year Summary
+        </option>
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <ul
+      class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
-    <select
-      id="tabs"
-      [ngModel]="activeTab"
-      (ngModelChange)="onTabChange($event)"
-      class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-    >
-      <option [value]="Tabs.YEARLY_ACCUMULATION_SCHEDULE">
-        Yearly Accumulation Summary
-      </option>
-      <option [value]="Tabs.INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE">
-        Interest Accumulation Schedule
-      </option>
-    </select>
+      @if (annualSummary.length > 0) {
+      <li class="me-2" (click)="activeTab = Tabs.ANNUAL_SUMMARY">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4"
+          [class.active]="activeTab === Tabs.ANNUAL_SUMMARY"
+        >
+          Annual Summary
+        </p>
+      </li>
+      } @if (compoundingSummary.length > 0) {
+      <li class="me-2" (click)="activeTab = Tabs.COMPOUNDING_SUMMARY">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          [class.active]="activeTab === Tabs.COMPOUNDING_SUMMARY"
+        >
+          Compounding Summary
+        </p>
+      </li>
+      }
+      <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
+        >
+          Financial Year Summary
+        </p>
+      </li>
+    </ul>
   </div>
 
-  <!-- Tabs -->
-  <ul
-    class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
-  >
-    <li class="me-2" (click)="activeTab = Tabs.YEARLY_ACCUMULATION_SCHEDULE">
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4"
-        [class.active]="activeTab === Tabs.YEARLY_ACCUMULATION_SCHEDULE"
-      >
-        Yearly Accumulation Summary
-      </p>
-    </li>
-    <li
-      class="me-2"
-      (click)="activeTab = Tabs.INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE"
-    >
-      <p
-        class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-        [class.active]="activeTab === Tabs.INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE"
-      >
-        Interest Accumulation Schedule
-      </p>
-    </li>
-  </ul>
-
-  @if (activeTab === Tabs.YEARLY_ACCUMULATION_SCHEDULE && yearlySummary.length >
-  0) {
+  @if (activeTab === Tabs.ANNUAL_SUMMARY && annualSummary.length > 0) {
   <section
-    class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
   >
     <div
-      #yearlySummaryChartContainer
+      #annualSummaryChartContainer
       class="relative w-full bg-white dark:bg-gray-800"
       [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
     >
       <canvas
-        #yearlySummaryChary
+        #annualSummaryChart
         baseChart
         [type]="ChartType.BAR"
-        [data]="yearlySummaryChartData"
-        [options]="yearlySummaryChartOptions"
+        [data]="annualSummaryChartData"
+        [options]="annualSummaryChartOptions"
         [class.m-4]="isChartInFullscreen"
       >
       </canvas>
@@ -316,7 +327,7 @@
         [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
       >
         <button
-          (click)="toggleFullscreen(Charts.YEARLY_SUMMARY)"
+          (click)="toggleFullscreen(Charts.ANNUAL_SUMMARY)"
           type="button"
           class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
@@ -366,7 +377,7 @@
     </div>
   </section>
 
-  <section class="relative mt-4 overflow-x-auto rounded-lg">
+  <section class="relative mt-6 overflow-x-auto rounded-lg">
     <table
       class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
@@ -374,15 +385,21 @@
         class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="p-2 py-3 text-center sm:p-4">Year</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Calender Year</th>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Opening Balance
           </th>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
-            Amount Deposited
+            Yearly Deposits
           </th>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
-            Interest Earned
+            Yearly Interest
+          </th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            Total Deposits
+          </th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            Total Interest
           </th>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Closing Balance
@@ -390,7 +407,8 @@
         </tr>
       </thead>
       <tbody>
-        @for (summary of yearlySummary; track summary.year) {
+        @for (summary of annualSummary; track summary.year; let index = $index)
+        {
         <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.year }}
@@ -399,10 +417,17 @@
             {{ summary.openingBalance | number : '1.0-0' }}
           </td>
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
-            {{ summary.amountDeposited | number : '1.0-0' }}
+            {{ summary.totalDeposits | number : '1.0-0' }}
           </td>
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
-            {{ summary.interestEarned | number : '1.0-0' }}
+            {{ summary.yearlyInterestEarned | number : '1.0-0' }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ (summary.closingBalance - summary.totalInterestEarned) | number :
+            '1.0-0' }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ summary.totalInterestEarned | number : '1.0-0' }}
           </td>
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.closingBalance | number : '1.0-0' }}
@@ -412,23 +437,22 @@
       </tbody>
     </table>
   </section>
-  }
-  <!-- @if (activeTab === Tabs.INTEREST_ACCUMULATION_OR_PAYOUT_SCHEDULE &&
-  payoutSchedule.length > 0) {
+  } @if (activeTab === Tabs.COMPOUNDING_SUMMARY && compoundingSummary.length >
+  0) {
   <section
-    class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
   >
     <div
-      #payoutScheduleChartContainer
+      #compoundingSummaryChartContainer
       class="relative w-full bg-white dark:bg-gray-800"
       [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
     >
       <canvas
-        #payoutScheduleChart
+        #compoundingSummaryChart
         baseChart
         [type]="ChartType.BAR"
-        [data]="payoutScheduleChartData"
-        [options]="payoutScheduleChartOptions"
+        [data]="compoundingSummaryChartData"
+        [options]="compoundingSummaryChartOptions"
         [class.m-4]="isChartInFullscreen"
       >
       </canvas>
@@ -438,7 +462,7 @@
         [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
       >
         <button
-          (click)="toggleFullscreen(Charts.PAYOUT_SCHEDULE)"
+          (click)="toggleFullscreen(Charts.COMPOUNDING_SUMMARY)"
           type="button"
           class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
@@ -488,8 +512,7 @@
     </div>
   </section>
 
-
-  <section class="mt-4">
+  <section class="mt-6">
     <div class="relative overflow-x-auto rounded-lg">
       <table
         class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
@@ -498,21 +521,43 @@
           class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
         >
           <tr>
-            <th scope="col" class="p-2 py-3 text-center sm:p-4">Date</th>
-            <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest</th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Compounding Date
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Opening Balance
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Amount Deposited
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Interest Earned
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Closing Balance
+            </th>
           </tr>
         </thead>
         <tbody>
-          @for (payout of payoutSchedule.slice((payoutSchedulePage * pageSize),
-          (payoutSchedulePage * pageSize) + pageSize > payoutSchedule.length ?
-          payoutSchedule.length : (payoutSchedulePage * pageSize) + pageSize);
-          track payout.date) {
+          @for (summary of compoundingSummary.slice((compoundingSummaryPage *
+          pageSize), (compoundingSummaryPage * pageSize) + pageSize >
+          compoundingSummary.length ? compoundingSummary.length :
+          (compoundingSummaryPage * pageSize) + pageSize); track summary.date) {
           <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
             <td scope="col" class="p-2 py-3 text-center sm:p-4">
-              {{ payout.date | date: 'MMM yy' }}
+              {{ summary.date | date: 'MMM yy' }}
             </td>
             <td scope="col" class="p-2 py-3 text-center sm:p-4">
-              {{ payout.interestAmount | number: '1.0-0' }}
+              {{ summary.openingBalance | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.amountDeposited | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.interestEarned | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.closingBalance | number: '1.0-0' }}
             </td>
           </tr>
           }
@@ -524,24 +569,24 @@
       <span class="text-sm text-gray-700 dark:text-gray-400">
         Showing
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (payoutSchedulePage * pageSize) + 1 }}</span
+          >{{ (compoundingSummaryPage * pageSize) + 1 }}</span
         >
         to
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ (payoutSchedulePage * pageSize) + pageSize > payoutSchedule.length
-          ? payoutSchedule.length : (payoutSchedulePage * pageSize) +
-          pageSize}}</span
+          >{{ (compoundingSummaryPage * pageSize) + pageSize >
+          compoundingSummary.length ? compoundingSummary.length :
+          (compoundingSummaryPage * pageSize) + pageSize}}</span
         >
         of
         <span class="font-semibold text-gray-900 dark:text-white"
-          >{{ payoutSchedule.length }}</span
+          >{{ compoundingSummary.length }}</span
         >
         Entries
       </span>
       <div class="xs:mt-0 mt-2 inline-flex">
         <button
-          (click)="payoutSchedulePage = payoutSchedulePage - 1"
-          [disabled]="payoutSchedulePage === 0"
+          (click)="compoundingSummaryPage = compoundingSummaryPage - 1"
+          [disabled]="compoundingSummaryPage === 0"
           class="inline-flex h-8 items-center justify-center rounded-s bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
           <svg
@@ -562,8 +607,8 @@
           Prev
         </button>
         <button
-          (click)="payoutSchedulePage = payoutSchedulePage + 1"
-          [disabled]="((payoutSchedulePage * pageSize) + pageSize) >= payoutSchedule.length"
+          (click)="compoundingSummaryPage = compoundingSummaryPage + 1"
+          [disabled]="((compoundingSummaryPage * pageSize) + pageSize) >= compoundingSummary.length"
           class="flex h-8 items-center justify-center rounded-e border-0 border-s border-gray-700 bg-gray-800 px-3 text-sm font-medium text-white hover:bg-gray-900 disabled:pointer-events-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
           Next
@@ -586,5 +631,131 @@
       </div>
     </div>
   </section>
-  } -->
+  } @if (activeTab === Tabs.FINANCIAL_YEAR_SUMMARY &&
+  financialYearSummary.length > 0) {
+  <section
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+  >
+    <div
+      #financialYearSummaryChartContainer
+      class="relative w-full bg-white dark:bg-gray-800"
+      [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
+    >
+      <canvas
+        #financialYearSummaryChart
+        baseChart
+        [type]="ChartType.BAR"
+        [data]="financialYearSummaryChartData"
+        [options]="financialYearSummaryChartOptions"
+        [class.m-4]="isChartInFullscreen"
+      >
+      </canvas>
+
+      <div
+        class="absolute"
+        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
+      >
+        <button
+          (click)="toggleFullscreen(Charts.FINANCIAL_YEAR_SUMMARY)"
+          type="button"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          @if (isChartInFullscreen) {
+          <span class="sr-only">Minimize</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+            />
+          </svg>
+          } @else {
+          <span class="sr-only">Expand</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-6">
+    <div class="relative overflow-x-auto rounded-lg">
+      <table
+        class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+      >
+        <thead
+          class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Financial Year
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Opening Balance
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Amount Deposited
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Interest Earned
+            </th>
+            <th scope="col" class="p-2 py-3 text-center sm:p-4">
+              Closing Balance
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (summary of financialYearSummary; track
+          summary.financialYearLabel) {
+          <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.financialYearLabel }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.openingBalance | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.amountDeposited | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.interestEarned | number: '1.0-0' }}
+            </td>
+            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+              {{ summary.closingBalance | number: '1.0-0' }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
 </div>

@@ -212,11 +212,7 @@ export class LoanEmiCalculatorPage implements OnInit {
 
   @HostListener('window:fullscreenchange')
   onFullscreenChange() {
-    if (this.document.fullscreenElement) {
-      this.isChartInFullscreen = true;
-    } else {
-      this.isChartInFullscreen = false;
-    }
+    this.isChartInFullscreen = !!this.document.fullscreenElement;
   }
 
   onLoanStartDateChange(dateString: string) {

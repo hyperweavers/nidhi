@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
 
 # Needed for nx-set-shas when run on the main branch
@@ -12,7 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  format-lint-build-test:
+    name: Format, Lint, Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -40,15 +38,16 @@ jobs:
       - name: Set NX SHAs
         uses: nrwl/nx-set-shas@v4
 
-      - if: ${{ github.event_name == 'pull_request' }}
+      - name: Set Tracking Branch for NX
+        if: ${{ github.event_name == 'pull_request' }}
         run: git branch --track main origin/main
 
       - name: Format
         run: npx nx-cloud record -- nx format:check
 
       - name: Lint, Build and Run Unit Tests
-        run: npx nx affected --target=lint,test,build --parallel
+        run: npx nx affected --target=lint,build,test --parallel
 
       # Disabled e2e tests until available
       # - name: Lint, Build and Run Unit & E2E Tests
-      #   run: npx nx affected --target=lint,test,build,e2e-ci --parallel
+      #   run: npx nx affected --target=lint,build,test,e2e-ci --parallel
