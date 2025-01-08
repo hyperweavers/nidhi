@@ -6,10 +6,12 @@ import {
   isEqual,
 } from 'date-fns';
 
+import { FinancialYear } from '../models/common';
 import { CompoundingFrequency, InterestPayoutType } from '../models/deposit';
 
 export class DateUtils {
   static readonly YEAR_IN_DAYS = 365;
+  static readonly FINANCIAL_YEAR_START_MONTH = 3; // Default to April. JavaScript months are 0-indexed.
 
   static getNextCompoundingOrPayoutDate(
     date: Date,
@@ -69,6 +71,26 @@ export class DateUtils {
 
   static getDifferenceInDays(date1: Date, date2: Date): number {
     return differenceInDays(date1, date2);
+  }
+
+  static getFinancialYear(date: Date): FinancialYear {
+    let year = date.getFullYear();
+    const month = date.getMonth();
+
+    // If the month is before April, it belongs to the previous financial year
+    if (month < this.FINANCIAL_YEAR_START_MONTH) {
+      year--;
+    }
+
+    const startDate = new Date(year, this.FINANCIAL_YEAR_START_MONTH, 1); // April 1st
+    const endDate = endOfDay(
+      new Date(year + 1, this.FINANCIAL_YEAR_START_MONTH - 1, 31),
+    ); // March 31st
+
+    return {
+      start: startDate,
+      end: endDate,
+    };
   }
 
   private static getNextFinancialQuarterEndDate(date: Date): Date {

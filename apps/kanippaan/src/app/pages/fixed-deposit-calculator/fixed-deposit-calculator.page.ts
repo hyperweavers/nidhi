@@ -137,8 +137,6 @@ export class FixedDepositCalculatorPage implements OnInit {
   financialYearSummary: FinancialYearSummary[] = [];
   payoutSchedule: PayoutSchedule[] = [];
 
-  private financialYearStartMonth = 3; // Default to April
-
   activeTab: Tabs = Tabs.ANNUAL_SUMMARY;
 
   compoundingSummaryPage = 0;
@@ -589,11 +587,11 @@ export class FixedDepositCalculatorPage implements OnInit {
   private generateAnnualSummary() {
     this.annualSummary = [];
 
-    let runningBalance = this.depositAmount;
     let currentYear = this.investmentStartDate.getFullYear();
-    let openingBalance = runningBalance;
     let interestAccumulatedThisYear = 0;
     let interestAccumulatedOverall = 0;
+    let openingBalance = this.depositAmount;
+    let runningBalance = openingBalance;
 
     const finalizeYear = () => {
       this.annualSummary.push({
@@ -653,16 +651,9 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.financialYearSummary = [];
 
     let runningBalance = this.depositAmount;
-    let fyStartDate = new Date(
-      this.investmentStartDate.getFullYear(),
-      this.financialYearStartMonth,
-      1,
-    );
-    let fyEndDate = new Date(
-      fyStartDate.getFullYear() + 1,
-      this.financialYearStartMonth - 1,
-      31,
-    );
+    let fy = DateUtils.getFinancialYear(this.investmentStartDate);
+    let fyStartDate = fy.start;
+    let fyEndDate = fy.end;
     let openingBalance = runningBalance;
     let interestAccumulatedThisYear = 0;
 
@@ -682,12 +673,9 @@ export class FixedDepositCalculatorPage implements OnInit {
 
         if (payoutDate > fyEndDate) {
           finalizeYear();
-          fyStartDate = new Date(fyEndDate);
-          fyEndDate = new Date(
-            fyStartDate.getFullYear() + 1,
-            this.financialYearStartMonth - 1,
-            31,
-          );
+          fy = DateUtils.getFinancialYear(payoutDate);
+          fyStartDate = fy.start;
+          fyEndDate = fy.end;
           openingBalance = runningBalance;
           interestAccumulatedThisYear = 0;
         }
@@ -701,12 +689,9 @@ export class FixedDepositCalculatorPage implements OnInit {
 
         if (payoutDate > fyEndDate) {
           finalizeYear();
-          fyStartDate = new Date(fyEndDate);
-          fyEndDate = new Date(
-            fyStartDate.getFullYear() + 1,
-            this.financialYearStartMonth - 1,
-            31,
-          );
+          fy = DateUtils.getFinancialYear(payoutDate);
+          fyStartDate = fy.start;
+          fyEndDate = fy.end;
           openingBalance = runningBalance;
           interestAccumulatedThisYear = 0;
         }
@@ -797,7 +782,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     );
     this.compoundingSummaryChartData.datasets[0].data =
       this.compoundingSummary.map(
-        (item) => item.openingBalance - this.depositAmount,
+        (item) => item.closingBalance - this.depositAmount,
       );
 
     if (this.compoundingSummaryChart) {
