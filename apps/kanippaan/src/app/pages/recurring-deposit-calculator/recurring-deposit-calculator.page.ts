@@ -1,18 +1,17 @@
 /*
-RD Formula:
+RD Maturity Calculation Formula:
 
 M = P * Math.pow((1 + ((r/100)/n)), (t*n))
 
 Where,
   M = Maturity amount
-  P = Periodic investment amount
+  P = Monthly installment
   r = Annual rate of interest
   n = Number of compounding in a year
   t = Number of years
 
-This formula computes the amount for each month. Calculate the monthly amount
-for each month and then add all the amounts to get the maturity value at the
-end of the tenure.
+This formula computes the amount for each month. Calculate the monthly amount for each month and
+then add all the amounts to get the maturity value at the end of the tenure.
 
 Let's assume a monthly investment of 5,000 for 1 year at 8% interest rate compounded quarterly.
 
@@ -22,7 +21,28 @@ For the third month, 2000 * Math.pow((1 + ((8/100)/4)), ((3/12)*4)) = 2040
 ...
 For the last month, 2000 * Math.pow((1 + ((8/100)/4)), ((12/12)*4)) = 2165
 
-Thus, the maturity amount is 25,059, interest earned comes to 25,059 - 24,000 = 1,059.
+Thus, the maturity amount is 25,059 (approximately), interest earned comes to 25,059 - 24,000 = 1,059.
+
+---------------------------------------------------------------------------------------------------------------
+
+RD Monthly Installment Calculation Formula:
+
+P = M / ((Math.pow((1 + ((r/100)/n)), (n * t)) - 1) / (1 - Math.pow((1 + ((r/100)/n)), (-1/(12/n)))))
+
+Where,
+  P = Monthly installment
+  M = Maturity amount
+  r = Annual rate of interest
+  n = Number of compounding in a year
+  t = Number of years
+
+Let's assume to earn a maturity amount of 1,00,000 within 1 year at 8% interest rate compounded quarterly.
+
+For the monthly installment, the calculations are as follows:
+P = 100000 / ((Math.pow((1 + ((8/100)/4)), (4 * 1)) - 1) / (1 - Math.pow((1 + ((8/100)/4)), (-1/(12/4)))))
+P = 100000 / ((Math.pow((1 + 0.02), 4) - 1) / (1 - Math.pow((1 + 0.02), (-1/3))))
+P = 100000 / ((Math.pow((1.02), 4) - 1) / (1 - Math.pow((1.02), (-1/3))))
+P = 7981 (approximately)
 */
 
 import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
@@ -49,6 +69,7 @@ import {
   CompoundingSummary,
   FinancialYearSummary,
   InstallmentSummary,
+  RecurringDepositCalculation,
 } from '../../models/deposit';
 import { ChartUtils } from '../../utils/chart.utils';
 import { DateUtils } from '../../utils/date.utils';
@@ -99,6 +120,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
   readonly pageSize = 12;
 
+  readonly RecurringDepositCalculation = RecurringDepositCalculation;
   readonly ChartType = ChartType;
   readonly Tabs = Tabs;
   readonly Charts = Charts;
@@ -111,7 +133,8 @@ export class RecurringDepositCalculatorPage implements OnInit {
         value: payoutType[1],
       }));
 
-  monthlyDeposit = 2000;
+  calculationType = RecurringDepositCalculation.Maturity;
+  monthlyInstallment = 2000;
   annualInterestRate = 7;
 
   depositTermYears = 5;
@@ -287,6 +310,20 @@ export class RecurringDepositCalculatorPage implements OnInit {
     this.isChartInFullscreen = !!this.document.fullscreenElement;
   }
 
+  onCalculationTypeChange(type: RecurringDepositCalculation) {
+    this.calculationType = type;
+
+    if (this.calculationType === RecurringDepositCalculation.Maturity) {
+      this.maturityAmount = 0;
+      this.monthlyInstallment = 2000;
+    } else {
+      this.maturityAmount = 100000;
+      this.monthlyInstallment = 0;
+    }
+
+    this.calculateMaturityAmount();
+  }
+
   onInvestmentStartDateChange(dateString: string) {
     this.investmentStartDate = new Date(dateString);
 
@@ -370,18 +407,33 @@ export class RecurringDepositCalculatorPage implements OnInit {
       return;
     }
 
+    const annualRate = this.annualInterestRate / 100;
+    const compoundingFrequency = Number(this.compoundingFrequency);
+    const compoundingInterest = annualRate / compoundingFrequency;
+    const totalInstallments = timeInYears * 12;
+
+    if (this.calculationType === RecurringDepositCalculation.Installment) {
+      this.monthlyInstallment =
+        this.maturityAmount /
+        ((Math.pow(
+          1 + compoundingInterest,
+          compoundingFrequency * timeInYears,
+        ) -
+          1) /
+          (1 -
+            Math.pow(
+              1 + compoundingInterest,
+              -1 / (12 / compoundingFrequency),
+            )));
+    }
+
+    this.installmentSummary = [];
+
     this.maturityDate = DateUtils.getDepositMaturityDate(
       this.investmentStartDate,
       this.depositTermYears,
       this.depositTermMonths,
     );
-
-    this.installmentSummary = [];
-
-    const annualRate = this.annualInterestRate / 100;
-    const compoundingFrequency = Number(this.compoundingFrequency);
-    const compoundingInterest = annualRate / compoundingFrequency;
-    const totalInstallments = timeInYears * 12;
 
     for (let i = 0; i <= totalInstallments; i++) {
       let date: Date;
@@ -391,22 +443,22 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
       if (i === 0) {
         date = new Date(this.investmentStartDate);
-        deposit = this.monthlyDeposit;
+        deposit = this.monthlyInstallment;
         balance = deposit;
         interest = 0;
       } else if (i === totalInstallments) {
         date = addMonths(this.investmentStartDate, i);
         deposit = 0;
         balance =
-          this.monthlyDeposit *
+          this.monthlyInstallment *
             Math.pow(1 + compoundingInterest, (i / 12) * compoundingFrequency) -
-          this.monthlyDeposit;
+          this.monthlyInstallment;
         interest = balance;
       } else {
         date = addMonths(this.investmentStartDate, i);
-        deposit = this.monthlyDeposit;
+        deposit = this.monthlyInstallment;
         balance =
-          this.monthlyDeposit *
+          this.monthlyInstallment *
           Math.pow(1 + compoundingInterest, (i / 12) * compoundingFrequency);
         interest = balance - deposit;
       }
@@ -421,10 +473,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
     }
 
     if (this.installmentSummary.length > 0) {
-      this.totalDeposit = this.monthlyDeposit * totalInstallments;
-      this.maturityAmount = this.installmentSummary.reduce(
-        (acc, cv) => (acc += cv.balance),
-        0,
+      this.totalDeposit = this.monthlyInstallment * totalInstallments;
+      this.maturityAmount = Math.round(
+        this.installmentSummary.reduce((acc, cv) => (acc += cv.balance), 0),
       );
       this.interestEarned = this.maturityAmount - this.totalDeposit;
     } else {
@@ -624,7 +675,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
           item.closingBalance -
           Math.min(index + 1, this.compoundingSummary.length - 1) *
             (12 / Number(this.compoundingFrequency)) *
-            this.monthlyDeposit,
+            this.monthlyInstallment,
       );
 
     if (this.compoundingSummaryChart) {

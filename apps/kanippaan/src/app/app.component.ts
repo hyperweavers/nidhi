@@ -19,7 +19,7 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { filter, map } from 'rxjs';
+import { filter } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
@@ -53,11 +53,10 @@ export class AppComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private settingsService: SettingsService,
-  ) {
-  }
+  ) {}
 
   public ngOnInit(): void {
-    this.router.events.subscribe((event) => {
+    this.router.events.pipe(untilDestroyed(this)).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         initFlowbite();
       }
@@ -76,15 +75,17 @@ export class AppComponent implements OnInit {
     });
 
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.pipe(
-        filter(
-          (event: VersionEvent): event is VersionReadyEvent =>
-            event.type === 'VERSION_READY',
-        ),
-        map(() => {
+      this.swUpdate.versionUpdates
+        .pipe(
+          filter(
+            (event: VersionEvent): event is VersionReadyEvent =>
+              event.type === 'VERSION_READY',
+          ),
+          untilDestroyed(this),
+        )
+        .subscribe(() => {
           this.showUpdateModal = true;
-        }),
-      );
+        });
     }
 
     this.configureInstallModel();
@@ -159,7 +160,9 @@ export class AppComponent implements OnInit {
 
   private configureInstallModel(): void {
     if (this.platform.IOS) {
-      if ('standalone' in window.navigator && window.navigator.standalone) {
+      const isInStandaloneMode =
+        'standalone' in window.navigator && window.navigator.standalone;
+      if (!isInStandaloneMode) {
         this.showInstallModal = true;
         this.ios = true;
       }

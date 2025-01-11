@@ -8,23 +8,83 @@
   <form (ngSubmit)="calculateMaturityAmount()" class="mt-4">
     <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
       <main>
-        <!-- Monthly Deposit Amount -->
-        <div class="mb-6">
+        <!-- Calculation Type -->
+        <div class="mb-6 flex">
           <label
-            for="monthly-amount"
+            class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
+            >Calculate</label
+          >
+          <div class="flex">
+            <div class="me-4 flex items-center">
+              <input
+                id="floating"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="calculationType"
+                [value]="RecurringDepositCalculation.Maturity"
+                (change)="onCalculationTypeChange(RecurringDepositCalculation.Maturity)"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="floating"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Maturity</label
+              >
+            </div>
+            <div class="flex items-center">
+              <input
+                id="fixed"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="calculationType"
+                [value]="RecurringDepositCalculation.Installment"
+                (change)="onCalculationTypeChange(RecurringDepositCalculation.Installment)"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="fixed"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Installment</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Installment/Maturity Amount -->
+        <div class="mb-6">
+          @if (calculationType === RecurringDepositCalculation.Maturity) {
+          <label
+            for="monthly-installment"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-            >Monthly Deposit Amount</label
+            >Monthly Installment Amount</label
           >
           <input
             type="number"
-            id="monthly-amount"
-            name="monthlyDeposit"
-            [(ngModel)]="monthlyDeposit"
+            id="monthly-installment"
+            name="monthlyInstallment"
+            [(ngModel)]="monthlyInstallment"
             (change)="calculateMaturityAmount()"
             class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder=""
             required
           />
+          } @else {
+          <label
+            for="maturity-amount"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Maturity Amount</label
+          >
+          <input
+            type="number"
+            id="maturity-amount"
+            name="maturityAmount"
+            [(ngModel)]="maturityAmount"
+            (change)="calculateMaturityAmount()"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+          }
         </div>
 
         <!-- Annual Interest Rate -->
@@ -188,12 +248,14 @@
             <p
               class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
             >
-              Maturity Amount
+              {{ calculationType === RecurringDepositCalculation.Maturity ?
+              'Maturity' : 'Monthly Installment' }} Amount
             </p>
             <p class="text-right font-bold text-black dark:text-white">
               <span
                 class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
-                >{{ maturityAmount | number: '1.0-0' }}</span
+                >{{ (calculationType === RecurringDepositCalculation.Maturity ?
+                maturityAmount : monthlyInstallment) | number: '1.0-0' }}</span
               >
             </p>
 
@@ -249,7 +311,7 @@
     <div class="mt-6 flex items-center sm:hidden">
       <label
         for="tabs"
-        class="me-2 text-sm font-medium text-gray-900 dark:text-white"
+        class="me-2 text-xl font-bold text-gray-900 dark:text-white"
         >View</label
       >
       <select
