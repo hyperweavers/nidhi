@@ -12,6 +12,11 @@ export enum CompoundingFrequency {
   Yearly = '1',
 }
 
+export enum RecurringDepositCalculation {
+  Maturity,
+  Installment,
+}
+
 export interface AnnualSummary {
   year: number;
   yearlyInterestEarned: number;
