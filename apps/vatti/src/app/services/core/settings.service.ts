@@ -1,13 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
-import { DOCUMENT } from '@angular/common';
 import { Constants } from '../../constants';
-import {
-  ColorScheme,
-  Settings,
-  Theme,
-} from '../../models/settings';
+import { ColorScheme, Settings, Theme } from '../../models/settings';
 
 @Injectable({
   providedIn: 'root',
