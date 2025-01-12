@@ -84,3 +84,6 @@ jobs:
           repository-name: 'hyperweavers/${{ matrix.app }}-site'
           branch: 'main'
           commit-message: 'Deploy ${{ matrix.app }} App 🚀'
+          clean-exclude: |
+            README.md
+            LICENSE
