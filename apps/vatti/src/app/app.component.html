@@ -1,0 +1,790 @@
+<div class="flex min-h-screen select-none flex-col bg-white dark:bg-gray-900">
+  <!-- App Header -->
+  <header class="fixed z-30 w-full">
+    <!-- PWA Install Notification -->
+    @if (showInstallModal) {
+      <div
+        tabindex="-1"
+        class="flex h-12 w-full items-center justify-between border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-600 dark:bg-gray-700"
+      >
+        <div
+          class="flex flex-1 items-center justify-center text-xs font-normal text-gray-500 sm:text-sm dark:text-gray-400"
+        >
+          <div
+            class="me-3 hidden h-6 w-6 flex-shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
+            [class.!flex]="ios"
+          >
+            <svg
+              class="h-6 w-6 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"
+              />
+            </svg>
+
+            <span class="sr-only">Install</span>
+          </div>
+
+          <p>
+            <span class="hidden md:block"
+              >Vatti is available as a PWA (Progressive Web App) which can be
+              installed on your device and used like regular native apps.</span
+            >
+            @if (ios) {
+              <span>
+                To install Vatti, close this modal, tap the “share” icon, and
+                then tap on “Add to home screen”.
+              </span>
+            }
+          </p>
+
+          @if (!ios) {
+            <button class="mx-0 md:mx-3" type="button" (click)="installApp()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 135 40"
+                class="h-10"
+              >
+                <path
+                  fill="#a6a6a6"
+                  d="M130.2,40H4.73A4.74,4.74,0,0,1,0,35.27V4.73A4.73,4.73,0,0,1,4.73,0H130.2A4.8,4.8,0,0,1,135,4.73V35.27A4.81,4.81,0,0,1,130.2,40Z"
+                />
+                <path
+                  class="fill-white dark:fill-black"
+                  d="M134,35.27a3.83,3.83,0,0,1-3.83,3.83H4.73A3.84,3.84,0,0,1,.89,35.27V4.72A3.84,3.84,0,0,1,4.73.89H130.2A3.83,3.83,0,0,1,134,4.72V35.27Z"
+                />
+                <path
+                  fill="#5a0fc8"
+                  d="M36.68,28.19l6.61-16.38H38.91L34.39,22.4,31.18,11.81H27.81L24.36,22.4l-2.43-4.83-2.2,6.78L22,28.19h4.31l3.12-9.49,3,9.49Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M40.56,25.26l1.26-3.18h3.63l-1.72-4.82,2.15-5.45,6.17,16.38H47.5l-1-2.93Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M12.7,22.57h2.7a7.64,7.64,0,0,0,2.18-.28l.7-2.15,1.95-6a4.74,4.74,0,0,0-.51-.67,5.61,5.61,0,0,0-4.39-1.66H8.55V28.19H12.7Zm3.57-7a2.14,2.14,0,0,1,.59,1.58,2.28,2.28,0,0,1-.52,1.58,2.69,2.69,0,0,1-2.08.65H12.7V15h1.57A2.73,2.73,0,0,1,16.27,15.58Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M61.25,14.45V8.74h.66v5.11h2.52v.6Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M67.94,14.45l-.13-.61h0a1.83,1.83,0,0,1-.63.55,2.08,2.08,0,0,1-.8.14,1.44,1.44,0,0,1-1-.33,1.2,1.2,0,0,1-.36-.93c0-.87.69-1.32,2.08-1.36l.72,0v-.27a1.09,1.09,0,0,0-.21-.74.91.91,0,0,0-.7-.24,3,3,0,0,0-1.21.32l-.2-.49a2.55,2.55,0,0,1,.7-.27,2.76,2.76,0,0,1,.75-.1,1.64,1.64,0,0,1,1.14.34,1.45,1.45,0,0,1,.37,1.09v2.92ZM66.47,14a1.33,1.33,0,0,0,1-.34,1.23,1.23,0,0,0,.35-.93v-.38l-.65,0a2.42,2.42,0,0,0-1.12.24.76.76,0,0,0-.34.67.66.66,0,0,0,.21.53A.92.92,0,0,0,66.47,14Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M70.36,10.17V13a1.1,1.1,0,0,0,.24.78,1,1,0,0,0,.74.26,1.22,1.22,0,0,0,1-.37,1.88,1.88,0,0,0,.31-1.2V10.17h.65v4.28h-.54l-.09-.57h0a1.23,1.23,0,0,1-.55.48,1.89,1.89,0,0,1-.81.17,1.63,1.63,0,0,1-1.17-.37A1.58,1.58,0,0,1,69.7,13v-2.8Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M77.59,14.45V11.68a1.1,1.1,0,0,0-.24-.78,1,1,0,0,0-.74-.26,1.22,1.22,0,0,0-1,.37,1.82,1.82,0,0,0-.31,1.2v2.24h-.65V10.17h.53l.1.59h0a1.25,1.25,0,0,1,.55-.49,1.77,1.77,0,0,1,.8-.18,1.63,1.63,0,0,1,1.17.38,1.56,1.56,0,0,1,.39,1.19v2.79Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M81.28,14.53A1.83,1.83,0,0,1,79.84,14a2.35,2.35,0,0,1-.51-1.62,2.44,2.44,0,0,1,.52-1.66,1.88,1.88,0,0,1,1.48-.59,3.17,3.17,0,0,1,.61.07,1.87,1.87,0,0,1,.49.16l-.2.55a3.23,3.23,0,0,0-.47-.15,2.68,2.68,0,0,0-.45-.05c-.87,0-1.31.55-1.31,1.66a2,2,0,0,0,.32,1.21,1.13,1.13,0,0,0,1,.42,2.82,2.82,0,0,0,1.1-.23v.58A2.35,2.35,0,0,1,81.28,14.53Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M86.31,14.45V11.68a1.1,1.1,0,0,0-.24-.78,1,1,0,0,0-.74-.26,1.25,1.25,0,0,0-1,.37,1.86,1.86,0,0,0-.31,1.2v2.24h-.65V8.37H84v1.84a4,4,0,0,1,0,.55h0a1.4,1.4,0,0,1,.54-.48,1.79,1.79,0,0,1,.81-.18,1.67,1.67,0,0,1,1.18.37A1.59,1.59,0,0,1,87,11.66v2.79Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M93,14.45l-.13-.61h0a1.76,1.76,0,0,1-.64.55,2,2,0,0,1-.79.14,1.42,1.42,0,0,1-1-.33,1.2,1.2,0,0,1-.36-.93c0-.87.69-1.32,2.07-1.36l.73,0v-.27a1,1,0,0,0-.22-.74.87.87,0,0,0-.69-.24,2.91,2.91,0,0,0-1.21.32l-.2-.49a2.61,2.61,0,0,1,.69-.27,2.84,2.84,0,0,1,.76-.1,1.59,1.59,0,0,1,1.13.34,1.41,1.41,0,0,1,.37,1.09v2.92ZM91.54,14a1.33,1.33,0,0,0,.95-.34,1.22,1.22,0,0,0,.34-.93v-.38l-.64,0a2.42,2.42,0,0,0-1.12.24.74.74,0,0,0-.34.67.66.66,0,0,0,.21.53A.9.9,0,0,0,91.54,14Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M97.58,13.28a1.09,1.09,0,0,1-.45.93,2.12,2.12,0,0,1-1.25.32,2.68,2.68,0,0,1-1.32-.27v-.6A3,3,0,0,0,95.9,14a1.5,1.5,0,0,0,.78-.17.54.54,0,0,0,.28-.49.55.55,0,0,0-.22-.43,3.44,3.44,0,0,0-.85-.42A4.75,4.75,0,0,1,95,12.1a1.19,1.19,0,0,1-.37-.37,1,1,0,0,1-.13-.51A1,1,0,0,1,95,10.4a1.91,1.91,0,0,1,1.17-.31,3.55,3.55,0,0,1,1.35.28l-.23.53a3,3,0,0,0-1.17-.26,1.27,1.27,0,0,0-.69.14.45.45,0,0,0-.24.4.48.48,0,0,0,.09.29.84.84,0,0,0,.28.23,5.4,5.4,0,0,0,.75.32,2.69,2.69,0,0,1,1,.56A1,1,0,0,1,97.58,13.28Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M71,28.45H69.23l-1.7-6c-.07-.26-.16-.63-.27-1.12s-.18-.83-.2-1c0,.3-.12.67-.22,1.14s-.19.81-.26,1l-1.65,5.93H63.15l-1.29-5-1.32-5h1.67l1.43,5.82c.22.94.38,1.76.48,2.48,0-.39.13-.82.23-1.3s.19-.87.27-1.16l1.63-5.84h1.62l1.66,5.86A22.75,22.75,0,0,1,70,26.76a18.14,18.14,0,0,1,.49-2.49L72,18.46h1.66Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M78.15,28.59a3.63,3.63,0,0,1-2.75-1,3.88,3.88,0,0,1-1-2.83,4.33,4.33,0,0,1,.92-2.92,3.22,3.22,0,0,1,2.54-1.06,3.11,3.11,0,0,1,2.36.91,3.48,3.48,0,0,1,.87,2.51V25h-5a2.56,2.56,0,0,0,.6,1.7,2.08,2.08,0,0,0,1.58.59,5.51,5.51,0,0,0,1.25-.13,6.05,6.05,0,0,0,1.24-.42v1.31a4.88,4.88,0,0,1-1.19.39A7.09,7.09,0,0,1,78.15,28.59ZM77.86,22a1.6,1.6,0,0,0-1.23.49,2.34,2.34,0,0,0-.55,1.41h3.43a2.12,2.12,0,0,0-.45-1.42A1.54,1.54,0,0,0,77.86,22Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M86.78,20.75a2.62,2.62,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.58,4.58,0,0,1-.8,2.89,2.91,2.91,0,0,1-4.45,0h-.1l-.3.89h-1.2V17.82h1.6v2.52c0,.19,0,.47,0,.84s0,.6,0,.7h.06A2.58,2.58,0,0,1,86.78,20.75Zm-.42,1.32a1.65,1.65,0,0,0-1.4.57,3.37,3.37,0,0,0-.44,1.91v.11a3.55,3.55,0,0,0,.44,2,1.64,1.64,0,0,0,1.43.62,1.47,1.47,0,0,0,1.3-.68,3.62,3.62,0,0,0,.44-2C88.13,22.93,87.54,22.07,86.36,22.07Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M101.65,28.45l-1-2.77H96.83l-1,2.77H94.13l3.74-10h1.78l3.73,10Zm-1.43-4.18-.94-2.72c-.07-.18-.16-.47-.28-.86s-.2-.68-.25-.86a14,14,0,0,1-.54,1.83l-.9,2.61Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M108.37,28.59a2.64,2.64,0,0,1-2.23-1H106c.07.63.1,1,.1,1.16v3.1h-1.61V20.89h1.3c0,.14.11.48.23,1h.08a2.53,2.53,0,0,1,2.26-1.15,2.64,2.64,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.66,4.66,0,0,1-.8,2.89A2.67,2.67,0,0,1,108.37,28.59ZM108,22.07a1.66,1.66,0,0,0-1.4.56,2.92,2.92,0,0,0-.44,1.79v.24a3.55,3.55,0,0,0,.44,2,1.62,1.62,0,0,0,1.43.62,1.44,1.44,0,0,0,1.28-.69,3.52,3.52,0,0,0,.45-1.95,3.41,3.41,0,0,0-.45-1.92A1.48,1.48,0,0,0,108,22.07Z"
+                />
+                <path
+                  class="dark:fill-white"
+                  d="M117.09,28.59a2.64,2.64,0,0,1-2.23-1h-.09c.06.63.09,1,.09,1.16v3.1h-1.6V20.89h1.29c0,.14.12.48.23,1h.08a2.54,2.54,0,0,1,2.26-1.15,2.62,2.62,0,0,1,2.2,1,4.59,4.59,0,0,1,.79,2.88,4.66,4.66,0,0,1-.8,2.89A2.67,2.67,0,0,1,117.09,28.59Zm-.39-6.52a1.66,1.66,0,0,0-1.4.56,2.92,2.92,0,0,0-.44,1.79v.24a3.55,3.55,0,0,0,.44,2,1.64,1.64,0,0,0,1.43.62,1.44,1.44,0,0,0,1.28-.69,3.52,3.52,0,0,0,.45-1.95,3.41,3.41,0,0,0-.44-1.92A1.51,1.51,0,0,0,116.7,22.07Z"
+                />
+              </svg>
+            </button>
+          }
+        </div>
+
+        <div class="flex items-center">
+          <button
+            (click)="closeInstallModal()"
+            type="button"
+            class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <svg
+              class="h-3 w-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Nav Bar -->
+    <nav
+      class="z-30 h-16 w-full border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center justify-start">
+            <button
+              (click)="toggleSidebar()"
+              aria-expanded="true"
+              aria-controls="sidebar"
+              class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:bg-gray-700 dark:focus:ring-gray-700"
+            >
+              <svg
+                class="h-6 w-6"
+                [class.hidden]="sidebarOpen"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="2"
+                  d="M5 7h14M5 12h14M5 17h14"
+                />
+              </svg>
+              <svg
+                class="h-6 w-6"
+                [class.hidden]="!sidebarOpen"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+
+            <a href="/" class="flex md:ml-2 md:mr-24">
+              <img src="./icons/logo.svg" class="h-8 w-8" alt="Vatti Logo" />
+              <span
+                class="font-logo self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white"
+                >Vatti</span
+              >
+            </a>
+          </div>
+
+          <div class="flex items-center">
+            <div class="ml-3 flex items-center">
+              <div>
+                <button
+                  type="button"
+                  class="flex rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  id="user-menu-button-2"
+                  aria-expanded="false"
+                  data-dropdown-toggle="dropdown-2"
+                >
+                  <img src="./icons/avatar.svg" class="h-8 w-8" alt="Avatar" />
+                </button>
+              </div>
+
+              <div
+                class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600 dark:bg-gray-700"
+                id="dropdown-2"
+                style="
+                  position: absolute;
+                  inset: 0px auto auto 0px;
+                  margin: 0px;
+                  transform: translate(1045px, 61px);
+                "
+                data-popper-placement="bottom"
+              >
+                <div class="px-4 py-3" role="none">
+                  <p class="text-sm text-gray-900 dark:text-white" role="none">
+                    Anonymous
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div
+    class="flex flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900"
+    [ngClass]="showInstallModal ? 'pt-28' : 'pt-16'"
+  >
+    <!-- Side Menu -->
+    <aside
+      class="transition-width fixed left-0 top-0 z-20 flex h-full w-64 flex-shrink-0 flex-col font-normal duration-75 lg:flex"
+      [ngClass]="showInstallModal ? 'pt-28' : 'pt-16'"
+      [class.hidden]="!sidebarOpen"
+      aria-label="Sidebar"
+    >
+      <div
+        class="relative flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white pt-0 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div class="flex flex-1 flex-col overflow-y-auto py-2">
+          <div
+            class="flex-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
+          >
+            <ul class="space-y-2 pb-2 lg:border-none">
+              <li>
+                <a
+                  (click)="toggleSidebar()"
+                  routerLink="/{{ Routes.HOME }}"
+                  routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                  class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <svg
+                    class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M11.293 3.293a1 1 0 0 1 1.414 0l6 6 2 2a1 1 0 0 1-1.414 1.414L19 12.414V19a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1v-3h-2v3a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2v-6.586l-.293.293a1 1 0 0 1-1.414-1.414l2-2 6-6Z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+
+                  <span class="ml-3">Home</span>
+                </a>
+              </li>
+
+              <li>
+                <button
+                  type="button"
+                  class="group flex w-full items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  aria-controls="dropdown-calculators"
+                  data-collapse-toggle="dropdown-calculators"
+                  aria-expanded="true"
+                >
+                  <svg
+                    class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-width="2"
+                      d="M3 11h18M3 15h18M8 10.792V19m4-8.208V19m4-8.208V19M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                    />
+                  </svg>
+                  <span
+                    class="ml-3 flex-1 whitespace-nowrap text-left"
+                    sidebar-toggle-item=""
+                    >Calculators</span
+                  >
+                  <svg
+                    sidebar-toggle-item=""
+                    class="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </button>
+
+                <ul id="dropdown-calculators" class="space-y-2 py-2">
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.LOAN_EMI_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Loan EMI</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.FIXED_DEPOSIT_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Fixed Deposit</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.RECURRING_DEPOSIT_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Recurring Deposit</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Gold Jewellery Price</a
+                    >
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
+            <div class="space-y-2 py-2">
+              <a
+                (click)="toggleSidebar()"
+                routerLink="/{{ Routes.SETTINGS }}"
+                routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+
+                <span class="ml-3">Settings</span>
+              </a>
+            </div>
+
+            <div class="space-y-2 py-2">
+              <a
+                (click)="toggleSidebar()"
+                target="_blank"
+                href="https://github.com/hyperweavers/nidhi/issues/new?template=01_bug_report.md"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 5 9 4V3m5 2 1-1V3m-3 6v11m0-11a5 5 0 0 1 5 5m-5-5a5 5 0 0 0-5 5m5-5a4.959 4.959 0 0 1 2.973 1H15V8a3 3 0 0 0-6 0v2h.027A4.959 4.959 0 0 1 12 9Zm-5 5H5m2 0v2a5 5 0 0 0 10 0v-2m2.025 0H17m-9.975 4H6a1 1 0 0 0-1 1v2m12-3h1.025a1 1 0 0 1 1 1v2M16 11h1a1 1 0 0 0 1-1V8m-9.975 3H7a1 1 0 0 1-1-1V8"
+                  />
+                </svg>
+
+                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                  >Report a Bug</span
+                >
+
+                <svg
+                  class="h-5 w-5 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                  />
+                </svg>
+              </a>
+
+              <a
+                (click)="toggleSidebar()"
+                target="_blank"
+                href="https://github.com/hyperweavers/nidhi/issues/new?template=02_feature_request.md"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M17.44 3a1 1 0 0 1 .707.293l2.56 2.56a1 1 0 0 1 0 1.414L18.194 9.78 14.22 5.806l2.513-2.513A1 1 0 0 1 17.44 3Zm-4.634 4.22-9.513 9.513a1 1 0 0 0 0 1.414l2.56 2.56a1 1 0 0 0 1.414 0l9.513-9.513-3.974-3.974ZM6 6a1 1 0 0 1 1 1v1h1a1 1 0 0 1 0 2H7v1a1 1 0 1 1-2 0v-1H4a1 1 0 0 1 0-2h1V7a1 1 0 0 1 1-1Zm9 9a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z"
+                    clip-rule="evenodd"
+                  />
+                  <path
+                    d="M19 13h-2v2h2v-2ZM13 3h-2v2h2V3Zm-2 2H9v2h2V5ZM9 3H7v2h2V3Zm12 8h-2v2h2v-2Zm0 4h-2v2h2v-2Z"
+                  />
+                </svg>
+
+                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                  >Request a Feature</span
+                >
+
+                <svg
+                  class="h-5 w-5 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                  />
+                </svg>
+              </a>
+
+              <a
+                (click)="toggleSidebar()"
+                target="_blank"
+                href="https://github.com/hyperweavers/nidhi/tree/main/apps/vatti"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12.006 2a9.847 9.847 0 0 0-6.484 2.44 10.32 10.32 0 0 0-3.393 6.17 10.48 10.48 0 0 0 1.317 6.955 10.045 10.045 0 0 0 5.4 4.418c.504.095.683-.223.683-.494 0-.245-.01-1.052-.014-1.908-2.78.62-3.366-1.21-3.366-1.21a2.711 2.711 0 0 0-1.11-1.5c-.907-.637.07-.621.07-.621.317.044.62.163.885.346.266.183.487.426.647.71.135.253.318.476.538.655a2.079 2.079 0 0 0 2.37.196c.045-.52.27-1.006.635-1.37-2.219-.259-4.554-1.138-4.554-5.07a4.022 4.022 0 0 1 1.031-2.75 3.77 3.77 0 0 1 .096-2.713s.839-.275 2.749 1.05a9.26 9.26 0 0 1 5.004 0c1.906-1.325 2.74-1.05 2.74-1.05.37.858.406 1.828.101 2.713a4.017 4.017 0 0 1 1.029 2.75c0 3.939-2.339 4.805-4.564 5.058a2.471 2.471 0 0 1 .679 1.897c0 1.372-.012 2.477-.012 2.814 0 .272.18.592.687.492a10.05 10.05 0 0 0 5.388-4.421 10.473 10.473 0 0 0 1.313-6.948 10.32 10.32 0 0 0-3.39-6.165A9.847 9.847 0 0 0 12.007 2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+
+                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                  >GitHub</span
+                >
+
+                <svg
+                  class="h-5 w-5 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                  />
+                </svg>
+              </a>
+
+              <div
+                (click)="share()"
+                class="group flex cursor-pointer items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M17.5 3a3.5 3.5 0 0 0-3.456 4.06L8.143 9.704a3.5 3.5 0 1 0-.01 4.6l5.91 2.65a3.5 3.5 0 1 0 .863-1.805l-5.94-2.662a3.53 3.53 0 0 0 .002-.961l5.948-2.667A3.5 3.5 0 1 0 17.5 3Z"
+                  />
+                </svg>
+
+                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                  >Share</span
+                >
+
+                <svg
+                  class="h-5 w-5 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-2">
+              <a
+                (click)="toggleSidebar()"
+                routerLink="/{{ Routes.ABOUT }}"
+                routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+
+                <span class="ml-3">About</span>
+              </a>
+
+              <a
+                (click)="toggleSidebar()"
+                routerLink="/{{ Routes.PRIVACY }}"
+                routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+
+                <span class="ml-3">Privacy Policy</span>
+              </a>
+
+              <a
+                (click)="toggleSidebar()"
+                routerLink="/{{ Routes.TERMS }}"
+                routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+
+                <span class="ml-3">Terms & Conditions</span>
+              </a>
+
+              <a
+                (click)="toggleSidebar()"
+                routerLink="/{{ Routes.DISCLAIMER }}"
+                routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <svg
+                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+
+                <span class="ml-3">Disclaimer</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Side Menu Overlay -->
+    <div
+      class="fixed inset-0 z-10 bg-gray-900/50 lg:hidden dark:bg-gray-900/90"
+      [class.hidden]="!sidebarOpen"
+      (click)="toggleSidebar()"
+    ></div>
+
+    <!-- Main Content -->
+    <main
+      class="relative w-full overflow-y-auto bg-gray-50 text-gray-900 lg:pl-64 dark:bg-gray-900 dark:text-white"
+    >
+      <router-outlet />
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="lg:pl-64">
+    <p class="my-4 text-center text-sm text-gray-500">
+      Built with
+      <svg
+        class="inline-block h-4 w-4 text-red-600"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="m12.75 20.66 6.184-7.098c2.677-2.884 2.559-6.506.754-8.705-.898-1.095-2.206-1.816-3.72-1.855-1.293-.034-2.652.43-3.963 1.442-1.315-1.012-2.678-1.476-3.973-1.442-1.515.04-2.825.76-3.724 1.855-1.806 2.201-1.915 5.823.772 8.706l6.183 7.097c.19.216.46.34.743.34a.985.985 0 0 0 .743-.34Z"
+        />
+      </svg>
+      for Privacy & Open Source by
+      <a
+        href="https://hyperweavers.com"
+        class="font-semibold hover:underline"
+        target="_blank"
+        >Hyper Weavers</a
+      >.
+    </p>
+  </footer>
+
+  <!-- PWA Update Notification -->
+  @if (showUpdateModal) {
+    <div
+      class="fixed bottom-5 right-5 flex w-96 max-w-sm items-center rounded-lg border border-gray-300 bg-gray-50 p-3 text-xs text-gray-800 shadow-md shadow-gray-500/20 sm:text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+      role="alert"
+    >
+      <div class="flex-1">A newer version available.</div>
+
+      <button
+        type="button"
+        class="me-2 inline-flex items-center rounded-lg bg-gray-700 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-800"
+        (click)="updateApp()"
+      >
+        <svg
+          class="me-2 h-3 w-3 dark:text-gray-300"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 18 20"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M16 1v5h-5M2 19v-5h5m10-4a8 8 0 0 1-14.947 3.97M1 10a8 8 0 0 1 14.947-3.97"
+          />
+        </svg>
+        Update
+      </button>
+
+      <button
+        type="button"
+        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 p-1.5 text-gray-500 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+        data-dismiss-target="#alert-5"
+        aria-label="Close"
+        (click)="closeUpdateModal()"
+      >
+        <span class="sr-only">Dismiss</span>
+        <svg
+          class="h-3 w-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+    </div>
+  }
+</div>

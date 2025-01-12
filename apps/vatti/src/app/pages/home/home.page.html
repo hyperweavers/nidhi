@@ -1,0 +1,77 @@
+<div class="flex h-full flex-col p-4">
+  <h2
+    class="m-4 mt-0 block text-center text-2xl font-semibold text-gray-900 sm:mb-10 sm:mt-4 dark:text-white"
+  >
+    Calculators
+  </h2>
+
+  <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div
+      routerLink="/{{ Routes.FIXED_DEPOSIT_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="flex w-full flex-col items-center justify-center">
+        <img
+          class="mb-4 size-12"
+          src="icons/fixed-deposit.svg"
+          alt="Fixed Deposit"
+        />
+        <h3
+          class="line-clamp-1 font-semibold leading-none text-gray-900 dark:text-white"
+        >
+          Fixed Deposit
+        </h3>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ Routes.RECURRING_DEPOSIT_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="flex w-full flex-col items-center justify-center">
+        <img
+          class="mb-4 size-12"
+          src="icons/recurring-deposit.svg"
+          alt="Recurring Deposit"
+        />
+        <h3
+          class="line-clamp-1 font-semibold leading-none text-gray-900 dark:text-white"
+        >
+          Recurring Deposit
+        </h3>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ Routes.LOAN_EMI_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="flex w-full flex-col items-center justify-center">
+        <img class="mb-4 size-12" src="icons/loan-emi.svg" alt="Loan EMI" />
+        <h3
+          class="line-clamp-1 font-semibold leading-none text-gray-900 dark:text-white"
+        >
+          Loan EMI
+        </h3>
+      </div>
+    </div>
+
+    <div
+      routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
+      class="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div class="flex w-full flex-col items-center justify-center">
+        <img
+          class="mb-4 size-12"
+          src="icons/gold-jewellery-price.svg"
+          alt="Gold Jewellery Price"
+        />
+        <h3
+          class="line-clamp-1 font-semibold leading-none text-gray-900 dark:text-white"
+        >
+          Gold Jewellery Price
+        </h3>
+      </div>
+    </div>
+  </div>
+</div>

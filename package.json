@@ -4,7 +4,7 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "generate-icons:pangu": "npx pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && npx nx format pangu",
-    "generate-icons:kanippaan": "npx pwa-asset-generator apps/kanippaan/public/icons/logo.svg apps/kanippaan/public/icons/ --manifest apps/kanippaan/public/manifest.webmanifest --index apps/kanippaan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format kanippaan",
+    "generate-icons:vatti": "npx pwa-asset-generator apps/vatti/public/icons/logo.svg apps/vatti/public/icons/ --manifest apps/vatti/public/manifest.webmanifest --index apps/vatti/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format vatti",
     "prepare": "husky install"
   },
   "private": true,

@@ -5,7 +5,7 @@ Thank you for taking the time to submit this pull request!
 ## Affected App(s)
 
 - [ ] Pangu
-- [ ] Kanippaan
+- [ ] Vatti
 
 ## Change Type
 
