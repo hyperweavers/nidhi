@@ -33,7 +33,7 @@
       "urls": ["https://api-new.nacjewellers.com/graphql"],
       "version": 1,
       "cacheConfig": {
-        "maxSize": 20,
+        "maxSize": 5,
         "maxAge": "12h",
         "timeout": "10s",
         "strategy": "freshness"
