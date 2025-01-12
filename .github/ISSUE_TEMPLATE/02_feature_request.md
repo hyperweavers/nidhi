@@ -11,7 +11,7 @@ Thank you for taking the time to suggest this feature!
 ## Feature for App(s)
 
 - [ ] Pangu
-- [ ] Kanippaan
+- [ ] Vatti
 
 ## Problem Statement
 

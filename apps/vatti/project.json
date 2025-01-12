@@ -1,9 +1,9 @@
 {
-  "name": "kanippaan",
+  "name": "vatti",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/kanippaan/src",
+  "sourceRoot": "apps/vatti/src",
   "tags": [],
   "i18n": {
     "sourceLocale": "en-IN"
@@ -13,19 +13,19 @@
       "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/kanippaan",
-        "index": "apps/kanippaan/src/index.html",
-        "browser": "apps/kanippaan/src/main.ts",
+        "outputPath": "dist/apps/vatti",
+        "index": "apps/vatti/src/index.html",
+        "browser": "apps/vatti/src/main.ts",
         "polyfills": ["zone.js"],
-        "tsConfig": "apps/kanippaan/tsconfig.app.json",
+        "tsConfig": "apps/vatti/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/kanippaan/public"
+            "input": "apps/vatti/public"
           }
         ],
-        "styles": ["apps/kanippaan/src/styles.scss"],
+        "styles": ["apps/vatti/src/styles.scss"],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js",
         ]
@@ -45,7 +45,7 @@
             }
           ],
           "outputHashing": "all",
-          "serviceWorker": "apps/kanippaan/ngsw-config.json"
+          "serviceWorker": "apps/vatti/ngsw-config.json"
         },
         "development": {
           "optimization": false,
@@ -62,10 +62,10 @@
       },
       "configurations": {
         "production": {
-          "buildTarget": "kanippaan:build:production"
+          "buildTarget": "vatti:build:production"
         },
         "development": {
-          "buildTarget": "kanippaan:build:development"
+          "buildTarget": "vatti:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -73,7 +73,7 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "kanippaan:build"
+        "buildTarget": "vatti:build"
       }
     },
     "lint": {
@@ -83,15 +83,15 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/kanippaan/jest.config.ts"
+        "jestConfig": "apps/vatti/jest.config.ts"
       }
     },
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "kanippaan:build",
+        "buildTarget": "vatti:build",
         "port": 4300,
-        "staticFilePath": "dist/apps/kanippaan/browser",
+        "staticFilePath": "dist/apps/vatti/browser",
         "spa": true
       }
     }

@@ -1,6 +1,6 @@
 {
-  "name": "Kanippaan",
-  "short_name": "Kanippaan",
+  "name": "Vatti",
+  "short_name": "Vatti",
   "description": "Privacy focused open source financial calculators and utilities.",
   "categories": ["finance"],
   "lang": "en",
@@ -41,13 +41,13 @@
       "src": "icons/screenshot-1024x768.png",
       "sizes": "1024x768",
       "type": "image/png",
-      "label": "Kanippaan"
+      "label": "Vatti"
     },
     {
       "src": "icons/screenshot-1024x768.png",
       "sizes": "1024x768",
       "type": "image/png",
-      "label": "Kanippaan",
+      "label": "Vatti",
       "form_factor": "wide"
     }
   ]

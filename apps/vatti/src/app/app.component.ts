@@ -124,8 +124,8 @@ export class AppComponent implements OnInit {
     this.toggleSidebar();
 
     const shareData = {
-      title: 'Kanippaan',
-      text: "Hey there! I found this awesome app called Kanippaan. It offers a set of privacy focused open source financial calculators and utilities. I thought you might like it. Why don't you give a try?",
+      title: 'Vatti',
+      text: "Hey there! I found this awesome app called Vatti. It offers a set of privacy focused open source financial calculators and utilities. I thought you might like it. Why don't you give a try?",
       url: this.document.location.origin,
     };
     let shared = false;
@@ -148,7 +148,7 @@ export class AppComponent implements OnInit {
 
     if (!shared) {
       const a = this.document.createElement('a');
-      a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%Kanippaan&body=${encodeURI(
+      a.href = `mailto:?subject=Look%20at%20this%20awesome%20app%20-%Vatti&body=${encodeURI(
         shareData.text + ' The app is available at ' + shareData.url,
       )}`;
 

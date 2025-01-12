@@ -1,8 +1,8 @@
 export default {
-  displayName: 'kanippaan',
+  displayName: 'vatti',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/apps/kanippaan',
+  coverageDirectory: '../../coverage/apps/vatti',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

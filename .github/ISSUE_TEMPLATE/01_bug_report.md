@@ -11,7 +11,7 @@ Thank you for taking the time to fill out this bug report!
 ## Affected App(s)
 
 - [ ] Pangu
-- [ ] Kanippaan
+- [ ] Vatti
 
 ## Expected Behavior
 
