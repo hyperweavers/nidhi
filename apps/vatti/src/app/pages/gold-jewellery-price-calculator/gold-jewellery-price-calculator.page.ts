@@ -41,6 +41,8 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
   tax = 0;
   totalAmountPayable = 0;
 
+  showPriceLoading = true;
+
   // Chart Data
   priceBreakdownChartData: ChartData<
     ChartType.DOUGHNUT,
@@ -74,6 +76,7 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
     dataService.goldRate$.pipe(untilDestroyed(this)).subscribe((price) => {
       this.goldPricePerGram = price;
       this.calculateTotalPrice();
+      this.showPriceLoading = false;
       cdr.markForCheck();
     });
   }
