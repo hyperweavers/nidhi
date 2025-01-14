@@ -54,3 +54,28 @@ export interface InstallmentSummary {
   interest: number;
   balance: number;
 }
+
+export interface PostOfficeSavingsSchemes {
+  lastUpdated: number;
+  effective: PostOfficeSavingsSchemeEffectiveDate;
+  schemes: PostOfficeSavingsScheme[];
+}
+
+export interface PostOfficeSavingsSchemeEffectiveDate {
+  from: number;
+  to: number;
+}
+
+export interface PostOfficeSavingsScheme {
+  title: string;
+  interestRate: number;
+  compoundingFrequency: PostOfficeSavingsSchemeCompoundingFrequency;
+  compounding: boolean;
+  tenure: number;
+}
+
+export enum PostOfficeSavingsSchemeCompoundingFrequency {
+  Monthly = 'Monthly',
+  Quarterly = 'Quarterly',
+  Annually = 'Annually',
+}

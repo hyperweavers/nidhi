@@ -81,6 +81,7 @@
     "fullnm",
     "horz",
     "hyperweavers",
+    "IBJA",
     "indexid",
     "indexvalue",
     "INDSTR",
@@ -149,8 +150,8 @@
     "vwap",
     "webp",
     "xlink",
-    "வட்டி",
     "நிதி",
-    "பங்கு"
+    "பங்கு",
+    "வட்டி"
   ]
 }
