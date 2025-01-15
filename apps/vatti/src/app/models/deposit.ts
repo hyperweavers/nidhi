@@ -67,15 +67,41 @@ export interface PostOfficeSavingsSchemeEffectiveDate {
 }
 
 export interface PostOfficeSavingsScheme {
-  title: string;
+  title: PostOfficeSavingsSchemeTitle;
   interestRate: number;
   compoundingFrequency: PostOfficeSavingsSchemeCompoundingFrequency;
   compounding: boolean;
   tenure: number;
 }
 
+export interface PostOfficeSavingsSchemeReturns
+  extends PostOfficeSavingsScheme {
+  effectiveYield: number;
+  maturityDate: Date;
+  returns: Returns;
+}
+
 export enum PostOfficeSavingsSchemeCompoundingFrequency {
   Monthly = 'Monthly',
   Quarterly = 'Quarterly',
   Annually = 'Annually',
+}
+
+export enum PostOfficeSavingsSchemeTitle {
+  POSA = 'Post Office Savings Account',
+  TD = 'Time Deposit',
+  RD = 'Recurring Deposit',
+  SCSS = 'Senior Citizen Savings Scheme',
+  MIA = 'Monthly Income Account',
+  NSC = 'National Savings Certificate (VIII Issue)',
+  PPF = 'Public Provident Fund Scheme',
+  KVP = 'Kisan Vikas Patra',
+  MSSC = 'Mahila Samman Savings Certificate',
+  SSA = 'Sukanya Samriddhi Account Scheme',
+}
+
+export interface Returns {
+  principal: number;
+  interest: number;
+  maturity: number;
 }

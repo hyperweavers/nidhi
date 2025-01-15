@@ -93,6 +93,22 @@ export class DateUtils {
     };
   }
 
+  static compoundingFrequencyStringToValue(
+    compoundingFrequencyString: string,
+  ): number {
+    switch (compoundingFrequencyString) {
+      case 'Monthly':
+        return Number(CompoundingFrequency.Monthly);
+
+      case 'Quarterly':
+        return Number(CompoundingFrequency.Quarterly);
+
+      case 'Yearly':
+      default:
+        return Number(CompoundingFrequency.Yearly);
+    }
+  }
+
   private static getNextFinancialQuarterEndDate(date: Date): Date {
     let dayEnd = endOfDay(date);
     let quarterEnd = endOfQuarter(dayEnd);
