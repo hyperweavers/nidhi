@@ -3,6 +3,7 @@ name: Feature Request
 about: Suggest a feature to help us evolve.
 title: '[FEAT]: '
 labels: ['enhancement', 'triage']
+projects: ['hyperweavers#6']
 assignees: ''
 ---
 

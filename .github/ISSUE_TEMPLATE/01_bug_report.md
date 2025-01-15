@@ -3,6 +3,7 @@ name: Bug Report
 about: Report a bug to help us improve.
 title: '[BUG]: '
 labels: ['bug', 'triage']
+projects: ['hyperweavers#6']
 assignees: ''
 ---
 
