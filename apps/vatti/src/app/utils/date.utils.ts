@@ -30,8 +30,8 @@ export class DateUtils {
     ) {
       nextDate = DateUtils.getNextFinancialQuarterEndDate(nextDate);
     } else if (
-      frequency === CompoundingFrequency.Yearly ||
-      frequency === InterestPayoutType.Yearly
+      frequency === CompoundingFrequency.Annually ||
+      frequency === InterestPayoutType.Annually
     ) {
       for (let quarters = 4; quarters > 0; quarters--) {
         nextDate = DateUtils.getNextFinancialQuarterEndDate(nextDate);
@@ -103,9 +103,9 @@ export class DateUtils {
       case 'Quarterly':
         return Number(CompoundingFrequency.Quarterly);
 
-      case 'Yearly':
+      case 'Annually':
       default:
-        return Number(CompoundingFrequency.Yearly);
+        return Number(CompoundingFrequency.Annually);
     }
   }
 

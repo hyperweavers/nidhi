@@ -1,7 +1,7 @@
 export enum InterestPayoutType {
   Monthly = '12',
   Quarterly = '4',
-  Yearly = '1',
+  Annually = '1',
   Maturity = '0',
 }
 
@@ -9,7 +9,7 @@ export enum CompoundingFrequency {
   None = '0',
   Monthly = '12',
   Quarterly = '4',
-  Yearly = '1',
+  Annually = '1',
 }
 
 export enum RecurringDepositCalculation {
