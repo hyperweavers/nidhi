@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +23,7 @@ import { ChartUtils } from '../../utils/chart.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [DataService, DecimalPipe],
 })
-export class GoldJewelleryPriceCalculatorPage implements OnInit {
+export class GoldJewelleryPriceCalculatorPage {
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
   private readonly GSTPercentage = 3; // 3% GST rate
@@ -79,10 +78,6 @@ export class GoldJewelleryPriceCalculatorPage implements OnInit {
       this.showPriceLoading = false;
       cdr.markForCheck();
     });
-  }
-
-  ngOnInit() {
-    this.calculateTotalPrice();
   }
 
   calculateTotalPrice() {

@@ -52,7 +52,7 @@ export class ChartUtils {
     data: [],
   };
 
-  static readonly commonBarChartDatasetWithGap: ChartDataset<
+  static readonly defaultBarChartDatasetWithGap: ChartDataset<
     ChartType.BAR,
     (number | [number, number] | null)[]
   > = {
@@ -197,7 +197,7 @@ export class ChartUtils {
       this: TooltipModel<ChartType.LINE>,
       tooltipItems: TooltipItem<ChartType.LINE>[],
     ) => string | string[] | void,
-  ): ChartConfiguration['options'] {
+  ): ChartConfiguration<ChartType.LINE>['options'] {
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -284,7 +284,7 @@ export class ChartUtils {
       this: TooltipModel<ChartType.BAR>,
       tooltipItems: TooltipItem<ChartType.BAR>[],
     ) => string | string[] | void,
-  ): ChartConfiguration['options'] {
+  ): ChartConfiguration<ChartType.BAR>['options'] {
     return {
       responsive: true,
       maintainAspectRatio: false,
