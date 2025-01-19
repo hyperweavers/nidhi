@@ -1,4 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { PostOfficeSavingsSchemesPage } from './post-office-savings-schemes.page';
 
 describe('PostOfficeSavingsSchemesPage', () => {
@@ -8,6 +10,7 @@ describe('PostOfficeSavingsSchemesPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PostOfficeSavingsSchemesPage],
+      providers: [provideHttpClient()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PostOfficeSavingsSchemesPage);
