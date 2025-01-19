@@ -308,6 +308,7 @@ export class LoanEmiCalculatorPage implements OnInit {
     }
   }
 
+  // FIXME: Chart does not looks correct when a interest rate revision with higher interest that the actual rate is added.
   calculateAmortization() {
     const P = this.principalAmount;
     const n = this.loanTermYears * 12;

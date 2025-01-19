@@ -1,11 +1,11 @@
-<div class="p-4 text-gray-500 dark:text-gray-400">
+<div class="flex min-h-full flex-col p-4 text-gray-500 dark:text-gray-400">
   <h2
-    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-10 sm:mt-4 dark:text-white"
+    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-8 sm:mt-4 dark:text-white"
   >
     Fixed Deposit Calculator
   </h2>
 
-  <form (ngSubmit)="calculateMaturityAmount()" class="mt-4">
+  <form (ngSubmit)="calculateMaturityAmount()">
     <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
       <main>
         <!-- Deposit Amount -->
@@ -129,30 +129,32 @@
           >
             @for (frequency of availableCompoundingFrequencies; track
             frequency.key) {
-            <option [ngValue]="frequency.value">{{ frequency.key }}</option>
+            <option [ngValue]="frequency.key">{{ frequency.value }}</option>
             }
           </select>
         </div>
 
-        <!-- Interest Payout Type -->
+        <!-- Interest Payout Frequency -->
         <div class="mb-6">
           <label
-            for="interest-payout-type"
+            for="interest-payout-frequency"
             class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-            >Interest Payout Type</label
+            >Interest Payout Frequency</label
           >
           <select
-            id="interest-payout-type"
-            name="interestPayoutType"
-            [(ngModel)]="interestPayoutType"
+            id="interest-payout-frequency"
+            name="interestPayoutFrequency"
+            [(ngModel)]="interestPayoutFrequency"
             (change)="calculateMaturityAmount()"
             class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder=""
             required
           >
-            @for (payoutType of getAvailableInterestPayoutTypes(); track
-            payoutType.key) {
-            <option [ngValue]="payoutType.key">{{ payoutType.value }}</option>
+            @for (payoutFrequency of getAvailableInterestPayoutFrequencies();
+            track payoutFrequency.key) {
+            <option [ngValue]="payoutFrequency.key">
+              {{ payoutFrequency.value }}
+            </option>
             }
           </select>
         </div>
@@ -279,15 +281,17 @@
             <p
               class="leading-none tracking-tight text-gray-800 dark:text-gray-300"
             >
-              {{ interestPayoutType === InterestPayoutType.Maturity ? 'Maturity
-              Amount' : 'Average ' +
-              interestPayoutTypesMap.get(interestPayoutType) + ' Payout' }}
+              {{ interestPayoutFrequency === InterestPayoutFrequency.Maturity ?
+              'Maturity Amount' : 'Average ' +
+              interestPayoutFrequencyMap.get(interestPayoutFrequency) + '
+              Payout' }}
             </p>
             <p class="text-right font-bold text-black dark:text-white">
               <span
                 class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
-                >{{ (interestPayoutType === InterestPayoutType.Maturity ?
-                maturityAmount : averagePayout) | number: '1.0-0' }}</span
+                >{{ (interestPayoutFrequency ===
+                InterestPayoutFrequency.Maturity ? maturityAmount :
+                averagePayout) | number: '1.0-0' }}</span
               >
             </p>
           </div>
@@ -327,7 +331,7 @@
     </section>
   </form>
 
-  <div class="mt-10">
+  <nav class="mt-4">
     <!-- Tabs Select -->
     <div class="mt-6 flex items-center sm:hidden">
       <label
@@ -397,7 +401,7 @@
       </li>
       }
     </ul>
-  </div>
+  </nav>
 
   @if (activeTab === Tabs.ANNUAL_SUMMARY && annualSummary.length > 0) {
   <section
@@ -482,7 +486,7 @@
       >
         <tr>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">Calender Year</th>
-          @if (interestPayoutType === InterestPayoutType.Maturity) {
+          @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Opening Balance
           </th>
@@ -493,7 +497,7 @@
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Total Interest
           </th>
-          @if (interestPayoutType === InterestPayoutType.Maturity) {
+          @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
           <th scope="col" class="p-2 py-3 text-center sm:p-4">
             Closing Balance
           </th>
@@ -506,7 +510,7 @@
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.year }}
           </td>
-          @if (interestPayoutType === InterestPayoutType.Maturity) {
+          @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.openingBalance | number : '1.0-0' }}
           </td>
@@ -517,7 +521,7 @@
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.totalInterestEarned | number : '1.0-0' }}
           </td>
-          @if (interestPayoutType === InterestPayoutType.Maturity) {
+          @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
           <td scope="col" class="p-2 py-3 text-center sm:p-4">
             {{ summary.closingBalance | number : '1.0-0' }}
           </td>

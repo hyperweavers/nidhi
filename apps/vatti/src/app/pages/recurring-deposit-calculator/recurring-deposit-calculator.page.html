@@ -1,11 +1,11 @@
-<div class="p-4 text-gray-500 dark:text-gray-400">
+<div class="flex min-h-full flex-col p-4 text-gray-500 dark:text-gray-400">
   <h2
-    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-10 sm:mt-4 dark:text-white"
+    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-8 sm:mt-4 dark:text-white"
   >
     Recurring Deposit Calculator
   </h2>
 
-  <form (ngSubmit)="calculateMaturityAmount()" class="mt-4">
+  <form (ngSubmit)="calculateMaturityAmount()">
     <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
       <main>
         <!-- Calculation Type -->
@@ -170,7 +170,7 @@
           >
             @for (frequency of availableCompoundingFrequencies; track
             frequency.key) {
-            <option [ngValue]="frequency.value">{{ frequency.key }}</option>
+            <option [ngValue]="frequency.key">{{ frequency.value }}</option>
             }
           </select>
         </div>
@@ -306,7 +306,7 @@
     </section>
   </form>
 
-  <div class="mt-10">
+  <nav class="mt-4">
     <!-- Tabs Select -->
     <div class="mt-6 flex items-center sm:hidden">
       <label
@@ -363,7 +363,7 @@
         </p>
       </li>
     </ul>
-  </div>
+  </nav>
 
   @if (activeTab === Tabs.ANNUAL_SUMMARY && annualSummary.length > 0) {
   <section

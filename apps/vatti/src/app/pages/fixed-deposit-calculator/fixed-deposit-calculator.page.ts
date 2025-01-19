@@ -44,7 +44,7 @@ import {
   CompoundingFrequency,
   CompoundingSummary,
   FinancialYearSummary,
-  InterestPayoutType,
+  InterestPayoutFrequency,
   PayoutSchedule,
 } from '../../models/deposit';
 import { ChartUtils } from '../../utils/chart.utils';
@@ -99,30 +99,35 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   readonly pageSize = 12;
 
-  readonly InterestPayoutType = InterestPayoutType;
+  readonly InterestPayoutFrequency = InterestPayoutFrequency;
   readonly ChartType = ChartType;
   readonly Tabs = Tabs;
   readonly Charts = Charts;
 
-  interestPayoutTypesMap: Map<string, InterestPayoutType> = new Map(
-    Object.entries(InterestPayoutType).map(
-      (entry) => [entry[1], entry[0]] as [string, InterestPayoutType],
-    ),
+  interestPayoutFrequencyMap: Map<number, string> = new Map(
+    Object.entries(InterestPayoutFrequency)
+      .filter((payoutFrequency) => typeof payoutFrequency[1] === 'number')
+      .map((entry) => [entry[1], entry[0]] as [number, string]),
   );
-  availableCompoundingFrequencies: Array<EnumObject<CompoundingFrequency>> =
-    Object.entries(CompoundingFrequency)
-      .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
-      .map((payoutType) => ({
-        key: payoutType[0],
-        value: payoutType[1],
-      }));
+  availableCompoundingFrequencies: Array<EnumObject<string>> = Object.entries(
+    CompoundingFrequency,
+  )
+    .filter((payoutFrequency) => typeof payoutFrequency[1] === 'number')
+    .filter(
+      (payoutFrequency) => payoutFrequency[1] !== CompoundingFrequency.None,
+    )
+    .map((payoutFrequency) => ({
+      key: payoutFrequency[1] as number,
+      value: payoutFrequency[0],
+    }));
 
   depositAmount = 100000;
   annualInterestRate = 7;
   depositTermYears = 5;
   depositTermMonths = 0;
   depositTermDays = 0;
-  interestPayoutType: InterestPayoutType = InterestPayoutType.Maturity;
+  interestPayoutFrequency: InterestPayoutFrequency =
+    InterestPayoutFrequency.Maturity;
   compoundingFrequency: CompoundingFrequency = CompoundingFrequency.Quarterly;
   investmentStartDate: Date = new Date();
 
@@ -302,23 +307,21 @@ export class FixedDepositCalculatorPage implements OnInit {
   }
 
   onCompoundingFrequencyChange() {
-    const availablePayoutTypes = this.getAvailableInterestPayoutTypes().map(
-      (entry) => entry.key,
-    );
+    const availablePayoutFrequencies =
+      this.getAvailableInterestPayoutFrequencies().map((entry) => entry.key);
 
-    if (!availablePayoutTypes.includes(this.interestPayoutType)) {
-      this.interestPayoutType = InterestPayoutType.Maturity;
+    if (!availablePayoutFrequencies.includes(this.interestPayoutFrequency)) {
+      this.interestPayoutFrequency = InterestPayoutFrequency.Maturity;
     }
 
     this.calculateMaturityAmount();
   }
 
-  getAvailableInterestPayoutTypes(): Array<EnumObject<InterestPayoutType>> {
-    return Array.from(this.interestPayoutTypesMap)
+  getAvailableInterestPayoutFrequencies(): Array<EnumObject<string>> {
+    return Array.from(this.interestPayoutFrequencyMap)
       .map((entry) => ({ key: entry[0], value: entry[1] }))
       .filter(
-        (payoutType) =>
-          Number(payoutType.key) <= Number(this.compoundingFrequency),
+        (payoutFrequency) => payoutFrequency.key <= this.compoundingFrequency,
       );
   }
 
@@ -411,7 +414,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       this.depositTermDays,
     );
 
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+    if (this.interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
       this.payoutSchedule = [];
       this.averagePayout = 0;
 
@@ -422,7 +425,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       this.generatePayoutSchedule(annualRate, timeInYears);
     }
 
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+    if (this.interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
       if (this.compoundingSummary.length > 0) {
         const lastEntry =
           this.compoundingSummary[this.compoundingSummary.length - 1];
@@ -472,7 +475,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     while (currentDate < maturityDate) {
       let nextDate = DateUtils.getNextCompoundingOrPayoutDate(
         currentDate,
-        this.interestPayoutType,
+        this.interestPayoutFrequency,
       );
 
       if (!nextDate || nextDate > maturityDate) {
@@ -511,7 +514,7 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.averagePayout =
       this.payoutSchedule.length > 0
         ? this.payoutSchedule.reduce((acc, cv) => (acc += cv.interest), 0) /
-          (Number(this.interestPayoutType) * timeInYears)
+          (Number(this.interestPayoutFrequency) * timeInYears)
         : 0;
 
     this.payoutSchedulePage = 0;
@@ -600,17 +603,17 @@ export class FixedDepositCalculatorPage implements OnInit {
         totalInterestEarned: interestAccumulatedOverall,
         totalDeposits: this.depositAmount,
         openingBalance:
-          this.interestPayoutType === InterestPayoutType.Maturity
+          this.interestPayoutFrequency === InterestPayoutFrequency.Maturity
             ? openingBalance
             : this.depositAmount,
         closingBalance:
-          this.interestPayoutType === InterestPayoutType.Maturity
+          this.interestPayoutFrequency === InterestPayoutFrequency.Maturity
             ? runningBalance
             : this.depositAmount,
       });
     };
 
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+    if (this.interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
       for (const summary of this.compoundingSummary) {
         const payoutYear = summary.date.getFullYear();
 
@@ -667,7 +670,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       });
     };
 
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+    if (this.interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
       for (const summary of this.compoundingSummary) {
         const payoutDate = new Date(summary.date);
 
@@ -734,7 +737,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       };
     }
 
-    if (this.interestPayoutType === InterestPayoutType.Maturity) {
+    if (this.interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
       this.annualSummaryChartData.datasets[1].data = this.annualSummary.map(
         (item) => item.openingBalance - this.depositAmount,
       );
@@ -743,7 +746,7 @@ export class FixedDepositCalculatorPage implements OnInit {
       );
     } else {
       if (
-        this.interestPayoutType.toString() !==
+        this.interestPayoutFrequency.toString() !==
         this.compoundingFrequency.toString()
       ) {
         const compoundingFrequencyPerAnnum =

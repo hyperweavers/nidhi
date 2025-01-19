@@ -125,13 +125,15 @@ export class RecurringDepositCalculatorPage implements OnInit {
   readonly Tabs = Tabs;
   readonly Charts = Charts;
 
-  availableCompoundingFrequencies: Array<EnumObject<CompoundingFrequency>> =
-    Object.entries(CompoundingFrequency)
-      .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
-      .map((payoutType) => ({
-        key: payoutType[0],
-        value: payoutType[1],
-      }));
+  availableCompoundingFrequencies: Array<EnumObject<string>> = Object.entries(
+    CompoundingFrequency,
+  )
+    .filter((payoutFrequency) => typeof payoutFrequency[1] === 'number')
+    .filter((payoutType) => payoutType[1] !== CompoundingFrequency.None)
+    .map((payoutType) => ({
+      key: payoutType[1] as number,
+      value: payoutType[0],
+    }));
 
   calculationType = RecurringDepositCalculation.Maturity;
   monthlyInstallment = 2000;

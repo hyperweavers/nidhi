@@ -1,5 +1,5 @@
 export interface EnumObject<T> {
-  key: string;
+  key: number;
   value: T;
 }
 
