@@ -47,19 +47,11 @@ export class ChartUtils {
     ChartType.BAR,
     (number | [number, number] | null)[]
   > = {
-    barThickness: 'flex',
-    maxBarThickness: 15,
     data: [],
-  };
-
-  static readonly commonBarChartDatasetWithGap: ChartDataset<
-    ChartType.BAR,
-    (number | [number, number] | null)[]
-  > = {
-    ...ChartUtils.defaultBarChartDataset,
-    maxBarThickness: 20,
-    borderColor: 'transparent',
-    borderWidth: 2,
+    barPercentage: 0.5,
+    barThickness: 18,
+    maxBarThickness: 15,
+    minBarLength: 2,
   };
 
   static readonly verticalHoverLine: Plugin<ChartType.LINE> = {
@@ -197,7 +189,7 @@ export class ChartUtils {
       this: TooltipModel<ChartType.LINE>,
       tooltipItems: TooltipItem<ChartType.LINE>[],
     ) => string | string[] | void,
-  ): ChartConfiguration['options'] {
+  ): ChartConfiguration<ChartType.LINE>['options'] {
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -284,7 +276,7 @@ export class ChartUtils {
       this: TooltipModel<ChartType.BAR>,
       tooltipItems: TooltipItem<ChartType.BAR>[],
     ) => string | string[] | void,
-  ): ChartConfiguration['options'] {
+  ): ChartConfiguration<ChartType.BAR>['options'] {
     return {
       responsive: true,
       maintainAspectRatio: false,

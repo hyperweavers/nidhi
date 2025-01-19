@@ -1,13 +1,13 @@
-<div class="p-4 text-gray-500 dark:text-gray-400">
+<div class="flex min-h-full flex-col p-4 text-gray-500 dark:text-gray-400">
   <h2
-    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-10 sm:mt-4 dark:text-white"
+    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-8 sm:mt-4 dark:text-white"
   >
     Gold Jewellery Price Calculator
   </h2>
 
   <!-- Gold Price Telegram Channel -->
   <div
-    id="alert-5"
+    id="telegram-channel-alert"
     class="flex items-center rounded-lg bg-gray-50 p-4 dark:bg-gray-800"
     role="alert"
   >
@@ -38,7 +38,7 @@
     <button
       type="button"
       class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 p-1.5 text-gray-500 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-      data-dismiss-target="#alert-5"
+      data-dismiss-target="#telegram-channel-alert"
       aria-label="Close"
     >
       <span class="sr-only">Dismiss</span>
@@ -128,7 +128,9 @@
               class="block text-sm font-medium text-gray-900 dark:text-white"
               >Gold Price (1 gram)
             </label>
-            <span data-tooltip-target="tooltip-info" class="cursor-pointer ps-1"
+            <span
+              data-tooltip-target="tooltip-gold-price"
+              class="cursor-pointer ps-1"
               ><svg
                 class="h-4 w-4 text-gray-800 dark:text-white"
                 aria-hidden="true"
@@ -147,7 +149,7 @@
             </span>
 
             <div
-              id="tooltip-info"
+              id="tooltip-gold-price"
               role="tooltip"
               class="tooltip invisible absolute z-50 inline-block rounded-lg bg-yellow-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
             >

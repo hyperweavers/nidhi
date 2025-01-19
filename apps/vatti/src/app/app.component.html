@@ -220,9 +220,8 @@
                 <button
                   type="button"
                   class="flex rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                  id="user-menu-button-2"
                   aria-expanded="false"
-                  data-dropdown-toggle="dropdown-2"
+                  data-dropdown-toggle="calculators-dropdown"
                 >
                   <img src="./icons/avatar.svg" class="h-8 w-8" alt="Avatar" />
                 </button>
@@ -230,7 +229,7 @@
 
               <div
                 class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600 dark:bg-gray-700"
-                id="dropdown-2"
+                id="calculators-dropdown"
                 style="
                   position: absolute;
                   inset: 0px auto auto 0px;
@@ -360,6 +359,16 @@
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
                       class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Recurring Deposit</a
+                    >
+                  </li>
+
+                  <li>
+                    <a
+                      (click)="toggleSidebar()"
+                      routerLink="/{{ Routes.POST_OFFICE_SAVINGS_SCHEMES }}"
+                      routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      >Post Office Savings Schemes</a
                     >
                   </li>
 

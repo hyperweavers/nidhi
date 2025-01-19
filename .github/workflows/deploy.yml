@@ -87,3 +87,4 @@ jobs:
           clean-exclude: |
             README.md
             LICENSE
+            CNAME

@@ -7,7 +7,10 @@ import {
 } from 'date-fns';
 
 import { FinancialYear } from '../models/common';
-import { CompoundingFrequency, InterestPayoutType } from '../models/deposit';
+import {
+  CompoundingFrequency,
+  InterestPayoutFrequency,
+} from '../models/deposit';
 
 export class DateUtils {
   static readonly YEAR_IN_DAYS = 365;
@@ -15,23 +18,23 @@ export class DateUtils {
 
   static getNextCompoundingOrPayoutDate(
     date: Date,
-    frequency: CompoundingFrequency | InterestPayoutType,
+    frequency: CompoundingFrequency | InterestPayoutFrequency,
   ): Date | null {
     let nextDate: Date | null = new Date(date);
 
     if (
       frequency === CompoundingFrequency.Monthly ||
-      frequency === InterestPayoutType.Monthly
+      frequency === InterestPayoutFrequency.Monthly
     ) {
       nextDate.setMonth(nextDate.getMonth() + 1);
     } else if (
       frequency === CompoundingFrequency.Quarterly ||
-      frequency === InterestPayoutType.Quarterly
+      frequency === InterestPayoutFrequency.Quarterly
     ) {
       nextDate = DateUtils.getNextFinancialQuarterEndDate(nextDate);
     } else if (
       frequency === CompoundingFrequency.Yearly ||
-      frequency === InterestPayoutType.Yearly
+      frequency === InterestPayoutFrequency.Yearly
     ) {
       for (let quarters = 4; quarters > 0; quarters--) {
         nextDate = DateUtils.getNextFinancialQuarterEndDate(nextDate);

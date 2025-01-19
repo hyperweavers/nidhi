@@ -19,7 +19,7 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { Observable, filter, map, tap } from 'rxjs';
+import { Observable, delay, filter, map, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
@@ -67,11 +67,13 @@ export class AppComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        initFlowbite();
-      }
-    });
+    this.router.events
+      .pipe(untilDestroyed(this), delay(100))
+      .subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          initFlowbite();
+        }
+      });
 
     this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
       if (this.document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {

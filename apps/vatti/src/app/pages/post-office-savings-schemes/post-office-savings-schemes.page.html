@@ -1,0 +1,686 @@
+<div class="flex min-h-full flex-col p-4 text-gray-500 dark:text-gray-400">
+  @if (loading) {
+  <div class="flex flex-1 items-center justify-center" role="status">
+    <svg
+      aria-hidden="true"
+      class="fill-primary-600 h-10 w-10 animate-spin text-gray-200 dark:text-gray-600"
+      viewBox="0 0 100 101"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    </svg>
+    <span class="sr-only">Loading...</span>
+  </div>
+  } @else { @if (error) {
+  <div
+    class="flex flex-1 flex-col items-center justify-center text-red-800 dark:text-red-400"
+    role="status"
+  >
+    <svg
+      class="mx-auto mb-4 h-12 w-12"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 20 20"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+
+    <p>
+      We are not able to get the Post Office Savings Schemes details currently!
+    </p>
+    <p>Regret the inconvenience. Please try after sometime.</p>
+  </div>
+  } @else {
+  <h2
+    class="m-4 mt-0 text-center text-2xl font-semibold text-gray-900 sm:mb-8 sm:mt-4 dark:text-white"
+  >
+    Post Office Savings Schemes
+  </h2>
+
+  <form (ngSubmit)="calculateMaturityAmount()">
+    <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
+      <main>
+        <!-- Investment Type -->
+        <div class="mb-6 flex">
+          <label
+            class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
+            >Investment Type</label
+          >
+          <div class="flex">
+            <div class="me-4 flex items-center">
+              <input
+                id="one-time"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="investmentType"
+                [value]="InvestmentType.OneTime"
+                (change)="onInvestmentTypeChange(InvestmentType.OneTime)"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="one-time"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >One Time</label
+              >
+            </div>
+            <div class="flex items-center">
+              <input
+                id="continuous"
+                type="radio"
+                name="interest-rate-type"
+                [(ngModel)]="investmentType"
+                [value]="InvestmentType.Continuous"
+                (change)="onInvestmentTypeChange(InvestmentType.Continuous)"
+                class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+              />
+              <label
+                for="continuous"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Continuous</label
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Deposit Amount -->
+        <div class="mb-6">
+          <label
+            for="deposit-amount"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >{{ investmentType === InvestmentType.OneTime ? 'Deposit' :
+            'Installment' }} Amount</label
+          >
+          <input
+            type="number"
+            id="deposit-amount"
+            name="depositAmount"
+            [(ngModel)]="depositAmount"
+            (change)="calculateMaturityAmount()"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder=""
+            required
+          />
+        </div>
+
+        <!-- Investment Start Date -->
+        <div class="mb-6">
+          <label
+            for="investment-start-date"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+            >Deposit Start Date</label
+          >
+          <div class="relative">
+            <div
+              class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
+            >
+              <svg
+                class="h-4 w-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </div>
+            <input
+              #investmentStartDateInput
+              type="text"
+              id="investment-start-date"
+              name="investmentStartDate"
+              [ngModel]="investmentStartDate | date : 'dd/MM/yyyy'"
+              (ngModelChange)="onInvestmentStartDateChange($event)"
+              class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              placeholder="DD/MM/YYYY"
+              required
+              readonly
+            />
+          </div>
+        </div>
+      </main>
+
+      <aside>
+        <div>
+          @if (investmentType === InvestmentType.OneTime) {
+          <!-- Senior Citizen -->
+          <div class="mb-6 flex items-center">
+            <label
+              class="block text-sm font-medium text-gray-900 dark:text-white"
+              >Are you a senior citizen?
+            </label>
+
+            <div class="flex-1 ps-1">
+              <div
+                data-tooltip-target="tooltip-senior-citizen"
+                class="w-4 cursor-pointer"
+              >
+                <svg
+                  class="h-4 w-4 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+
+              <div
+                id="tooltip-senior-citizen"
+                role="tooltip"
+                class="tooltip invisible absolute z-50 inline-block rounded-lg bg-yellow-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
+              >
+                <ul class="list-inside list-disc space-y-1">
+                  <li>General public (with age 60 years or above)</li>
+                  <li>
+                    Retired civilian staff (with age between 55 and 60 years)
+                  </li>
+                  <li>
+                    Retired defense staff (with age between 50 and 60 years)
+                  </li>
+                </ul>
+                <div class="tooltip-arrow" data-popper-arrow></div>
+              </div>
+            </div>
+
+            <div class="ms-4 flex">
+              <div class="me-4 flex items-center">
+                <input
+                  id="eligible-for-scss-yes"
+                  type="radio"
+                  name="eligible-for-scss"
+                  [(ngModel)]="eligibleForScss"
+                  [value]="true"
+                  (change)="onEligibleForScssChange(true)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-scss-yes"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >Yes</label
+                >
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="eligible-for-scss-no"
+                  type="radio"
+                  name="eligible-for-scss"
+                  [(ngModel)]="eligibleForScss"
+                  [value]="false"
+                  (change)="onEligibleForScssChange(false)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-scss-no"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >No</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Woman -->
+          <div class="mb-6 flex">
+            <label
+              class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
+              >Are you a women?</label
+            >
+            <div class="ms-4 flex">
+              <div class="me-4 flex items-center">
+                <input
+                  id="eligible-for-mssc-yes"
+                  type="radio"
+                  name="eligible-for-mssc"
+                  [(ngModel)]="eligibleForMssc"
+                  [value]="true"
+                  (change)="onEligibleForMsscChange(true)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-mssc-yes"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >Yes</label
+                >
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="eligible-for-mssc-no"
+                  type="radio"
+                  name="eligible-for-mssc"
+                  [(ngModel)]="eligibleForMssc"
+                  [value]="false"
+                  (change)="onEligibleForMsscChange(false)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-mssc-no"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >No</label
+                >
+              </div>
+            </div>
+          </div>
+          } @else {
+          <!-- Girl Child -->
+          <div class="mb-6 flex">
+            <label
+              class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
+              >Do you have a girl child below the age of 10 years?</label
+            >
+            <div class="ms-4 flex">
+              <div class="me-4 flex items-center">
+                <input
+                  id="eligible-for-ssa-yes"
+                  type="radio"
+                  name="eligible-for-ssa"
+                  [(ngModel)]="eligibleForSsa"
+                  [value]="true"
+                  (change)="onEligibleForSsaChange(true)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-ssa-yes"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >Yes</label
+                >
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="eligible-for-ssa-no"
+                  type="radio"
+                  name="eligible-for-ssa"
+                  [(ngModel)]="eligibleForSsa"
+                  [value]="false"
+                  (change)="onEligibleForSsaChange(false)"
+                  class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 h-4 w-4 border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+                />
+                <label
+                  for="eligible-for-ssa-no"
+                  class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  >No</label
+                >
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </aside>
+    </section>
+
+    <div class="flex w-full justify-center md:mt-0">
+      <button
+        type="submit"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 sm:w-auto"
+      >
+        Calculate
+      </button>
+    </div>
+  </form>
+
+  @if (schemesWithReturns.length > 0) {
+  <nav class="mt-4">
+    <!-- Tabs Select -->
+    <div class="mt-6 flex items-center sm:hidden">
+      <label
+        for="tabs"
+        class="me-2 text-xl font-bold text-gray-900 dark:text-white"
+        >View</label
+      >
+      <select
+        id="tabs"
+        [ngModel]="activeTab"
+        (ngModelChange)="onTabChange($event)"
+        class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+      >
+        <option [value]="Tabs.EARNING_COMPARISON">Earning Comparison</option>
+        <option [value]="Tabs.SCHEME_COMPARISON">Scheme Comparison</option>
+      </select>
+    </div>
+
+    <!-- Tabs -->
+    <ul
+      class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
+    >
+      <li class="me-2" (click)="onTabChange(Tabs.EARNING_COMPARISON)">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4"
+          [class.active]="activeTab === Tabs.EARNING_COMPARISON"
+        >
+          Earning Comparison
+        </p>
+      </li>
+      <li class="me-2" (click)="onTabChange(Tabs.SCHEME_COMPARISON)">
+        <p
+          class="inline-block cursor-pointer rounded-t-lg p-4"
+          [class.active]="activeTab === Tabs.SCHEME_COMPARISON"
+        >
+          Scheme Comparison
+        </p>
+      </li>
+    </ul>
+  </nav>
+
+  @if (activeTab === Tabs.EARNING_COMPARISON) {
+  <section
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+  >
+    <div
+      #earningsChartContainer
+      class="relative w-full bg-white dark:bg-gray-800"
+      [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
+    >
+      <canvas
+        #earningsChart
+        baseChart
+        [type]="ChartType.BAR"
+        [data]="earningsChartData"
+        [options]="earningsChartOptions"
+        [class.m-4]="isChartInFullscreen"
+      >
+      </canvas>
+
+      <div
+        class="absolute"
+        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
+      >
+        <button
+          (click)="toggleFullscreen(Charts.EARNINGS)"
+          type="button"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          @if (isChartInFullscreen) {
+          <span class="sr-only">Minimize</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+            />
+          </svg>
+          } @else {
+          <span class="sr-only">Expand</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative mt-6 overflow-x-auto rounded-lg">
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <thead
+        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="min-w-36 p-2 py-3 text-center sm:p-4">
+            Scheme
+          </th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Principal</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            Maturity Amount
+          </th>
+          <th scope="col" class="whitespace-nowrap p-2 py-3 text-center sm:p-4">
+            Maturity Date
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (scheme of schemesWithReturns; track scheme.id) {
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <td scope="col" class="min-w-36 p-2 py-3 sm:p-4">
+            {{ scheme.name }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.returns.principal | number: '1.0-0' }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.returns.interest | number: '1.0-0' }} @if
+            (scheme.interestPayoutFrequencyPerYear) {
+            <div
+              class="mt-1 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400"
+            >
+              ({{ (scheme.returns.interest /
+              (scheme.interestPayoutFrequencyPerYear * scheme.maturityTenure)) |
+              number: '1.0-0' }} / {{
+              interestPayoutFrequencyMap.get(scheme.interestPayoutFrequencyPerYear)
+              }})
+            </div>
+            }
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.returns.maturity | number: '1.0-0' }}
+          </td>
+          <td scope="col" class="whitespace-nowrap p-2 py-3 text-center sm:p-4">
+            {{ scheme.returns.maturityDate | date: 'mediumDate' }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+  } @if (activeTab === Tabs.SCHEME_COMPARISON) {
+  <section
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+  >
+    <div
+      #interestRateChartContainer
+      class="relative w-full bg-white dark:bg-gray-800"
+      [ngClass]="isChartInFullscreen ? 'h-full' : 'h-80'"
+    >
+      <canvas
+        #interestRateChart
+        baseChart
+        [type]="ChartType.BAR"
+        [data]="interestRateChartData"
+        [options]="interestRateChartOptions"
+        [class.m-4]="isChartInFullscreen"
+      >
+      </canvas>
+
+      <div
+        class="absolute"
+        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden -bottom-3 -right-1'"
+      >
+        <button
+          (click)="toggleFullscreen(Charts.INTEREST_RATE)"
+          type="button"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          @if (isChartInFullscreen) {
+          <span class="sr-only">Minimize</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+            />
+          </svg>
+          } @else {
+          <span class="sr-only">Expand</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative mt-6 overflow-x-auto rounded-lg">
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <thead
+        class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="min-w-36 p-2 py-3 text-center sm:p-4">
+            Scheme
+          </th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest Rate</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            <div class="flex items-center">
+              <span>Effective Yield</span>
+              <span
+                data-tooltip-target="tooltip-effective-yield"
+                data-tooltip-placement="top"
+                class="cursor-pointer"
+              >
+                <svg
+                  class="h-4 w-4 text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </span>
+              <div
+                id="tooltip-effective-yield"
+                role="tooltip"
+                class="tooltip invisible absolute z-50 inline-block max-w-sm rounded-lg bg-yellow-400 px-3 py-2 text-left text-sm font-medium normal-case text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
+              >
+                Simple interest rate that would yield the same total interest
+                over the same time period.
+                <div class="tooltip-arrow" data-popper-arrow></div>
+              </div>
+            </div>
+          </th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Tenure</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest Type</th>
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            Compounding Frequency
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (scheme of schemesWithReturns; track scheme.id) {
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <td scope="col" class="min-w-36 p-2 py-3 sm:p-4">
+            {{ scheme.name }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.interestRate | number: '1.2-2' }}%
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.returns.effectiveYield | number: '1.2-2' }}%
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.id === PostOfficeSavingsSchemeId.KVP ?
+            (((scheme.maturityTenure - 0.5) | number: '1.0-0') + ' Years ' +
+            (((scheme.maturityTenure * 12) % 12) | number: '1.0-0') + ' Months')
+            : (scheme.maturityTenure + ' Years') }}
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.compoundingFrequencyPerYear >
+            scheme.interestPayoutFrequencyPerYear ? 'Compound' : 'Simple' }} @if
+            (scheme.interestPayoutFrequencyPerYear) {
+            <div
+              class="mt-1 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400"
+            >
+              (Paid {{
+              interestPayoutFrequencyMap.get(scheme.interestPayoutFrequencyPerYear)
+              }}ly)
+            </div>
+            }
+          </td>
+          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            {{ scheme.compoundingFrequencyPerYear >
+            scheme.interestPayoutFrequencyPerYear ?
+            compoundingFrequencyMap.get(scheme.compoundingFrequencyPerYear) :
+            'N/A' }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+  } } }}
+</div>

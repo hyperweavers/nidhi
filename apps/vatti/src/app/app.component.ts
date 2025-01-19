@@ -19,12 +19,14 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { filter } from 'rxjs';
+import { delay, filter } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
+import { Flowbite } from './decorators/flowbite.decorator';
 import { SettingsService } from './services/core/settings.service';
 
+@Flowbite()
 @UntilDestroy()
 @Component({
   imports: [CommonModule, RouterModule, RouterLink],
@@ -56,11 +58,13 @@ export class AppComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.router.events.pipe(untilDestroyed(this)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        initFlowbite();
-      }
-    });
+    this.router.events
+      .pipe(untilDestroyed(this), delay(100))
+      .subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          initFlowbite();
+        }
+      });
 
     this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
       if (this.document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {

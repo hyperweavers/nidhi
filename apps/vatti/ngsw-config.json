@@ -30,8 +30,34 @@
   "dataGroups": [
     {
       "name": "gold-price-api",
-      "urls": ["https://api-new.nacjewellers.com/graphql"],
       "version": 1,
+      "urls": ["https://api-new.nacjewellers.com/graphql"],
+      "cacheConfig": {
+        "maxSize": 5,
+        "maxAge": "12h",
+        "timeout": "10s",
+        "strategy": "freshness"
+      }
+    },
+    {
+      "name": "json-blob-api",
+      "version": 1,
+      "urls": [
+        "https://jsonblob.com/api/jsonBlob/1328064967722852352",
+        "https://jsonblob.com/api/jsonBlob/1328296657577762816",
+        "https://jsonblob.com/api/jsonBlob/1328392058737713152"
+      ],
+      "cacheConfig": {
+        "maxSize": 20,
+        "maxAge": "30d",
+        "timeout": "5s",
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "json-blob-api",
+      "version": 1,
+      "urls": ["https://jsonblob.com/api/jsonBlob/1328432133789900800"],
       "cacheConfig": {
         "maxSize": 5,
         "maxAge": "12h",

@@ -10,13 +10,6 @@ export const appRoutes: Route[] = [
       import('./pages/home/home.page').then((m) => m.HomePage),
   },
   {
-    path: Constants.routes.LOAN_EMI_CALCULATOR,
-    loadComponent: () =>
-      import('./pages/loan-emi-calculator/loan-emi-calculator.page').then(
-        (m) => m.LoanEmiCalculatorPage,
-      ),
-  },
-  {
     path: Constants.routes.FIXED_DEPOSIT_CALCULATOR,
     loadComponent: () =>
       import(
@@ -29,6 +22,20 @@ export const appRoutes: Route[] = [
       import(
         './pages/recurring-deposit-calculator/recurring-deposit-calculator.page'
       ).then((m) => m.RecurringDepositCalculatorPage),
+  },
+  {
+    path: Constants.routes.POST_OFFICE_SAVINGS_SCHEMES,
+    loadComponent: () =>
+      import(
+        './pages/post-office-savings-schemes/post-office-savings-schemes.page'
+      ).then((m) => m.PostOfficeSavingsSchemesPage),
+  },
+  {
+    path: Constants.routes.LOAN_EMI_CALCULATOR,
+    loadComponent: () =>
+      import('./pages/loan-emi-calculator/loan-emi-calculator.page').then(
+        (m) => m.LoanEmiCalculatorPage,
+      ),
   },
   {
     path: Constants.routes.GOLD_JEWELLER_PRICE_CALCULATOR,
