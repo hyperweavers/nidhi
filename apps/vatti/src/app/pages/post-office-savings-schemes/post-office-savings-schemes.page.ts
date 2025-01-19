@@ -6,7 +6,6 @@ import {
   ElementRef,
   HostListener,
   Inject,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +14,10 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { addDays, yearsToDays } from 'date-fns';
 import { BaseChartDirective } from 'ng2-charts';
 
-import { Flowbite } from '../../decorators/flowbite.decorator';
+import {
+  Flowbite,
+  initFlowbiteComponents,
+} from '../../decorators/flowbite.decorator';
 import { ChartType } from '../../models/chart';
 import {
   CompoundingFrequency,
@@ -52,8 +54,9 @@ enum Charts {
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe, DatePipe],
 })
-export class PostOfficeSavingsSchemesPage implements OnInit {
-  @ViewChild('investmentStartDateInput', { static: true })
+export class PostOfficeSavingsSchemesPage {
+  //implements OnInit {
+  @ViewChild('investmentStartDateInput', { static: false })
   private investmentStartDateInput?: ElementRef;
 
   @ViewChild('earningsChart', { read: BaseChartDirective })
@@ -88,7 +91,7 @@ export class PostOfficeSavingsSchemesPage implements OnInit {
   );
 
   investmentType = InvestmentType.OneTime;
-  depositAmount = 10000; //0;
+  depositAmount = 100000;
   investmentStartDate: Date = new Date();
 
   eligibleForScss = false;
@@ -152,14 +155,13 @@ export class PostOfficeSavingsSchemesPage implements OnInit {
       },
     );
 
-  // FIXME: Reduce gap between bars
   interestRateChartData: ChartData<ChartType.BAR> = {
     labels: [],
     datasets: [
       {
         ...ChartUtils.defaultBarChartDataset,
         ...ChartUtils.getBarChartColor(ChartUtils.colorBlue),
-        barThickness: undefined,
+        // barThickness: undefined,
         label: 'Interest Rate',
       },
       {
@@ -213,12 +215,17 @@ export class PostOfficeSavingsSchemesPage implements OnInit {
         this.loading = false;
 
         this.cdr.markForCheck();
+
+        setTimeout(() => {
+          this.initDatePicker();
+          initFlowbiteComponents();
+        }, 100);
       });
   }
 
-  ngOnInit() {
-    this.initDatePicker();
-  }
+  // ngOnInit() {
+  //   this.initDatePicker();
+  // }
 
   @HostListener('window:fullscreenchange')
   onFullscreenChange() {
@@ -266,7 +273,13 @@ export class PostOfficeSavingsSchemesPage implements OnInit {
   }
 
   onTabChange(tab: Tabs) {
+    if (this.activeTab === Number(tab)) {
+      return;
+    }
+
     this.activeTab = Number(tab);
+
+    initFlowbiteComponents();
   }
 
   toggleFullscreen(chart: Charts) {
@@ -381,7 +394,6 @@ export class PostOfficeSavingsSchemesPage implements OnInit {
     interestPayoutFrequency: number,
     compoundingFrequency: number,
   ): PostOfficeSavingsSchemeReturns {
-    // TODO: 1. Check PPF & SSA results
     let principal = this.depositAmount;
     let interest = 0;
     let maturity = 0;

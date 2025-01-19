@@ -364,7 +364,7 @@
     <ul
       class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
-      <li class="me-2" (click)="activeTab = Tabs.EARNING_COMPARISON">
+      <li class="me-2" (click)="onTabChange(Tabs.EARNING_COMPARISON)">
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.EARNING_COMPARISON"
@@ -372,7 +372,7 @@
           Earning Comparison
         </p>
       </li>
-      <li class="me-2" (click)="activeTab = Tabs.SCHEME_COMPARISON">
+      <li class="me-2" (click)="onTabChange(Tabs.SCHEME_COMPARISON)">
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.SCHEME_COMPARISON"
@@ -586,7 +586,6 @@
     </div>
   </section>
 
-  <!-- FIXME: Scrolling enabled when selecting continuous payment -->
   <section class="relative mt-6 overflow-x-auto rounded-lg">
     <table
       class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
@@ -599,12 +598,12 @@
             Scheme
           </th>
           <th scope="col" class="p-2 py-3 text-center sm:p-4">Interest Rate</th>
-          <th scope="col" class="flex items-center p-2 py-3 text-center sm:p-4">
-            <div>Effective Yield</div>
-            <!-- FIXME: Fix tooltip display -->
-            <div class="relative z-40">
-              <div
+          <th scope="col" class="p-2 py-3 text-center sm:p-4">
+            <div class="flex items-center">
+              <span>Effective Yield</span>
+              <span
                 data-tooltip-target="tooltip-effective-yield"
+                data-tooltip-placement="top"
                 class="cursor-pointer"
               >
                 <svg
@@ -622,12 +621,11 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-              </div>
-
+              </span>
               <div
                 id="tooltip-effective-yield"
                 role="tooltip"
-                class="tooltip invisible absolute z-50 inline-block rounded-lg bg-yellow-400 px-3 py-2 text-sm font-medium capitalize text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
+                class="tooltip invisible absolute z-50 inline-block max-w-sm rounded-lg bg-yellow-400 px-3 py-2 text-left text-sm font-medium normal-case text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
               >
                 Simple interest rate that would yield the same total interest
                 over the same time period.

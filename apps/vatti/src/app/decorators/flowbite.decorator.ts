@@ -13,20 +13,20 @@ flowbiteQueue
     x();
   });
 
-export function Flowbite() {
+export const Flowbite = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function (target: any) {
+  return (target: any) => {
     const originalOnInit = target.prototype.ngOnInit;
     target.prototype.ngOnInit = function () {
       if (originalOnInit) {
         originalOnInit.apply(this);
       }
-      InitFlowbiteFix();
+      initFlowbiteComponents();
     };
   };
-}
+};
 
-export function InitFlowbiteFix() {
+export const initFlowbiteComponents = () => {
   flowbiteQueue.next(() => {
     const elements = document.querySelectorAll('*');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,4 +78,4 @@ export function InitFlowbiteFix() {
       });
     });
   });
-}
+};

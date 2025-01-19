@@ -10,10 +10,12 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
+import { Flowbite } from '../../decorators/flowbite.decorator';
 import { ChartType } from '../../models/chart';
 import { DataService } from '../../services/core/data.service';
 import { ChartUtils } from '../../utils/chart.utils';
 
+@Flowbite()
 @UntilDestroy()
 @Component({
   selector: 'app-gold-jewellery-price-calculator',

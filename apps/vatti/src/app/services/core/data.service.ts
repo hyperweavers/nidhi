@@ -7,6 +7,7 @@ import {
   map,
   of,
   shareReplay,
+  timeout,
 } from 'rxjs';
 
 import { Constants } from '../../constants';
@@ -21,6 +22,8 @@ import { PostOfficeSavingsSchemes } from '../../models/deposit';
   providedIn: 'root',
 })
 export class DataService {
+  private readonly HTTP_REQUEST_TIMEOUT_MS = 5_000; // 5 Seconds
+
   goldRate$: Observable<number>;
   postOfficeSavingsSchemes$: Observable<PostOfficeSavingsSchemes | null>;
   rbiPolicyRates$: Observable<RbiPolicyRates | null>;
@@ -34,6 +37,7 @@ export class DataService {
           'query{allDailyMetalPrices(condition:{isActive:true,displayName:"Gold 22K"}){nodes{displayPrice updatedAt}}}',
       })
       .pipe(
+        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           console.error(error);
 
@@ -45,7 +49,6 @@ export class DataService {
             res?.data?.allDailyMetalPrices?.nodes[0]?.displayPrice || 0,
         ),
         distinctUntilChanged(),
-        shareReplay(1), // FIXME: Not working
       );
 
     this.postOfficeSavingsSchemes$ = this.http
@@ -53,6 +56,7 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.POST_OFFICE_SAVINGS_SCHEMES}`,
       )
       .pipe(
+        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           console.error(error);
 
@@ -67,6 +71,7 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.RBI_POLICY_RATES}`,
       )
       .pipe(
+        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           console.error(error);
 
@@ -81,6 +86,7 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.BANKS_IN_INDIA_JSON_BLOB}`,
       )
       .pipe(
+        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           console.error(error);
 
@@ -95,6 +101,7 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.IBJA_GOLD_RATES_JSON_BLOB}`,
       )
       .pipe(
+        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           console.error(error);
 
