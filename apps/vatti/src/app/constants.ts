@@ -13,7 +13,7 @@ export const Constants = {
     DISCLAIMER: 'disclaimer',
   },
   api: {
-    GOLD_PRICE: 'https://api-new.nacjewellers.com/graphql',
+    GOLD_PRICE: 'https://api-live.nacjewellers.com/graphql',
     JSON_BLOB_STORAGE: 'https://jsonblob.com/api/jsonBlob',
   },
   jsonBlobs: {
