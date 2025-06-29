@@ -29,9 +29,9 @@
   ],
   "dataGroups": [
     {
-      "name": "gold-price-api",
+      "name": "live-gold-price-api",
       "version": 1,
-      "urls": ["https://api-new.nacjewellers.com/graphql"],
+      "urls": ["https://api-live.nacjewellers.com/graphql"],
       "cacheConfig": {
         "maxSize": 5,
         "maxAge": "12h",
@@ -40,12 +40,12 @@
       }
     },
     {
-      "name": "json-blob-api",
+      "name": "data-api",
       "version": 1,
       "urls": [
-        "https://jsonblob.com/api/jsonBlob/1328064967722852352",
+        "https://jsonblob.com/api/jsonBlob/1388767732731928576",
         "https://jsonblob.com/api/jsonBlob/1328296657577762816",
-        "https://jsonblob.com/api/jsonBlob/1328392058737713152"
+        "https://jsonblob.com/api/jsonBlob/1388767381014372352"
       ],
       "cacheConfig": {
         "maxSize": 20,
@@ -55,9 +55,9 @@
       }
     },
     {
-      "name": "json-blob-api",
+      "name": "ibja-gold-price-api",
       "version": 1,
-      "urls": ["https://jsonblob.com/api/jsonBlob/1328432133789900800"],
+      "urls": ["https://jsonblob.com/api/jsonBlob/1388767571448356864"],
       "cacheConfig": {
         "maxSize": 5,
         "maxAge": "12h",
