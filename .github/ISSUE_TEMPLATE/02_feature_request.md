@@ -13,6 +13,7 @@ Thank you for taking the time to suggest this feature!
 
 - [ ] Pangu
 - [ ] Vatti
+- [ ] EIP
 
 ## Problem Statement
 

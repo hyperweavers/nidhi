@@ -13,6 +13,7 @@ Thank you for taking the time to fill out this bug report!
 
 - [ ] Pangu
 - [ ] Vatti
+- [ ] EIP
 
 ## Expected Behavior
 

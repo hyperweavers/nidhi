@@ -6,6 +6,7 @@ Thank you for taking the time to submit this pull request!
 
 - [ ] Pangu
 - [ ] Vatti
+- [ ] EIP
 
 ## Change Type
 

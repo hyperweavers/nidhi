@@ -1,0 +1,823 @@
+<div class="flex h-full flex-col pb-4">
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
+  <!-- Summary -->
+  <dl
+    class="m-4 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+  >
+    <div class="flex flex-col">
+      <div>
+        <dd class="mb-2 text-gray-500 dark:text-gray-400">Investment</dd>
+        <dt class="text-lg font-extrabold">
+          &#8377;{{ portfolio.investment | number: '1.2-2' }}
+        </dt>
+      </div>
+      <div class="mt-6">
+        <dd class="mb-2 text-gray-500 dark:text-gray-400">Market Value</dd>
+        <dt class="text-lg font-extrabold">
+          &#8377;{{ portfolio.marketValue | number: '1.2-2' }}
+        </dt>
+      </div>
+    </div>
+    <div class="ms-6 flex flex-col">
+      <div>
+        <dd class="mb-2 text-gray-500 dark:text-gray-400">Day Profit/Loss</dd>
+        <dt
+          class="text-lg font-extrabold"
+          [ngClass]="portfolio.dayProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+        >
+          &#8377;{{ portfolio.dayProfitLoss.value | number: '1.2-2' }}
+          <span class="text-sm font-normal"
+            >({{ portfolio.dayProfitLoss.percentage | number: '1.2-2' }}%)</span
+          >
+        </dt>
+      </div>
+      <div class="mt-6">
+        <dd class="mb-2 text-gray-500 dark:text-gray-400">Total Profit/Loss</dd>
+        <dt
+          class="text-lg font-extrabold"
+          [ngClass]="portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+        >
+          &#8377;{{ portfolio.totalProfitLoss.value | number: '1.2-2' }}
+          <span class="text-sm font-normal"
+            >({{ portfolio.totalProfitLoss.percentage | number: '1.2-2'
+            }}%)</span
+          >
+        </dt>
+      </div>
+    </div>
+  </dl>
+  } }
+
+  <!-- Table Header -->
+  <div
+    class="flex flex-col items-center justify-between space-y-3 p-4 pt-2 md:flex-row md:space-x-4 md:space-y-0"
+  >
+    <!-- Search -->
+    <div class="w-full md:w-64 xl:w-96">
+      <div class="flex items-center">
+        <label for="simple-search" class="sr-only">Search</label>
+        <div class="relative w-full">
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <svg
+              aria-hidden="true"
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            [(ngModel)]="portfolioSearchQuery"
+            type="text"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="Search"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-3 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
+    >
+      <div class="flex space-x-3">
+        <!-- Sort -->
+        <div class="flex w-full items-center md:w-auto">
+          <button
+            id="sortDropdownButton"
+            data-dropdown-toggle="sortDropdown"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              class="mr-2 h-4 w-4 text-gray-400"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 4v16M7 4l3 3M7 4 4 7m9-3h6l-6 6h6m-6.5 10 3.5-7 3.5 7M14 18h4"
+              />
+            </svg>
+
+            Sort
+            <svg
+              class="-mr-1 ml-1.5 h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              />
+            </svg>
+          </button>
+
+          <div
+            id="sortDropdown"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="py-1 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="sortDropdownButton"
+            >
+              <li
+                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Company Name
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Company Name
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Day Profit/Loss
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Day Profit/Loss
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Overall Profit/Loss
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Overall Profit/Loss
+
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="flex w-full items-center md:w-auto">
+          <button
+            id="filterDropdownButton"
+            data-dropdown-toggle="filterDropdown"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              class="mr-2 h-4 w-4 text-gray-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Filter
+            <svg
+              class="-mr-1 ml-1.5 h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              />
+            </svg>
+          </button>
+
+          <div
+            id="filterDropdown"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="py-1 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="filterDropdownButton"
+            >
+              <li
+                (click)="clearPortfolioFilters()"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                All
+              </li>
+              <li
+                (click)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Day Gainers
+              </li>
+              <li
+                (click)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Day Losers
+              </li>
+              <li
+                (click)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Overall Gainers
+              </li>
+              <li
+                (click)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Overall Losers
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex space-x-3">
+        <!-- Buy Button -->
+        <button
+          (click)="openAddTransactionDrawer(TransactionType.BUY)"
+          data-drawer-target="add-transaction-drawer"
+          data-drawer-show="add-transaction-drawer"
+          aria-controls="add-transaction-drawer"
+          data-drawer-placement="right"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
+        >
+          Buy
+        </button>
+
+        <!-- Sell Button -->
+        <button
+          (click)="openAddTransactionDrawer(TransactionType.SELL)"
+          data-drawer-target="add-transaction-drawer"
+          data-drawer-show="add-transaction-drawer"
+          aria-controls="add-transaction-drawer"
+          data-drawer-placement="right"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
+        >
+          Sell
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
+  <!-- Table -->
+  <div class="relative overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+
+      <thead
+        class="whitespace-nowrap bg-gray-50 text-center text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="p-2 text-left sm:p-4">
+            <div class="whitespace-nowrap">Company (Qty)</div>
+            <div>Avg. Price (&#8377;)</div>
+            <div>Investment (&#8377;)</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Day P/L (&#8377;)</div>
+            <div>Day P/L (%)</div>
+            <div>LTP (&#8377;)</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Total P/L (&#8377;)</div>
+            <div>Total P/L (%)</div>
+            <div>Cur. Val. (&#8377;)</div>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (holding of portfolio.holdings; track holding.id) {
+        <tr
+          [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.mc.primary]"
+          class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
+        >
+          <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
+            <div class="flex">
+              <div class="truncate font-medium text-gray-900 dark:text-white">
+                {{ holding.name }}
+              </div>
+              <div class="ps-0.5">({{ holding.quantity }})</div>
+            </div>
+            <div>{{ holding.averagePrice | number: '1.2-2' }}</div>
+            <div>{{ holding.investment | number: '1.2-2' }}</div>
+          </th>
+          <td
+            class="p-2 text-center sm:p-4"
+            [ngClass]="holding.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div>
+              {{ (holding.quote?.change?.value! * holding.quantity!) | number:
+              '1.2-2' }}
+            </div>
+            <div>
+              ({{ holding.quote?.change?.percentage | number: '1.2-2' }}%)
+            </div>
+            <div>{{ holding.quote?.price | number: '1.2-2' }}</div>
+          </td>
+          <td
+            class="p-2 text-center sm:p-4"
+            [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div>{{ holding.totalProfitLoss?.value | number: '1.2-2' }}</div>
+            <div>
+              ({{ holding.totalProfitLoss?.percentage | number: '1.2-2' }}%)
+            </div>
+            <div>{{ holding.marketValue | number: '1.2-2' }}</div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } @else {
+  <div
+    class="flex flex-1 flex-col items-center justify-center text-gray-500 dark:text-gray-400"
+    role="status"
+  >
+    <svg
+      class="mx-auto mb-4 h-12 w-12"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 20 20"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+
+    <p>No Holdings!</p>
+  </div>
+  } } @else {
+  <div class="flex flex-1 items-center justify-center" role="status">
+    <svg
+      aria-hidden="true"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+      viewBox="0 0 100 101"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    </svg>
+    <span class="sr-only">Loading...</span>
+  </div>
+  }
+
+  <!-- Add Transaction Drawer -->
+  <div
+    (appDrawerClosed)="resetTransactionForm()"
+    id="add-transaction-drawer"
+    class="fixed right-0 top-0 z-50 h-full w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform dark:bg-gray-800"
+    tabindex="-1"
+    aria-labelledby="drawer-label"
+    aria-hidden="true"
+  >
+    <h5
+      id="drawer-label"
+      class="mb-6 inline-flex items-center text-sm font-semibold uppercase text-gray-500 dark:text-gray-400"
+    >
+      {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}} Stock
+    </h5>
+
+    <button
+      (click)="resetTransactionForm()"
+      type="button"
+      data-drawer-dismiss="add-transaction-drawer"
+      aria-controls="add-transaction-drawer"
+      class="absolute right-2.5 top-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    >
+      <svg
+        aria-hidden="true"
+        class="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+      <span class="sr-only">Close</span>
+    </button>
+
+    <div class="space-y-4">
+      <div class="relative">
+        <label
+          for="name"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Company</label
+        >
+        <input
+          type="text"
+          name="name"
+          id="name"
+          [(ngModel)]="name"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="Type company name/symbol..."
+          required
+        />
+
+        <!-- Search Results Dropdown -->
+        <div
+          class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
+        >
+          @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
+          && stocks.length > 0 ) {
+          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+            @for (stock of stocks; track stock.vendorCode.mc.primary) {
+            <li
+              (click)="selectStock(stock)"
+              class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              {{ stock.name }}
+            </li>
+            }
+          </ul>
+          } }
+        </div>
+      </div>
+
+      <div>
+        <label
+          for="date"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Date</label
+        >
+
+        <div class="relative">
+          <div
+            class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
+          >
+            <svg
+              class="h-4 w-4 text-gray-500 dark:text-gray-400"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+              />
+            </svg>
+          </div>
+          <input
+            #transactionDateInput
+            type="text"
+            name="date"
+            id="date"
+            [(ngModel)]="date"
+            class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="DD/MM/YYYY"
+            required
+            readonly
+          />
+        </div>
+      </div>
+
+      <div>
+        <label
+          for="price"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Price</label
+        >
+        <input
+          type="number"
+          name="price"
+          id="price"
+          [(ngModel)]="price"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="&#8377; 0"
+          required
+        />
+      </div>
+
+      <div>
+        <label
+          for="quantity"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Quantity</label
+        >
+        <input
+          type="number"
+          name="quantity"
+          id="quantity"
+          [(ngModel)]="quantity"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="0"
+          required
+        />
+      </div>
+
+      <div>
+        <label
+          for="gross"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Gross Amount</label
+        >
+        <input
+          type="number"
+          name="gross"
+          id="gross"
+          [value]="gross()"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="0"
+          readonly
+        />
+      </div>
+
+      <div>
+        <label
+          for="changes"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Charges (optional)</label
+        >
+        <input
+          type="number"
+          name="changes"
+          id="changes"
+          [(ngModel)]="charges"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="&#8377; 0"
+        />
+      </div>
+
+      <div>
+        <label
+          for="net"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Net Amount</label
+        >
+        <input
+          type="number"
+          name="net"
+          id="net"
+          [value]="net()"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="0"
+          readonly
+        />
+      </div>
+
+      @if (transactionFormError) {
+      <div>
+        <p class="mt-4 text-sm text-red-600 dark:text-red-500">
+          {{ transactionFormError }}
+        </p>
+      </div>
+      }
+
+      <div
+        class="bottom-0 left-0 flex w-full justify-center space-x-4 pb-4 md:absolute md:px-4"
+      >
+        <button
+          (click)="addTransaction()"
+          type="submit"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex w-full justify-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+        >
+          {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}}
+        </button>
+        <button
+          (click)="resetTransactionForm()"
+          type="button"
+          data-drawer-dismiss="add-transaction-drawer"
+          aria-controls="add-transaction-drawer"
+          class="focus:ring-primary-300 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div
+    tabindex="-1"
+    class="fixed left-0 right-0 top-0 z-50 flex h-full max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
+    [class.hidden]="!showTransactionProgress"
+  >
+    <div role="status">
+      <svg
+        aria-hidden="true"
+        class="inline h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+        viewBox="0 0 100 101"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+
+      Processing...
+    </div>
+  </div>
+
+  <!-- Alert Dialog -->
+  <div
+    tabindex="-1"
+    class="fixed left-0 right-0 top-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
+    [class.hidden]="!showStatusModal"
+  >
+    <div class="relative max-h-full w-full max-w-md p-4">
+      <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
+        <div class="p-4 text-center md:p-5">
+          <svg
+            class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+            Transaction added successfully!<br />Do you want to add one more
+            transaction?
+          </h3>
+          <button
+            (click)="closeStatusModal(true)"
+            type="button"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+          >
+            Yes
+          </button>
+          <button
+            (click)="closeStatusModal()"
+            data-drawer-dismiss="add-transaction-drawer"
+            type="button"
+            class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+          >
+            No
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
