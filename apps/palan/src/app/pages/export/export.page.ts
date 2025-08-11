@@ -41,7 +41,7 @@ export class ExportPage {
     this.document.body.appendChild(a);
     a.setAttribute('style', 'display: none');
     a.href = url;
-    a.download = 'eip-data.json';
+    a.download = 'palan-data.json';
 
     a.click();
 

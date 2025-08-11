@@ -1,6 +1,6 @@
 export const Constants = {
   db: {
-    NAME: 'eip',
+    NAME: 'espp',
   },
   routes: {
     DASHBOARD: 'dashboard',

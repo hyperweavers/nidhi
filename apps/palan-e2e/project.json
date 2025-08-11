@@ -1,0 +1,10 @@
+{
+  "name": "palan-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/palan-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["palan"],
+  "// targets": "to see all targets run: nx show project palan-e2e --web",
+  "targets": {}
+}

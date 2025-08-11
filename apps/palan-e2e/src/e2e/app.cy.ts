@@ -1,6 +1,6 @@
 import { getGreeting } from '../support/app.po';
 
-describe('eip-e2e', () => {
+describe('palan-e2e', () => {
   beforeEach(() => cy.visit('/'));
 
   it('should display welcome message', () => {

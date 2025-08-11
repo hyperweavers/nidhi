@@ -141,8 +141,8 @@ export class AppComponent implements OnInit {
     this.toggleSidebar();
 
     const shareData = {
-      title: 'EIP',
-      text: "Hey there! I found this awesome app called EIP. It is a privacy focused open source Employee Stock Purchase Plan manager. I thought you might like it. Why don't you give a try?",
+      title: 'Palan',
+      text: "Hey there! I found this awesome app called Palan. It is a privacy focused open source Employee Stock Purchase Plan manager. I thought you might like it. Why don't you give a try?",
       url: this.document.location.origin,
     };
     let shared = false;

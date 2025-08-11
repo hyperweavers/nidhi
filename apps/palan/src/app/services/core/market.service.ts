@@ -54,17 +54,19 @@ export class MarketService {
       )
       .pipe(
         switchMap(() =>
-          this.http.get<StockResponse>(Constants.api.MARKET_STATUS).pipe(
-            map(
-              ({ data }): MarketStatus => ({
-                lastUpdated: data.lastupd_epoch,
-                status:
-                  data.market_state === MarketState.LIVE
-                    ? Status.OPEN
-                    : Status.CLOSED,
-              }),
+          this.http
+            .get<StockResponse>(Constants.api.MARKET_STATUS + 'CAT:US')
+            .pipe(
+              map(
+                ({ data }): MarketStatus => ({
+                  lastUpdated: data.lastupd_epoch,
+                  status:
+                    data.market_state === MarketState.LIVE
+                      ? Status.OPEN
+                      : Status.CLOSED,
+                }),
+              ),
             ),
-          ),
         ),
       )
       .pipe(shareReplay(1));

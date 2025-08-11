@@ -1,8 +1,8 @@
 export default {
-  displayName: 'eip',
+  displayName: 'palan',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/apps/eip',
+  coverageDirectory: '../../coverage/apps/palan',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

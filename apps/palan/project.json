@@ -1,9 +1,9 @@
 {
-  "name": "eip",
+  "name": "palan",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/eip/src",
+  "sourceRoot": "apps/palan/src",
   "tags": [],
   "i18n": {
     "sourceLocale": "en-IN"
@@ -15,22 +15,22 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/apps/eip",
-        "index": "apps/eip/src/index.html",
-        "browser": "apps/eip/src/main.ts",
+        "outputPath": "dist/apps/palan",
+        "index": "apps/palan/src/index.html",
+        "browser": "apps/palan/src/main.ts",
         "polyfills": [
           "zone.js"
         ],
-        "tsConfig": "apps/eip/tsconfig.app.json",
+        "tsConfig": "apps/palan/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/eip/public"
+            "input": "apps/palan/public"
           }
         ],
         "styles": [
-          "apps/eip/src/styles.scss"
+          "apps/palan/src/styles.scss"
         ],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
@@ -51,7 +51,7 @@
             }
           ],
           "outputHashing": "all",
-          "serviceWorker": "apps/eip/ngsw-config.json"
+          "serviceWorker": "apps/palan/ngsw-config.json"
         },
         "development": {
           "optimization": false,
@@ -68,10 +68,10 @@
       },
       "configurations": {
         "production": {
-          "buildTarget": "eip:build:production"
+          "buildTarget": "palan:build:production"
         },
         "development": {
-          "buildTarget": "eip:build:development"
+          "buildTarget": "palan:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -79,7 +79,7 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "eip:build"
+        "buildTarget": "palan:build"
       }
     },
     "lint": {
@@ -91,15 +91,15 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "apps/eip/jest.config.ts"
+        "jestConfig": "apps/palan/jest.config.ts"
       }
     },
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "eip:build",
+        "buildTarget": "palan:build",
         "port": 4400,
-        "staticFilePath": "dist/apps/eip/browser",
+        "staticFilePath": "dist/apps/palan/browser",
         "spa": true
       }
     }

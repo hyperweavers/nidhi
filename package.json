@@ -5,7 +5,7 @@
   "scripts": {
     "generate-icons:pangu": "npx pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && npx nx format pangu",
     "generate-icons:vatti": "npx pwa-asset-generator apps/vatti/public/icons/logo.svg apps/vatti/public/icons/ --manifest apps/vatti/public/manifest.webmanifest --index apps/vatti/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format vatti",
-    "generate-icons:eip": "npx pwa-asset-generator apps/eip/public/icons/logo.svg apps/eip/public/icons/ --manifest apps/eip/public/manifest.webmanifest --index apps/eip/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format eip",
+    "generate-icons:palan": "npx pwa-asset-generator apps/palan/public/icons/logo.svg apps/palan/public/icons/ --manifest apps/palan/public/manifest.webmanifest --index apps/palan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format palan",
     "prepare": "husky install"
   },
   "private": true,
