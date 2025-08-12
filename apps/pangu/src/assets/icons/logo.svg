@@ -1,18 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <svg viewBox="356.5 596.5 292.1494 322" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
-    <!-- <linearGradient gradientUnits="userSpaceOnUse" x1="631.075" y1="596.5" x2="631.075" y2="646.5" id="color-0-0" xlink:href="#color-0"/> -->
     <linearGradient id="color-0">
       <stop style="stop-color: #fdc830;" offset="0"/>
       <stop style="stop-color: #f37335;" offset="1"/>
     </linearGradient>
-    <!-- <linearGradient gradientUnits="userSpaceOnUse" x1="583.237" y1="641.439" x2="583.237" y2="909" id="color-0-1" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="531.71" y1="609.472" x2="531.71" y2="664.5" id="color-0-2" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="489.942" y1="686.5" x2="489.942" y2="918.5" id="color-0-3" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="431" y1="754" x2="431" y2="756.5" id="color-0-4" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="488.5" y1="833.458" x2="488.5" y2="890.242" id="color-0-5" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="469" y1="885.441" x2="469" y2="887.5" id="color-0-6" xlink:href="#color-0"/>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="370" y1="891.321" x2="370" y2="893.562" id="color-0-7" xlink:href="#color-0"/> -->
     <linearGradient gradientUnits="userSpaceOnUse" x1="462" y1="913.378" x2="462" y2="915.5" id="color-0-8" xlink:href="#color-0"/>
     <linearGradient gradientUnits="userSpaceOnUse" x1="495.5" y1="913.5" x2="495.5" y2="916.5" id="color-0-9" xlink:href="#color-0"/>
   </defs>
