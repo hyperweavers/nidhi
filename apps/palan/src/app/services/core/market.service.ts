@@ -156,7 +156,7 @@ export class MarketService {
                 fiftyTwoWeekHigh: MarketUtils.stringToNumber(data['52wkHigh']),
               },
               metrics: {
-                marketCap: MarketUtils.stringToNumber(data.market_cap),
+                marketCap: MarketUtils.stringToNumber(data.market_cap_billion),
                 dividendYield: MarketUtils.stringToNumber(data.dy),
               },
               performance: {

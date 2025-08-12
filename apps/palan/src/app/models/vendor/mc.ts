@@ -105,7 +105,7 @@ export interface VendorCode {
 }
 
 export enum MarketState {
-  LIVE = 'Live',
+  LIVE = 'OPEN',
   CLOSE = 'CLOSED',
 }
 
