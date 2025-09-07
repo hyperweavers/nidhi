@@ -1,9 +1,6 @@
 export const Constants = {
   db: {
     NAME: 'pangu',
-    tables: {
-      STOCKS: 'stocks',
-    },
   },
   routes: {
     DASHBOARD: 'dashboard',

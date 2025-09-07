@@ -19,7 +19,7 @@ export class SettingsService {
 
   private settingsSubject$: BehaviorSubject<Settings>;
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
+  constructor(@Inject(DOCUMENT) private readonly document: Document) {
     const theme = this.getTheme();
     const colorScheme = this.getColorScheme();
 

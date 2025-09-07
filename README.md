@@ -10,3 +10,4 @@ Nidhi (_Tamil: நிதி; English: Finance_) is a collection of privacy focus
 
 1. [Pangu](https://pangu.hyperweavers.com) (_Tamil: பங்கு; English: Share_) is a privacy focused open source personal stock portfolio management application.
 2. [Vatti](https://vatti.hyperweavers.com) (_Tamil: வட்டி; English: Interest_) is a set of privacy focused open source financial calculators and utilities.
+3. [Palan](https://palan.hyperweavers.com) (_Tamil: பலன்; English: Benefit_) is a privacy focused open source Employee Stock Purchase Plan (ESPP) management application.

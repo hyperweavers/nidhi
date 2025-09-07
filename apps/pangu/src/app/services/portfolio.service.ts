@@ -14,7 +14,10 @@ import { StorageService } from './core/storage.service';
 export class PortfolioService {
   public portfolio$: Observable<Portfolio>;
 
-  constructor(storageService: StorageService, marketService: MarketService) {
+  constructor(
+    readonly storageService: StorageService,
+    readonly marketService: MarketService,
+  ) {
     this.portfolio$ = from(storageService.stocks$)
       .pipe(
         switchMap((storageStocks) => {
