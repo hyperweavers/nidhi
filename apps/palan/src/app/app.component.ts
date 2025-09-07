@@ -6,9 +6,11 @@ import {
   Component,
   Inject,
   OnInit,
+  Signal,
 } from '@angular/core';
 import {
   NavigationEnd,
+  NavigationStart,
   Router,
   RouterLink,
   RouterModule,
@@ -19,12 +21,15 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { Observable, delay, filter, map, tap } from 'rxjs';
+import { delay, filter, map, Observable, tap } from 'rxjs';
 
+import { toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
 import { MarketStatus, Status } from './models/market';
+import { Plan } from './models/plan';
 import { MarketService } from './services/core/market.service';
+import { PlanService } from './services/core/plan.service';
 import { SettingsService } from './services/core/settings.service';
 
 @UntilDestroy()
@@ -40,6 +45,8 @@ export class AppComponent implements OnInit {
 
   public marketStatus$: Observable<MarketStatus>;
 
+  private plan: Signal<Plan | undefined>;
+
   public sidebarOpen?: boolean;
   public showUpdateModal?: boolean;
   public showInstallModal?: boolean;
@@ -53,17 +60,20 @@ export class AppComponent implements OnInit {
   private pwaInstallPromptEvent?: any;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private platform: Platform,
-    private swUpdate: SwUpdate,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private marketService: MarketService,
-    private settingsService: SettingsService,
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly platform: Platform,
+    private readonly swUpdate: SwUpdate,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router,
+    private readonly marketService: MarketService,
+    private readonly settingsService: SettingsService,
+    readonly planService: PlanService,
   ) {
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),
     );
+
+    this.plan = toSignal<Plan | undefined>(planService.plan$);
   }
 
   public ngOnInit(): void {
@@ -72,6 +82,15 @@ export class AppComponent implements OnInit {
       .subscribe((event) => {
         if (event instanceof NavigationEnd) {
           initFlowbite();
+        } else if (event instanceof NavigationStart) {
+          if (
+            !this.plan() &&
+            (event.url === Constants.routes.ROOT ||
+              event.url.match(Constants.routes.DASHBOARD) ||
+              event.url.match(Constants.routes.PORTFOLIO))
+          ) {
+            this.router.navigate([Constants.routes.PLAN]);
+          }
         }
       });
 

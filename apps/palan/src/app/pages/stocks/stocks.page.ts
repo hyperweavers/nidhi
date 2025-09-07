@@ -7,10 +7,12 @@ import {
   HostListener,
   Inject,
   OnDestroy,
+  Signal,
   ViewChild,
+  computed,
   input,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   IChartApi,
@@ -31,10 +33,13 @@ import {
 
 import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
+import { Currency } from '../../models/currency';
 import { Direction, Status } from '../../models/market';
+import { Plan } from '../../models/plan';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
+import { PlanService } from '../../services/core/plan.service';
 import { SettingsService } from '../../services/core/settings.service';
 import { ChartUtils } from '../../utils/chart.utils';
 
@@ -64,6 +69,11 @@ export class StocksPage implements OnDestroy {
 
   public stock$: Observable<Stock | null>;
 
+  private plan: Signal<Plan | undefined>;
+  public contributionCurrency: Signal<Currency | undefined> = computed(
+    () => this.plan()?.currencies.purchase,
+  );
+
   public chartCrosshairData?: ChartData;
 
   public activeChartTimeRange = ChartTimeRange.ONE_DAY;
@@ -86,10 +96,11 @@ export class StocksPage implements OnDestroy {
   private areaSeries?: ISeriesApi<any>;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private cdr: ChangeDetectorRef,
-    marketService: MarketService,
-    settingsService: SettingsService,
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly cdr: ChangeDetectorRef,
+    readonly marketService: MarketService,
+    readonly settingsService: SettingsService,
+    readonly planService: PlanService,
   ) {
     marketService.marketStatus$
       .pipe(untilDestroyed(this))
@@ -251,6 +262,8 @@ export class StocksPage implements OnDestroy {
         }
       }),
     );
+
+    this.plan = toSignal<Plan | undefined>(planService.plan$);
   }
 
   public setChartTimeRange(range: ChartTimeRange): void {

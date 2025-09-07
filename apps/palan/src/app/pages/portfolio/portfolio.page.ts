@@ -5,60 +5,34 @@ import {
   Component,
   ElementRef,
   OnInit,
+  Signal,
   ViewChild,
   computed,
   signal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Dropdown } from 'flowbite';
-import {
-  BehaviorSubject,
-  Observable,
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  iif,
-  map,
-  share,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Constants } from '../../constants';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
+import { Currency } from '../../models/currency';
 import { Direction } from '../../models/market';
-import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
-import { Stock } from '../../models/stock';
-import { MarketService } from '../../services/core/market.service';
+import { Plan } from '../../models/plan';
+import {
+  ContributionSource,
+  Portfolio,
+  Transaction,
+  TransactionType,
+} from '../../models/portfolio';
+import { PlanService } from '../../services/core/plan.service';
 import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const Datepicker: any;
-
-enum PortfolioFilter {
-  NONE,
-  DAY_GAINERS,
-  DAY_LOSERS,
-  OVERALL_GAINERS,
-  OVERALL_LOSERS,
-}
-
-enum PortfolioSortType {
-  NAME,
-  DAY_PROFIT_LOSS,
-  OVERALL_PROFIT_LOSS,
-}
-
-enum PortfolioSortOrder {
-  ASC,
-  DSC,
-}
 
 @Component({
   selector: 'app-portfolio',
@@ -72,171 +46,69 @@ export class PortfolioPage implements OnInit {
   private transactionDateInputRef?: ElementRef;
 
   public portfolio$: Observable<Portfolio>;
-  public stockSearchResults$: Observable<Stock[]>;
 
-  private portfolioSearchQuery$: Observable<string>;
+  private plan: Signal<Plan | undefined>;
 
-  private portfolioFilter$ = new BehaviorSubject<PortfolioFilter>(
-    PortfolioFilter.NONE,
+  public purchaseCurrency: Signal<Currency | undefined> = computed(
+    () => this.plan()?.currencies.purchase,
   );
-  private portfolioSort$ = new BehaviorSubject<
-    [PortfolioSortType, PortfolioSortOrder]
-  >([PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC]);
+  public contributionCurrency: Signal<Currency | undefined> = computed(
+    () => this.plan()?.currencies.contribution,
+  );
 
   public readonly Routes = Constants.routes;
   public readonly Direction = Direction;
   public readonly TransactionType = TransactionType;
-  public readonly PortfolioFilter = PortfolioFilter;
-  public readonly PortfolioSortType = PortfolioSortType;
-  public readonly PortfolioSortOrder = PortfolioSortOrder;
+  public readonly ContributionSource = ContributionSource;
 
-  public portfolioSearchQuery = signal('');
-
-  public name = signal('');
+  public source = signal(ContributionSource.EMPLOYEE);
   public date = signal('');
   public price = signal(0);
   public quantity = signal(0);
+  public contribution = signal(0);
   public charges = signal(0);
-  public readonly gross = computed(() => this.price() * this.quantity());
-  public readonly net = computed(() => this.gross() + this.charges());
+  public discount = signal(0);
+  public fmv = signal(0);
 
   public transactionType?: TransactionType;
-  public showSearchResults?: boolean;
   public showStatusModal?: boolean;
   public showTransactionProgress?: boolean;
   public transactionFormError?: string;
 
-  private selectedStock?: Stock | Holding;
-  private sortDropdown?: Dropdown;
-  private filterDropdown?: Dropdown;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
   constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-    private marketService: MarketService,
-    portfolioService: PortfolioService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly storageService: StorageService,
+    readonly portfolioService: PortfolioService,
+    readonly planService: PlanService,
   ) {
-    this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-    );
-
-    this.portfolio$ = combineLatest([
-      portfolioService.portfolio$,
-      this.portfolioFilter$,
-      this.portfolioSort$,
-      this.portfolioSearchQuery$,
-    ]).pipe(
-      map(([portfolio, filter, [type, order], query]) => ({
+    this.portfolio$ = portfolioService.portfolio$.pipe(
+      map((portfolio) => ({
         ...portfolio,
-        holdings: portfolio.holdings
-          .filter(
-            (holding) =>
-              holding.quantity &&
-              holding.quantity > 0 &&
-              holding.name.toLowerCase().includes(query.toLowerCase()),
-          )
-          .filter((holding) => {
-            switch (filter) {
-              case PortfolioFilter.DAY_GAINERS:
-                return holding.quote?.change?.direction === Direction.UP;
-
-              case PortfolioFilter.DAY_LOSERS:
-                return holding.quote?.change?.direction === Direction.DOWN;
-
-              case PortfolioFilter.OVERALL_GAINERS:
-                return holding.totalProfitLoss?.direction === Direction.UP;
-
-              case PortfolioFilter.OVERALL_LOSERS:
-                return holding.totalProfitLoss?.direction === Direction.DOWN;
-
-              default:
-                return true;
-            }
-          })
-          .sort((h1, h2) => {
-            switch (type) {
-              case PortfolioSortType.NAME:
-                return order === PortfolioSortOrder.ASC
-                  ? h1.name.localeCompare(h2.name)
-                  : h2.name.localeCompare(h1.name);
-
-              case PortfolioSortType.DAY_PROFIT_LOSS:
-                return order === PortfolioSortOrder.ASC
-                  ? (h1.quote?.change?.percentage || 0) -
-                      (h2.quote?.change?.percentage || 0)
-                  : (h2.quote?.change?.percentage || 0) -
-                      (h1.quote?.change?.percentage || 0);
-
-              case PortfolioSortType.OVERALL_PROFIT_LOSS:
-                return order === PortfolioSortOrder.ASC
-                  ? (h1.totalProfitLoss?.percentage || 0) -
-                      (h2.totalProfitLoss?.percentage || 0)
-                  : (h2.totalProfitLoss?.percentage || 0) -
-                      (h1.totalProfitLoss?.percentage || 0);
-            }
-          }),
-      })),
-      share(),
-    );
-
-    this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500), // TODO: Review the time
-      distinctUntilChanged(),
-      tap((query) => {
-        this.showSearchResults = false;
-
-        if (query !== this.selectedStock?.name) {
-          this.selectedStock = undefined;
-        }
-      }),
-      filter((query) => query.length > 2 && query !== this.selectedStock?.name),
-      switchMap((query) =>
-        iif(
-          () => this.transactionType === TransactionType.BUY,
-          this.marketService.search(query),
-          portfolioService.portfolio$.pipe(
-            map((portfolio) =>
-              portfolio.holdings.filter(
-                (holding) =>
-                  holding.quantity &&
-                  holding.quantity > 0 &&
-                  holding.name.toLowerCase().includes(query.toLowerCase()),
-              ),
-            ),
-          ),
+        holdings: portfolio.holdings.filter(
+          (holding) => holding.quantity && holding.quantity > 0,
         ),
-      ),
-      tap(() => {
-        this.showSearchResults = true;
-      }),
+      })),
     );
+
+    this.plan = toSignal<Plan | undefined>(planService.plan$);
   }
 
   public ngOnInit(): void {
     this.initDatePicker();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
-      'Dropdown',
-      'sortDropdown',
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
-      'Dropdown',
-      'filterDropdown',
-    );
   }
 
   public async addTransaction(): Promise<void> {
     if (
-      this.selectedStock &&
+      this.purchaseCurrency() &&
+      this.contributionCurrency() &&
       this.transactionType &&
+      this.source() &&
       this.date() &&
       this.price() > 0 &&
+      this.contribution() > 0 &&
       this.quantity() > 0 &&
       (!this.charges() || this.charges() > 0)
     ) {
@@ -248,16 +120,30 @@ export class PortfolioPage implements OnInit {
       if (date < new Date()) {
         this.showTransactionProgress = true;
 
-        const transaction = {
+        const transaction: Transaction = {
           id: uuid(),
           type: this.transactionType,
           date: date.getTime(),
-          price: this.price(),
+          price: {
+            value: this.price(),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            currency: this.purchaseCurrency()!,
+          },
           quantity: this.quantity(),
-          charges: this.charges(),
+          source: this.source(),
+          contribution: {
+            value: this.contribution(),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            currency: this.contributionCurrency()!,
+          },
+          charges: {
+            value: this.charges(),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            currency: this.purchaseCurrency()!,
+          },
         };
 
-        await this.storageService.addOrUpdate(this.selectedStock, transaction);
+        await this.storageService.addOrUpdate(transaction);
 
         this.resetTransactionForm();
 
@@ -278,48 +164,15 @@ export class PortfolioPage implements OnInit {
     this.transactionType = type;
   }
 
-  public selectStock(stock: Stock | Holding): void {
-    if (!stock.scripCode.isin) {
-      this.marketService
-        .getStock(stock.vendorCode.mc.primary)
-        .pipe(take(1))
-        .subscribe((combinedStockDetails) => {
-          if (combinedStockDetails) {
-            this.selectedStock = {
-              ...stock,
-              scripCode: combinedStockDetails.scripCode,
-              vendorCode: {
-                ...stock.vendorCode,
-                mc: combinedStockDetails.vendorCode.mc,
-              },
-            };
-
-            this.name.set(stock.name);
-          } else {
-            this.showTransactionFormError(
-              'Unable to get the details of the selected stock!',
-            );
-          }
-        });
-    } else {
-      this.selectedStock = stock;
-
-      this.name.set(stock.name);
-    }
-
-    this.showSearchResults = false;
-  }
-
   public resetTransactionForm(): void {
-    this.selectedStock = undefined;
-
-    this.showSearchResults = false;
-
-    this.name.set('');
+    this.source.set(ContributionSource.EMPLOYEE);
     this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
     this.price.set(0);
+    this.contribution.set(0);
     this.quantity.set(0);
     this.charges.set(0);
+    this.discount.set(0);
+    this.fmv.set(0);
 
     this.resetDatepicker();
   }
@@ -329,33 +182,6 @@ export class PortfolioPage implements OnInit {
 
     if (!retainTransactionType) {
       this.transactionType = undefined;
-    }
-  }
-
-  public filterPortfolio(filter: PortfolioFilter): void {
-    this.portfolioFilter$.next(filter);
-
-    if (this.filterDropdown) {
-      this.filterDropdown.hide();
-    }
-  }
-
-  public clearPortfolioFilters(): void {
-    this.portfolioFilter$.next(PortfolioFilter.NONE);
-
-    if (this.filterDropdown) {
-      this.filterDropdown.hide();
-    }
-  }
-
-  public sortPortfolio(
-    type: PortfolioSortType,
-    order: PortfolioSortOrder,
-  ): void {
-    this.portfolioSort$.next([type, order]);
-
-    if (this.sortDropdown) {
-      this.sortDropdown.hide();
     }
   }
 

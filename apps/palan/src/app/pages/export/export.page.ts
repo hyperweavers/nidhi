@@ -21,9 +21,9 @@ export class ExportPage {
   public showExportProgress?: boolean;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly storageService: StorageService,
   ) {}
 
   public async export(): Promise<void> {

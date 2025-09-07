@@ -30,7 +30,7 @@ export class DataService {
   banksInIndia$: Observable<BanksInIndia | null>;
   ibjaGoldRates$: Observable<IbjaGoldRates | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(private readonly http: HttpClient) {
     this.goldRate$ = this.http
       .post(Constants.api.GOLD_PRICE, {
         query:

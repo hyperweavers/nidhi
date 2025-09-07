@@ -120,3 +120,16 @@ export enum ChartResolution {
   WEEK = '1W',
   MONTH = '1M',
 }
+
+export const currencyCodeMap: { [key: string]: string } = {
+  Rupee: 'INR',
+  USD: 'USD',
+  EUR: 'EUR',
+  GBP: 'GBP',
+  CAD: 'CAD',
+  'AUS Dollar': 'AUD',
+  Yen: 'JPY',
+  'Singapore Dollar': 'SGD',
+  'Taiwan Dollar': 'TWD',
+  Renimbi: 'CNY',
+};

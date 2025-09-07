@@ -5,6 +5,22 @@
     <div class="flex space-x-4">
       <div class="flex-1 text-2xl font-semibold">{{ stock.name }}</div>
     </div>
+
+    <div class="text-gray-900 dark:text-white">
+      <div class="text-lg font-semibold">
+        {{ stock.quote?.price | number: '1.2-2' }} {{
+        contributionCurrency()?.code }}
+      </div>
+      <div
+        class="flex items-center"
+        [ngClass]="stock.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+      >
+        {{ stock.quote?.change?.direction === Direction.UP ? '&#x25B2;' :
+        '&#x25BC;' }} {{ stock.quote?.change?.value | number: '1.2-2' }} {{
+        contributionCurrency()?.code }} ({{ stock.quote?.change?.percentage |
+        number: '1.2-2' }}%)
+      </div>
+    </div>
   </div>
 
   <!-- Chart Section -->
@@ -248,21 +264,23 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            &#8377;{{ stock.quote?.open | number: '1.2-2' }}
+            {{ stock.quote?.open | number: '1.2-2' }} {{
+            contributionCurrency()?.code }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            &#8377;{{ stock.quote?.close | number: '1.2-2' }}
+            {{ stock.quote?.close | number: '1.2-2' }} {{
+            contributionCurrency()?.code }}
           </div>
         </div>
 
         <div class="flex flex-1 flex-col space-y-4">
           <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              Day Range (&#8377;)
+              Day Range ({{ contributionCurrency()?.code }})
             </div>
 
             <div class="flex text-xs">
@@ -293,7 +311,7 @@
 
           <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
-              52 Week Range (&#8377;)
+              52 Week Range ({{ contributionCurrency()?.code }})
             </div>
 
             <div class="flex text-xs">
@@ -353,7 +371,8 @@
               Market Cap
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.marketCap | number: '1.2-2' }} Cr.
+              {{ stock.metrics?.marketCap | number: '1.2-2' }} Billion {{
+              contributionCurrency()?.code }}
             </div>
           </div>
         </div>

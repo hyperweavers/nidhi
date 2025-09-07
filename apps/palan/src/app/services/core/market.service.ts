@@ -42,8 +42,8 @@ export class MarketService {
   private refresh$ = new BehaviorSubject(null);
 
   constructor(
-    private http: HttpClient,
-    private settingsService: SettingsService,
+    private readonly http: HttpClient,
+    private readonly settingsService: SettingsService,
   ) {
     this.marketStatus$ = this.settingsService.settings$
       .pipe(

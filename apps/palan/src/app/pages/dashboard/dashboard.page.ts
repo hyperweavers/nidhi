@@ -19,7 +19,7 @@ export class DashboardPage {
 
   public readonly Direction = Direction;
 
-  constructor(dashboardService: DashboardService) {
+  constructor(readonly dashboardService: DashboardService) {
     this.kpi$ = dashboardService.kpi$;
   }
 }

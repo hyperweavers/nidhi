@@ -1,11 +1,13 @@
 export const Constants = {
   db: {
-    NAME: 'espp',
+    NAME: 'palan',
   },
   routes: {
+    ROOT: '/',
     DASHBOARD: 'dashboard',
     PORTFOLIO: 'portfolio',
     STOCKS: 'stocks',
+    PLAN: 'plan',
     SETTINGS: 'settings',
     IMPORT: 'import',
     EXPORT: 'export',
@@ -27,6 +29,7 @@ export const Constants = {
       'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/intra?duration=1D&firstCall=true&symbol=',
     FOREX:
       'https://api.moneycontrol.com/mcapi/v1/currency/getGlobalCurrencyRates',
+    CURRENCY_LIST: 'https://jsonblob.com/api/jsonBlob/1406680696310915072',
   },
   settings: {
     THEME: 'theme',
@@ -35,5 +38,12 @@ export const Constants = {
   },
   placeholders: {
     NO_VALUE: '--',
+  },
+  currency: {
+    iconUrl: {
+      prefix: 'https://economictimes.indiatimes.com/photo/',
+      suffix: '.cms',
+    },
+    allowed: ['USD', 'INR'],
   },
 };

@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import {
+  Observable,
+  combineLatest,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+} from 'rxjs';
 
 import { Constants } from '../constants';
-import { Kpi, KpiCard } from '../models/kpi';
-import { Portfolio } from '../models/portfolio';
+import { Kpi } from '../models/kpi';
+import { MarketService } from './core/market.service';
+import { PlanService } from './core/plan.service';
 import { PortfolioService } from './portfolio.service';
 
 @Injectable({
@@ -12,35 +20,64 @@ import { PortfolioService } from './portfolio.service';
 export class DashboardService {
   public kpi$: Observable<Kpi>;
 
-  private portfolio$: Observable<Portfolio>;
-
-  constructor(portfolioService: PortfolioService) {
-    this.portfolio$ = portfolioService.portfolio$;
-
-    this.kpi$ = this.portfolio$.pipe(
-      map((portfolio) => ({
+  constructor(
+    readonly planService: PlanService,
+    readonly marketService: MarketService,
+    readonly portfolioService: PortfolioService,
+  ) {
+    this.kpi$ = combineLatest([
+      portfolioService.portfolio$,
+      planService.plan$.pipe(
+        switchMap((plan) =>
+          plan?.stock?.vendorCode?.mc?.primary
+            ? marketService.getStock(plan.stock.vendorCode.mc.primary)
+            : of(null),
+        ),
+        shareReplay(1),
+      ),
+    ]).pipe(
+      map(([portfolio, stock]) => ({
         cards: [
-          ...(portfolio.holdings.length > 0
+          ...(portfolio
+            ? [
+                ...(portfolio.holdings.length > 0
+                  ? [
+                      {
+                        id: 'portfolio.day',
+                        title: 'Portfolio',
+                        subtitle: 'Day',
+                        value: portfolio.marketValue,
+                        change: portfolio.dayProfitLoss,
+                        routeLink: Constants.routes.PORTFOLIO,
+                      },
+                      {
+                        id: 'portfolio.total',
+                        title: 'Portfolio',
+                        subtitle: 'Total',
+                        value: portfolio.marketValue,
+                        change: portfolio.totalProfitLoss,
+                        routeLink: Constants.routes.PORTFOLIO,
+                      },
+                    ]
+                  : []),
+              ]
+            : []),
+          ...(stock
             ? [
                 {
-                  id: 'portfolio.day',
-                  title: 'Portfolio',
+                  id:
+                    stock.scripCode.isin ||
+                    stock.scripCode.ticker ||
+                    stock.name,
+                  title: stock.name,
                   subtitle: 'Day',
-                  value: portfolio.marketValue,
-                  change: portfolio.dayProfitLoss,
-                  routeLink: Constants.routes.PORTFOLIO,
-                },
-                {
-                  id: 'portfolio.total',
-                  title: 'Portfolio',
-                  subtitle: 'Total',
-                  value: portfolio.marketValue,
-                  change: portfolio.totalProfitLoss,
-                  routeLink: Constants.routes.PORTFOLIO,
+                  value: stock.quote?.price,
+                  change: stock.quote?.change,
+                  routeLink: `${Constants.routes.STOCKS}/${stock.vendorCode.mc.primary}`,
                 },
               ]
             : []),
-        ] as KpiCard[],
+        ],
       })),
     );
   }

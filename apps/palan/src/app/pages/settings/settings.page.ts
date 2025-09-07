@@ -18,7 +18,7 @@ export class SettingsPage {
   public readonly Theme = Theme;
   public readonly RefreshInterval = RefreshInterval;
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private readonly settingsService: SettingsService) {
     this.settings$ = this.settingsService.settings$;
   }
 

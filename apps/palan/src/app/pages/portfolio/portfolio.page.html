@@ -2,19 +2,21 @@
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Summary -->
   <dl
-    class="m-4 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+    class="m-4 mb-2 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
   >
     <div class="flex flex-col">
       <div>
         <dd class="mb-2 text-gray-500 dark:text-gray-400">Investment</dd>
         <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.investment | number: '1.2-2' }}
+          {{ portfolio.investment | number: '1.2-2' }} {{
+          purchaseCurrency()?.code }}
         </dt>
       </div>
       <div class="mt-6">
         <dd class="mb-2 text-gray-500 dark:text-gray-400">Market Value</dd>
         <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.marketValue | number: '1.2-2' }}
+          {{ portfolio.marketValue | number: '1.2-2' }} {{
+          purchaseCurrency()?.code }}
         </dt>
       </div>
     </div>
@@ -25,7 +27,8 @@
           class="text-lg font-extrabold"
           [ngClass]="portfolio.dayProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
         >
-          &#8377;{{ portfolio.dayProfitLoss.value | number: '1.2-2' }}
+          {{ portfolio.dayProfitLoss.value | number: '1.2-2' }} {{
+          purchaseCurrency()?.code }}
           <span class="text-sm font-normal"
             >({{ portfolio.dayProfitLoss.percentage | number: '1.2-2' }}%)</span
           >
@@ -37,7 +40,8 @@
           class="text-lg font-extrabold"
           [ngClass]="portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
         >
-          &#8377;{{ portfolio.totalProfitLoss.value | number: '1.2-2' }}
+          {{ portfolio.totalProfitLoss.value | number: '1.2-2' }} {{
+          purchaseCurrency()?.code }}
           <span class="text-sm font-normal"
             >({{ portfolio.totalProfitLoss.percentage | number: '1.2-2'
             }}%)</span
@@ -50,353 +54,38 @@
 
   <!-- Table Header -->
   <div
-    class="flex flex-col items-center justify-between space-y-3 p-4 pt-2 md:flex-row md:space-x-4 md:space-y-0"
+    class="flex flex-col items-center justify-center space-y-3 p-4 md:flex-row md:space-x-4 md:space-y-0"
   >
-    <!-- Search -->
-    <div class="w-full md:w-64 xl:w-96">
-      <div class="flex items-center">
-        <label for="simple-search" class="sr-only">Search</label>
-        <div class="relative w-full">
-          <div
-            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-          >
-            <svg
-              aria-hidden="true"
-              class="h-5 w-5 text-gray-500 dark:text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <input
-            [(ngModel)]="portfolioSearchQuery"
-            type="text"
-            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-            placeholder="Search"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="flex w-full flex-shrink-0 flex-col items-stretch justify-end space-y-3 md:w-auto md:flex-row md:items-center md:space-x-3 md:space-y-0"
+    <!-- Buy Button -->
+    <button
+      (click)="openAddTransactionDrawer(TransactionType.BUY)"
+      data-drawer-target="add-transaction-drawer"
+      data-drawer-show="add-transaction-drawer"
+      aria-controls="add-transaction-drawer"
+      data-drawer-placement="right"
+      type="button"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
     >
-      <div class="flex space-x-3">
-        <!-- Sort -->
-        <div class="flex w-full items-center md:w-auto">
-          <button
-            id="sortDropdownButton"
-            data-dropdown-toggle="sortDropdown"
-            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-            type="button"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              class="mr-2 h-4 w-4 text-gray-400"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 4v16M7 4l3 3M7 4 4 7m9-3h6l-6 6h6m-6.5 10 3.5-7 3.5 7M14 18h4"
-              />
-            </svg>
+      Buy
+    </button>
 
-            Sort
-            <svg
-              class="-mr-1 ml-1.5 h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              />
-            </svg>
-          </button>
-
-          <div
-            id="sortDropdown"
-            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-          >
-            <ul
-              class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="sortDropdownButton"
-            >
-              <li
-                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Company Name
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6v13m0-13 4 4m-4-4-4 4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Company Name
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 19V5m0 14-4-4m4 4 4-4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Day Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6v13m0-13 4 4m-4-4-4 4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Day Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 19V5m0 14-4-4m4 4 4-4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Overall Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6v13m0-13 4 4m-4-4-4 4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Overall Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 19V5m0 14-4-4m4 4 4-4"
-                    />
-                  </svg>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Filter -->
-        <div class="flex w-full items-center md:w-auto">
-          <button
-            id="filterDropdownButton"
-            data-dropdown-toggle="filterDropdown"
-            class="hover:text-primary-700 flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-200 md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-            type="button"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-              class="mr-2 h-4 w-4 text-gray-400"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            Filter
-            <svg
-              class="-mr-1 ml-1.5 h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              />
-            </svg>
-          </button>
-
-          <div
-            id="filterDropdown"
-            class="z-10 hidden w-44 divide-y divide-gray-100 rounded bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-          >
-            <ul
-              class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="filterDropdownButton"
-            >
-              <li
-                (click)="clearPortfolioFilters()"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                All
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Day Gainers
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Day Losers
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Overall Gainers
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Overall Losers
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex space-x-3">
-        <!-- Buy Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.BUY)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
-        >
-          Buy
-        </button>
-
-        <!-- Sell Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.SELL)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
-        >
-          Sell
-        </button>
-      </div>
-    </div>
+    <!-- Sell Button -->
+    <button
+      (click)="openAddTransactionDrawer(TransactionType.SELL)"
+      data-drawer-target="add-transaction-drawer"
+      data-drawer-show="add-transaction-drawer"
+      aria-controls="add-transaction-drawer"
+      data-drawer-placement="right"
+      type="button"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 md:w-24"
+    >
+      Sell
+    </button>
   </div>
 
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Table -->
-  <div class="relative overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
+  <div class="relative mt-2 overflow-x-auto shadow sm:mx-4 sm:rounded-lg">
     <table
       class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
     >
@@ -412,18 +101,18 @@
         <tr>
           <th scope="col" class="p-2 text-left sm:p-4">
             <div class="whitespace-nowrap">Company (Qty)</div>
-            <div>Avg. Price (&#8377;)</div>
-            <div>Investment (&#8377;)</div>
+            <div>Avg. Price ({{ purchaseCurrency()?.code }})</div>
+            <div>Investment ({{ purchaseCurrency()?.code }})</div>
           </th>
           <th scope="col" class="p-2 sm:p-4">
-            <div>Day P/L (&#8377;)</div>
+            <div>Day P/L ({{ purchaseCurrency()?.code }})</div>
             <div>Day P/L (%)</div>
-            <div>LTP (&#8377;)</div>
+            <div>LTP ({{ purchaseCurrency()?.code }})</div>
           </th>
           <th scope="col" class="p-2 sm:p-4">
-            <div>Total P/L (&#8377;)</div>
+            <div>Total P/L ({{ purchaseCurrency()?.code }})</div>
             <div>Total P/L (%)</div>
-            <div>Cur. Val. (&#8377;)</div>
+            <div>Cur. Val. ({{ purchaseCurrency()?.code }})</div>
           </th>
         </tr>
       </thead>
@@ -557,41 +246,35 @@
     </button>
 
     <div class="space-y-4">
-      <div class="relative">
+      @if (transactionType === TransactionType.BUY) {
+      <div>
         <label
-          for="name"
+          for="source"
           class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-          >Company</label
+          >Contributed By</label
         >
-        <input
-          type="text"
-          name="name"
-          id="name"
-          [(ngModel)]="name"
+        <select
+          id="source"
+          name="source"
+          [(ngModel)]="source"
           class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-          placeholder="Type company name/symbol..."
           required
-        />
-
-        <!-- Search Results Dropdown -->
-        <div
-          class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
         >
-          @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
-          && stocks.length > 0 ) {
-          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
-            @for (stock of stocks; track stock.vendorCode.mc.primary) {
-            <li
-              (click)="selectStock(stock)"
-              class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              {{ stock.name }}
-            </li>
-            }
-          </ul>
-          } }
-        </div>
+          <option
+            [value]="ContributionSource.EMPLOYEE"
+            [selected]="source() === ContributionSource.EMPLOYEE"
+          >
+            Employee
+          </option>
+          <option
+            [value]="ContributionSource.EMPLOYER"
+            [selected]="source() === ContributionSource.EMPLOYEE"
+          >
+            Employer
+          </option>
+        </select>
       </div>
+      }
 
       <div>
         <label
@@ -642,7 +325,7 @@
           id="price"
           [(ngModel)]="price"
           class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-          placeholder="&#8377; 0"
+          placeholder="0"
           required
         />
       </div>
@@ -664,22 +347,24 @@
         />
       </div>
 
+      @if (transactionType === TransactionType.BUY) {
       <div>
         <label
-          for="gross"
+          for="contribution"
           class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-          >Gross Amount</label
+          >Total Contribution</label
         >
         <input
           type="number"
-          name="gross"
-          id="gross"
-          [value]="gross()"
+          name="contribution"
+          id="contribution"
+          [(ngModel)]="contribution"
           class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="0"
-          readonly
+          required
         />
       </div>
+      }
 
       <div>
         <label
@@ -693,28 +378,43 @@
           id="changes"
           [(ngModel)]="charges"
           class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-          placeholder="&#8377; 0"
+          placeholder="0"
         />
       </div>
 
+      @if (transactionType === TransactionType.BUY) {
       <div>
         <label
-          for="net"
+          for="discount"
           class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-          >Net Amount</label
+          >Discount % (optional)</label
         >
         <input
           type="number"
-          name="net"
-          id="net"
-          [value]="net()"
+          name="discount"
+          id="discount"
+          [(ngModel)]="discount"
           class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           placeholder="0"
-          readonly
         />
       </div>
-
-      @if (transactionFormError) {
+      } @if (transactionType === TransactionType.BUY) {
+      <div>
+        <label
+          for="fmv"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Fair Market Value (optional)</label
+        >
+        <input
+          type="number"
+          name="fmv"
+          id="fmv"
+          [(ngModel)]="fmv"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          [placeholder]="price()"
+        />
+      </div>
+      } @if (transactionFormError) {
       <div>
         <p class="mt-4 text-sm text-red-600 dark:text-red-500">
           {{ transactionFormError }}

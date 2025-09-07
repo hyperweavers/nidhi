@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Signal } from '@angular/core';
 import { liveQuery, Observable } from 'dexie';
 import {
   exportDB,
@@ -7,9 +7,11 @@ import {
 } from 'dexie-export-import';
 import { v4 as uuid } from 'uuid';
 
+import { toSignal } from '@angular/core/rxjs-interop';
 import { db } from '../../db/app.db';
+import { Plan } from '../../models/plan';
 import { Holding, Transaction } from '../../models/portfolio';
-import { Stock } from '../../models/stock';
+import { PlanService } from './plan.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,29 +19,40 @@ import { Stock } from '../../models/stock';
 export class StorageService {
   public stocks$: Observable<Holding[]>;
 
-  constructor() {
+  private plan: Signal<Plan | undefined>;
+
+  constructor(readonly planService: PlanService) {
     this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
+
+    this.plan = toSignal<Plan | undefined>(planService.plan$);
   }
 
-  public async addOrUpdate(
-    holding: Stock | Holding,
-    transaction: Transaction,
-  ): Promise<void> {
-    const stock = await db.stocks.get({
-      'scripCode.isin': holding.scripCode.isin,
-    });
+  public async addOrUpdate(transaction: Transaction): Promise<void> {
+    const plan = this.plan();
 
-    if (stock?.id) {
-      await db.stocks.update(stock.id, {
-        transactions: [...stock.transactions, transaction],
+    if (plan) {
+      const stock = await db.stocks.get({
+        'scripCode.isin': plan.stock.scripCode.isin,
       });
+
+      if (stock?.id) {
+        await db.stocks.update(stock.id, {
+          transactions: [...stock.transactions, transaction],
+        });
+      } else {
+        const id = uuid();
+
+        await db.stocks.add(
+          {
+            ...plan.stock,
+            id,
+            transactions: [transaction],
+          },
+          id,
+        );
+      }
     } else {
-      holding = {
-        ...holding,
-        id: uuid(),
-        transactions: [transaction],
-      };
-      await db.stocks.add(holding, holding.id);
+      throw new Error('No plan defined!');
     }
   }
 

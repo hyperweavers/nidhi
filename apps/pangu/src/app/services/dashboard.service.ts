@@ -18,8 +18,8 @@ export class DashboardService {
   private portfolio$: Observable<Portfolio>;
 
   constructor(
-    marketService: MarketService,
-    portfolioService: PortfolioService,
+    readonly marketService: MarketService,
+    readonly portfolioService: PortfolioService,
   ) {
     this.indices$ = marketService.getMainIndices().pipe(shareReplay(1));
 

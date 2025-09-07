@@ -28,8 +28,8 @@ export class ImportPage {
   private importFile: File | null = null;
 
   constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly storageService: StorageService,
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

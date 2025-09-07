@@ -20,6 +20,11 @@ export const appRoutes: Route[] = [
       import('./pages/stocks/stocks.page').then((m) => m.StocksPage),
   },
   {
+    path: Constants.routes.PLAN,
+    loadComponent: () =>
+      import('./pages/plan/plan.page').then((m) => m.PlanPage),
+  },
+  {
     path: Constants.routes.SETTINGS,
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),

@@ -19,8 +19,8 @@ export class DeletePage {
   public showDeleteProgress?: boolean;
 
   constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly storageService: StorageService,
   ) {}
 
   public async delete(): Promise<void> {
