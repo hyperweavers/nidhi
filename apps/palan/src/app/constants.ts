@@ -21,7 +21,7 @@ export const Constants = {
     MARKET_STATUS:
       'https://priceapi.moneycontrol.com/pricefeed/usMarket/stock/',
     STOCK_SEARCH:
-      'https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?type=1&format=json&query=',
+      'https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&type=1&format=json&query=',
     STOCK_QUOTE: 'https://priceapi.moneycontrol.com/pricefeed/usMarket/stock/',
     STOCK_HISTORIC_CHART:
       'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/history?resolution=1&', // symbol=CAT%3AUS&from=1724630400&to=1754870400&countback=300&currencyCode=USD&resolution=1D
