@@ -32,9 +32,10 @@ export class DataService {
 
   constructor(private readonly http: HttpClient) {
     this.goldRate$ = this.http
-      .post(Constants.api.GOLD_PRICE, {
-        query:
-          'query{allDailyMetalPrices(condition:{isActive:true,displayName:"Gold 22K"}){nodes{displayPrice updatedAt}}}',
+      .post(Constants.api.GOLD_PRICE, 'countryId=1&stateId=16&cityId=120', {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       })
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
@@ -46,7 +47,7 @@ export class DataService {
         map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (res: any) =>
-            res?.data?.allDailyMetalPrices?.nodes[0]?.displayPrice || 0,
+            Number(res?.data?.today_22k?.replaceAll('INR', '')?.replaceAll(',', '')?.trim()) || 0,
         ),
         distinctUntilChanged(),
       );
