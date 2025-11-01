@@ -13,7 +13,8 @@ export const Constants = {
     DISCLAIMER: 'disclaimer',
   },
   api: {
-    GOLD_PRICE: 'https://www.kalyanjewellers.net/kalyan_gold_rates/ajax/get_rate',
+    GOLD_PRICE:
+      'https://www.kalyanjewellers.net/kalyan_gold_rates/ajax/get_rate',
     JSON_BLOB_STORAGE: 'https://jsonblob.com/api/jsonBlob',
   },
   jsonBlobs: {

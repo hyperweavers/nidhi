@@ -34,8 +34,8 @@ export class DataService {
     this.goldRate$ = this.http
       .post(Constants.api.GOLD_PRICE, 'countryId=1&stateId=16&cityId=120', {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       })
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
@@ -47,7 +47,12 @@ export class DataService {
         map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (res: any) =>
-            Number(res?.data?.today_22k?.replaceAll('INR', '')?.replaceAll(',', '')?.trim()) || 0,
+            Number(
+              res?.today_22k
+                ?.replaceAll('INR', '')
+                ?.replaceAll(',', '')
+                ?.trim(),
+            ) || 0,
         ),
         distinctUntilChanged(),
       );
