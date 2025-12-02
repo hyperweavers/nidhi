@@ -1,5 +1,5 @@
 import { Platform } from '@angular/cdk/platform';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -7,6 +7,7 @@ import {
   Inject,
   OnInit,
   Signal,
+  DOCUMENT
 } from '@angular/core';
 import {
   NavigationEnd,

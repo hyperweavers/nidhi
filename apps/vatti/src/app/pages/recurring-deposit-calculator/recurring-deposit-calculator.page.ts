@@ -45,7 +45,7 @@ P = 100000 / ((Math.pow((1.02), 4) - 1) / (1 - Math.pow((1.02), (-1/3))))
 P = 7981 (approximately)
 */
 
-import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -55,6 +55,7 @@ import {
   Inject,
   OnInit,
   ViewChild,
+  DOCUMENT
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';

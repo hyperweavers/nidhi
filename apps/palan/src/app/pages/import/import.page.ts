@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -12,7 +12,7 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-import',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './import.page.html',
   styleUrl: './import.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

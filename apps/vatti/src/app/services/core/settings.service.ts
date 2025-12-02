@@ -1,5 +1,5 @@
-import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+
+import { Inject, Injectable, DOCUMENT } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
 import { Constants } from '../../constants';
