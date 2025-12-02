@@ -128,7 +128,9 @@
               <div class="truncate font-medium text-gray-900 dark:text-white">
                 {{ holding.name }}
               </div>
-              <div class="ps-0.5">({{ holding.quantity }})</div>
+              <div class="ps-0.5">
+                ({{ holding.quantity | number: '1.2-2' }})
+              </div>
             </div>
             <div>{{ holding.averagePrice | number: '1.2-2' }}</div>
             <div>{{ holding.investment | number: '1.2-2' }}</div>
