@@ -21,7 +21,7 @@ M = 13449 (approximately)
 Thus, interest earned comes to 13,449 - 10,000 = 3,449.
 */
 
-import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -31,6 +31,7 @@ import {
   Inject,
   OnInit,
   ViewChild,
+  DOCUMENT
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -9,7 +9,7 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-delete',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './delete.page.html',
   styleUrl: './delete.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

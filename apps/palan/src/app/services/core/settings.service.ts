@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, DOCUMENT } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
-import { DOCUMENT } from '@angular/common';
+
 import { Constants } from '../../constants';
 import {
   ColorScheme,

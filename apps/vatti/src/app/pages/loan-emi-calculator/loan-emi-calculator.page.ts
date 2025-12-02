@@ -1,4 +1,4 @@
-import { CommonModule, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -8,6 +8,7 @@ import {
   Inject,
   OnInit,
   ViewChild,
+  DOCUMENT
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';

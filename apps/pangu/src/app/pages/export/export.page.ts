@@ -1,9 +1,10 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Inject,
+  DOCUMENT
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -11,7 +12,7 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-export',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './export.page.html',
   styleUrl: './export.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
