@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, map, shareReplay, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -12,12 +12,15 @@ import { StorageService } from './core/storage.service';
   providedIn: 'root',
 })
 export class PortfolioService {
+  readonly storageService = inject(StorageService);
+  readonly marketService = inject(MarketService);
+
   public portfolio$: Observable<Portfolio>;
 
-  constructor(
-    readonly storageService: StorageService,
-    readonly marketService: MarketService,
-  ) {
+  constructor() {
+    const storageService = this.storageService;
+    const marketService = this.marketService;
+
     this.portfolio$ = from(storageService.stocks$)
       .pipe(
         switchMap((storageStocks) => {

@@ -3,15 +3,15 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
   OnDestroy,
   Signal,
   ViewChild,
   computed,
+  inject,
   input,
-  DOCUMENT
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -63,6 +63,12 @@ enum ChartTimeRange {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StocksPage implements OnDestroy {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
+  readonly marketService = inject(MarketService);
+  readonly settingsService = inject(SettingsService);
+  readonly planService = inject(PlanService);
+
   @ViewChild('chartContainer') private chartContainerRef?: ElementRef;
   @ViewChild('chart') private chartRef?: ElementRef;
 
@@ -96,13 +102,11 @@ export class StocksPage implements OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areaSeries?: ISeriesApi<any>;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly cdr: ChangeDetectorRef,
-    readonly marketService: MarketService,
-    readonly settingsService: SettingsService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const marketService = this.marketService;
+    const settingsService = this.settingsService;
+    const planService = this.planService;
+
     marketService.marketStatus$
       .pipe(untilDestroyed(this))
       .subscribe(({ status }) => {

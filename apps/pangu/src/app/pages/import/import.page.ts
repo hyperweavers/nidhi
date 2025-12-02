@@ -1,10 +1,10 @@
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -18,6 +18,9 @@ import { StorageService } from '../../services/core/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportPage {
+  private cdr = inject(ChangeDetectorRef);
+  private storageService = inject(StorageService);
+
   @ViewChild('importFileInput', { static: true })
   private importFileInputRef?: ElementRef;
 
@@ -26,11 +29,6 @@ export class ImportPage {
   public showImportProgress?: boolean;
 
   private importFile: File | null = null;
-
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public handleFileInput(event: any) {

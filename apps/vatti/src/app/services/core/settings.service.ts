@@ -1,5 +1,4 @@
-
-import { Inject, Injectable, DOCUMENT } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
 import { Constants } from '../../constants';
@@ -9,6 +8,8 @@ import { ColorScheme, Settings, Theme } from '../../models/settings';
   providedIn: 'root',
 })
 export class SettingsService {
+  private readonly document = inject<Document>(DOCUMENT);
+
   private readonly DEFAULT_SETTINGS: Settings = {
     theme: Theme.SYSTEM,
     colorScheme: ColorScheme.DARK,
@@ -19,7 +20,7 @@ export class SettingsService {
 
   private settingsSubject$: BehaviorSubject<Settings>;
 
-  constructor(@Inject(DOCUMENT) private readonly document: Document) {
+  constructor() {
     const theme = this.getTheme();
     const colorScheme = this.getColorScheme();
 

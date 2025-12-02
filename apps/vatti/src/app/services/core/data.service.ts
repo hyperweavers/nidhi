@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   Observable,
   catchError,
@@ -22,6 +22,8 @@ import { PostOfficeSavingsSchemes } from '../../models/deposit';
   providedIn: 'root',
 })
 export class DataService {
+  private readonly http = inject(HttpClient);
+
   private readonly HTTP_REQUEST_TIMEOUT_MS = 5_000; // 5 Seconds
 
   goldRate$: Observable<number>;
@@ -30,7 +32,7 @@ export class DataService {
   banksInIndia$: Observable<BanksInIndia | null>;
   ibjaGoldRates$: Observable<IbjaGoldRates | null>;
 
-  constructor(private readonly http: HttpClient) {
+  constructor() {
     this.goldRate$ = this.http
       .post(Constants.api.GOLD_PRICE, 'countryId=1&stateId=16&cityId=120', {
         headers: {
