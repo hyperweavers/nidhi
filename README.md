@@ -1,6 +1,6 @@
 # Nidhi
 
-[![CI](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml/badge.svg)](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml) [![License: AGPL 3](https://img.shields.io/github/license/hyperweavers/nidhi?label=License&logo=gnu)](https://github.com/hyperweavers/nidhi/blob/main/LICENSE) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://github.com/hyperweavers/nidhi/commits/main/) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](https://github.com/hyperweavers/nidhi/blob/main/CODE_OF_CONDUCT.md)
+[![CI](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml/badge.svg)](https://github.com/hyperweavers/nidhi/actions/workflows/ci.yml) [![License: AGPL 3](https://img.shields.io/github/license/hyperweavers/nidhi?label=License&logo=gnu)](https://github.com/hyperweavers/nidhi/blob/main/LICENSE) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23fa6673?logo=conventionalcommits&logoColor=white)](https://github.com/hyperweavers/nidhi/commits/main/) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-5E0D73.svg?logo=contributorcovenant)](https://github.com/hyperweavers/nidhi/blob/main/CODE_OF_CONDUCT.md)
 
 ## About
 
