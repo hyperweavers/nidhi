@@ -7,6 +7,7 @@ import {
   OnInit,
   ViewChild,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -76,6 +77,10 @@ enum PortfolioSortOrder {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private storageService = inject(StorageService);
+  private marketService = inject(MarketService);
+
   @ViewChild('transactionDateInput', { static: true })
   private transactionDateInputRef?: ElementRef;
 
@@ -120,12 +125,9 @@ export class PortfolioPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-    private marketService: MarketService,
-    portfolioService: PortfolioService,
-  ) {
+  constructor() {
+    const portfolioService = inject(PortfolioService);
+
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
       distinctUntilChanged(),

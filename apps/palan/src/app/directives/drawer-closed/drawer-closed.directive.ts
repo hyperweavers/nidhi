@@ -1,15 +1,23 @@
-import { Directive, ElementRef, EventEmitter, Output } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  EventEmitter,
+  Output,
+  inject,
+} from '@angular/core';
 
 @Directive({
   selector: '[appDrawerClosed]',
   standalone: true,
 })
 export class DrawerClosedDirective {
+  private elementRef = inject(ElementRef);
+
   @Output() appDrawerClosed = new EventEmitter<void>();
 
   private changes: MutationObserver;
 
-  constructor(private elementRef: ElementRef) {
+  constructor() {
     const element = this.elementRef.nativeElement;
 
     this.changes = new MutationObserver((mutations: MutationRecord[]) => {

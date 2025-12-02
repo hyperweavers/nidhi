@@ -8,6 +8,7 @@ import {
   Signal,
   ViewChild,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -42,6 +43,11 @@ declare const Datepicker: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+  readonly portfolioService = inject(PortfolioService);
+  readonly planService = inject(PlanService);
+
   @ViewChild('transactionDateInput', { static: true })
   private transactionDateInputRef?: ElementRef;
 
@@ -78,12 +84,10 @@ export class PortfolioPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly storageService: StorageService,
-    readonly portfolioService: PortfolioService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const portfolioService = this.portfolioService;
+    const planService = this.planService;
+
     this.portfolio$ = portfolioService.portfolio$.pipe(
       map((portfolio) => ({
         ...portfolio,

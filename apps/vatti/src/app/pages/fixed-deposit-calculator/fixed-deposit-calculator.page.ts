@@ -26,12 +26,12 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
+  inject,
   OnInit,
   ViewChild,
-  DOCUMENT
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -79,6 +79,11 @@ enum Charts {
   providers: [DecimalPipe, DatePipe],
 })
 export class FixedDepositCalculatorPage implements OnInit {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly decimalPipe = inject(DecimalPipe);
+  private readonly datePipe = inject(DatePipe);
+
   @ViewChild('investmentStartDateInput', { static: true })
   private investmentStartDateInput?: ElementRef;
 
@@ -282,13 +287,6 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
-
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly decimalPipe: DecimalPipe,
-    private readonly datePipe: DatePipe,
-  ) {}
 
   ngOnInit() {
     this.initDatePicker();

@@ -3,11 +3,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
+  inject,
   ViewChild,
-  DOCUMENT
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -56,6 +56,10 @@ enum Charts {
   providers: [DecimalPipe, DatePipe],
 })
 export class PostOfficeSavingsSchemesPage {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly decimalPipe = inject(DecimalPipe);
+  private cdr = inject(ChangeDetectorRef);
+
   //implements OnInit {
   @ViewChild('investmentStartDateInput', { static: false })
   private investmentStartDateInput?: ElementRef;
@@ -194,12 +198,9 @@ export class PostOfficeSavingsSchemesPage {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly decimalPipe: DecimalPipe,
-    private cdr: ChangeDetectorRef,
-    dataService: DataService,
-  ) {
+  constructor() {
+    const dataService = inject(DataService);
+
     dataService.postOfficeSavingsSchemes$
       .pipe(untilDestroyed(this))
       .subscribe((postOfficeSavingsSchemes) => {

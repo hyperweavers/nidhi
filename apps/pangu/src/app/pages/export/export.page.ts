@@ -1,10 +1,9 @@
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
-  DOCUMENT
+  DOCUMENT,
+  inject,
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -18,14 +17,12 @@ import { StorageService } from '../../services/core/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportPage {
+  private document = inject<Document>(DOCUMENT);
+  private cdr = inject(ChangeDetectorRef);
+  private storageService = inject(StorageService);
+
   public showStatusModal?: boolean;
   public showExportProgress?: boolean;
-
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-  ) {}
 
   public async export(): Promise<void> {
     this.showStatusModal = true;

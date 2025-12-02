@@ -1,8 +1,8 @@
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
 } from '@angular/core';
 
 import { StorageService } from '../../services/core/storage.service';
@@ -15,13 +15,11 @@ import { StorageService } from '../../services/core/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePage {
+  private cdr = inject(ChangeDetectorRef);
+  private storageService = inject(StorageService);
+
   public showStatusModal?: boolean;
   public showDeleteProgress?: boolean;
-
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-  ) {}
 
   public async delete(): Promise<void> {
     this.showStatusModal = true;

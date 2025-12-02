@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -15,11 +15,15 @@ import { DashboardService } from '../../services/dashboard.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {
+  readonly dashboardService = inject(DashboardService);
+
   public kpi$: Observable<Kpi>;
 
   public readonly Direction = Direction;
 
-  constructor(readonly dashboardService: DashboardService) {
+  constructor() {
+    const dashboardService = this.dashboardService;
+
     this.kpi$ = dashboardService.kpi$;
   }
 }
