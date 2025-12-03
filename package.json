@@ -28,12 +28,12 @@
     "dexie-export-import": "^4.1.2",
     "flowbite": "^2.3.0",
     "flowbite-datepicker": "^1.2.6",
-    "lightweight-charts": "^4.1.6",
-    "ng2-charts": "^7.0.0",
+    "lightweight-charts": "^5.0.9",
+    "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "uuid": "^9.0.1",
-    "zone.js": "0.15.0"
+    "uuid": "^13.0.0",
+    "zone.js": "0.15.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "20.3.12",
@@ -60,7 +60,7 @@
     "@swc/helpers": "0.5.17",
     "@types/jest": "30.0.0",
     "@types/node": "22.13.14",
-    "@types/uuid": "^9.0.8",
+    "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "8.48.1",
     "@typescript-eslint/parser": "8.48.1",
     "@typescript-eslint/utils": "8.48.1",
