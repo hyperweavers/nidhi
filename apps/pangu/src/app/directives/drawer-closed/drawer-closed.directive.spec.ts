@@ -95,8 +95,6 @@ describe('DrawerClosedDirective', () => {
   });
 
   it('should observe attribute changes with correct mutation observer options', () => {
-    const element = directiveElement.nativeElement;
-
     // Verify that the MutationObserver is set up correctly
     expect(directive['changes']).toBeDefined();
     expect(directive['changes']).toBeInstanceOf(MutationObserver);

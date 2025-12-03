@@ -102,13 +102,15 @@ export class SettingsService {
     }
 
     if (isDarkTheme) {
-      !documentElementClassList.contains('dark') &&
+      if (!documentElementClassList.contains('dark')) {
         documentElementClassList.add('dark');
+      }
 
       this.setColorScheme(ColorScheme.DARK);
     } else {
-      documentElementClassList.contains('dark') &&
+      if (documentElementClassList.contains('dark')) {
         documentElementClassList.remove('dark');
+      }
 
       this.setColorScheme(ColorScheme.LIGHT);
     }

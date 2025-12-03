@@ -204,8 +204,13 @@ export class MarketService {
     const niftyFifty = INDICES.nse.find((index) => index.main === true);
     const sensex = INDICES.bse.find((index) => index.main === true);
 
-    niftyFifty && indexSymbols.push(niftyFifty.etm.id);
-    sensex && indexSymbols.push(sensex.etm.id);
+    if (niftyFifty) {
+      indexSymbols.push(niftyFifty.etm.id);
+    }
+
+    if (sensex) {
+      indexSymbols.push(sensex.etm.id);
+    }
 
     return this.getIndices(indexSymbols);
   }

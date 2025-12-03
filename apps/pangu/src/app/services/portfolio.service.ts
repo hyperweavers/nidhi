@@ -110,13 +110,17 @@ export class PortfolioService {
                       ? holding.quote.nse.close * holding.quantity
                       : 0;
 
-                  holding.quote?.nse?.change?.direction === Direction.UP
-                    ? dayAdvanceValue++
-                    : dayDeclineValue++;
+                  if (holding.quote?.nse?.change?.direction === Direction.UP) {
+                    dayAdvanceValue++;
+                  } else {
+                    dayDeclineValue++;
+                  }
 
-                  holding.totalProfitLoss?.direction === Direction.UP
-                    ? totalAdvanceValue++
-                    : totalDeclineValue++;
+                  if (holding.totalProfitLoss?.direction === Direction.UP) {
+                    totalAdvanceValue++;
+                  } else {
+                    totalDeclineValue++;
+                  }
                 });
 
                 const dayProfitLossPercentage =
