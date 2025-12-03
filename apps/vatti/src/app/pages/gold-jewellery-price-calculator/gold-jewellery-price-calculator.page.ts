@@ -3,8 +3,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ViewChild,
   inject,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -29,7 +29,7 @@ import { ChartUtils } from '../../utils/chart.utils';
 export class GoldJewelleryPriceCalculatorPage {
   private readonly decimalPipe = inject(DecimalPipe);
 
-  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
+  readonly chart = viewChild(BaseChartDirective);
 
   private readonly GSTPercentage = 3; // 3% GST rate
 
@@ -101,8 +101,9 @@ export class GoldJewelleryPriceCalculatorPage {
     ];
 
     // Refresh the chart
-    if (this.chart) {
-      this.chart.update();
+    const chart = this.chart();
+    if (chart) {
+      chart.update();
     }
   }
 }

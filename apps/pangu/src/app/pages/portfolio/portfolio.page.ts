@@ -5,10 +5,10 @@ import {
   Component,
   ElementRef,
   OnInit,
-  ViewChild,
   computed,
   inject,
   signal,
+  viewChild
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -81,8 +81,7 @@ export class PortfolioPage implements OnInit {
   private storageService = inject(StorageService);
   private marketService = inject(MarketService);
 
-  @ViewChild('transactionDateInput', { static: true })
-  private transactionDateInputRef?: ElementRef;
+  private readonly transactionDateInputRef = viewChild<ElementRef>('transactionDateInput');
 
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
@@ -431,9 +430,10 @@ export class PortfolioPage implements OnInit {
   }
 
   private initDatePicker(): void {
-    if (this.transactionDateInputRef) {
+    const transactionDateInputRef = this.transactionDateInputRef();
+    if (transactionDateInputRef) {
       this.datepicker = new Datepicker(
-        this.transactionDateInputRef.nativeElement,
+        transactionDateInputRef.nativeElement,
         {
           autohide: true,
           format: 'dd/mm/yyyy',
@@ -445,7 +445,7 @@ export class PortfolioPage implements OnInit {
         },
       );
 
-      this.transactionDateInputRef.nativeElement.addEventListener(
+      transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

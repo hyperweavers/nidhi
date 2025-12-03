@@ -7,7 +7,7 @@ import {
   ElementRef,
   HostListener,
   inject,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -61,18 +61,13 @@ export class PostOfficeSavingsSchemesPage {
   private cdr = inject(ChangeDetectorRef);
 
   //implements OnInit {
-  @ViewChild('investmentStartDateInput', { static: false })
-  private investmentStartDateInput?: ElementRef;
+  private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
 
-  @ViewChild('earningsChart', { read: BaseChartDirective })
-  earningsChart!: BaseChartDirective;
-  @ViewChild('interestRateChart', { read: BaseChartDirective })
-  interestRateChart!: BaseChartDirective;
+  readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
+  readonly interestRateChart = viewChild.required('interestRateChart', { read: BaseChartDirective });
 
-  @ViewChild('earningsChartContainer')
-  private earningsChartContainer?: ElementRef;
-  @ViewChild('interestRateChartContainer')
-  private interestRateChartContainer?: ElementRef;
+  private readonly earningsChartContainer = viewChild<ElementRef>('earningsChartContainer');
+  private readonly interestRateChartContainer = viewChild<ElementRef>('interestRateChartContainer');
 
   readonly PostOfficeSavingsSchemeId = PostOfficeSavingsSchemeId;
   readonly InvestmentType = InvestmentType;
@@ -292,11 +287,11 @@ export class PostOfficeSavingsSchemesPage {
 
       switch (chart) {
         case Charts.EARNINGS:
-          container = this.earningsChartContainer;
+          container = this.earningsChartContainer();
           break;
 
         case Charts.INTEREST_RATE:
-          container = this.interestRateChartContainer;
+          container = this.interestRateChartContainer();
           break;
 
         default:
@@ -508,8 +503,9 @@ export class PostOfficeSavingsSchemesPage {
       (item) => item.returns.interest,
     );
 
-    if (this.earningsChart) {
-      this.earningsChart.update();
+    const earningsChart = this.earningsChart();
+    if (earningsChart) {
+      earningsChart.update();
     }
   }
 
@@ -524,8 +520,9 @@ export class PostOfficeSavingsSchemesPage {
       (item) => item.returns.effectiveYield,
     );
 
-    if (this.interestRateChart) {
-      this.interestRateChart.update();
+    const interestRateChart = this.interestRateChart();
+    if (interestRateChart) {
+      interestRateChart.update();
     }
   }
 
@@ -534,9 +531,10 @@ export class PostOfficeSavingsSchemesPage {
   }
 
   private initDatePicker() {
-    if (this.investmentStartDateInput) {
+    const investmentStartDateInput = this.investmentStartDateInput();
+    if (investmentStartDateInput) {
       this.datepicker = new Datepicker(
-        this.investmentStartDateInput.nativeElement,
+        investmentStartDateInput.nativeElement,
         {
           autohide: true,
           format: 'dd/mm/yyyy',
@@ -549,7 +547,7 @@ export class PostOfficeSavingsSchemesPage {
         },
       );
 
-      this.investmentStartDateInput.nativeElement.addEventListener(
+      investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {
