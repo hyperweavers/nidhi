@@ -3,8 +3,8 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  ViewChild,
   inject,
+  viewChild
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -21,8 +21,7 @@ export class ImportPage {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
 
-  @ViewChild('importFileInput', { static: true })
-  private importFileInputRef?: ElementRef;
+  private readonly importFileInputRef = viewChild<ElementRef>('importFileInput');
 
   public statusMessage?: string;
   public showStatusModal?: boolean;
@@ -64,8 +63,9 @@ export class ImportPage {
 
       this.importFile = null;
 
-      if (this.importFileInputRef) {
-        this.importFileInputRef.nativeElement.value = '';
+      const importFileInputRef = this.importFileInputRef();
+      if (importFileInputRef) {
+        importFileInputRef.nativeElement.value = '';
       }
     }
 

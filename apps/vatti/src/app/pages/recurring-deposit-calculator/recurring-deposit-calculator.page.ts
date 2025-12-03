@@ -55,7 +55,7 @@ import {
   HostListener,
   inject,
   OnInit,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -105,24 +105,16 @@ export class RecurringDepositCalculatorPage implements OnInit {
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly datePipe = inject(DatePipe);
 
-  @ViewChild('investmentStartDateInput', { static: true })
-  private investmentStartDateInput?: ElementRef;
+  private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
 
-  @ViewChild('earningsChart', { read: BaseChartDirective })
-  private earningsChart!: BaseChartDirective;
-  @ViewChild('annualSummaryChart', { read: BaseChartDirective })
-  private annualSummaryChart!: BaseChartDirective;
-  @ViewChild('compoundingSummaryChart', { read: BaseChartDirective })
-  private compoundingSummaryChart!: BaseChartDirective;
-  @ViewChild('financialYearSummaryChart', { read: BaseChartDirective })
-  private financialYearSummaryChart!: BaseChartDirective;
+  private readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
+  private readonly annualSummaryChart = viewChild.required('annualSummaryChart', { read: BaseChartDirective });
+  private readonly compoundingSummaryChart = viewChild.required('compoundingSummaryChart', { read: BaseChartDirective });
+  private readonly financialYearSummaryChart = viewChild.required('financialYearSummaryChart', { read: BaseChartDirective });
 
-  @ViewChild('annualSummaryChartContainer')
-  private annualSummaryChartContainer?: ElementRef;
-  @ViewChild('compoundingSummaryChartContainer')
-  private compoundingSummaryChartContainer?: ElementRef;
-  @ViewChild('financialYearSummaryChartContainer')
-  private financialYearSummaryChartContainer?: ElementRef;
+  private readonly annualSummaryChartContainer = viewChild<ElementRef>('annualSummaryChartContainer');
+  private readonly compoundingSummaryChartContainer = viewChild<ElementRef>('compoundingSummaryChartContainer');
+  private readonly financialYearSummaryChartContainer = viewChild<ElementRef>('financialYearSummaryChartContainer');
 
   readonly pageSize = 12;
 
@@ -343,15 +335,15 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
       switch (chart) {
         case Charts.ANNUAL_SUMMARY:
-          container = this.annualSummaryChartContainer;
+          container = this.annualSummaryChartContainer();
           break;
 
         case Charts.COMPOUNDING_SUMMARY:
-          container = this.compoundingSummaryChartContainer;
+          container = this.compoundingSummaryChartContainer();
           break;
 
         case Charts.FINANCIAL_YEAR_SUMMARY:
-          container = this.financialYearSummaryChartContainer;
+          container = this.financialYearSummaryChartContainer();
           break;
 
         case Charts.EARNINGS:
@@ -642,8 +634,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
       Math.floor(this.totalDeposit),
       Math.floor(this.interestEarned),
     ];
-    if (this.earningsChart) {
-      this.earningsChart.update();
+    const earningsChart = this.earningsChart();
+    if (earningsChart) {
+      earningsChart.update();
     }
   }
 
@@ -661,8 +654,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
       (item) => item.yearlyInterestEarned,
     );
 
-    if (this.annualSummaryChart) {
-      this.annualSummaryChart.update();
+    const annualSummaryChart = this.annualSummaryChart();
+    if (annualSummaryChart) {
+      annualSummaryChart.update();
     }
   }
 
@@ -679,8 +673,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
             this.monthlyInstallment,
       );
 
-    if (this.compoundingSummaryChart) {
-      this.compoundingSummaryChart.update();
+    const compoundingSummaryChart = this.compoundingSummaryChart();
+    if (compoundingSummaryChart) {
+      compoundingSummaryChart.update();
     }
   }
 
@@ -692,8 +687,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
     this.financialYearSummaryChartData.datasets[0].data =
       this.financialYearSummary.map((item) => item.interestEarned);
 
-    if (this.financialYearSummaryChart) {
-      this.financialYearSummaryChart.update();
+    const financialYearSummaryChart = this.financialYearSummaryChart();
+    if (financialYearSummaryChart) {
+      financialYearSummaryChart.update();
     }
   }
 
@@ -702,9 +698,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
   }
 
   private initDatePicker() {
-    if (this.investmentStartDateInput) {
+    const investmentStartDateInput = this.investmentStartDateInput();
+    if (investmentStartDateInput) {
       this.datepicker = new Datepicker(
-        this.investmentStartDateInput.nativeElement,
+        investmentStartDateInput.nativeElement,
         {
           autohide: true,
           format: 'dd/mm/yyyy',
@@ -715,7 +712,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
         },
       );
 
-      this.investmentStartDateInput.nativeElement.addEventListener(
+      investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

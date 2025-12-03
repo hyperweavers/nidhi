@@ -31,7 +31,7 @@ import {
   HostListener,
   inject,
   OnInit,
-  ViewChild,
+  viewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -84,24 +84,16 @@ export class FixedDepositCalculatorPage implements OnInit {
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly datePipe = inject(DatePipe);
 
-  @ViewChild('investmentStartDateInput', { static: true })
-  private investmentStartDateInput?: ElementRef;
+  private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
 
-  @ViewChild('earningsChart', { read: BaseChartDirective })
-  earningsChart!: BaseChartDirective;
-  @ViewChild('annualSummaryChart', { read: BaseChartDirective })
-  annualSummaryChart!: BaseChartDirective;
-  @ViewChild('compoundingSummaryChart', { read: BaseChartDirective })
-  compoundingSummaryChart!: BaseChartDirective;
-  @ViewChild('financialYearSummaryChart', { read: BaseChartDirective })
-  financialYearSummaryChart!: BaseChartDirective;
+  readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
+  readonly annualSummaryChart = viewChild.required('annualSummaryChart', { read: BaseChartDirective });
+  readonly compoundingSummaryChart = viewChild.required('compoundingSummaryChart', { read: BaseChartDirective });
+  readonly financialYearSummaryChart = viewChild.required('financialYearSummaryChart', { read: BaseChartDirective });
 
-  @ViewChild('annualSummaryChartContainer')
-  private annualSummaryChartContainer?: ElementRef;
-  @ViewChild('compoundingSummaryChartContainer')
-  private compoundingSummaryChartContainer?: ElementRef;
-  @ViewChild('financialYearSummaryChartContainer')
-  private financialYearSummaryChartContainer?: ElementRef;
+  private readonly annualSummaryChartContainer = viewChild<ElementRef>('annualSummaryChartContainer');
+  private readonly compoundingSummaryChartContainer = viewChild<ElementRef>('compoundingSummaryChartContainer');
+  private readonly financialYearSummaryChartContainer = viewChild<ElementRef>('financialYearSummaryChartContainer');
 
   readonly pageSize = 12;
 
@@ -336,15 +328,15 @@ export class FixedDepositCalculatorPage implements OnInit {
 
       switch (chart) {
         case Charts.ANNUAL_SUMMARY:
-          container = this.annualSummaryChartContainer;
+          container = this.annualSummaryChartContainer();
           break;
 
         case Charts.COMPOUNDING_SUMMARY:
-          container = this.compoundingSummaryChartContainer;
+          container = this.compoundingSummaryChartContainer();
           break;
 
         case Charts.FINANCIAL_YEAR_SUMMARY:
-          container = this.financialYearSummaryChartContainer;
+          container = this.financialYearSummaryChartContainer();
           break;
 
         case Charts.PAYOUT_SCHEDULE:
@@ -713,8 +705,9 @@ export class FixedDepositCalculatorPage implements OnInit {
       Math.floor(this.depositAmount),
       Math.floor(this.interestEarned),
     ];
-    if (this.earningsChart) {
-      this.earningsChart.update();
+    const earningsChart = this.earningsChart();
+    if (earningsChart) {
+      earningsChart.update();
     }
   }
 
@@ -773,8 +766,9 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.annualSummaryChartData.datasets =
       this.annualSummaryChartData.datasets.filter((ds) => ds.data.length > 0);
 
-    if (this.annualSummaryChart) {
-      this.annualSummaryChart.update();
+    const annualSummaryChart = this.annualSummaryChart();
+    if (annualSummaryChart) {
+      annualSummaryChart.update();
     }
   }
 
@@ -787,8 +781,9 @@ export class FixedDepositCalculatorPage implements OnInit {
         (item) => item.closingBalance - this.depositAmount,
       );
 
-    if (this.compoundingSummaryChart) {
-      this.compoundingSummaryChart.update();
+    const compoundingSummaryChart = this.compoundingSummaryChart();
+    if (compoundingSummaryChart) {
+      compoundingSummaryChart.update();
     }
   }
 
@@ -800,8 +795,9 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.financialYearSummaryChartData.datasets[0].data =
       this.financialYearSummary.map((item) => item.interestEarned);
 
-    if (this.financialYearSummaryChart) {
-      this.financialYearSummaryChart.update();
+    const financialYearSummaryChart = this.financialYearSummaryChart();
+    if (financialYearSummaryChart) {
+      financialYearSummaryChart.update();
     }
   }
 
@@ -810,9 +806,10 @@ export class FixedDepositCalculatorPage implements OnInit {
   }
 
   private initDatePicker() {
-    if (this.investmentStartDateInput) {
+    const investmentStartDateInput = this.investmentStartDateInput();
+    if (investmentStartDateInput) {
       this.datepicker = new Datepicker(
-        this.investmentStartDateInput.nativeElement,
+        investmentStartDateInput.nativeElement,
         {
           autohide: true,
           format: 'dd/mm/yyyy',
@@ -823,7 +820,7 @@ export class FixedDepositCalculatorPage implements OnInit {
         },
       );
 
-      this.investmentStartDateInput.nativeElement.addEventListener(
+      investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {
