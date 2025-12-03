@@ -11,7 +11,7 @@ import {
   computed,
   inject,
   input,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';

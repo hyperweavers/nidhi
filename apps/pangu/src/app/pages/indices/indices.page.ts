@@ -9,7 +9,7 @@ import {
   OnDestroy,
   inject,
   input,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';

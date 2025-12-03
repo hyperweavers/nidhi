@@ -30,7 +30,9 @@ describe('DrawerClosedDirective', () => {
 
     fixture = TestBed.createComponent(TestComponent);
     component = fixture.componentInstance;
-    directiveElement = fixture.debugElement.query(By.directive(DrawerClosedDirective));
+    directiveElement = fixture.debugElement.query(
+      By.directive(DrawerClosedDirective),
+    );
     directive = directiveElement.injector.get(DrawerClosedDirective);
     fixture.detectChanges();
   });
@@ -76,7 +78,7 @@ describe('DrawerClosedDirective', () => {
 
   it('should call component method when appDrawerClosed event is emitted', (done) => {
     const element = directiveElement.nativeElement;
-    
+
     // Set initial role to 'dialog'
     element.setAttribute('role', 'dialog');
     fixture.detectChanges();
@@ -94,7 +96,7 @@ describe('DrawerClosedDirective', () => {
 
   it('should observe attribute changes with correct mutation observer options', () => {
     const element = directiveElement.nativeElement;
-    
+
     // Verify that the MutationObserver is set up correctly
     expect(directive['changes']).toBeDefined();
     expect(directive['changes']).toBeInstanceOf(MutationObserver);
