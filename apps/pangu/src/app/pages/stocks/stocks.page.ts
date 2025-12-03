@@ -14,6 +14,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
+  AreaSeries,
   IChartApi,
   ISeriesApi,
   MouseEventParams,
@@ -454,7 +455,7 @@ export class StocksPage implements OnDestroy {
       }
 
       if (!this.areaSeries) {
-        this.areaSeries = this.chart.addAreaSeries({
+        this.areaSeries = this.chart.addSeries(AreaSeries, {
           lineWidth: 1,
           lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
         });
