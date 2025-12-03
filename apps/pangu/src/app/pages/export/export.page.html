@@ -8,10 +8,10 @@
     store.
   </p>
 
-  <div class="flex w-full justify-center mt-8">
+  <div class="mt-8 flex w-full justify-center">
     <button
       (click)="export()"
-      class="w-36 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-36 rounded-lg px-5 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-4"
       type="button"
     >
       Export
@@ -20,17 +20,17 @@
 
   <div
     tabindex="-1"
-    class="flex bg-gray-900 bg-opacity-50 dark:bg-opacity-80 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    class="fixed left-0 right-0 top-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
     [class.hidden]="!showStatusModal"
   >
-    <div class="relative p-4 w-full max-w-md max-h-full">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <div class="p-4 md:p-5 text-center">
+    <div class="relative max-h-full w-full max-w-md p-4">
+      <div class="relative rounded-lg bg-white shadow dark:bg-gray-700">
+        <div class="p-4 text-center md:p-5">
           @if (showExportProgress) {
           <div role="status">
             <svg
               aria-hidden="true"
-              class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              class="inline h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@
           </div>
           } @else {
           <svg
-            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+            class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -69,7 +69,7 @@
           <button
             (click)="closeStatusModal()"
             type="button"
-            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
           >
             Ok
           </button>

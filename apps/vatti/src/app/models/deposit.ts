@@ -90,8 +90,7 @@ export interface PostOfficeSavingsSchemesHistoricInterestRate {
   limit?: number;
 }
 
-export interface PostOfficeSavingsSchemeWithReturns
-  extends PostOfficeSavingsScheme {
+export interface PostOfficeSavingsSchemeWithReturns extends PostOfficeSavingsScheme {
   returns: PostOfficeSavingsSchemeReturns;
 }
 

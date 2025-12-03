@@ -1,11 +1,5 @@
 {
-  "apps/**/*.{ts,js,scss,css,html,md,json}": [
-    "nx affected:lint --fix --files"
-  ],
-  "*.{scss,css}": [
-    "stylelint --fix"
-  ],
-  "*": [
-    "nx format:write --files"
-  ]
+  "apps/**/*.{ts,js,scss,css,html,md,json}": ["nx affected:lint --fix --files"],
+  "*.{scss,css}": ["stylelint --fix"],
+  "*": ["nx format:write --files"]
 }
