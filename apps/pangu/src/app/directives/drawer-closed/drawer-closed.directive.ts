@@ -1,9 +1,8 @@
 import {
   Directive,
   ElementRef,
-  EventEmitter,
-  Output,
   inject,
+  output
 } from '@angular/core';
 
 @Directive({
@@ -13,7 +12,7 @@ import {
 export class DrawerClosedDirective {
   private elementRef = inject(ElementRef);
 
-  @Output() appDrawerClosed = new EventEmitter<void>();
+  readonly appDrawerClosed = output<void>();
 
   private changes: MutationObserver;
 
