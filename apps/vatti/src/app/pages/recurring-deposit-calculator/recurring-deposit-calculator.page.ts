@@ -55,7 +55,7 @@ import {
   HostListener,
   inject,
   OnInit,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -105,16 +105,34 @@ export class RecurringDepositCalculatorPage implements OnInit {
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly datePipe = inject(DatePipe);
 
-  private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
+  private readonly investmentStartDateInput = viewChild<ElementRef>(
+    'investmentStartDateInput',
+  );
 
-  private readonly earningsChart = viewChild('earningsChart', { read: BaseChartDirective });
-  private readonly annualSummaryChart = viewChild('annualSummaryChart', { read: BaseChartDirective });
-  private readonly compoundingSummaryChart = viewChild('compoundingSummaryChart', { read: BaseChartDirective });
-  private readonly financialYearSummaryChart = viewChild('financialYearSummaryChart', { read: BaseChartDirective });
+  private readonly earningsChart = viewChild('earningsChart', {
+    read: BaseChartDirective,
+  });
+  private readonly annualSummaryChart = viewChild('annualSummaryChart', {
+    read: BaseChartDirective,
+  });
+  private readonly compoundingSummaryChart = viewChild(
+    'compoundingSummaryChart',
+    { read: BaseChartDirective },
+  );
+  private readonly financialYearSummaryChart = viewChild(
+    'financialYearSummaryChart',
+    { read: BaseChartDirective },
+  );
 
-  private readonly annualSummaryChartContainer = viewChild<ElementRef>('annualSummaryChartContainer');
-  private readonly compoundingSummaryChartContainer = viewChild<ElementRef>('compoundingSummaryChartContainer');
-  private readonly financialYearSummaryChartContainer = viewChild<ElementRef>('financialYearSummaryChartContainer');
+  private readonly annualSummaryChartContainer = viewChild<ElementRef>(
+    'annualSummaryChartContainer',
+  );
+  private readonly compoundingSummaryChartContainer = viewChild<ElementRef>(
+    'compoundingSummaryChartContainer',
+  );
+  private readonly financialYearSummaryChartContainer = viewChild<ElementRef>(
+    'financialYearSummaryChartContainer',
+  );
 
   readonly pageSize = 12;
 
@@ -700,17 +718,14 @@ export class RecurringDepositCalculatorPage implements OnInit {
   private initDatePicker() {
     const investmentStartDateInput = this.investmentStartDateInput();
     if (investmentStartDateInput) {
-      this.datepicker = new Datepicker(
-        investmentStartDateInput.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-        },
-      );
+      this.datepicker = new Datepicker(investmentStartDateInput.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+      });
 
       investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',

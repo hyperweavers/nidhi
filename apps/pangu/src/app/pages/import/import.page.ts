@@ -4,7 +4,7 @@ import {
   Component,
   ElementRef,
   inject,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -21,7 +21,8 @@ export class ImportPage {
   private cdr = inject(ChangeDetectorRef);
   private storageService = inject(StorageService);
 
-  private readonly importFileInputRef = viewChild<ElementRef>('importFileInput');
+  private readonly importFileInputRef =
+    viewChild<ElementRef>('importFileInput');
 
   public statusMessage?: string;
   public showStatusModal?: boolean;

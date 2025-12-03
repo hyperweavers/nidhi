@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';

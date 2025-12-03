@@ -8,7 +8,7 @@ import {
   HostListener,
   inject,
   OnInit,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -55,12 +55,20 @@ export class LoanEmiCalculatorPage implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly decimalPipe = inject(DecimalPipe);
 
-  private readonly loanStartDateInput = viewChild<ElementRef>('loanStartDateInput');
+  private readonly loanStartDateInput =
+    viewChild<ElementRef>('loanStartDateInput');
   readonly emiChart = viewChild('emiChart', { read: BaseChartDirective });
-  readonly revisionChart = viewChild('revisionChart', { read: BaseChartDirective });
-  readonly paymentsChart = viewChild('paymentsChart', { read: BaseChartDirective });
-  private readonly emiChartContainer = viewChild<ElementRef>('emiChartContainer');
-  private readonly revisionsChartContainer = viewChild<ElementRef>('revisionsChartContainer');
+  readonly revisionChart = viewChild('revisionChart', {
+    read: BaseChartDirective,
+  });
+  readonly paymentsChart = viewChild('paymentsChart', {
+    read: BaseChartDirective,
+  });
+  private readonly emiChartContainer =
+    viewChild<ElementRef>('emiChartContainer');
+  private readonly revisionsChartContainer = viewChild<ElementRef>(
+    'revisionsChartContainer',
+  );
 
   readonly pageSize = 12;
 

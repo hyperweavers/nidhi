@@ -7,7 +7,7 @@ import {
   ElementRef,
   HostListener,
   inject,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -61,13 +61,23 @@ export class PostOfficeSavingsSchemesPage {
   private cdr = inject(ChangeDetectorRef);
 
   //implements OnInit {
-  private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
+  private readonly investmentStartDateInput = viewChild<ElementRef>(
+    'investmentStartDateInput',
+  );
 
-  readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
-  readonly interestRateChart = viewChild.required('interestRateChart', { read: BaseChartDirective });
+  readonly earningsChart = viewChild.required('earningsChart', {
+    read: BaseChartDirective,
+  });
+  readonly interestRateChart = viewChild.required('interestRateChart', {
+    read: BaseChartDirective,
+  });
 
-  private readonly earningsChartContainer = viewChild<ElementRef>('earningsChartContainer');
-  private readonly interestRateChartContainer = viewChild<ElementRef>('interestRateChartContainer');
+  private readonly earningsChartContainer = viewChild<ElementRef>(
+    'earningsChartContainer',
+  );
+  private readonly interestRateChartContainer = viewChild<ElementRef>(
+    'interestRateChartContainer',
+  );
 
   readonly PostOfficeSavingsSchemeId = PostOfficeSavingsSchemeId;
   readonly InvestmentType = InvestmentType;
@@ -533,19 +543,16 @@ export class PostOfficeSavingsSchemesPage {
   private initDatePicker() {
     const investmentStartDateInput = this.investmentStartDateInput();
     if (investmentStartDateInput) {
-      this.datepicker = new Datepicker(
-        investmentStartDateInput.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          // TODO: Until historic interest rate based calculation implemented, limiting investment start date to 30.09.2023 when interest rates last updated.
-          minDate: new Date(2023, 8, 30).getTime(),
-        },
-      );
+      this.datepicker = new Datepicker(investmentStartDateInput.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        // TODO: Until historic interest rate based calculation implemented, limiting investment start date to 30.09.2023 when interest rates last updated.
+        minDate: new Date(2023, 8, 30).getTime(),
+      });
 
       investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',

@@ -9,7 +9,7 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -48,7 +48,9 @@ export class PortfolioPage implements OnInit {
   readonly portfolioService = inject(PortfolioService);
   readonly planService = inject(PlanService);
 
-  private readonly transactionDateInputRef = viewChild<ElementRef>('transactionDateInput');
+  private readonly transactionDateInputRef = viewChild<ElementRef>(
+    'transactionDateInput',
+  );
 
   public portfolio$: Observable<Portfolio>;
 
@@ -205,18 +207,15 @@ export class PortfolioPage implements OnInit {
   private initDatePicker(): void {
     const transactionDateInputRef = this.transactionDateInputRef();
     if (transactionDateInputRef) {
-      this.datepicker = new Datepicker(
-        transactionDateInputRef.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          maxDate: Date.now(),
-        },
-      );
+      this.datepicker = new Datepicker(transactionDateInputRef.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        maxDate: Date.now(),
+      });
 
       transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
