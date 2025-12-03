@@ -107,10 +107,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
   private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
 
-  private readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
-  private readonly annualSummaryChart = viewChild.required('annualSummaryChart', { read: BaseChartDirective });
-  private readonly compoundingSummaryChart = viewChild.required('compoundingSummaryChart', { read: BaseChartDirective });
-  private readonly financialYearSummaryChart = viewChild.required('financialYearSummaryChart', { read: BaseChartDirective });
+  private readonly earningsChart = viewChild('earningsChart', { read: BaseChartDirective });
+  private readonly annualSummaryChart = viewChild('annualSummaryChart', { read: BaseChartDirective });
+  private readonly compoundingSummaryChart = viewChild('compoundingSummaryChart', { read: BaseChartDirective });
+  private readonly financialYearSummaryChart = viewChild('financialYearSummaryChart', { read: BaseChartDirective });
 
   private readonly annualSummaryChartContainer = viewChild<ElementRef>('annualSummaryChartContainer');
   private readonly compoundingSummaryChartContainer = viewChild<ElementRef>('compoundingSummaryChartContainer');

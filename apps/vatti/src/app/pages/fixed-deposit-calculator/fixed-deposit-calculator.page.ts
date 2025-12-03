@@ -86,10 +86,10 @@ export class FixedDepositCalculatorPage implements OnInit {
 
   private readonly investmentStartDateInput = viewChild<ElementRef>('investmentStartDateInput');
 
-  readonly earningsChart = viewChild.required('earningsChart', { read: BaseChartDirective });
-  readonly annualSummaryChart = viewChild.required('annualSummaryChart', { read: BaseChartDirective });
-  readonly compoundingSummaryChart = viewChild.required('compoundingSummaryChart', { read: BaseChartDirective });
-  readonly financialYearSummaryChart = viewChild.required('financialYearSummaryChart', { read: BaseChartDirective });
+  readonly earningsChart = viewChild('earningsChart', { read: BaseChartDirective });
+  readonly annualSummaryChart = viewChild('annualSummaryChart', { read: BaseChartDirective });
+  readonly compoundingSummaryChart = viewChild('compoundingSummaryChart', { read: BaseChartDirective });
+  readonly financialYearSummaryChart = viewChild('financialYearSummaryChart', { read: BaseChartDirective });
 
   private readonly annualSummaryChartContainer = viewChild<ElementRef>('annualSummaryChartContainer');
   private readonly compoundingSummaryChartContainer = viewChild<ElementRef>('compoundingSummaryChartContainer');
