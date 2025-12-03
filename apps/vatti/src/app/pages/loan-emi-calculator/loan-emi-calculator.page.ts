@@ -56,9 +56,9 @@ export class LoanEmiCalculatorPage implements OnInit {
   private readonly decimalPipe = inject(DecimalPipe);
 
   private readonly loanStartDateInput = viewChild<ElementRef>('loanStartDateInput');
-  readonly emiChart = viewChild.required('emiChart', { read: BaseChartDirective });
-  readonly revisionChart = viewChild.required('revisionChart', { read: BaseChartDirective });
-  readonly paymentsChart = viewChild.required('paymentsChart', { read: BaseChartDirective });
+  readonly emiChart = viewChild('emiChart', { read: BaseChartDirective });
+  readonly revisionChart = viewChild('revisionChart', { read: BaseChartDirective });
+  readonly paymentsChart = viewChild('paymentsChart', { read: BaseChartDirective });
   private readonly emiChartContainer = viewChild<ElementRef>('emiChartContainer');
   private readonly revisionsChartContainer = viewChild<ElementRef>('revisionsChartContainer');
 
