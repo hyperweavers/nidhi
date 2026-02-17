@@ -1,5 +1,5 @@
 <div class="flex h-full flex-col pb-4">
-  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.investment > 0) {
   <!-- Summary -->
   <dl
     class="m-4 flex justify-between rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
@@ -474,7 +474,7 @@
   </div>
   } @else {
   <div
-    class="flex flex-1 flex-col items-center justify-center text-gray-500 dark:text-gray-400"
+    class="flex flex-1 flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400"
     role="status"
   >
     <svg
@@ -493,7 +493,10 @@
       />
     </svg>
 
-    <p>No Holdings!</p>
+    <p>
+      @if (portfolio.investment > 0) { No matching results found!<br />Please
+      change your search term/filters. } @else { No Holdings! }
+    </p>
   </div>
   } } @else {
   <div class="flex flex-1 items-center justify-center" role="status">
