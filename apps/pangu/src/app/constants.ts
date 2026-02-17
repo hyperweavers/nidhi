@@ -27,7 +27,7 @@ export const Constants = {
     STOCK_QUOTE:
       'https://marketservices.indiatimes.com/marketservices/company?outputType=json&companyid=',
     STOCK_HISTORIC_CHART:
-      'https://etelection.indiatimes.com/ET_Charts/india-market/stock/history?resolution=1D&countback=0&',
+      'https://etapi.indiatimes.com/charts/mrkts/history?resolution=1D&countback=0&',
     STOCK_INTRA_DAY_CHART:
       'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
     INDEX_QUOTE:
