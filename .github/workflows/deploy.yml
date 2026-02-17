@@ -76,6 +76,10 @@ jobs:
           cd dist/apps/${{ matrix.app }}/browser
           cp index.html 404.html
 
+      - name: List worktrees
+        run: |
+          git worktree list
+
       - name: Deploy ${{ matrix.app }} App
         uses: JamesIves/github-pages-deploy-action@v4
         with:
