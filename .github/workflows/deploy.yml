@@ -77,7 +77,7 @@ jobs:
           cp index.html 404.html
 
       - name: Deploy ${{ matrix.app }} App
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@releases/v4-flow
         with:
           token: ${{ secrets.GH_NIDHI_DEPLOYMENT_TOKEN }}
           folder: dist/apps/${{ matrix.app }}/browser
