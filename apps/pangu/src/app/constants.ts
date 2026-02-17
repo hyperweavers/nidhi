@@ -35,7 +35,7 @@ export const Constants = {
     INDEX_CONSTITUENTS:
       'https://etmarketsapis.indiatimes.com/ET_Stats/getIndexByIds?pagesize=1000&sortorder=desc&company=true&',
     INDEX_HISTORIC_CHART:
-      'https://etelection.indiatimes.com/ET_Charts/india-market/index/history?resolution=1D&countback=0&',
+      'https://etapi.indiatimes.com/charts/mrkts/history?resolution=1D&countback=0&',
     INDEX_INTRA_DAY_CHART:
       'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
   },
