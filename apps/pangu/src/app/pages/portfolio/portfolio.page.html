@@ -9,13 +9,13 @@
       <div>
         <dd class="mb-2 text-gray-500 dark:text-gray-400">Investment</dd>
         <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.investment | number: '1.2-2' }}
+          &#8377;{{ portfolio.investment | valueOrPlaceholder }}
         </dt>
       </div>
       <div class="mt-6">
         <dd class="mb-2 text-gray-500 dark:text-gray-400">Market Value</dd>
         <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.marketValue | number: '1.2-2' }}
+          &#8377;{{ portfolio.marketValue | valueOrPlaceholder }}
         </dt>
       </div>
     </div>
@@ -26,9 +26,10 @@
           class="text-lg font-extrabold"
           [ngClass]="portfolio.dayProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
         >
-          &#8377;{{ portfolio.dayProfitLoss.value | number: '1.2-2' }}
+          &#8377;{{ portfolio.dayProfitLoss.value | valueOrPlaceholder }}
           <span class="text-sm font-normal"
-            >({{ portfolio.dayProfitLoss.percentage | number: '1.2-2' }}%)</span
+            >({{ portfolio.dayProfitLoss.percentage | valueOrPlaceholder
+            }}%)</span
           >
         </dt>
       </div>
@@ -38,9 +39,9 @@
           class="text-lg font-extrabold"
           [ngClass]="portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
         >
-          &#8377;{{ portfolio.totalProfitLoss.value | number: '1.2-2' }}
+          &#8377;{{ portfolio.totalProfitLoss.value | valueOrPlaceholder }}
           <span class="text-sm font-normal"
-            >({{ portfolio.totalProfitLoss.percentage | number: '1.2-2'
+            >({{ portfolio.totalProfitLoss.percentage | valueOrPlaceholder
             }}%)</span
           >
         </dt>
@@ -438,12 +439,14 @@
           <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
             <div class="flex">
               <div class="truncate font-medium text-gray-900 dark:text-white">
-                {{ holding.name }}
+                {{ holding.name | valueOrPlaceholder }}
               </div>
-              <div class="ps-0.5">({{ holding.quantity }})</div>
+              <div class="ps-0.5">
+                ({{ holding.quantity | valueOrPlaceholder: '1.0-0' }})
+              </div>
             </div>
-            <div>{{ holding.averagePrice | number: '1.2-2' }}</div>
-            <div>{{ holding.investment | number: '1.2-2' }}</div>
+            <div>{{ holding.averagePrice | valueOrPlaceholder }}</div>
+            <div>{{ holding.investment | valueOrPlaceholder }}</div>
           </th>
           <td
             class="p-2 text-center sm:p-4"
@@ -451,22 +454,23 @@
           >
             <div>
               {{ (holding.quote?.nse?.change?.value! * holding.quantity!) |
-              number: '1.2-2' }}
+              valueOrPlaceholder }}
             </div>
             <div>
-              ({{ holding.quote?.nse?.change?.percentage | number: '1.2-2' }}%)
+              ({{ holding.quote?.nse?.change?.percentage | valueOrPlaceholder
+              }}%)
             </div>
-            <div>{{ holding.quote?.nse?.price | number: '1.2-2' }}</div>
+            <div>{{ holding.quote?.nse?.price | valueOrPlaceholder }}</div>
           </td>
           <td
             class="p-2 text-center sm:p-4"
             [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
-            <div>{{ holding.totalProfitLoss?.value | number: '1.2-2' }}</div>
+            <div>{{ holding.totalProfitLoss?.value | valueOrPlaceholder }}</div>
             <div>
-              ({{ holding.totalProfitLoss?.percentage | number: '1.2-2' }}%)
+              ({{ holding.totalProfitLoss?.percentage | valueOrPlaceholder }}%)
             </div>
-            <div>{{ holding.marketValue | number: '1.2-2' }}</div>
+            <div>{{ holding.marketValue | valueOrPlaceholder }}</div>
           </td>
         </tr>
         }
@@ -590,7 +594,7 @@
               (click)="selectStock(stock)"
               class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >
-              {{ stock.name }}
+              {{ stock.name | valueOrPlaceholder }}
             </li>
             }
           </ul>

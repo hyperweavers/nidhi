@@ -3,7 +3,9 @@
   <!-- Basic Info -->
   <div class="space-y-2 p-4">
     <div class="flex space-x-4">
-      <div class="flex-1 text-2xl font-semibold">{{ stock.name }}</div>
+      <div class="flex-1 text-2xl font-semibold">
+        {{ stock.name | valueOrPlaceholder }}
+      </div>
 
       <div>
         <div class="inline-flex h-8 rounded-md shadow-sm" role="group">
@@ -36,7 +38,7 @@
 
     <div class="text-gray-900 dark:text-white">
       <div class="text-lg font-semibold">
-        &#8377;{{ stock.quote?.[activeExchange]?.price | number: '1.2-2' }}
+        &#8377;{{ stock.quote?.[activeExchange]?.price | valueOrPlaceholder }}
       </div>
       <div
         class="flex items-center"
@@ -44,11 +46,13 @@
       >
         {{ stock.quote?.[activeExchange]?.change?.direction === Direction.UP ?
         '&#x25B2;' : '&#x25BC;' }} &#8377;{{
-        stock.quote?.[activeExchange]?.change?.value | number: '1.2-2' }} ({{
-        stock.quote?.[activeExchange]?.change?.percentage | number: '1.2-2' }}%)
+        stock.quote?.[activeExchange]?.change?.value | valueOrPlaceholder }} ({{
+        stock.quote?.[activeExchange]?.change?.percentage | valueOrPlaceholder
+        }}%)
       </div>
       <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
-        Volume: {{ stock.quote?.[activeExchange]?.volume | number: '1.0' }}
+        Volume: {{ stock.quote?.[activeExchange]?.volume | valueOrPlaceholder:
+        '1.0-0' }}
       </div>
     </div>
   </div>
@@ -71,27 +75,27 @@
           @if (chartCrosshairData) {
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Open:&nbsp;</div>
-            {{ chartCrosshairData.open | number: '1.2-2' }}
+            {{ chartCrosshairData.open | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Close:&nbsp;</div>
-            {{ chartCrosshairData.close | number: '1.2-2' }}
+            {{ chartCrosshairData.close | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Low:&nbsp;</div>
-            {{ chartCrosshairData.low | number: '1.2-2' }}
+            {{ chartCrosshairData.low | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">High:&nbsp;</div>
-            {{ chartCrosshairData.high | number: '1.2-2' }}
+            {{ chartCrosshairData.high | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Volume:&nbsp;</div>
-            {{ chartCrosshairData.volume | number: '1.0' }}
+            {{ chartCrosshairData.volume | valueOrPlaceholder: '1.0-0' }}
           </div>
 
           @if (chartCrosshairData.change) {
@@ -100,8 +104,8 @@
             [ngClass]="chartCrosshairData.change.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="text-gray-500 dark:text-gray-400">Change:&nbsp;</div>
-            {{ chartCrosshairData.change.value| number: '1.2-2' }} ({{
-            chartCrosshairData.change.percentage| number: '1.2-2' }}%)
+            {{ chartCrosshairData.change.value| valueOrPlaceholder }} ({{
+            chartCrosshairData.change.percentage| valueOrPlaceholder }}%)
           </div>
           } }
         </div>
@@ -299,14 +303,16 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.open | number: '1.2-2' }}
+            &#8377;{{ stock.quote?.[activeExchange]?.open | valueOrPlaceholder
+            }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.close | number: '1.2-2' }}
+            &#8377;{{ stock.quote?.[activeExchange]?.close | valueOrPlaceholder
+            }}
           </div>
         </div>
 
@@ -318,11 +324,11 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.low | number: '1.2-2' }}
+                {{ stock.quote?.[activeExchange]?.low | valueOrPlaceholder }}
               </div>
 
               <div>
-                {{ stock.quote?.[activeExchange]?.high | number: '1.2-2' }}
+                {{ stock.quote?.[activeExchange]?.high | valueOrPlaceholder }}
               </div>
             </div>
 
@@ -353,13 +359,13 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow | number:
-                '1.2-2' }}
+                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow |
+                valueOrPlaceholder }}
               </div>
 
               <div>
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh | number:
-                '1.2-2' }}
+                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh |
+                valueOrPlaceholder }}
               </div>
             </div>
 
@@ -403,8 +409,8 @@
               EPS (TTM)
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.eps | number: '1.2-2'
-              }}
+              &#8377;{{ stock.metrics?.[activeExchange]?.eps |
+              valueOrPlaceholder }}
             </div>
           </div>
 
@@ -413,7 +419,7 @@
               P/E Ratio
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.pe | number: '1.2-2' }}
+              {{ stock.metrics?.[activeExchange]?.pe | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -422,8 +428,8 @@
               VWAP
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.vwap | number: '1.2-2'
-              }}
+              &#8377;{{ stock.metrics?.[activeExchange]?.vwap |
+              valueOrPlaceholder }}
             </div>
           </div>
         </div>
@@ -434,8 +440,8 @@
               Dividend Yield
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.dividendYield | number:
-              '1.2-2' }}%
+              {{ stock.metrics?.[activeExchange]?.dividendYield |
+              valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -444,8 +450,8 @@
               Market Cap
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.marketCap | number:
-              '1.2-2' }} Cr.
+              &#8377;{{ stock.metrics?.[activeExchange]?.marketCap |
+              valueOrPlaceholder }} Cr.
             </div>
           </div>
 
@@ -454,8 +460,8 @@
               Face Value
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.faceValue | number:
-              '1.2-2' }}
+              &#8377;{{ stock.metrics?.[activeExchange]?.faceValue |
+              valueOrPlaceholder }}
             </div>
           </div>
         </div>
@@ -485,8 +491,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.monthly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.monthly?.percentage | number:
-              '1.2-2' }}%
+              stock.performance?.[activeExchange]?.monthly?.percentage |
+              valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -502,7 +508,7 @@
               {{ stock.performance?.[activeExchange]?.quarterly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.quarterly?.percentage |
-              number: '1.2-2' }}%
+              valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -518,7 +524,7 @@
               {{ stock.performance?.[activeExchange]?.halfYearly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.halfYearly?.percentage |
-              number: '1.2-2' }}%
+              valueOrPlaceholder }}%
             </div>
           </div>
         </div>
@@ -536,7 +542,7 @@
               {{ stock.performance?.[activeExchange]?.yearly?.one?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.yearly?.one?.percentage |
-              number: '1.2-2' }}%
+              valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -552,7 +558,7 @@
               {{ stock.performance?.[activeExchange]?.yearly?.three?.direction
               === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.yearly?.three?.percentage |
-              number: '1.2-2' }}%
+              valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -568,7 +574,7 @@
               {{ stock.performance?.[activeExchange]?.yearly?.five?.direction
               === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
               stock.performance?.[activeExchange]?.yearly?.five?.percentage |
-              number: '1.2-2' }}%
+              valueOrPlaceholder }}%
             </div>
           </div>
         </div>
@@ -590,14 +596,14 @@
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">NSE</div>
             <div class="flex">
-              {{ stock.scripCode.nse || NO_VALUE_PLACEHOLDER }}
+              {{ stock.scripCode.nse | valueOrPlaceholder }}
             </div>
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">BSE</div>
             <div class="flex">
-              {{ stock.scripCode.bse || NO_VALUE_PLACEHOLDER }}
+              {{ stock.scripCode.bse | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -606,7 +612,7 @@
               ISIN
             </div>
             <div class="flex">
-              {{ stock.scripCode.isin || NO_VALUE_PLACEHOLDER }}
+              {{ stock.scripCode.isin | valueOrPlaceholder }}
             </div>
           </div>
         </div>
@@ -617,7 +623,7 @@
               Sector
             </div>
             <div class="flex">
-              {{ stock.details?.sector || NO_VALUE_PLACEHOLDER }}
+              {{ stock.details?.sector | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -626,7 +632,7 @@
               Industry
             </div>
             <div class="flex">
-              {{ stock.details?.industry || NO_VALUE_PLACEHOLDER }}
+              {{ stock.details?.industry | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -635,8 +641,8 @@
               Market Cap Type
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.marketCapType ||
-              NO_VALUE_PLACEHOLDER }}
+              {{ stock.metrics?.[activeExchange]?.marketCapType |
+              valueOrPlaceholder }}
             </div>
           </div>
         </div>
