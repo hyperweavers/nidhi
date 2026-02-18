@@ -9,13 +9,13 @@
     >
       <div class="w-full">
         <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">
-          {{ card.title }} @if (card.subtitle) {
+          {{ card.title | valueOrPlaceholder }} @if (card.subtitle) {
           <span class="text-xs">({{ card.subtitle }})</span>
           }
         </h3>
         <span
           class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
-          >{{ card.value | number: '1.2-2' }}</span
+          >{{ card.value | valueOrPlaceholder }}</span
         >
         <p
           class="flex items-center text-base font-normal"
@@ -23,8 +23,8 @@
         >
           <span class="mr-1.5 flex items-center text-sm">
             {{ card.change?.direction === Direction.UP ? '&#x25B2;' : '&#x25BC;'
-            }} {{ card.change?.value | number: '1.2-2' }} ({{
-            card.change?.percentage | number: '1.2-2' }}%)
+            }} {{ card.change?.value | valueOrPlaceholder }} ({{
+            card.change?.percentage | valueOrPlaceholder }}%)
           </span>
         </p>
 
@@ -40,12 +40,12 @@
           class="mt-1 flex w-full justify-between text-xs text-gray-500 dark:text-gray-400"
         >
           <span
-            >{{ card.advance?.value }} ({{ card.advance?.percentage | number:
-            '1.2-2' }}%)</span
+            >{{ card.advance?.value | valueOrPlaceholder: '1.0-0' }} ({{
+            card.advance?.percentage | valueOrPlaceholder }}%)</span
           >
           <span
-            >{{ card.decline?.value }} ({{ card.decline?.percentage | number:
-            '1.2-2' }}%)</span
+            >{{ card.decline?.value | valueOrPlaceholder: '1.0-0' }} ({{
+            card.decline?.percentage | valueOrPlaceholder }}%)</span
           >
         </div>
       </div>

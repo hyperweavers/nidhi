@@ -36,6 +36,7 @@ import { ChartData } from '../../models/chart';
 import { Index } from '../../models/index';
 import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import {
   ChartCategory,
   MarketService,
@@ -56,7 +57,7 @@ enum ChartTimeRange {
 @UntilDestroy()
 @Component({
   selector: 'app-indices',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ValueOrPlaceholderPipe],
   templateUrl: './indices.page.html',
   styleUrl: './indices.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

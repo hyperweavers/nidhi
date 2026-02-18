@@ -4,25 +4,25 @@
   <div class="space-y-2 p-4">
     <div class="flex space-x-4">
       <div class="flex-1 text-2xl font-semibold">
-        {{ index.name }}
+        {{ index.name | valueOrPlaceholder }}
         <span
           class="me-2 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-          >{{ index.exchange | uppercase }}</span
+          >{{ index.exchange | valueOrPlaceholder | uppercase }}</span
         >
       </div>
     </div>
 
     <div class="text-gray-900 dark:text-white">
       <div class="text-lg font-semibold">
-        {{ index.quote?.value | number: '1.2-2' }}
+        {{ index.quote?.value | valueOrPlaceholder }}
       </div>
       <div
         class="flex items-center"
         [ngClass]="index.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
       >
         {{ index.quote?.change?.direction === Direction.UP ? '&#x25B2;' :
-        '&#x25BC;' }} {{ index.quote?.change?.value | number: '1.2-2' }} ({{
-        index.quote?.change?.percentage | number: '1.2-2' }}%)
+        '&#x25BC;' }} {{ index.quote?.change?.value | valueOrPlaceholder }} ({{
+        index.quote?.change?.percentage | valueOrPlaceholder }}%)
       </div>
     </div>
   </div>
@@ -45,27 +45,27 @@
           @if (chartCrosshairData) {
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Open:&nbsp;</div>
-            {{ chartCrosshairData.open | number: '1.2-2' }}
+            {{ chartCrosshairData.open | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Close:&nbsp;</div>
-            {{ chartCrosshairData.close | number: '1.2-2' }}
+            {{ chartCrosshairData.close | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Low:&nbsp;</div>
-            {{ chartCrosshairData.low | number: '1.2-2' }}
+            {{ chartCrosshairData.low | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">High:&nbsp;</div>
-            {{ chartCrosshairData.high | number: '1.2-2' }}
+            {{ chartCrosshairData.high | valueOrPlaceholder }}
           </div>
 
           <div class="flex md:flex-col">
             <div class="text-gray-500 dark:text-gray-400">Volume:&nbsp;</div>
-            {{ chartCrosshairData.volume | number: '1.0' }}
+            {{ chartCrosshairData.volume | valueOrPlaceholder: '1.0-0' }}
           </div>
 
           @if (chartCrosshairData.change) {
@@ -74,8 +74,8 @@
             [ngClass]="chartCrosshairData.change.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div class="text-gray-500 dark:text-gray-400">Change:&nbsp;</div>
-            {{ chartCrosshairData.change.value| number: '1.2-2' }} ({{
-            chartCrosshairData.change.percentage| number: '1.2-2' }}%)
+            {{ chartCrosshairData.change.value | valueOrPlaceholder }} ({{
+            chartCrosshairData.change.percentage | valueOrPlaceholder }}%)
           </div>
           } }
         </div>
@@ -273,14 +273,14 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            {{ index.quote?.open | number: '1.2-2' }}
+            {{ index.quote?.open | valueOrPlaceholder }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            {{ index.quote?.close | number: '1.2-2' }}
+            {{ index.quote?.close | valueOrPlaceholder }}
           </div>
         </div>
 
@@ -291,9 +291,11 @@
             </div>
 
             <div class="flex text-xs">
-              <div class="flex-1">{{ index.quote?.low | number: '1.2-2' }}</div>
+              <div class="flex-1">
+                {{ index.quote?.low | valueOrPlaceholder }}
+              </div>
 
-              <div>{{ index.quote?.high | number: '1.2-2' }}</div>
+              <div>{{ index.quote?.high | valueOrPlaceholder }}</div>
             </div>
 
             <div class="flex items-center">
@@ -323,10 +325,12 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ index.quote?.fiftyTwoWeekLow | number: '1.2-2' }}
+                {{ index.quote?.fiftyTwoWeekLow | valueOrPlaceholder }}
               </div>
 
-              <div>{{ index.quote?.fiftyTwoWeekHigh | number: '1.2-2' }}</div>
+              <div>
+                {{ index.quote?.fiftyTwoWeekHigh | valueOrPlaceholder }}
+              </div>
             </div>
 
             <div class="flex items-center">
@@ -366,8 +370,14 @@
         <div
           class="flex w-full justify-between text-sm text-gray-900 dark:text-white"
         >
-          <span>{{ index.quote?.advance?.value }} Advances</span>
-          <span>{{ index.quote?.decline?.value }} Declines</span>
+          <span
+            >{{ index.quote?.advance?.value | valueOrPlaceholder: '1.0-0' }}
+            Advances</span
+          >
+          <span
+            >{{ index.quote?.decline?.value | valueOrPlaceholder: '1.0-0' }}
+            Declines</span
+          >
         </div>
 
         <div class="my-3 h-2 w-full rounded-full bg-red-600 dark:bg-red-500">
@@ -381,8 +391,12 @@
         <div
           class="flex w-full justify-between text-sm text-gray-900 dark:text-white"
         >
-          <span>{{ index.quote?.advance?.percentage | number: '1.2-2' }}%</span>
-          <span>{{ index.quote?.decline?.percentage | number: '1.2-2' }}%</span>
+          <span
+            >{{ index.quote?.advance?.percentage | valueOrPlaceholder }}%</span
+          >
+          <span
+            >{{ index.quote?.decline?.percentage | valueOrPlaceholder }}%</span
+          >
         </div>
       </div>
     </div>
@@ -410,7 +424,7 @@
             <div class="flex">
               {{ index.performance?.monthly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.monthly?.percentage | number: '1.2-2' }}%
+              index.performance?.monthly?.percentage | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -425,7 +439,7 @@
             <div class="flex">
               {{ index.performance?.quarterly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.quarterly?.percentage | number: '1.2-2' }}%
+              index.performance?.quarterly?.percentage | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -440,7 +454,7 @@
             <div class="flex">
               {{ index.performance?.halfYearly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.halfYearly?.percentage | number: '1.2-2' }}%
+              index.performance?.halfYearly?.percentage | valueOrPlaceholder }}%
             </div>
           </div>
         </div>
@@ -457,7 +471,8 @@
             <div class="flex">
               {{ index.performance?.yearly?.one?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.yearly?.one?.percentage | number: '1.2-2' }}%
+              index.performance?.yearly?.one?.percentage | valueOrPlaceholder
+              }}%
             </div>
           </div>
 
@@ -472,7 +487,8 @@
             <div class="flex">
               {{ index.performance?.yearly?.three?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.yearly?.three?.percentage | number: '1.2-2' }}%
+              index.performance?.yearly?.three?.percentage | valueOrPlaceholder
+              }}%
             </div>
           </div>
 
@@ -487,7 +503,8 @@
             <div class="flex">
               {{ index.performance?.yearly?.five?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              index.performance?.yearly?.five?.percentage | number: '1.2-2' }}%
+              index.performance?.yearly?.five?.percentage | valueOrPlaceholder
+              }}%
             </div>
           </div>
         </div>
@@ -541,17 +558,17 @@
           >
             <th scope="row" class="max-w-[1px] p-2 font-normal sm:p-4">
               <div class="truncate font-medium text-gray-900 dark:text-white">
-                {{ constituent.name }}
+                {{ constituent.name | valueOrPlaceholder }}
               </div>
             </th>
             <td class="p-2 text-center sm:p-4">
               <div class="text-gray-900 dark:text-white">
-                {{ constituent.quote?.[index.exchange]?.price | number: '1.2-2'
-                }}
+                {{ constituent.quote?.[index.exchange]?.price |
+                valueOrPlaceholder }}
               </div>
               <div class="pt-1.5 text-xs">
-                {{ constituent.quote?.[index.exchange]?.volume | number: '1.0-0'
-                }}
+                {{ constituent.quote?.[index.exchange]?.volume |
+                valueOrPlaceholder: '1.0-0' }}
               </div>
             </td>
             <td
@@ -559,12 +576,12 @@
               [ngClass]="constituent.quote?.[index.exchange]?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
             >
               <div>
-                {{ constituent.quote?.[index.exchange]?.change?.value | number:
-                '1.2-2' }}
+                {{ constituent.quote?.[index.exchange]?.change?.value |
+                valueOrPlaceholder }}
               </div>
               <div>
                 ({{ constituent.quote?.[index.exchange]?.change?.percentage |
-                number: '1.2-2' }}%)
+                valueOrPlaceholder }}%)
               </div>
             </td>
           </tr>

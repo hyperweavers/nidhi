@@ -35,6 +35,7 @@ import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-clo
 import { Direction } from '../../models/market';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
 import { Stock } from '../../models/stock';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';
@@ -63,7 +64,13 @@ enum PortfolioSortOrder {
 
 @Component({
   selector: 'app-portfolio',
-  imports: [CommonModule, FormsModule, RouterLink, DrawerClosedDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    DrawerClosedDirective,
+    ValueOrPlaceholderPipe,
+  ],
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

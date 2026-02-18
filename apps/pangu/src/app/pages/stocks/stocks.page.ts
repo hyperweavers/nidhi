@@ -29,11 +29,11 @@ import {
   tap,
 } from 'rxjs';
 
-import { Constants } from '../../constants';
 import { ChartData } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import {
   ChartCategory,
   MarketService,
@@ -54,7 +54,7 @@ enum ChartTimeRange {
 @UntilDestroy()
 @Component({
   selector: 'app-stocks',
-  imports: [CommonModule],
+  imports: [CommonModule, ValueOrPlaceholderPipe],
   templateUrl: './stocks.page.html',
   styleUrl: './stocks.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,7 +79,6 @@ export class StocksPage implements OnDestroy {
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = ChartTimeRange;
-  public readonly NO_VALUE_PLACEHOLDER = Constants.placeholders.NO_VALUE;
 
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
 
