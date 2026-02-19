@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, map, of, shareReplay, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -19,7 +19,10 @@ import { StorageService } from './core/storage.service';
 export class PortfolioService {
   public portfolio$: Observable<Portfolio>;
 
-  constructor(storageService: StorageService, marketService: MarketService) {
+  constructor() {
+    const storageService = inject(StorageService);
+    const marketService = inject(MarketService);
+
     this.portfolio$ = from(storageService.stocks$)
       .pipe(
         switchMap((storageStocks) => {
@@ -28,18 +31,26 @@ export class PortfolioService {
                 .getStock(storageStocks[0].vendorCode.mc.primary)
                 .pipe(
                   map((marketStock: Stock): Portfolio => {
-                    const quantity =
-                      storageStocks[0].transactions.reduce(
-                        (a, v) =>
-                          v.type === TransactionType.BUY
-                            ? a + v.quantity
-                            : a - v.quantity,
-                        0,
-                      ) || 0;
-                    const holdingInvestment =
-                      storageStocks[0].transactions
-                        .filter((t) => t.source === ContributionSource.EMPLOYEE)
-                        .reduce(
+                    const holdings: Holding[] = [];
+
+                    // Add two extra holdings split by ContributionSource (EMPLOYEE and EMPLOYER)
+                    const allTx = storageStocks[0].transactions || [];
+
+                    const buildHoldingFromTx = (
+                      txs: typeof allTx,
+                      suffix: string,
+                    ): Holding => {
+                      const qty =
+                        txs.reduce(
+                          (a, v) =>
+                            v.type === TransactionType.BUY
+                              ? a + v.quantity
+                              : a - v.quantity,
+                          0,
+                        ) || 0;
+
+                      const invest =
+                        txs.reduce(
                           (a, v) =>
                             v.type === TransactionType.BUY
                               ? a +
@@ -50,33 +61,57 @@ export class PortfolioService {
                                 (v.charges?.value || 0),
                           0,
                         ) || 0;
-                    const averagePrice = holdingInvestment / quantity || 0;
-                    const holdingTotalProfitLossValue =
-                      ((marketStock.quote?.price || 0) - averagePrice) *
-                      quantity;
-                    const holdingTotalProfitLossPercentage =
-                      (holdingTotalProfitLossValue / holdingInvestment) * 100 ||
-                      0;
 
-                    const holdings: Holding[] = [
-                      {
+                      const avg = invest / qty || 0;
+                      const totalPLValue =
+                        ((marketStock.quote?.price || 0) - avg) * qty;
+                      const totalPLPercentage =
+                        (totalPLValue / invest) * 100 || 0;
+
+                      return {
                         ...marketStock,
-                        id: storageStocks[0].id || uuid(),
-                        transactions: storageStocks[0].transactions || [],
-                        quantity,
-                        averagePrice,
-                        investment: holdingInvestment,
-                        marketValue: (marketStock.quote?.price || 0) * quantity,
+                        id: storageStocks[0].id
+                          ? `${storageStocks[0].id}-${suffix}`
+                          : uuid(),
+                        name: `${storageStocks[0].name} - ${suffix}`,
+                        transactions: txs,
+                        quantity: qty,
+                        averagePrice: avg,
+                        investment: invest,
+                        marketValue: (marketStock.quote?.price || 0) * qty,
                         totalProfitLoss: {
                           direction:
-                            holdingTotalProfitLossValue >= 0
-                              ? Direction.UP
-                              : Direction.DOWN,
-                          percentage: holdingTotalProfitLossPercentage,
-                          value: holdingTotalProfitLossValue,
+                            totalPLValue >= 0 ? Direction.UP : Direction.DOWN,
+                          percentage: totalPLPercentage,
+                          value: totalPLValue,
                         },
-                      },
-                    ];
+                      } as Holding;
+                    };
+
+                    const perSourceHoldings: Holding[] = [];
+
+                    // Employee contributions
+                    const employeeTx = allTx.filter(
+                      (t) => t.source === ContributionSource.EMPLOYEE,
+                    );
+                    if (employeeTx.length > 0) {
+                      perSourceHoldings.push(
+                        buildHoldingFromTx(employeeTx, 'EMPLOYEE'),
+                      );
+                    }
+
+                    // Employer contributions
+                    const employerTx = allTx.filter(
+                      (t) => t.source === ContributionSource.EMPLOYER,
+                    );
+                    if (employerTx.length > 0) {
+                      perSourceHoldings.push(
+                        buildHoldingFromTx(employerTx, 'EMPLOYER'),
+                      );
+                    }
+
+                    // Append per-source holdings to the holdings array
+                    holdings.push(...perSourceHoldings);
 
                     let investment = 0;
                     let marketValue = 0;

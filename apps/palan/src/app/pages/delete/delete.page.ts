@@ -1,27 +1,25 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  inject,
 } from '@angular/core';
 
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-delete',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './delete.page.html',
   styleUrl: './delete.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePage {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+
   public showStatusModal?: boolean;
   public showDeleteProgress?: boolean;
-
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly storageService: StorageService,
-  ) {}
 
   public async delete(): Promise<void> {
     this.showStatusModal = true;

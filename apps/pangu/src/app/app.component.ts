@@ -1,11 +1,12 @@
 import { Platform } from '@angular/cdk/platform';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
+  DOCUMENT,
   OnInit,
+  inject,
 } from '@angular/core';
 import {
   NavigationEnd,
@@ -36,6 +37,14 @@ import { SettingsService } from './services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
+  private document = inject<Document>(DOCUMENT);
+  private platform = inject(Platform);
+  private swUpdate = inject(SwUpdate);
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private marketService = inject(MarketService);
+  private settingsService = inject(SettingsService);
+
   private readonly MEDIA_SIZE_LARGE = 1024;
 
   public marketStatus$: Observable<MarketStatus>;
@@ -52,15 +61,7 @@ export class AppComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private platform: Platform,
-    private swUpdate: SwUpdate,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private marketService: MarketService,
-    private settingsService: SettingsService,
-  ) {
+  constructor() {
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),
     );

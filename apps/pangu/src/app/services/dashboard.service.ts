@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, combineLatest, map, shareReplay } from 'rxjs';
 
 import { Constants } from '../constants';
@@ -12,15 +12,18 @@ import { PortfolioService } from './portfolio.service';
   providedIn: 'root',
 })
 export class DashboardService {
+  readonly marketService = inject(MarketService);
+  readonly portfolioService = inject(PortfolioService);
+
   public kpi$: Observable<Kpi>;
 
   private indices$: Observable<Index[]>;
   private portfolio$: Observable<Portfolio>;
 
-  constructor(
-    readonly marketService: MarketService,
-    readonly portfolioService: PortfolioService,
-  ) {
+  constructor() {
+    const marketService = this.marketService;
+    const portfolioService = this.portfolioService;
+
     this.indices$ = marketService.getMainIndices().pipe(shareReplay(1));
 
     this.portfolio$ = portfolioService.portfolio$;

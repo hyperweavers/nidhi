@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
+  inject,
   Signal,
   signal,
   WritableSignal,
@@ -37,6 +38,10 @@ import { DateUtils } from '../../utils/date.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanPage {
+  readonly planService = inject(PlanService);
+  readonly marketService = inject(MarketService);
+  readonly currencyService = inject(CurrencyService);
+
   public stockSearchResults$: Observable<Stock[]>;
   public currencyList$: Observable<Currency[]>;
 
@@ -54,11 +59,11 @@ export class PlanPage {
 
   private selectedStock?: Stock;
 
-  constructor(
-    readonly planService: PlanService,
-    readonly marketService: MarketService,
-    readonly currencyService: CurrencyService,
-  ) {
+  constructor() {
+    const planService = this.planService;
+    const marketService = this.marketService;
+    const currencyService = this.currencyService;
+
     this.stockSearchResults$ = toObservable(this.name).pipe(
       debounceTime(500), // TODO: Review the time
       distinctUntilChanged(),

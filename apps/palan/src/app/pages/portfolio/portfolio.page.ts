@@ -6,9 +6,10 @@ import {
   ElementRef,
   OnInit,
   Signal,
-  ViewChild,
   computed,
+  inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -42,8 +43,14 @@ declare const Datepicker: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {
-  @ViewChild('transactionDateInput', { static: true })
-  private transactionDateInputRef?: ElementRef;
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+  readonly portfolioService = inject(PortfolioService);
+  readonly planService = inject(PlanService);
+
+  private readonly transactionDateInputRef = viewChild<ElementRef>(
+    'transactionDateInput',
+  );
 
   public portfolio$: Observable<Portfolio>;
 
@@ -78,12 +85,10 @@ export class PortfolioPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly storageService: StorageService,
-    readonly portfolioService: PortfolioService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const portfolioService = this.portfolioService;
+    const planService = this.planService;
+
     this.portfolio$ = portfolioService.portfolio$.pipe(
       map((portfolio) => ({
         ...portfolio,
@@ -200,21 +205,19 @@ export class PortfolioPage implements OnInit {
   }
 
   private initDatePicker(): void {
-    if (this.transactionDateInputRef) {
-      this.datepicker = new Datepicker(
-        this.transactionDateInputRef.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          maxDate: Date.now(),
-        },
-      );
+    const transactionDateInputRef = this.transactionDateInputRef();
+    if (transactionDateInputRef) {
+      this.datepicker = new Datepicker(transactionDateInputRef.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        maxDate: Date.now(),
+      });
 
-      this.transactionDateInputRef.nativeElement.addEventListener(
+      transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

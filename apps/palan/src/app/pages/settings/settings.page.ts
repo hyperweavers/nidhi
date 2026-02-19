@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { RefreshInterval, Settings, Theme } from '../../models/settings';
@@ -13,12 +13,14 @@ import { SettingsService } from '../../services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPage {
+  private readonly settingsService = inject(SettingsService);
+
   public settings$: Observable<Settings>;
 
   public readonly Theme = Theme;
   public readonly RefreshInterval = RefreshInterval;
 
-  constructor(private readonly settingsService: SettingsService) {
+  constructor() {
     this.settings$ = this.settingsService.settings$;
   }
 

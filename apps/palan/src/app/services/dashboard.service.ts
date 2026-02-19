@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   Observable,
   combineLatest,
@@ -18,13 +18,17 @@ import { PortfolioService } from './portfolio.service';
   providedIn: 'root',
 })
 export class DashboardService {
+  readonly planService = inject(PlanService);
+  readonly marketService = inject(MarketService);
+  readonly portfolioService = inject(PortfolioService);
+
   public kpi$: Observable<Kpi>;
 
-  constructor(
-    readonly planService: PlanService,
-    readonly marketService: MarketService,
-    readonly portfolioService: PortfolioService,
-  ) {
+  constructor() {
+    const planService = this.planService;
+    const marketService = this.marketService;
+    const portfolioService = this.portfolioService;
+
     this.kpi$ = combineLatest([
       portfolioService.portfolio$,
       planService.plan$.pipe(
