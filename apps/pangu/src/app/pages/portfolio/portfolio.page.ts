@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
-  OnInit,
-  ViewChild,
   computed,
+  inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +32,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { Constants } from '../../constants';
+import { Flowbite } from '../../decorators/flowbite.decorator';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { Direction } from '../../models/market';
 import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
@@ -62,6 +64,7 @@ enum PortfolioSortOrder {
   DSC,
 }
 
+@Flowbite()
 @Component({
   selector: 'app-portfolio',
   imports: [
@@ -75,9 +78,14 @@ enum PortfolioSortOrder {
   styleUrl: './portfolio.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PortfolioPage implements OnInit {
-  @ViewChild('transactionDateInput', { static: true })
-  private transactionDateInputRef?: ElementRef;
+export class PortfolioPage implements AfterViewInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+  private readonly marketService = inject(MarketService);
+
+  private readonly transactionDateInputRef = viewChild<ElementRef>(
+    'transactionDateInput',
+  );
 
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
@@ -98,13 +106,13 @@ export class PortfolioPage implements OnInit {
   public readonly PortfolioSortType = PortfolioSortType;
   public readonly PortfolioSortOrder = PortfolioSortOrder;
 
-  public portfolioSearchQuery = signal('');
+  public readonly portfolioSearchQuery = signal('');
 
-  public name = signal('');
-  public date = signal('');
-  public price = signal(0);
-  public quantity = signal(0);
-  public charges = signal(0);
+  public readonly name = signal('');
+  public readonly date = signal('');
+  public readonly price = signal(0);
+  public readonly quantity = signal(0);
+  public readonly charges = signal(0);
   public readonly gross = computed(() => this.price() * this.quantity());
   public readonly net = computed(() => this.gross() + this.charges());
 
@@ -120,12 +128,9 @@ export class PortfolioPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-    private marketService: MarketService,
-    portfolioService: PortfolioService,
-  ) {
+  constructor() {
+    const portfolioService = inject(PortfolioService);
+
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
       debounceTime(200),
       distinctUntilChanged(),
@@ -223,19 +228,27 @@ export class PortfolioPage implements OnInit {
     );
   }
 
-  public ngOnInit(): void {
+  public ngAfterViewInit(): void {
     this.initDatePicker();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
-      'Dropdown',
-      'sortDropdown',
+    setTimeout(
+      () =>
+        (this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
+          'Dropdown',
+          'sortDropdown',
+        )),
+      200,
     );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
-      'Dropdown',
-      'filterDropdown',
+    setTimeout(
+      () =>
+        (this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
+          'Dropdown',
+          'filterDropdown',
+        )),
+      200,
     );
   }
 
@@ -429,21 +442,19 @@ export class PortfolioPage implements OnInit {
   }
 
   private initDatePicker(): void {
-    if (this.transactionDateInputRef) {
-      this.datepicker = new Datepicker(
-        this.transactionDateInputRef.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          maxDate: Date.now(),
-        },
-      );
+    const transactionDateInputRef = this.transactionDateInputRef();
+    if (transactionDateInputRef) {
+      this.datepicker = new Datepicker(transactionDateInputRef.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        maxDate: Date.now(),
+      });
 
-      this.transactionDateInputRef.nativeElement.addEventListener(
+      transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

@@ -1,13 +1,14 @@
-import { CommonModule, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
+  inject,
   OnInit,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -50,17 +51,26 @@ enum Charts {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoanEmiCalculatorPage implements OnInit {
-  @ViewChild('loanStartDateInput', { static: true })
-  private loanStartDateInput?: ElementRef;
-  @ViewChild('emiChart', { read: BaseChartDirective })
-  emiChart!: BaseChartDirective;
-  @ViewChild('revisionChart', { read: BaseChartDirective })
-  revisionChart!: BaseChartDirective;
-  @ViewChild('paymentsChart', { read: BaseChartDirective })
-  paymentsChart!: BaseChartDirective;
-  @ViewChild('emiChartContainer') private emiChartContainer?: ElementRef;
-  @ViewChild('revisionsChartContainer')
-  private revisionsChartContainer?: ElementRef;
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly decimalPipe = inject(DecimalPipe);
+
+  private readonly loanStartDateInput =
+    viewChild<ElementRef>('loanStartDateInput');
+  private readonly emiChart = viewChild('emiChart', {
+    read: BaseChartDirective,
+  });
+  private readonly revisionChart = viewChild('revisionChart', {
+    read: BaseChartDirective,
+  });
+  private readonly paymentsChart = viewChild('paymentsChart', {
+    read: BaseChartDirective,
+  });
+  private readonly emiChartContainer =
+    viewChild<ElementRef>('emiChartContainer');
+  private readonly revisionsChartContainer = viewChild<ElementRef>(
+    'revisionsChartContainer',
+  );
 
   readonly pageSize = 12;
 
@@ -198,12 +208,6 @@ export class LoanEmiCalculatorPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly decimalPipe: DecimalPipe,
-  ) {}
-
   ngOnInit() {
     this.initDatePicker();
 
@@ -272,11 +276,11 @@ export class LoanEmiCalculatorPage implements OnInit {
 
       switch (chart) {
         case Charts.EMI:
-          container = this.emiChartContainer;
+          container = this.emiChartContainer();
           break;
 
         case Charts.REVISIONS:
-          container = this.revisionsChartContainer;
+          container = this.revisionsChartContainer();
           break;
 
         case Charts.PAYMENTS:
@@ -640,8 +644,9 @@ export class LoanEmiCalculatorPage implements OnInit {
     ];
 
     // Refresh the chart
-    if (this.paymentsChart) {
-      this.paymentsChart.update();
+    const paymentsChart = this.paymentsChart();
+    if (paymentsChart) {
+      paymentsChart.update();
     }
   }
 
@@ -659,8 +664,9 @@ export class LoanEmiCalculatorPage implements OnInit {
     this.emiChartData.datasets[1].data = interestData;
 
     // Refresh the chart
-    if (this.emiChart) {
-      this.emiChart.update();
+    const emiChart = this.emiChart();
+    if (emiChart) {
+      emiChart.update();
     }
   }
 
@@ -692,8 +698,9 @@ export class LoanEmiCalculatorPage implements OnInit {
     this.revisionsChartData.datasets[0].data = rateChangeData;
 
     // Refresh the chart
-    if (this.revisionChart) {
-      this.revisionChart.update();
+    const revisionChart = this.revisionChart();
+    if (revisionChart) {
+      revisionChart.update();
     }
   }
 
@@ -702,8 +709,9 @@ export class LoanEmiCalculatorPage implements OnInit {
   }
 
   private initDatePicker() {
-    if (this.loanStartDateInput) {
-      this.datepicker = new Datepicker(this.loanStartDateInput.nativeElement, {
+    const loanStartDateInput = this.loanStartDateInput();
+    if (loanStartDateInput) {
+      this.datepicker = new Datepicker(loanStartDateInput.nativeElement, {
         autohide: true,
         format: 'dd/mm/yyyy',
         todayBtn: true,
@@ -712,7 +720,7 @@ export class LoanEmiCalculatorPage implements OnInit {
         todayHighlight: true,
       });
 
-      this.loanStartDateInput.nativeElement.addEventListener(
+      loanStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

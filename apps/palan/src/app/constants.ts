@@ -29,7 +29,8 @@ export const Constants = {
       'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/intra?duration=1D&firstCall=true&symbol=',
     FOREX:
       'https://api.moneycontrol.com/mcapi/v1/currency/getGlobalCurrencyRates',
-    CURRENCY_LIST: 'https://jsonblob.com/api/jsonBlob/1406680696310915072',
+    CURRENCY_LIST:
+      'https://api.jsonblob.com/019c8a2f-f729-77ad-85e2-ab8828a65c08',
   },
   settings: {
     THEME: 'theme',

@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
+import { inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
 
 import { Constants } from '../constants';
 
@@ -8,7 +8,7 @@ import { Constants } from '../constants';
   standalone: true,
 })
 export class ValueOrPlaceholderPipe implements PipeTransform {
-  constructor(@Inject(LOCALE_ID) private locale: string) {}
+  private readonly locale = inject<string>(LOCALE_ID);
 
   transform(value: unknown, format = '1.2-2'): string {
     if (value === null || value === undefined || value === '') {

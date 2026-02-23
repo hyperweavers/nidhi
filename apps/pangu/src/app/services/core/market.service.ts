@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   BehaviorSubject,
   Observable,
@@ -56,6 +56,9 @@ export enum ChartCategory {
   providedIn: 'root',
 })
 export class MarketService {
+  private readonly http = inject(HttpClient);
+  private readonly settingsService = inject(SettingsService);
+
   public marketStatus$: Observable<MarketStatus>;
 
   private readonly MAX_CHART_HISTORY_IN_DAYS = 5 * 365; // 5 years
@@ -63,10 +66,7 @@ export class MarketService {
   private poll$: Observable<unknown>;
   private refresh$ = new BehaviorSubject(null);
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly settingsService: SettingsService,
-  ) {
+  constructor() {
     this.marketStatus$ = this.settingsService.settings$
       .pipe(
         distinctUntilKeyChanged('refreshInterval'),
@@ -204,8 +204,13 @@ export class MarketService {
     const niftyFifty = INDICES.nse.find((index) => index.main === true);
     const sensex = INDICES.bse.find((index) => index.main === true);
 
-    niftyFifty && indexSymbols.push(niftyFifty.etm.id);
-    sensex && indexSymbols.push(sensex.etm.id);
+    if (niftyFifty) {
+      indexSymbols.push(niftyFifty.etm.id);
+    }
+
+    if (sensex) {
+      indexSymbols.push(sensex.etm.id);
+    }
 
     return this.getIndices(indexSymbols);
   }

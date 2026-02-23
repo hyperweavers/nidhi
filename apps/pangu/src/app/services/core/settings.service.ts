@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, debounceTime, fromEvent } from 'rxjs';
 
-import { DOCUMENT } from '@angular/common';
 import { Constants } from '../../constants';
 import {
   ColorScheme,
@@ -14,6 +13,8 @@ import {
   providedIn: 'root',
 })
 export class SettingsService {
+  private readonly document = inject<Document>(DOCUMENT);
+
   private readonly DEFAULT_SETTINGS: Settings = {
     theme: Theme.SYSTEM,
     colorScheme: ColorScheme.DARK,
@@ -25,7 +26,7 @@ export class SettingsService {
 
   private settingsSubject$: BehaviorSubject<Settings>;
 
-  constructor(@Inject(DOCUMENT) private readonly document: Document) {
+  constructor() {
     const theme = this.getTheme();
     const colorScheme = this.getColorScheme();
     const refreshInterval = this.getRefreshInterval();
@@ -139,13 +140,15 @@ export class SettingsService {
     }
 
     if (isDarkTheme) {
-      !documentElementClassList.contains('dark') &&
+      if (!documentElementClassList.contains('dark')) {
         documentElementClassList.add('dark');
+      }
 
       this.setColorScheme(ColorScheme.DARK);
     } else {
-      documentElementClassList.contains('dark') &&
+      if (documentElementClassList.contains('dark')) {
         documentElementClassList.remove('dark');
+      }
 
       this.setColorScheme(ColorScheme.LIGHT);
     }

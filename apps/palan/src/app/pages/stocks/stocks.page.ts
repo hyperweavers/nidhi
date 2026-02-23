@@ -1,20 +1,22 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
   OnDestroy,
   Signal,
-  ViewChild,
   computed,
+  inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
+  AreaSeries,
   IChartApi,
   ISeriesApi,
   MouseEventParams,
@@ -62,8 +64,11 @@ enum ChartTimeRange {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StocksPage implements OnDestroy {
-  @ViewChild('chartContainer') private chartContainerRef?: ElementRef;
-  @ViewChild('chart') private chartRef?: ElementRef;
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private readonly chartContainerRef = viewChild<ElementRef>('chartContainer');
+  private readonly chartRef = viewChild<ElementRef>('chart');
 
   public readonly id = input<string>('');
 
@@ -95,13 +100,11 @@ export class StocksPage implements OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areaSeries?: ISeriesApi<any>;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly cdr: ChangeDetectorRef,
-    readonly marketService: MarketService,
-    readonly settingsService: SettingsService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const marketService = inject(MarketService);
+    const settingsService = inject(SettingsService);
+    const planService = inject(PlanService);
+
     marketService.marketStatus$
       .pipe(untilDestroyed(this))
       .subscribe(({ status }) => {
@@ -195,10 +198,11 @@ export class StocksPage implements OnDestroy {
                 settingsService.resize$
                   .pipe(untilDestroyed(this))
                   .subscribe(() => {
-                    if (this.chart && this.chartRef) {
+                    const chartRef = this.chartRef();
+                    if (this.chart && chartRef) {
                       this.chart.resize(
-                        this.chartRef.nativeElement.offsetWidth,
-                        this.chartRef.nativeElement.offsetHeight,
+                        chartRef.nativeElement.offsetWidth,
+                        chartRef.nativeElement.offsetHeight,
                       );
 
                       this.chart.timeScale().fitContent();
@@ -358,10 +362,11 @@ export class StocksPage implements OnDestroy {
       this.isChartInFullscreen = false;
     }
 
-    if (this.chart && this.chartRef) {
+    const chartRef = this.chartRef();
+    if (this.chart && chartRef) {
       this.chart.resize(
-        this.chartRef.nativeElement.offsetWidth,
-        this.chartRef.nativeElement.offsetHeight,
+        chartRef.nativeElement.offsetWidth,
+        chartRef.nativeElement.offsetHeight,
       );
 
       this.chart.timeScale().fitContent();
@@ -374,8 +379,9 @@ export class StocksPage implements OnDestroy {
     if (this.document.fullscreenElement) {
       this.document.exitFullscreen();
     } else {
-      if (this.chartContainerRef) {
-        this.chartContainerRef.nativeElement
+      const chartContainerRef = this.chartContainerRef();
+      if (chartContainerRef) {
+        chartContainerRef.nativeElement
           .requestFullscreen()
           .then(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -407,12 +413,14 @@ export class StocksPage implements OnDestroy {
   }
 
   private initChart(data: ChartData[]): void {
-    if (this.chartRef?.nativeElement) {
+    const chartRef = this.chartRef();
+    if (chartRef?.nativeElement) {
       const intraDay = this.showIntraDayChart$.getValue();
 
       if (!this.chart) {
-        this.chart = createChart(this.chartRef.nativeElement, {
+        this.chart = createChart(chartRef.nativeElement, {
           layout: {
+            attributionLogo: false,
             background: { color: 'transparent' },
           },
           grid: {
@@ -434,7 +442,7 @@ export class StocksPage implements OnDestroy {
       }
 
       if (!this.areaSeries) {
-        this.areaSeries = this.chart.addAreaSeries({
+        this.areaSeries = this.chart.addSeries(AreaSeries, {
           lineWidth: 1,
           lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
         });

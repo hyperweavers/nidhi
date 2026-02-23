@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, map, shareReplay, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -14,10 +14,10 @@ import { StorageService } from './core/storage.service';
 export class PortfolioService {
   public portfolio$: Observable<Portfolio>;
 
-  constructor(
-    readonly storageService: StorageService,
-    readonly marketService: MarketService,
-  ) {
+  constructor() {
+    const storageService = inject(StorageService);
+    const marketService = inject(MarketService);
+
     this.portfolio$ = from(storageService.stocks$)
       .pipe(
         switchMap((storageStocks) => {
@@ -107,13 +107,17 @@ export class PortfolioService {
                       ? holding.quote.nse.close * holding.quantity
                       : 0;
 
-                  holding.quote?.nse?.change?.direction === Direction.UP
-                    ? dayAdvanceValue++
-                    : dayDeclineValue++;
+                  if (holding.quote?.nse?.change?.direction === Direction.UP) {
+                    dayAdvanceValue++;
+                  } else {
+                    dayDeclineValue++;
+                  }
 
-                  holding.totalProfitLoss?.direction === Direction.UP
-                    ? totalAdvanceValue++
-                    : totalDeclineValue++;
+                  if (holding.totalProfitLoss?.direction === Direction.UP) {
+                    totalAdvanceValue++;
+                  } else {
+                    totalDeclineValue++;
+                  }
                 });
 
                 const dayProfitLossPercentage =

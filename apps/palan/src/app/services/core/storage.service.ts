@@ -1,4 +1,4 @@
-import { Injectable, Signal } from '@angular/core';
+import { inject, Injectable, Signal } from '@angular/core';
 import { liveQuery, Observable } from 'dexie';
 import {
   exportDB,
@@ -21,7 +21,9 @@ export class StorageService {
 
   private plan: Signal<Plan | undefined>;
 
-  constructor(readonly planService: PlanService) {
+  constructor() {
+    const planService = inject(PlanService);
+
     this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
 
     this.plan = toSignal<Plan | undefined>(planService.plan$);

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -19,7 +19,9 @@ export class DashboardPage {
 
   public readonly Direction = Direction;
 
-  constructor(readonly dashboardService: DashboardService) {
+  constructor() {
+    const dashboardService = inject(DashboardService);
+
     this.kpi$ = dashboardService.kpi$;
   }
 }

@@ -1,12 +1,13 @@
-import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
-  ViewChild,
+  inject,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -56,18 +57,27 @@ enum Charts {
 })
 export class PostOfficeSavingsSchemesPage {
   //implements OnInit {
-  @ViewChild('investmentStartDateInput', { static: false })
-  private investmentStartDateInput?: ElementRef;
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly decimalPipe = inject(DecimalPipe);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  @ViewChild('earningsChart', { read: BaseChartDirective })
-  earningsChart!: BaseChartDirective;
-  @ViewChild('interestRateChart', { read: BaseChartDirective })
-  interestRateChart!: BaseChartDirective;
+  private readonly investmentStartDateInput = viewChild<ElementRef>(
+    'investmentStartDateInput',
+  );
 
-  @ViewChild('earningsChartContainer')
-  private earningsChartContainer?: ElementRef;
-  @ViewChild('interestRateChartContainer')
-  private interestRateChartContainer?: ElementRef;
+  private readonly earningsChart = viewChild.required('earningsChart', {
+    read: BaseChartDirective,
+  });
+  private readonly interestRateChart = viewChild.required('interestRateChart', {
+    read: BaseChartDirective,
+  });
+
+  private readonly earningsChartContainer = viewChild<ElementRef>(
+    'earningsChartContainer',
+  );
+  private readonly interestRateChartContainer = viewChild<ElementRef>(
+    'interestRateChartContainer',
+  );
 
   readonly PostOfficeSavingsSchemeId = PostOfficeSavingsSchemeId;
   readonly InvestmentType = InvestmentType;
@@ -193,12 +203,9 @@ export class PostOfficeSavingsSchemesPage {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly decimalPipe: DecimalPipe,
-    private cdr: ChangeDetectorRef,
-    dataService: DataService,
-  ) {
+  constructor() {
+    const dataService = inject(DataService);
+
     dataService.postOfficeSavingsSchemes$
       .pipe(untilDestroyed(this))
       .subscribe((postOfficeSavingsSchemes) => {
@@ -290,11 +297,11 @@ export class PostOfficeSavingsSchemesPage {
 
       switch (chart) {
         case Charts.EARNINGS:
-          container = this.earningsChartContainer;
+          container = this.earningsChartContainer();
           break;
 
         case Charts.INTEREST_RATE:
-          container = this.interestRateChartContainer;
+          container = this.interestRateChartContainer();
           break;
 
         default:
@@ -506,8 +513,9 @@ export class PostOfficeSavingsSchemesPage {
       (item) => item.returns.interest,
     );
 
-    if (this.earningsChart) {
-      this.earningsChart.update();
+    const earningsChart = this.earningsChart();
+    if (earningsChart) {
+      earningsChart.update();
     }
   }
 
@@ -522,8 +530,9 @@ export class PostOfficeSavingsSchemesPage {
       (item) => item.returns.effectiveYield,
     );
 
-    if (this.interestRateChart) {
-      this.interestRateChart.update();
+    const interestRateChart = this.interestRateChart();
+    if (interestRateChart) {
+      interestRateChart.update();
     }
   }
 
@@ -532,22 +541,20 @@ export class PostOfficeSavingsSchemesPage {
   }
 
   private initDatePicker() {
-    if (this.investmentStartDateInput) {
-      this.datepicker = new Datepicker(
-        this.investmentStartDateInput.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          // TODO: Until historic interest rate based calculation implemented, limiting investment start date to 30.09.2023 when interest rates last updated.
-          minDate: new Date(2023, 8, 30).getTime(),
-        },
-      );
+    const investmentStartDateInput = this.investmentStartDateInput();
+    if (investmentStartDateInput) {
+      this.datepicker = new Datepicker(investmentStartDateInput.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        // TODO: Until historic interest rate based calculation implemented, limiting investment start date to 30.09.2023 when interest rates last updated.
+        minDate: new Date(2023, 8, 30).getTime(),
+      });
 
-      this.investmentStartDateInput.nativeElement.addEventListener(
+      investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

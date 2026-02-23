@@ -3,7 +3,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ViewChild,
+  inject,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -26,7 +27,9 @@ import { ChartUtils } from '../../utils/chart.utils';
   providers: [DataService, DecimalPipe],
 })
 export class GoldJewelleryPriceCalculatorPage {
-  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
+  private readonly decimalPipe = inject(DecimalPipe);
+
+  private readonly chart = viewChild(BaseChartDirective);
 
   private readonly GSTPercentage = 3; // 3% GST rate
 
@@ -69,11 +72,10 @@ export class GoldJewelleryPriceCalculatorPage {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 
-  constructor(
-    private readonly decimalPipe: DecimalPipe,
-    dataService: DataService,
-    cdr: ChangeDetectorRef,
-  ) {
+  constructor() {
+    const dataService = inject(DataService);
+    const cdr = inject(ChangeDetectorRef);
+
     dataService.goldRate$.pipe(untilDestroyed(this)).subscribe((price) => {
       this.goldPricePerGram = price;
       this.calculateTotalPrice();
@@ -99,8 +101,9 @@ export class GoldJewelleryPriceCalculatorPage {
     ];
 
     // Refresh the chart
-    if (this.chart) {
-      this.chart.update();
+    const chart = this.chart();
+    if (chart) {
+      chart.update();
     }
   }
 }

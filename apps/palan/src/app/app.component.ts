@@ -1,10 +1,11 @@
 import { Platform } from '@angular/cdk/platform';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
+  DOCUMENT,
+  inject,
   OnInit,
   Signal,
 } from '@angular/core';
@@ -26,12 +27,14 @@ import { delay, filter, map, Observable, tap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
+import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
 import { Plan } from './models/plan';
 import { MarketService } from './services/core/market.service';
 import { PlanService } from './services/core/plan.service';
 import { SettingsService } from './services/core/settings.service';
 
+@Flowbite()
 @UntilDestroy()
 @Component({
   imports: [CommonModule, RouterModule, RouterLink],
@@ -41,6 +44,14 @@ import { SettingsService } from './services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly platform = inject(Platform);
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly marketService = inject(MarketService);
+  private readonly settingsService = inject(SettingsService);
+
   private readonly MEDIA_SIZE_LARGE = 1024;
 
   public marketStatus$: Observable<MarketStatus>;
@@ -59,16 +70,9 @@ export class AppComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly platform: Platform,
-    private readonly swUpdate: SwUpdate,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly router: Router,
-    private readonly marketService: MarketService,
-    private readonly settingsService: SettingsService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const planService = inject(PlanService);
+
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),
     );

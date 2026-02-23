@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
-  ViewChild,
+  inject,
+  viewChild,
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
@@ -12,25 +12,23 @@ import { StorageService } from '../../services/core/storage.service';
 
 @Component({
   selector: 'app-import',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './import.page.html',
   styleUrl: './import.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportPage {
-  @ViewChild('importFileInput', { static: true })
-  private importFileInputRef?: ElementRef;
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+
+  private readonly importFileInputRef =
+    viewChild<ElementRef>('importFileInput');
 
   public statusMessage?: string;
   public showStatusModal?: boolean;
   public showImportProgress?: boolean;
 
   private importFile: File | null = null;
-
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private storageService: StorageService,
-  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public handleFileInput(event: any) {
@@ -66,8 +64,9 @@ export class ImportPage {
 
       this.importFile = null;
 
-      if (this.importFileInputRef) {
-        this.importFileInputRef.nativeElement.value = '';
+      const importFileInputRef = this.importFileInputRef();
+      if (importFileInputRef) {
+        importFileInputRef.nativeElement.value = '';
       }
     }
 

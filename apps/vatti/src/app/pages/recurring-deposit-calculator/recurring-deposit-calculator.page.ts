@@ -45,16 +45,17 @@ P = 100000 / ((Math.pow((1.02), 4) - 1) / (1 - Math.pow((1.02), (-1/3))))
 P = 7981 (approximately)
 */
 
-import { CommonModule, DatePipe, DecimalPipe, DOCUMENT } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DOCUMENT,
   ElementRef,
   HostListener,
-  Inject,
+  inject,
   OnInit,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData } from 'chart.js';
@@ -99,24 +100,39 @@ enum Charts {
   providers: [DecimalPipe, DatePipe],
 })
 export class RecurringDepositCalculatorPage implements OnInit {
-  @ViewChild('investmentStartDateInput', { static: true })
-  private investmentStartDateInput?: ElementRef;
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly decimalPipe = inject(DecimalPipe);
+  private readonly datePipe = inject(DatePipe);
 
-  @ViewChild('earningsChart', { read: BaseChartDirective })
-  private earningsChart!: BaseChartDirective;
-  @ViewChild('annualSummaryChart', { read: BaseChartDirective })
-  private annualSummaryChart!: BaseChartDirective;
-  @ViewChild('compoundingSummaryChart', { read: BaseChartDirective })
-  private compoundingSummaryChart!: BaseChartDirective;
-  @ViewChild('financialYearSummaryChart', { read: BaseChartDirective })
-  private financialYearSummaryChart!: BaseChartDirective;
+  private readonly investmentStartDateInput = viewChild<ElementRef>(
+    'investmentStartDateInput',
+  );
 
-  @ViewChild('annualSummaryChartContainer')
-  private annualSummaryChartContainer?: ElementRef;
-  @ViewChild('compoundingSummaryChartContainer')
-  private compoundingSummaryChartContainer?: ElementRef;
-  @ViewChild('financialYearSummaryChartContainer')
-  private financialYearSummaryChartContainer?: ElementRef;
+  private readonly earningsChart = viewChild('earningsChart', {
+    read: BaseChartDirective,
+  });
+  private readonly annualSummaryChart = viewChild('annualSummaryChart', {
+    read: BaseChartDirective,
+  });
+  private readonly compoundingSummaryChart = viewChild(
+    'compoundingSummaryChart',
+    { read: BaseChartDirective },
+  );
+  private readonly financialYearSummaryChart = viewChild(
+    'financialYearSummaryChart',
+    { read: BaseChartDirective },
+  );
+
+  private readonly annualSummaryChartContainer = viewChild<ElementRef>(
+    'annualSummaryChartContainer',
+  );
+  private readonly compoundingSummaryChartContainer = viewChild<ElementRef>(
+    'compoundingSummaryChartContainer',
+  );
+  private readonly financialYearSummaryChartContainer = viewChild<ElementRef>(
+    'financialYearSummaryChartContainer',
+  );
 
   readonly pageSize = 12;
 
@@ -294,13 +310,6 @@ export class RecurringDepositCalculatorPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly decimalPipe: DecimalPipe,
-    private readonly datePipe: DatePipe,
-  ) {}
-
   ngOnInit() {
     this.initDatePicker();
 
@@ -344,15 +353,15 @@ export class RecurringDepositCalculatorPage implements OnInit {
 
       switch (chart) {
         case Charts.ANNUAL_SUMMARY:
-          container = this.annualSummaryChartContainer;
+          container = this.annualSummaryChartContainer();
           break;
 
         case Charts.COMPOUNDING_SUMMARY:
-          container = this.compoundingSummaryChartContainer;
+          container = this.compoundingSummaryChartContainer();
           break;
 
         case Charts.FINANCIAL_YEAR_SUMMARY:
-          container = this.financialYearSummaryChartContainer;
+          container = this.financialYearSummaryChartContainer();
           break;
 
         case Charts.EARNINGS:
@@ -643,8 +652,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
       Math.floor(this.totalDeposit),
       Math.floor(this.interestEarned),
     ];
-    if (this.earningsChart) {
-      this.earningsChart.update();
+    const earningsChart = this.earningsChart();
+    if (earningsChart) {
+      earningsChart.update();
     }
   }
 
@@ -662,8 +672,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
       (item) => item.yearlyInterestEarned,
     );
 
-    if (this.annualSummaryChart) {
-      this.annualSummaryChart.update();
+    const annualSummaryChart = this.annualSummaryChart();
+    if (annualSummaryChart) {
+      annualSummaryChart.update();
     }
   }
 
@@ -680,8 +691,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
             this.monthlyInstallment,
       );
 
-    if (this.compoundingSummaryChart) {
-      this.compoundingSummaryChart.update();
+    const compoundingSummaryChart = this.compoundingSummaryChart();
+    if (compoundingSummaryChart) {
+      compoundingSummaryChart.update();
     }
   }
 
@@ -693,8 +705,9 @@ export class RecurringDepositCalculatorPage implements OnInit {
     this.financialYearSummaryChartData.datasets[0].data =
       this.financialYearSummary.map((item) => item.interestEarned);
 
-    if (this.financialYearSummaryChart) {
-      this.financialYearSummaryChart.update();
+    const financialYearSummaryChart = this.financialYearSummaryChart();
+    if (financialYearSummaryChart) {
+      financialYearSummaryChart.update();
     }
   }
 
@@ -703,20 +716,18 @@ export class RecurringDepositCalculatorPage implements OnInit {
   }
 
   private initDatePicker() {
-    if (this.investmentStartDateInput) {
-      this.datepicker = new Datepicker(
-        this.investmentStartDateInput.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-        },
-      );
+    const investmentStartDateInput = this.investmentStartDateInput();
+    if (investmentStartDateInput) {
+      this.datepicker = new Datepicker(investmentStartDateInput.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+      });
 
-      this.investmentStartDateInput.nativeElement.addEventListener(
+      investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

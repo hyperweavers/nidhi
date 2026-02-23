@@ -15,13 +15,13 @@ export const Constants = {
   api: {
     GOLD_PRICE:
       'https://www.kalyanjewellers.net/kalyan_gold_rates/ajax/get_rate',
-    JSON_BLOB_STORAGE: 'https://jsonblob.com/api/jsonBlob',
+    JSON_BLOB_STORAGE: 'https://api.jsonblob.com',
   },
   jsonBlobs: {
-    POST_OFFICE_SAVINGS_SCHEMES: '1388767732731928576',
-    RBI_POLICY_RATES: '1328296657577762816',
-    BANKS_IN_INDIA_JSON_BLOB: '1388767381014372352',
-    IBJA_GOLD_RATES_JSON_BLOB: '1388767571448356864',
+    POST_OFFICE_SAVINGS_SCHEMES: '019c8a2d-8233-7903-ac1e-9b7f1529148b',
+    RBI_POLICY_RATES: '019c8a2e-d30c-771d-9715-1764cc9ad291',
+    BANKS_IN_INDIA_JSON_BLOB: '019c8a2f-13b9-7310-a6d1-5fb8d868a430',
+    IBJA_GOLD_RATES_JSON_BLOB: '019c8a2f-67df-74e6-a49b-7ff723d4df3c',
   },
   settings: {
     THEME: 'theme',

@@ -1,5 +1,5 @@
 <div class="flex h-full flex-col pb-4">
-  @if (portfolio$ | async; as portfolio) { @if (portfolio.investment > 0 &&
+  @if (portfolio$ | async; as portfolio) { @if (portfolio.investment > 0 ||
   portfolio.marketValue > 0) {
   <!-- Summary -->
   <dl
@@ -136,7 +136,7 @@
           >
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="sortDropdownButton"
+              aria-labelledby="sortDropdown"
             >
               <li
                 (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
@@ -499,7 +499,7 @@
     </svg>
 
     <p>
-      @if (portfolio.investment > 0 && portfolio.marketValue > 0) { No matching
+      @if (portfolio.investment > 0 || portfolio.marketValue > 0) { No matching
       results found!<br />Please change your search term/filters. } @else { No
       Holdings! }
     </p>

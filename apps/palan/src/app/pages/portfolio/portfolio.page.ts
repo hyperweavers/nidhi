@@ -6,9 +6,10 @@ import {
   ElementRef,
   OnInit,
   Signal,
-  ViewChild,
   computed,
+  inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -42,8 +43,12 @@ declare const Datepicker: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {
-  @ViewChild('transactionDateInput', { static: true })
-  private transactionDateInputRef?: ElementRef;
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
+
+  private readonly transactionDateInputRef = viewChild<ElementRef>(
+    'transactionDateInput',
+  );
 
   public portfolio$: Observable<Portfolio>;
 
@@ -61,14 +66,14 @@ export class PortfolioPage implements OnInit {
   public readonly TransactionType = TransactionType;
   public readonly ContributionSource = ContributionSource;
 
-  public source = signal(ContributionSource.EMPLOYEE);
-  public date = signal('');
-  public price = signal(0);
-  public quantity = signal(0);
-  public contribution = signal(0);
-  public charges = signal(0);
-  public discount = signal(0);
-  public fmv = signal(0);
+  public readonly source = signal(ContributionSource.EMPLOYEE);
+  public readonly date = signal('');
+  public readonly price = signal(0);
+  public readonly quantity = signal(0);
+  public readonly contribution = signal(0);
+  public readonly charges = signal(0);
+  public readonly discount = signal(0);
+  public readonly fmv = signal(0);
 
   public transactionType?: TransactionType;
   public showStatusModal?: boolean;
@@ -78,12 +83,10 @@ export class PortfolioPage implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private datepicker?: any;
 
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly storageService: StorageService,
-    readonly portfolioService: PortfolioService,
-    readonly planService: PlanService,
-  ) {
+  constructor() {
+    const portfolioService = inject(PortfolioService);
+    const planService = inject(PlanService);
+
     this.portfolio$ = portfolioService.portfolio$.pipe(
       map((portfolio) => ({
         ...portfolio,
@@ -200,21 +203,19 @@ export class PortfolioPage implements OnInit {
   }
 
   private initDatePicker(): void {
-    if (this.transactionDateInputRef) {
-      this.datepicker = new Datepicker(
-        this.transactionDateInputRef.nativeElement,
-        {
-          autohide: true,
-          format: 'dd/mm/yyyy',
-          todayBtn: true,
-          clearBtn: true,
-          todayBtnMode: 1,
-          todayHighlight: true,
-          maxDate: Date.now(),
-        },
-      );
+    const transactionDateInputRef = this.transactionDateInputRef();
+    if (transactionDateInputRef) {
+      this.datepicker = new Datepicker(transactionDateInputRef.nativeElement, {
+        autohide: true,
+        format: 'dd/mm/yyyy',
+        todayBtn: true,
+        clearBtn: true,
+        todayBtnMode: 1,
+        todayHighlight: true,
+        maxDate: Date.now(),
+      });
 
-      this.transactionDateInputRef.nativeElement.addEventListener(
+      transactionDateInputRef.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => {

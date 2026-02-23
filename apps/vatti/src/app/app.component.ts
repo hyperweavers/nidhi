@@ -1,10 +1,11 @@
 import { Platform } from '@angular/cdk/platform';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Inject,
+  DOCUMENT,
+  inject,
   OnInit,
 } from '@angular/core';
 import {
@@ -36,6 +37,13 @@ import { SettingsService } from './services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly platform = inject(Platform);
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly settingsService = inject(SettingsService);
+
   private readonly MEDIA_SIZE_LARGE = 1024;
 
   public sidebarOpen?: boolean;
@@ -47,15 +55,6 @@ export class AppComponent implements OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
-
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private platform: Platform,
-    private swUpdate: SwUpdate,
-    private cdr: ChangeDetectorRef,
-    private router: Router,
-    private settingsService: SettingsService,
-  ) {}
 
   public ngOnInit(): void {
     this.router.events
