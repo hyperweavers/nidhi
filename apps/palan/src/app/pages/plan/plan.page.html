@@ -27,7 +27,7 @@
 
       <!-- Search Results Dropdown -->
       <div
-        class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
+        class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:bg-gray-700"
       >
         @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults &&
         stocks.length > 0 ) {
@@ -170,7 +170,7 @@
       <button
         (click)="save()"
         type="submit"
-        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-hidden focus:ring-4"
       >
         {{ (!!plan() && !isEditMode) ? 'Edit' : 'Save' }}
       </button>

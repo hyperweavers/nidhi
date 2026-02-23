@@ -184,7 +184,7 @@
           >
           <div class="relative">
             <div
-              class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
+              class="pointer-events-none absolute inset-y-0 inset-s-0 flex items-center ps-3.5"
             >
               <svg
                 class="h-4 w-4 text-gray-500 dark:text-gray-400"
@@ -217,7 +217,7 @@
         <div class="flex w-full justify-center">
           <button
             type="submit"
-            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 sm:w-auto"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-hidden focus:ring-4 sm:w-auto"
           >
             Calculate
           </button>
@@ -253,7 +253,7 @@
             </p>
             <p class="text-right font-bold text-black dark:text-white">
               <span
-                class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
+                class="rounded-sm bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
                 >{{ (calculationType === RecurringDepositCalculation.Maturity ?
                 maturityAmount : monthlyInstallment) | number: '1.0-0' }}</span
               >
@@ -273,7 +273,7 @@
 
           <!-- Donut Chart -->
           <section
-            class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+            class="mt-6 w-full rounded-lg bg-white p-4 shadow-sm md:p-6 dark:bg-gray-800"
           >
             <h2
               class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
@@ -367,7 +367,7 @@
 
   @if (activeTab === Tabs.ANNUAL_SUMMARY && annualSummary.length > 0) {
   <section
-    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow-sm md:p-6 dark:bg-gray-800"
   >
     <div
       #annualSummaryChartContainer
@@ -502,7 +502,7 @@
   } @if (activeTab === Tabs.COMPOUNDING_SUMMARY && compoundingSummary.length >
   0) {
   <section
-    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow-sm md:p-6 dark:bg-gray-800"
   >
     <div
       #compoundingSummaryChartContainer
@@ -696,7 +696,7 @@
   } @if (activeTab === Tabs.FINANCIAL_YEAR_SUMMARY &&
   financialYearSummary.length > 0) {
   <section
-    class="mt-4 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+    class="mt-4 w-full rounded-lg bg-white p-4 shadow-sm md:p-6 dark:bg-gray-800"
   >
     <div
       #financialYearSummaryChartContainer

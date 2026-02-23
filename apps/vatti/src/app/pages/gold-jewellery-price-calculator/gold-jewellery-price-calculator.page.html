@@ -12,7 +12,7 @@
     role="alert"
   >
     <svg
-      class="h-4 w-4 flex-shrink-0 dark:text-gray-300"
+      class="h-4 w-4 shrink-0 dark:text-gray-300"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
@@ -151,7 +151,7 @@
             <div
               id="tooltip-gold-price"
               role="tooltip"
-              class="tooltip invisible absolute z-50 inline-block rounded-lg bg-yellow-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-yellow-500"
+              class="tooltip invisible absolute z-50 inline-block rounded-lg bg-yellow-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-yellow-500"
             >
               Auto-populated with today's online gold price.<br />Please confirm
               with the seller.
@@ -203,7 +203,7 @@
         <div class="flex w-full justify-center">
           <button
             type="submit"
-            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4 sm:w-auto"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-hidden focus:ring-4 sm:w-auto"
           >
             Calculate
           </button>
@@ -254,14 +254,14 @@
           >
             Total =
             <mark
-              class="rounded bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
+              class="rounded-sm bg-blue-600 px-2 py-1 text-2xl font-extrabold text-white dark:bg-blue-500"
               >{{ totalAmountPayable | number : '1.0-0' }}</mark
             >
           </h3>
 
           <!-- Doughnut Chart -->
           <section
-            class="mt-6 w-full rounded-lg bg-white p-4 shadow md:p-6 dark:bg-gray-800"
+            class="mt-6 w-full rounded-lg bg-white p-4 shadow-sm md:p-6 dark:bg-gray-800"
           >
             <h2
               class="mb-4 block text-center text-sm font-medium text-gray-900 dark:text-white"
