@@ -94,7 +94,7 @@ enum Charts {
 @Component({
   selector: 'app-recurring-deposit-calculator',
   templateUrl: './recurring-deposit-calculator.page.html',
-  styleUrls: ['./recurring-deposit-calculator.page.scss'],
+  styleUrls: ['./recurring-deposit-calculator.page.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe, DatePipe],

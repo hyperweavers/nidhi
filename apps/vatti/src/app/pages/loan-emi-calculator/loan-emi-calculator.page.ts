@@ -47,7 +47,7 @@ enum Charts {
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe],
   templateUrl: './loan-emi-calculator.page.html',
-  styleUrl: './loan-emi-calculator.page.scss',
+  styleUrl: './loan-emi-calculator.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoanEmiCalculatorPage implements OnInit {

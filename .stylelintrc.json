@@ -1,6 +1,5 @@
 {
-  "extends": ["stylelint-config-standard", "stylelint-config-standard-scss"],
-  "plugins": ["stylelint-scss"],
+  "extends": ["stylelint-config-standard"],
   "rules": {
     "no-empty-source": null,
     "at-rule-no-unknown": [
@@ -9,16 +8,10 @@
         "ignoreAtRules": ["tailwind"]
       }
     ],
-    "scss/at-rule-no-unknown": [
-      true,
-      {
-        "ignoreAtRules": ["tailwind"]
-      }
-    ],
     "no-invalid-position-at-import-rule": [
       true,
       {
-        "ignoreAtRules": ["apps/**/src/styles.scss"]
+        "ignoreAtRules": ["apps/**/src/styles.css"]
       }
     ]
   }

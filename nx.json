@@ -74,13 +74,13 @@
     "@nx/angular:application": {
       "e2eTestRunner": "cypress",
       "linter": "eslint",
-      "style": "scss",
+      "style": "css",
       "unitTestRunner": "jest",
       "bundler": "esbuild",
       "addTailwind": true
     },
     "@nx/angular:component": {
-      "style": "scss",
+      "style": "css",
       "changeDetection": "OnPush",
       "type": "page"
     },

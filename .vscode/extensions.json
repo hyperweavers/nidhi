@@ -15,7 +15,6 @@
     "formulahendry.auto-rename-tag",
     "aaron-bond.better-comments",
     "eamodio.gitlens",
-    "mrmlnc.vscode-scss",
     "stylelint.vscode-stylelint",
     "bradlc.vscode-tailwindcss"
   ]

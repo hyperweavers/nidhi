@@ -61,7 +61,7 @@ enum ChartTimeRange {
   selector: 'app-indices',
   imports: [CommonModule, RouterLink, ValueOrPlaceholderPipe],
   templateUrl: './indices.page.html',
-  styleUrl: './indices.page.scss',
+  styleUrl: './indices.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicesPage implements OnDestroy {

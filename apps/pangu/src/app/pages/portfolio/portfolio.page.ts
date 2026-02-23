@@ -75,7 +75,7 @@ enum PortfolioSortOrder {
     ValueOrPlaceholderPipe,
   ],
   templateUrl: './portfolio.page.html',
-  styleUrl: './portfolio.page.scss',
+  styleUrl: './portfolio.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements AfterViewInit {

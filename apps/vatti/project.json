@@ -18,14 +18,14 @@
         "browser": "apps/vatti/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/vatti/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
+        "inlineStyleLanguage": "css",
         "assets": [
           {
             "glob": "**/*",
             "input": "apps/vatti/public"
           }
         ],
-        "styles": ["apps/vatti/src/styles.scss"],
+        "styles": ["apps/vatti/src/styles.css"],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
         ]

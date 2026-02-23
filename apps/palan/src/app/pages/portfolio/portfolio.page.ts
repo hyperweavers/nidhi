@@ -39,7 +39,7 @@ declare const Datepicker: any;
   selector: 'app-portfolio',
   imports: [CommonModule, FormsModule, RouterLink, DrawerClosedDirective],
   templateUrl: './portfolio.page.html',
-  styleUrl: './portfolio.page.scss',
+  styleUrl: './portfolio.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {

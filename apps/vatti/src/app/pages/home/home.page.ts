@@ -7,7 +7,7 @@ import { Constants } from '../../constants';
   selector: 'app-home',
   imports: [RouterModule, RouterLink],
   templateUrl: './home.page.html',
-  styleUrl: './home.page.scss',
+  styleUrl: './home.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
