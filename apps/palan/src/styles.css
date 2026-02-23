@@ -1,35 +1,44 @@
-@import 'https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap'
-  layer(base);
-@import 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap'
-  layer(base);
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
+/* stylelint-disable-next-line import-notation */
 @import 'tailwindcss';
 
-/* You can add global styles to this file, and also import other style files */
+/* Tailwind config */
+/* stylelint-disable-next-line import-notation */
+@import 'flowbite/src/themes/default';
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @plugin 'flowbite/plugin';
 
-@source '../../../node_modules/flowbite/**/*.js';
+/* stylelint-disable-next-line at-rule-no-unknown */
+@source '../../../node_modules/flowbite';
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @custom-variant dark (&:is(.dark *));
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
+  /* stylelint-disable-next-line custom-property-pattern */
   --font-*: initial;
+  /* stylelint-disable-next-line value-keyword-case */
   --font-logo: Poppins, ui-sans-serif, system-ui;
+  /* stylelint-disable-next-line value-keyword-case */
   --font-sans: Inter, ui-sans-serif, system-ui;
 
+  /* stylelint-disable-next-line custom-property-pattern */
   --color-*: initial;
-  --color-primary-50: #fffbeb;
-  --color-primary-100: #fef3c7;
-  --color-primary-200: #fde68a;
-  --color-primary-300: #fcd34d;
-  --color-primary-400: #fbbf24;
-  --color-primary-500: #f59e0b;
-  --color-primary-600: #d97706;
-  --color-primary-700: #b45309;
-  --color-primary-800: #92400e;
-  --color-primary-900: #78350f;
-  --color-primary-950: #451a03;
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
 }
 
 /*
@@ -49,3 +58,5 @@
     border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+/* You can add global styles to this file, and also import other style files */
