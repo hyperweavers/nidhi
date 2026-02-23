@@ -1,13 +1,8 @@
 @import 'https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap';
 @import 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap';
 
-@import "tailwindcss";
-@import "flowbite/src/themes/default";
-
-@plugin "flowbite/plugin";
-
-@source "../../../node_modules/flowbite";
-
-@config "../tailwind.config.js";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* You can add global styles to this file, and also import other style files */
