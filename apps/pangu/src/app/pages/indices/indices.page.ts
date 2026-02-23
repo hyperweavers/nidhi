@@ -65,8 +65,8 @@ enum ChartTimeRange {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndicesPage implements OnDestroy {
-  private document = inject<Document>(DOCUMENT);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly chartContainerRef = viewChild<ElementRef>('chartContainer');
   private readonly chartRef = viewChild<ElementRef>('chart');
@@ -420,6 +420,7 @@ export class IndicesPage implements OnDestroy {
       if (!this.chart) {
         this.chart = createChart(chartRef.nativeElement, {
           layout: {
+            attributionLogo: false,
             background: { color: 'transparent' },
           },
           grid: {

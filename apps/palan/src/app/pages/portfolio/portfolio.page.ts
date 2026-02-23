@@ -45,8 +45,6 @@ declare const Datepicker: any;
 export class PortfolioPage implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
-  readonly portfolioService = inject(PortfolioService);
-  readonly planService = inject(PlanService);
 
   private readonly transactionDateInputRef = viewChild<ElementRef>(
     'transactionDateInput',
@@ -68,14 +66,14 @@ export class PortfolioPage implements OnInit {
   public readonly TransactionType = TransactionType;
   public readonly ContributionSource = ContributionSource;
 
-  public source = signal(ContributionSource.EMPLOYEE);
-  public date = signal('');
-  public price = signal(0);
-  public quantity = signal(0);
-  public contribution = signal(0);
-  public charges = signal(0);
-  public discount = signal(0);
-  public fmv = signal(0);
+  public readonly source = signal(ContributionSource.EMPLOYEE);
+  public readonly date = signal('');
+  public readonly price = signal(0);
+  public readonly quantity = signal(0);
+  public readonly contribution = signal(0);
+  public readonly charges = signal(0);
+  public readonly discount = signal(0);
+  public readonly fmv = signal(0);
 
   public transactionType?: TransactionType;
   public showStatusModal?: boolean;
@@ -86,8 +84,8 @@ export class PortfolioPage implements OnInit {
   private datepicker?: any;
 
   constructor() {
-    const portfolioService = this.portfolioService;
-    const planService = this.planService;
+    const portfolioService = inject(PortfolioService);
+    const planService = inject(PlanService);
 
     this.portfolio$ = portfolioService.portfolio$.pipe(
       map((portfolio) => ({

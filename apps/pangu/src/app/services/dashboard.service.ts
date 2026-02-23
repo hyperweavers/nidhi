@@ -12,17 +12,14 @@ import { PortfolioService } from './portfolio.service';
   providedIn: 'root',
 })
 export class DashboardService {
-  readonly marketService = inject(MarketService);
-  readonly portfolioService = inject(PortfolioService);
-
   public kpi$: Observable<Kpi>;
 
   private indices$: Observable<Index[]>;
   private portfolio$: Observable<Portfolio>;
 
   constructor() {
-    const marketService = this.marketService;
-    const portfolioService = this.portfolioService;
+    const marketService = inject(MarketService);
+    const portfolioService = inject(PortfolioService);
 
     this.indices$ = marketService.getMainIndices().pipe(shareReplay(1));
 

@@ -27,12 +27,14 @@ import { delay, filter, map, Observable, tap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
+import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
 import { Plan } from './models/plan';
 import { MarketService } from './services/core/market.service';
 import { PlanService } from './services/core/plan.service';
 import { SettingsService } from './services/core/settings.service';
 
+@Flowbite()
 @UntilDestroy()
 @Component({
   imports: [CommonModule, RouterModule, RouterLink],
@@ -49,7 +51,6 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly marketService = inject(MarketService);
   private readonly settingsService = inject(SettingsService);
-  readonly planService = inject(PlanService);
 
   private readonly MEDIA_SIZE_LARGE = 1024;
 
@@ -70,7 +71,7 @@ export class AppComponent implements OnInit {
   private pwaInstallPromptEvent?: any;
 
   constructor() {
-    const planService = this.planService;
+    const planService = inject(PlanService);
 
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),

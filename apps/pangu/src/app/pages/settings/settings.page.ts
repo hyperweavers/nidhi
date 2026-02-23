@@ -13,7 +13,7 @@ import { SettingsService } from '../../services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPage {
-  private settingsService = inject(SettingsService);
+  private readonly settingsService = inject(SettingsService);
 
   public settings$: Observable<Settings>;
 

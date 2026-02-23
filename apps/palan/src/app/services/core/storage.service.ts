@@ -17,14 +17,12 @@ import { PlanService } from './plan.service';
   providedIn: 'root',
 })
 export class StorageService {
-  readonly planService = inject(PlanService);
-
   public stocks$: Observable<Holding[]>;
 
   private plan: Signal<Plan | undefined>;
 
   constructor() {
-    const planService = this.planService;
+    const planService = inject(PlanService);
 
     this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
 

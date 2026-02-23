@@ -12,14 +12,11 @@ import { StorageService } from './core/storage.service';
   providedIn: 'root',
 })
 export class PortfolioService {
-  readonly storageService = inject(StorageService);
-  readonly marketService = inject(MarketService);
-
   public portfolio$: Observable<Portfolio>;
 
   constructor() {
-    const storageService = this.storageService;
-    const marketService = this.marketService;
+    const storageService = inject(StorageService);
+    const marketService = inject(MarketService);
 
     this.portfolio$ = from(storageService.stocks$)
       .pipe(

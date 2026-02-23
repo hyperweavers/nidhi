@@ -15,8 +15,8 @@ import { StorageService } from '../../services/core/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePage {
-  private cdr = inject(ChangeDetectorRef);
-  private storageService = inject(StorageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
 
   public showStatusModal?: boolean;
   public showDeleteProgress?: boolean;

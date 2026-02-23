@@ -18,8 +18,8 @@ import { StorageService } from '../../services/core/storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportPage {
-  private cdr = inject(ChangeDetectorRef);
-  private storageService = inject(StorageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly storageService = inject(StorageService);
 
   private readonly importFileInputRef =
     viewChild<ElementRef>('importFileInput');

@@ -66,9 +66,6 @@ enum ChartTimeRange {
 export class StocksPage implements OnDestroy {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
-  readonly marketService = inject(MarketService);
-  readonly settingsService = inject(SettingsService);
-  readonly planService = inject(PlanService);
 
   private readonly chartContainerRef = viewChild<ElementRef>('chartContainer');
   private readonly chartRef = viewChild<ElementRef>('chart');
@@ -104,9 +101,9 @@ export class StocksPage implements OnDestroy {
   private areaSeries?: ISeriesApi<any>;
 
   constructor() {
-    const marketService = this.marketService;
-    const settingsService = this.settingsService;
-    const planService = this.planService;
+    const marketService = inject(MarketService);
+    const settingsService = inject(SettingsService);
+    const planService = inject(PlanService);
 
     marketService.marketStatus$
       .pipe(untilDestroyed(this))
@@ -423,6 +420,7 @@ export class StocksPage implements OnDestroy {
       if (!this.chart) {
         this.chart = createChart(chartRef.nativeElement, {
           layout: {
+            attributionLogo: false,
             background: { color: 'transparent' },
           },
           grid: {

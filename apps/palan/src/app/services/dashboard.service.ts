@@ -18,16 +18,12 @@ import { PortfolioService } from './portfolio.service';
   providedIn: 'root',
 })
 export class DashboardService {
-  readonly planService = inject(PlanService);
-  readonly marketService = inject(MarketService);
-  readonly portfolioService = inject(PortfolioService);
-
   public kpi$: Observable<Kpi>;
 
   constructor() {
-    const planService = this.planService;
-    const marketService = this.marketService;
-    const portfolioService = this.portfolioService;
+    const planService = inject(PlanService);
+    const marketService = inject(MarketService);
+    const portfolioService = inject(PortfolioService);
 
     this.kpi$ = combineLatest([
       portfolioService.portfolio$,

@@ -5,7 +5,7 @@ import { Directive, ElementRef, inject, output } from '@angular/core';
   standalone: true,
 })
 export class DrawerClosedDirective {
-  private elementRef = inject(ElementRef);
+  private readonly elementRef = inject(ElementRef);
 
   readonly appDrawerClosed = output<void>();
 

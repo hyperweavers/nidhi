@@ -15,14 +15,12 @@ import { DashboardService } from '../../services/dashboard.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {
-  readonly dashboardService = inject(DashboardService);
-
   public kpi$: Observable<Kpi>;
 
   public readonly Direction = Direction;
 
   constructor() {
-    const dashboardService = this.dashboardService;
+    const dashboardService = inject(DashboardService);
 
     this.kpi$ = dashboardService.kpi$;
   }

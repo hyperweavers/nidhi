@@ -29,7 +29,7 @@ import { ChartUtils } from '../../utils/chart.utils';
 export class GoldJewelleryPriceCalculatorPage {
   private readonly decimalPipe = inject(DecimalPipe);
 
-  readonly chart = viewChild(BaseChartDirective);
+  private readonly chart = viewChild(BaseChartDirective);
 
   private readonly GSTPercentage = 3; // 3% GST rate
 

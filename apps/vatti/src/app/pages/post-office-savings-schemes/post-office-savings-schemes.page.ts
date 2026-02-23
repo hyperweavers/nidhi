@@ -56,19 +56,19 @@ enum Charts {
   providers: [DecimalPipe, DatePipe],
 })
 export class PostOfficeSavingsSchemesPage {
+  //implements OnInit {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly decimalPipe = inject(DecimalPipe);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  //implements OnInit {
   private readonly investmentStartDateInput = viewChild<ElementRef>(
     'investmentStartDateInput',
   );
 
-  readonly earningsChart = viewChild.required('earningsChart', {
+  private readonly earningsChart = viewChild.required('earningsChart', {
     read: BaseChartDirective,
   });
-  readonly interestRateChart = viewChild.required('interestRateChart', {
+  private readonly interestRateChart = viewChild.required('interestRateChart', {
     read: BaseChartDirective,
   });
 

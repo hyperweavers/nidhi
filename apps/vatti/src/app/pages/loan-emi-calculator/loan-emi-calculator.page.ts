@@ -57,11 +57,13 @@ export class LoanEmiCalculatorPage implements OnInit {
 
   private readonly loanStartDateInput =
     viewChild<ElementRef>('loanStartDateInput');
-  readonly emiChart = viewChild('emiChart', { read: BaseChartDirective });
-  readonly revisionChart = viewChild('revisionChart', {
+  private readonly emiChart = viewChild('emiChart', {
     read: BaseChartDirective,
   });
-  readonly paymentsChart = viewChild('paymentsChart', {
+  private readonly revisionChart = viewChild('revisionChart', {
+    read: BaseChartDirective,
+  });
+  private readonly paymentsChart = viewChild('paymentsChart', {
     read: BaseChartDirective,
   });
   private readonly emiChartContainer =

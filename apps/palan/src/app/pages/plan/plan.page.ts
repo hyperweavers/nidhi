@@ -38,21 +38,21 @@ import { DateUtils } from '../../utils/date.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanPage {
-  readonly planService = inject(PlanService);
-  readonly marketService = inject(MarketService);
-  readonly currencyService = inject(CurrencyService);
+  private readonly planService = inject(PlanService);
 
   public stockSearchResults$: Observable<Stock[]>;
   public currencyList$: Observable<Currency[]>;
 
   public plan: Signal<Plan | undefined>;
 
-  public name = signal('');
-  public lockInPeriodYears = signal(0);
-  public lockInPeriodMonths = signal(0);
-  public lockInPeriodDays = signal(0);
-  public purchaseCurrency: WritableSignal<Currency | null> = signal(null);
-  public contributionCurrency: WritableSignal<Currency | null> = signal(null);
+  public readonly name = signal('');
+  public readonly lockInPeriodYears = signal(0);
+  public readonly lockInPeriodMonths = signal(0);
+  public readonly lockInPeriodDays = signal(0);
+  public readonly purchaseCurrency: WritableSignal<Currency | null> =
+    signal(null);
+  public readonly contributionCurrency: WritableSignal<Currency | null> =
+    signal(null);
 
   public showSearchResults?: boolean;
   public isEditMode = false;
@@ -60,9 +60,8 @@ export class PlanPage {
   private selectedStock?: Stock;
 
   constructor() {
-    const planService = this.planService;
-    const marketService = this.marketService;
-    const currencyService = this.currencyService;
+    const marketService = inject(MarketService);
+    const currencyService = inject(CurrencyService);
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
       debounceTime(500), // TODO: Review the time
@@ -106,7 +105,7 @@ export class PlanPage {
         ),
       );
 
-    this.plan = toSignal<Plan | undefined>(planService.plan$);
+    this.plan = toSignal<Plan | undefined>(this.planService.plan$);
 
     effect(() => {
       if (this.plan()) {

@@ -24,10 +24,12 @@ import { Observable, delay, filter, map, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
+import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
 import { MarketService } from './services/core/market.service';
 import { SettingsService } from './services/core/settings.service';
 
+@Flowbite()
 @UntilDestroy()
 @Component({
   imports: [CommonModule, RouterModule, RouterLink],
@@ -37,13 +39,13 @@ import { SettingsService } from './services/core/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
-  private document = inject<Document>(DOCUMENT);
-  private platform = inject(Platform);
-  private swUpdate = inject(SwUpdate);
-  private cdr = inject(ChangeDetectorRef);
-  private router = inject(Router);
-  private marketService = inject(MarketService);
-  private settingsService = inject(SettingsService);
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly platform = inject(Platform);
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly marketService = inject(MarketService);
+  private readonly settingsService = inject(SettingsService);
 
   private readonly MEDIA_SIZE_LARGE = 1024;
 
