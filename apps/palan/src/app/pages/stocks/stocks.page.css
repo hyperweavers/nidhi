@@ -1,3 +1,6 @@
+/* stylelint-disable-next-line at-rule-no-unknown */
+@reference "../../../styles.css";
+
 .slider {
   /* TODO: Fix the style precedence and move it to template */
   @apply [&::-moz-range-thumb]:h-2.5 [&::-moz-range-thumb]:w-0.5 [&::-moz-range-thumb]:cursor-default [&::-moz-range-thumb]:rounded-none [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:w-0.5 [&::-webkit-slider-thumb]:cursor-default [&::-webkit-slider-thumb]:rounded-none;

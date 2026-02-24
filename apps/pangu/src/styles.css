@@ -15,19 +15,16 @@
 @source '../../../node_modules/flowbite';
 
 /* stylelint-disable-next-line at-rule-no-unknown */
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
-  /* stylelint-disable-next-line custom-property-pattern */
-  --font-*: initial;
   /* stylelint-disable-next-line value-keyword-case */
   --font-logo: Poppins, ui-sans-serif, system-ui;
   /* stylelint-disable-next-line value-keyword-case */
   --font-sans: Inter, ui-sans-serif, system-ui;
 
   /* stylelint-disable-next-line custom-property-pattern */
-  --color-*: initial;
   --color-primary-50: #eef2ff;
   --color-primary-100: #e0e7ff;
   --color-primary-200: #c7d2fe;
