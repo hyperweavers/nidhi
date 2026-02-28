@@ -265,7 +265,7 @@
             </div>
             }} @else {
             <div
-              class="col-span-4 rounded-md bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+              class="col-span-4 rounded-md bg-amber-50 p-4 text-sm text-amber-800 dark:bg-gray-800 dark:text-amber-300"
             >
               To add interest rate revision, click the below + button.
             </div>
@@ -436,7 +436,7 @@
             </div>
             } } @else {
             <div
-              class="col-span-4 rounded-md bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+              class="col-span-4 rounded-md bg-amber-50 p-4 text-sm text-amber-800 dark:bg-gray-800 dark:text-amber-300"
             >
               To add prepayment, click the below + button.
             </div>
@@ -726,7 +726,7 @@
             <td class="p-2 text-center sm:p-4">
               @if (payment.month === 0) {
               <span
-                class="cursor-help underline decoration-yellow-400 decoration-dotted"
+                class="cursor-help underline decoration-amber-400 decoration-dotted"
                 data-tooltip-target="tooltip-pre-emi-payment"
                 data-tooltip-placement="bottom"
                 >{{ payment.payment | number : "1.0-0" }}</span
@@ -735,7 +735,7 @@
               <div
                 id="tooltip-pre-emi-payment"
                 role="tooltip"
-                class="tooltip invisible absolute z-50 inline-block max-w-sm rounded-md bg-yellow-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-yellow-500"
+                class="tooltip invisible absolute z-50 inline-block max-w-sm rounded-md bg-amber-400 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-amber-500"
               >
                 Interest needs to be paid for the period between loan start date
                 and first EMI due date.

@@ -178,6 +178,8 @@ export class PortfolioPage implements OnInit {
     this.fmv.set(0);
 
     this.resetDatepicker();
+
+    this.datepicker?.hide();
   }
 
   public closeStatusModal(retainTransactionType?: boolean): void {

@@ -390,6 +390,8 @@ export class PortfolioPage implements AfterViewInit {
     this.charges.set(0);
 
     this.resetDatepicker();
+
+    this.datepicker?.hide();
   }
 
   public closeStatusModal(retainTransactionType?: boolean): void {
