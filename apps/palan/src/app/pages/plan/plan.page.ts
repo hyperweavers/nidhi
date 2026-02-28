@@ -34,7 +34,7 @@ import { DateUtils } from '../../utils/date.utils';
   imports: [CommonModule, FormsModule],
   providers: [CurrencyService],
   templateUrl: './plan.page.html',
-  styleUrl: './plan.page.scss',
+  styleUrl: './plan.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanPage {

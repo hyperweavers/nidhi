@@ -9,7 +9,7 @@ import { SettingsService } from '../../services/core/settings.service';
   selector: 'app-settings',
   imports: [CommonModule],
   templateUrl: './settings.page.html',
-  styleUrl: './settings.page.scss',
+  styleUrl: './settings.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPage {

@@ -73,7 +73,7 @@ enum Charts {
 @Component({
   selector: 'app-fixed-deposit-calculator',
   templateUrl: './fixed-deposit-calculator.page.html',
-  styleUrls: ['./fixed-deposit-calculator.page.scss'],
+  styleUrls: ['./fixed-deposit-calculator.page.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe, DatePipe],

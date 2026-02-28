@@ -39,7 +39,7 @@ declare const Datepicker: any;
   selector: 'app-portfolio',
   imports: [CommonModule, FormsModule, RouterLink, DrawerClosedDirective],
   templateUrl: './portfolio.page.html',
-  styleUrl: './portfolio.page.scss',
+  styleUrl: './portfolio.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements OnInit {
@@ -178,6 +178,8 @@ export class PortfolioPage implements OnInit {
     this.fmv.set(0);
 
     this.resetDatepicker();
+
+    this.datepicker?.hide();
   }
 
   public closeStatusModal(retainTransactionType?: boolean): void {

@@ -1,4 +1,4 @@
-<div class="flex min-h-screen select-none flex-col bg-white dark:bg-gray-900">
+<div class="flex min-h-screen flex-col bg-white select-none dark:bg-gray-900">
   <!-- App Header -->
   <header class="fixed z-30 w-full">
     <!-- PWA Install Notification -->
@@ -11,7 +11,7 @@
           class="flex flex-1 items-center justify-center text-xs font-normal text-gray-500 sm:text-sm dark:text-gray-400"
         >
           <div
-            class="me-3 hidden h-6 w-6 flex-shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
+            class="me-3 hidden h-6 w-6 shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
             [class.!flex]="ios"
           >
             <svg
@@ -140,7 +140,7 @@
           <button
             (click)="closeInstallModal()"
             type="button"
-            class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+            class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
           >
             <svg
               class="h-3 w-3"
@@ -174,7 +174,7 @@
               (click)="toggleSidebar()"
               aria-expanded="true"
               aria-controls="sidebar"
-              class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:bg-gray-700 dark:focus:ring-gray-700"
+              class="cursor-pointer rounded-sm p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:bg-gray-700 dark:focus:ring-gray-700"
             >
               <svg
                 class="h-6 w-6"
@@ -205,10 +205,10 @@
               </svg>
             </button>
 
-            <a href="/" class="flex md:ml-2 md:mr-24">
+            <a href="/" class="flex md:mr-24 md:ml-2">
               <img src="./icons/logo.svg" class="h-8 w-8" alt="Vatti Logo" />
               <span
-                class="font-logo self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white"
+                class="font-logo self-center text-xl font-semibold whitespace-nowrap sm:text-2xl dark:text-white"
                 >Vatti</span
               >
             </a>
@@ -228,7 +228,7 @@
               </div>
 
               <div
-                class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600 dark:bg-gray-700"
+                class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded-sm bg-white text-base shadow-sm dark:divide-gray-600 dark:bg-gray-700"
                 id="calculators-dropdown"
                 style="
                   position: absolute;
@@ -258,7 +258,7 @@
   >
     <!-- Side Menu -->
     <aside
-      class="transition-width fixed left-0 top-0 z-20 flex h-full w-64 flex-shrink-0 flex-col font-normal duration-75 lg:flex"
+      class="transition-width fixed top-0 left-0 z-20 flex h-full w-64 shrink-0 flex-col font-normal duration-75 lg:flex"
       [ngClass]="showInstallModal ? 'pt-28' : 'pt-16'"
       [class.hidden]="!sidebarOpen"
       aria-label="Sidebar"
@@ -270,13 +270,13 @@
           <div
             class="flex-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
           >
-            <ul class="space-y-2 pb-2 lg:border-none">
+            <ul class="space-y-2 pb-2">
               <li>
                 <a
                   (click)="toggleSidebar()"
                   routerLink="/{{ Routes.HOME }}"
                   routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                  class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="group flex items-center rounded-md p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   <svg
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -301,7 +301,7 @@
               <li>
                 <button
                   type="button"
-                  class="group flex w-full items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="group flex w-full items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                   aria-controls="dropdown-calculators"
                   data-collapse-toggle="dropdown-calculators"
                   aria-expanded="true"
@@ -322,7 +322,7 @@
                     />
                   </svg>
                   <span
-                    class="ml-3 flex-1 whitespace-nowrap text-left"
+                    class="ml-3 flex-1 text-left whitespace-nowrap"
                     sidebar-toggle-item=""
                     >Calculators</span
                   >
@@ -347,7 +347,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.FIXED_DEPOSIT_CALCULATOR }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Fixed Deposit</a
                     >
                   </li>
@@ -357,7 +357,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.RECURRING_DEPOSIT_CALCULATOR }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Recurring Deposit</a
                     >
                   </li>
@@ -367,7 +367,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.POST_OFFICE_SAVINGS_SCHEMES }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Post Office Savings Schemes</a
                     >
                   </li>
@@ -377,7 +377,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.LOAN_EMI_CALCULATOR }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Loan EMI</a
                     >
                   </li>
@@ -387,7 +387,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.GOLD_JEWELLER_PRICE_CALCULATOR }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Gold Jewellery Price</a
                     >
                   </li>
@@ -400,7 +400,7 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.SETTINGS }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
                   class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -424,10 +424,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/issues/new?template=01_bug_report.md"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -444,7 +444,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Report a Bug</span
                 >
 
@@ -471,10 +471,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/issues/new?template=02_feature_request.md"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -489,7 +489,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Request a Feature</span
                 >
 
@@ -516,10 +516,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/tree/main/apps/vatti"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -531,7 +531,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >GitHub</span
                 >
 
@@ -556,10 +556,10 @@
 
               <div
                 (click)="share()"
-                class="group flex cursor-pointer items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex cursor-pointer items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -572,7 +572,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Share</span
                 >
 
@@ -601,10 +601,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.ABOUT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -626,10 +626,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.PRIVACY }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -648,10 +648,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.TERMS }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -671,10 +671,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.DISCLAIMER }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -742,14 +742,14 @@
   <!-- PWA Update Notification -->
   @if (showUpdateModal) {
     <div
-      class="fixed bottom-5 right-5 flex w-96 max-w-sm items-center rounded-lg border border-gray-300 bg-gray-50 p-3 text-xs text-gray-800 shadow-md shadow-gray-500/20 sm:text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+      class="fixed right-5 bottom-5 flex w-96 max-w-sm items-center rounded-md border border-gray-300 bg-gray-50 p-3 text-xs text-gray-800 shadow-md shadow-gray-500/20 sm:text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
       role="alert"
     >
       <div class="flex-1">A newer version available.</div>
 
       <button
         type="button"
-        class="me-2 inline-flex items-center rounded-lg bg-gray-700 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-800"
+        class="me-2 inline-flex items-center rounded-md bg-gray-700 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 focus:outline-hidden dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-800"
         (click)="updateApp()"
       >
         <svg
@@ -772,7 +772,7 @@
 
       <button
         type="button"
-        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 p-1.5 text-gray-500 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-md bg-gray-50 p-1.5 text-gray-500 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
         data-dismiss-target="#alert-5"
         aria-label="Close"
         (click)="closeUpdateModal()"
