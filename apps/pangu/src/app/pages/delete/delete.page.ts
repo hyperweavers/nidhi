@@ -11,7 +11,7 @@ import { StorageService } from '../../services/core/storage.service';
   selector: 'app-delete',
   imports: [],
   templateUrl: './delete.page.html',
-  styleUrl: './delete.page.scss',
+  styleUrl: './delete.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePage {

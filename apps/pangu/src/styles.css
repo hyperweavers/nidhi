@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* stylelint-disable-next-line import-notation */
+@import 'tailwindcss';
+
+/* Tailwind config */
+/* stylelint-disable at-rule-no-unknown */
+@plugin 'flowbite/plugin';
+
+@source '../../../node_modules/flowbite';
+@source '../../../node_modules/flowbite-datepicker';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Logo Font - Custom Font */
+  --font-sans:
+    'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'system-ui',
+    'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-logo:
+    'Poppins', 'ui-sans-serif', 'system-ui', '-apple-system', 'system-ui',
+    'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-body: var(--font-sans);
+
+  /* stylelint-disable lightness-notation,hue-degree-notation */
+
+  /* Red - Override Tailwind */
+  --color-red-50: oklch(0.97 0.02 25);
+  --color-red-100: oklch(0.94 0.04 25);
+  --color-red-200: oklch(0.88 0.08 25);
+  --color-red-300: oklch(0.8 0.12 25);
+  --color-red-400: oklch(0.7 0.16 25);
+  --color-red-500: oklch(0.62 0.18 25);
+  --color-red-600: oklch(0.55 0.2 25);
+  --color-red-700: oklch(0.48 0.2 25);
+  --color-red-800: oklch(0.4 0.18 25);
+  --color-red-900: oklch(0.32 0.16 25);
+
+  /* Green - Override Tailwind */
+  --color-green-50: oklch(0.97 0.03 160);
+  --color-green-100: oklch(0.93 0.06 160);
+  --color-green-200: oklch(0.88 0.1 160);
+  --color-green-300: oklch(0.8 0.14 160);
+  --color-green-400: oklch(0.7 0.16 160);
+  --color-green-500: oklch(0.6 0.16 160);
+  --color-green-600: oklch(0.52 0.14 160);
+  --color-green-700: oklch(0.45 0.12 160);
+  --color-green-800: oklch(0.38 0.1 160);
+  --color-green-900: oklch(0.32 0.08 160);
+  /* stylelint-enable lightness-notation,hue-degree-notation */
+
+  /* Primary Colors - Custom Colors */
+  --color-primary-50: var(--color-indigo-50);
+  --color-primary-100: var(--color-indigo-100);
+  --color-primary-200: var(--color-indigo-200);
+  --color-primary-300: var(--color-indigo-300);
+  --color-primary-400: var(--color-indigo-400);
+  --color-primary-500: var(--color-indigo-500);
+  --color-primary-600: var(--color-indigo-600);
+  --color-primary-700: var(--color-indigo-700);
+  --color-primary-800: var(--color-indigo-800);
+  --color-primary-900: var(--color-indigo-900);
+  --color-primary-950: var(--color-indigo-950);
+
+  /* Border Radius - For Flowbite Datepicker */
+  --radius-base: var(--radius-lg);
+
+  /* Main Text Colors - For Flowbite Datepicker */
+  --color-body: var(--color-gray-800);
+  --color-body-subtle: var(--color-gray-500);
+
+  /* Heading Text Colors - For Flowbite Datepicker */
+  --color-heading: var(--color-gray-900);
+
+  /* Status Text Colors - For Flowbite Datepicker */
+  --color-fg-disabled: var(--color-gray-500);
+
+  /* Brand Colors - For Flowbite Datepicker */
+  --color-fg-brand-subtle: var(--color-primary-200);
+  --color-fg-brand: var(--color-primary-700);
+  --color-fg-brand-strong: var(--color-primary-900);
+  --color-brand-softer: var(--color-primary-50);
+  --color-brand-soft: var(--color-primary-100);
+  --color-brand: var(--color-primary-700);
+  --color-brand-medium: var(--color-primary-200);
+  --color-brand-strong: var(--color-primary-800);
+  --color-brand-subtle: var(--color-primary-200);
+  --color-brand-light: var(--color-primary-600);
+
+  /* Backdrop Colors - For Flowbite Datepicker */
+  --color-neutral-primary-soft: var(--color-white);
+  --color-neutral-primary: var(--color-white);
+  --color-neutral-primary-medium: var(--color-white);
+  --color-neutral-primary-strong: var(--color-white);
+  --color-neutral-secondary-soft: var(--color-gray-50);
+  --color-neutral-secondary: var(--color-gray-50);
+  --color-neutral-secondary-medium: var(--color-gray-50);
+  --color-neutral-secondary-strong: var(--color-gray-50);
+  --color-neutral-secondary-strongest: var(--color-gray-50);
+  --color-neutral-tertiary-soft: var(--color-gray-100);
+  --color-neutral-tertiary: var(--color-gray-200);
+  --color-neutral-tertiary-medium: var(--color-gray-100);
+  --color-neutral-quaternary: var(--color-gray-200);
+  --color-neutral-quaternary-medium: var(--color-gray-200);
+  --color-gray: var(--color-gray-300);
+  --color-dark-subtle: var(--color-gray-800);
+  --color-dark-backdrop: var(--color-gray-950);
+  --color-dark-soft: var(--color-gray-800);
+  --color-dark: var(--color-gray-800);
+  --color-dark-strong: var(--color-gray-900);
+  --color-disabled: var(--color-gray-100);
+
+  /* Border Colors - For Flowbite Datepicker */
+  --color-buffer: var(--color-white);
+  --color-buffer-medium: var(--color-white);
+  --color-buffer-strong: var(--color-white);
+  --color-muted: var(--color-gray-50);
+  --color-light-subtle: var(--color-gray-100);
+  --color-light: var(--color-gray-100);
+  --color-light-medium: var(--color-gray-100);
+  --color-default-subtle: var(--color-gray-200);
+  --color-default: var(--color-gray-200);
+  --color-default-medium: var(--color-gray-200);
+  --color-default-strong: var(--color-gray-200);
+}
+/* stylelint-enable at-rule-no-unknown */
+
+.dark {
+  /* Main Text Colors - For Flowbite Datepicker */
+  --color-body: var(--color-white);
+
+  /* Heading Text Colors - For Flowbite Datepicker */
+  --color-body-subtle: var(--color-gray-400);
+  --color-heading: var(--color-white);
+
+  /* Status Text Colors - For Flowbite Datepicker */
+  --color-fg-disabled: var(--color-gray-500);
+
+  /* Brand Colors - For Flowbite Datepicker */
+  --color-fg-brand-subtle: var(--color-primary-200);
+  --color-fg-brand: var(--color-primary-500);
+  --color-fg-brand-strong: var(--color-primary-400);
+  --color-brand-softer: var(--color-primary-950);
+  --color-brand-soft: var(--color-primary-900);
+  --color-brand: var(--color-primary-600);
+  --color-brand-medium: var(--color-primary-900);
+  --color-brand-strong: var(--color-primary-700);
+  --color-brand-subtle: var(--color-primary-900);
+  --color-brand-light: var(--color-primary-600);
+
+  /* Backdrop Colors - For Flowbite Datepicker */
+  --color-neutral-primary-soft: var(--color-gray-900);
+  --color-neutral-primary: var(--color-gray-950);
+  --color-neutral-primary-medium: var(--color-gray-700);
+  --color-neutral-primary-strong: var(--color-gray-700);
+  --color-neutral-secondary-soft: var(--color-gray-900);
+  --color-neutral-secondary: var(--color-gray-950);
+  --color-neutral-secondary-medium: var(--color-gray-800);
+  --color-neutral-secondary-strong: var(--color-gray-700);
+  --color-neutral-secondary-strongest: var(--color-gray-600);
+  --color-neutral-tertiary-soft: var(--color-gray-900);
+  --color-neutral-tertiary: var(--color-gray-300);
+  --color-neutral-tertiary-medium: var(--color-gray-600);
+  --color-neutral-quaternary: var(--color-gray-700);
+  --color-neutral-quaternary-medium: var(--color-gray-600);
+  --color-gray: var(--color-gray-600);
+  --color-dark-subtle: var(--color-gray-700);
+  --color-dark-backdrop: var(--color-gray-950);
+  --color-dark-soft: var(--color-gray-700);
+  --color-dark: var(--color-gray-800);
+  --color-dark-strong: var(--color-gray-700);
+  --color-disabled: var(--color-gray-800);
+
+  /* Border Colors - For Flowbite Datepicker */
+  --color-buffer: var(--color-gray-950);
+  --color-buffer-medium: var(--color-gray-900);
+  --color-buffer-strong: var(--color-gray-800);
+  --color-muted: var(--color-gray-900);
+  --color-light-subtle: var(--color-gray-900);
+  --color-light: var(--color-gray-800);
+  --color-light-medium: var(--color-gray-700);
+  --color-default-subtle: var(--color-gray-900);
+  --color-default: var(--color-gray-800);
+  --color-default-medium: var(--color-gray-700);
+  --color-default-strong: var(--color-gray-600);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/* You can add global styles to this file, and also import other style files */
+
+/* Overrides for Tailwind */
+button,
+[role='button'] {
+  cursor: pointer;
+}
+
+input[type='file']::file-selector-button {
+  background-color: var(--color-gray);
+}
+
+/* Overrides for Flowbite Datepicker */
+.datepicker-picker {
+  @apply shadow-lg;
+}
+
+.datepicker-picker .days-of-week .text-body {
+  color: var(--color-body-subtle);
+}

@@ -14,7 +14,7 @@ import { StorageService } from '../../services/core/storage.service';
   selector: 'app-import',
   imports: [],
   templateUrl: './import.page.html',
-  styleUrl: './import.page.scss',
+  styleUrl: './import.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportPage {

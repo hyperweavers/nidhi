@@ -13,7 +13,7 @@ import { StorageService } from '../../services/core/storage.service';
   selector: 'app-export',
   imports: [],
   templateUrl: './export.page.html',
-  styleUrl: './export.page.scss',
+  styleUrl: './export.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExportPage {

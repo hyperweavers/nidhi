@@ -19,7 +19,7 @@
         id="name"
         [(ngModel)]="name"
         [disabled]="!!plan() && !isEditMode"
-        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         placeholder="Type company name/symbol..."
         required
         autocomplete="off"
@@ -27,7 +27,7 @@
 
       <!-- Search Results Dropdown -->
       <div
-        class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
+        class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-md bg-white shadow-sm dark:bg-gray-700"
       >
         @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults &&
         stocks.length > 0 ) {
@@ -57,7 +57,7 @@
         <div class="flex flex-col items-center sm:flex-row">
           <label
             for="lock-in-peroid-years"
-            class="mb-2 block text-xs font-medium text-gray-900 sm:mb-0 sm:mr-2 dark:text-white"
+            class="mb-2 block text-xs font-medium text-gray-900 sm:mr-2 sm:mb-0 dark:text-white"
             >Years</label
           >
           <input
@@ -67,7 +67,7 @@
             name="lockInPeriodYears"
             [(ngModel)]="lockInPeriodYears"
             [disabled]="!!plan() && !isEditMode"
-            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Years"
           />
         </div>
@@ -75,7 +75,7 @@
         <div class="flex flex-col items-center sm:flex-row">
           <label
             for="lock-in-peroid-months"
-            class="mb-2 block text-xs font-medium text-gray-900 sm:mb-0 sm:mr-2 dark:text-white"
+            class="mb-2 block text-xs font-medium text-gray-900 sm:mr-2 sm:mb-0 dark:text-white"
             >Months</label
           >
           <input
@@ -85,7 +85,7 @@
             name="lockInPeriodMonths"
             [(ngModel)]="lockInPeriodMonths"
             [disabled]="!!plan() && !isEditMode"
-            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Months"
           />
         </div>
@@ -93,7 +93,7 @@
         <div class="flex flex-col items-center sm:flex-row">
           <label
             for="lock-in-peroid-days"
-            class="mb-2 block text-xs font-medium text-gray-900 sm:mb-0 sm:mr-2 dark:text-white"
+            class="mb-2 block text-xs font-medium text-gray-900 sm:mr-2 sm:mb-0 dark:text-white"
             >Days</label
           >
           <input
@@ -103,7 +103,7 @@
             name="lockInPeriodDays"
             [(ngModel)]="lockInPeriodDays"
             [disabled]="!!plan() && !isEditMode"
-            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Days"
           />
         </div>
@@ -121,7 +121,7 @@
         name="purchaseCurrency"
         [(ngModel)]="purchaseCurrency"
         [disabled]="!!plan() && !isEditMode"
-        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         required
       >
         <option [ngValue]="null" [selected]="!purchaseCurrency()">
@@ -149,7 +149,7 @@
         name="contributionCurrency"
         [(ngModel)]="contributionCurrency"
         [disabled]="!!plan() && !isEditMode"
-        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         required
       >
         <option [ngValue]="null" [selected]="!contributionCurrency()">
@@ -170,7 +170,7 @@
       <button
         (click)="save()"
         type="submit"
-        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-md px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
       >
         {{ (!!plan() && !isEditMode) ? 'Edit' : 'Save' }}
       </button>

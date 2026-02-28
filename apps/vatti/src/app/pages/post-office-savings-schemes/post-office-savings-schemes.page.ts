@@ -50,7 +50,7 @@ enum Charts {
 @Component({
   selector: 'app-post-office-savings-schemes',
   templateUrl: './post-office-savings-schemes.page.html',
-  styleUrl: './post-office-savings-schemes.page.scss',
+  styleUrl: './post-office-savings-schemes.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, BaseChartDirective],
   providers: [DecimalPipe, DatePipe],

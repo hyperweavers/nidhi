@@ -1,4 +1,4 @@
-<div class="flex min-h-screen select-none flex-col bg-white dark:bg-gray-900">
+<div class="flex min-h-screen flex-col bg-white select-none dark:bg-gray-900">
   <!-- App Header -->
   <header class="fixed z-30 w-full">
     <!-- PWA Install Notification -->
@@ -11,7 +11,7 @@
           class="flex flex-1 items-center justify-center text-sm font-normal text-gray-500 dark:text-gray-400"
         >
           <div
-            class="me-3 hidden h-6 w-6 flex-shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
+            class="me-3 hidden h-6 w-6 shrink-0 items-center justify-center rounded-full p-1 md:flex dark:bg-gray-600"
             [class.!flex]="ios"
           >
             <svg
@@ -140,7 +140,7 @@
           <button
             (click)="closeInstallModal()"
             type="button"
-            class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+            class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
           >
             <svg
               class="h-3 w-3"
@@ -174,7 +174,7 @@
               (click)="toggleSidebar()"
               aria-expanded="true"
               aria-controls="sidebar"
-              class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:bg-gray-700 dark:focus:ring-gray-700"
+              class="cursor-pointer rounded-sm p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:bg-gray-700 dark:focus:ring-gray-700"
             >
               <svg
                 class="h-6 w-6"
@@ -212,7 +212,7 @@
                 alt="Palan Logo"
               />
               <span
-                class="font-logo self-center whitespace-nowrap text-xl font-semibold sm:text-2xl dark:text-white"
+                class="font-logo self-center text-xl font-semibold whitespace-nowrap sm:text-2xl dark:text-white"
                 >Palan</span
               >
             </a>
@@ -250,7 +250,7 @@
             <button
               (click)="refreshData()"
               type="button"
-              class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span class="sr-only">Refresh</span>
 
@@ -288,7 +288,7 @@
               </div>
 
               <div
-                class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600 dark:bg-gray-700"
+                class="z-50 my-4 hidden list-none divide-y divide-gray-100 rounded-sm bg-white text-base shadow-sm dark:divide-gray-600 dark:bg-gray-700"
                 id="dropdown-2"
                 style="
                   position: absolute;
@@ -318,7 +318,7 @@
   >
     <!-- Side Menu -->
     <aside
-      class="transition-width fixed left-0 top-0 z-20 flex h-full w-64 flex-shrink-0 flex-col font-normal duration-75 lg:flex"
+      class="transition-width fixed top-0 left-0 z-20 flex h-full w-64 shrink-0 flex-col font-normal duration-75 lg:flex"
       [ngClass]="showInstallModal ? 'pt-28' : 'pt-16'"
       [class.hidden]="!sidebarOpen"
       aria-label="Sidebar"
@@ -330,13 +330,13 @@
           <div
             class="flex-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
           >
-            <ul class="space-y-2 pb-2 lg:border-none">
+            <ul class="space-y-2 pb-2">
               <li>
                 <a
                   (click)="toggleSidebar()"
                   routerLink="/{{ Routes.DASHBOARD }}"
                   routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                  class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="group flex items-center rounded-md p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   <svg
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -359,7 +359,7 @@
                   (click)="toggleSidebar()"
                   routerLink="/{{ Routes.PORTFOLIO }}"
                   routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                  class="group flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="group flex items-center rounded-md p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   <svg
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -386,7 +386,7 @@
               <li>
                 <button
                   type="button"
-                  class="group flex w-full items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="group flex w-full items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                   aria-controls="dropdown-settings"
                   data-collapse-toggle="dropdown-settings"
                 >
@@ -402,7 +402,7 @@
                       clip-rule="evenodd"
                     ></path>
                   </svg>
-                  <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                  <span class="ml-3 flex-1 text-left whitespace-nowrap"
                     >Settings</span
                   >
                   <svg
@@ -425,7 +425,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.SETTINGS }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >General</a
                     >
                   </li>
@@ -435,7 +435,7 @@
                       (click)="toggleSidebar()"
                       routerLink="/{{ Routes.PLAN }}"
                       routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                      class="group flex items-center rounded-lg bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                      class="group flex items-center rounded-md bg-gray-100 p-2 pl-11 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                       >Plan</a
                     >
                   </li>
@@ -448,10 +448,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.IMPORT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -475,10 +475,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.EXPORT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -502,10 +502,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.DELETE }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -529,10 +529,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/issues/new?template=01_bug_report.md"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -549,7 +549,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Report a Bug</span
                 >
 
@@ -576,10 +576,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/issues/new?template=02_feature_request.md"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -594,7 +594,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Request a Feature</span
                 >
 
@@ -621,10 +621,10 @@
                 (click)="toggleSidebar()"
                 target="_blank"
                 href="https://github.com/hyperweavers/nidhi/tree/main/apps/palan"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -636,7 +636,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >GitHub</span
                 >
 
@@ -661,10 +661,10 @@
 
               <div
                 (click)="share()"
-                class="group flex cursor-pointer items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex cursor-pointer items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -677,7 +677,7 @@
                   />
                 </svg>
 
-                <span class="ml-3 flex-1 whitespace-nowrap text-left"
+                <span class="ml-3 flex-1 text-left whitespace-nowrap"
                   >Share</span
                 >
 
@@ -706,10 +706,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.ABOUT }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -731,10 +731,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.PRIVACY }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -753,10 +753,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.TERMS }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -776,10 +776,10 @@
                 (click)="toggleSidebar()"
                 routerLink="/{{ Routes.DISCLAIMER }}"
                 routerLinkActive="bg-gray-100 dark:bg-gray-700"
-                class="group flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="group flex items-center rounded-md p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
-                  class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                  class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -847,12 +847,12 @@
   <!-- PWA Update Notification -->
   @if (showUpdateModal) {
     <div
-      class="fixed bottom-5 right-5 w-full max-w-xs rounded-lg bg-white p-4 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
+      class="fixed right-5 bottom-5 w-full max-w-xs rounded-md bg-white p-4 text-gray-500 shadow-sm dark:bg-gray-800 dark:text-gray-400"
       role="alert"
     >
       <div class="flex">
         <div
-          class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-500 dark:bg-blue-900 dark:text-blue-300"
+          class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-100 text-blue-500 dark:bg-blue-900 dark:text-blue-300"
         >
           <svg
             class="h-4 w-4"
@@ -883,7 +883,7 @@
               <a
                 href="#"
                 (click)="updateApp()"
-                class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-2 py-1.5 text-center text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                class="inline-flex w-full justify-center rounded-md bg-blue-600 px-2 py-1.5 text-center text-xs font-medium text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-hidden dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 >Update</a
               >
             </div>
@@ -891,7 +891,7 @@
               <a
                 href="#"
                 (click)="closeUpdateModal()"
-                class="inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-2 py-1.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-hidden dark:border-gray-600 dark:bg-gray-600 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
                 >Not now</a
               >
             </div>
@@ -899,7 +899,7 @@
         </div>
         <button
           type="button"
-          class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+          class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
           (click)="closeUpdateModal()"
           aria-label="Close"
         >

@@ -60,7 +60,7 @@ enum ChartTimeRange {
   selector: 'app-stocks',
   imports: [CommonModule],
   templateUrl: './stocks.page.html',
-  styleUrl: './stocks.page.scss',
+  styleUrl: './stocks.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StocksPage implements OnDestroy {

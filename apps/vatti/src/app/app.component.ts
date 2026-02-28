@@ -33,7 +33,7 @@ import { SettingsService } from './services/core/settings.service';
   imports: [CommonModule, RouterModule, RouterLink],
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {

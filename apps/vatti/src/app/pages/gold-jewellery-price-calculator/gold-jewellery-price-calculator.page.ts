@@ -22,7 +22,7 @@ import { ChartUtils } from '../../utils/chart.utils';
   selector: 'app-gold-jewellery-price-calculator',
   imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './gold-jewellery-price-calculator.page.html',
-  styleUrl: './gold-jewellery-price-calculator.page.scss',
+  styleUrl: './gold-jewellery-price-calculator.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [DataService, DecimalPipe],
 })

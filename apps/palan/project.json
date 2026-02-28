@@ -18,14 +18,14 @@
         "browser": "apps/palan/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/palan/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
+        "inlineStyleLanguage": "css",
         "assets": [
           {
             "glob": "**/*",
             "input": "apps/palan/public"
           }
         ],
-        "styles": ["apps/palan/src/styles.scss"],
+        "styles": ["apps/palan/src/styles.css"],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
         ]

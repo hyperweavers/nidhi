@@ -12,7 +12,7 @@ import { DashboardService } from '../../services/dashboard.service';
   selector: 'app-dashboard',
   imports: [CommonModule, RouterLink, ValueOrPlaceholderPipe],
   templateUrl: './dashboard.page.html',
-  styleUrl: './dashboard.page.scss',
+  styleUrl: './dashboard.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPage {

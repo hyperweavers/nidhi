@@ -75,7 +75,7 @@ enum PortfolioSortOrder {
     ValueOrPlaceholderPipe,
   ],
   templateUrl: './portfolio.page.html',
-  styleUrl: './portfolio.page.scss',
+  styleUrl: './portfolio.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PortfolioPage implements AfterViewInit {
@@ -390,6 +390,8 @@ export class PortfolioPage implements AfterViewInit {
     this.charges.set(0);
 
     this.resetDatepicker();
+
+    this.datepicker?.hide();
   }
 
   public closeStatusModal(retainTransactionType?: boolean): void {
