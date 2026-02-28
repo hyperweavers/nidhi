@@ -5,7 +5,7 @@
     <div
       routerLink="{{ card.routeLink ? ('/' + card.routeLink) : null }}"
       [class.cursor-pointer]="card.routeLink"
-      class="rounded-lg border border-gray-200 bg-white p-4 shadow-xs dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-md border border-gray-200 bg-white p-4 shadow-xs dark:border-gray-700 dark:bg-gray-800"
     >
       <div class="w-full">
         <h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">
@@ -14,7 +14,7 @@
           }
         </h3>
         <span
-          class="text-2xl font-bold leading-none text-gray-900 dark:text-white"
+          class="text-2xl leading-none font-bold text-gray-900 dark:text-white"
           >{{ card.value | number: '1.2-2' }}</span
         >
         <p

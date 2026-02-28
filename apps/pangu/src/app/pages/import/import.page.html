@@ -8,7 +8,7 @@
   </p>
 
   <div
-    class="mb-4 flex items-center rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+    class="mb-4 flex items-center rounded-md border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
     role="alert"
   >
     <svg
@@ -39,7 +39,7 @@
       <input
         #importFileInput
         (change)="handleFileInput($event)"
-        class="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:placeholder-gray-400"
+        class="block w-full cursor-pointer rounded-md border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-hidden dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:placeholder-gray-400"
         id="file"
         type="file"
         accept="application/json"
@@ -48,7 +48,7 @@
 
     <button
       (click)="import()"
-      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-36 rounded-lg px-5 py-2.5 text-sm font-medium text-white focus:outline-hidden focus:ring-4"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-36 rounded-md px-5 py-2.5 text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
       type="button"
     >
       Import
@@ -57,11 +57,11 @@
 
   <div
     tabindex="-1"
-    class="fixed left-0 right-0 top-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 md:inset-0 dark:bg-opacity-80"
+    class="bg-opacity-50 dark:bg-opacity-80 fixed top-0 right-0 left-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-900 md:inset-0"
     [class.hidden]="!showStatusModal"
   >
     <div class="relative max-h-full w-full max-w-md p-4">
-      <div class="relative rounded-lg bg-white shadow-sm dark:bg-gray-700">
+      <div class="relative rounded-md bg-white shadow-sm dark:bg-gray-700">
         <div class="p-4 text-center md:p-5">
           @if (showImportProgress) {
           <div role="status">
@@ -106,7 +106,7 @@
           <button
             (click)="closeStatusModal()"
             type="button"
-            class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:outline-hidden focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            class="ms-3 rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
           >
             Ok
           </button>

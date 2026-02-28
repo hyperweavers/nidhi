@@ -20,9 +20,10 @@
 /* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
   /* stylelint-disable-next-line value-keyword-case */
-  --font-logo: Poppins, ui-sans-serif, system-ui;
-  /* stylelint-disable-next-line value-keyword-case */
-  --font-sans: Inter, ui-sans-serif, system-ui;
+  --font-logo:
+    'Poppins', 'ui-sans-serif', 'system-ui', '-apple-system', 'system-ui',
+    'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
   /* stylelint-disable-next-line custom-property-pattern */
   --color-primary-50: #fdf2f8;
