@@ -174,5 +174,6 @@
     "பங்கு",
     "பலன்",
     "வட்டி"
-  ]
+  ],
+  "codium.codeCompletion.enable": false
 }

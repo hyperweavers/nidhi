@@ -80,6 +80,12 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     },
+    "format": {
+      "executor": "@nx/workspace:format",
+      "options": {
+        "files": ["apps/palan"]
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

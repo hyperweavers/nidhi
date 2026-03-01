@@ -5,3 +5,4 @@
 /.nx/workspace-data
 .angular
 project.json
+node_modules
