@@ -231,9 +231,9 @@ export class PortfolioPage implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.initDatePicker();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setTimeout(
       () =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
           'Dropdown',
           'sortDropdown',
@@ -241,9 +241,9 @@ export class PortfolioPage implements AfterViewInit {
       200,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setTimeout(
       () =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
           'Dropdown',
           'filterDropdown',
