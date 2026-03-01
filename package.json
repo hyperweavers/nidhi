@@ -66,6 +66,7 @@
     "@swc/core": "1.15.18",
     "@swc/helpers": "0.5.19",
     "@tailwindcss/postcss": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/jest": "30.0.0",
     "@types/node": "25.3.3",
     "@types/react": "^19.2.14",
