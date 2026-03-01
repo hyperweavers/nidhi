@@ -297,8 +297,8 @@
         Overview
       </h5>
 
-      <div class="flex space-x-10 text-sm text-gray-900 dark:text-white">
-        <div class="flex flex-col space-y-4">
+      <div class="flex gap-4 text-sm text-gray-900 dark:text-white">
+        <div class="flex flex-col gap-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
@@ -316,7 +316,7 @@
           </div>
         </div>
 
-        <div class="flex flex-1 flex-col space-y-4">
+        <div class="flex flex-1 flex-col gap-4">
           <div>
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Day Range (&#8377;)
@@ -402,8 +402,8 @@
         Metrics
       </h5>
 
-      <div class="flex flex-col space-y-4 text-sm">
-        <div class="flex justify-between">
+      <div class="flex flex-col gap-4 text-sm">
+        <div class="flex justify-between gap-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               EPS (TTM)
@@ -434,7 +434,7 @@
           </div>
         </div>
 
-        <div class="flex justify-between">
+        <div class="flex justify-between gap-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Dividend Yield
@@ -478,8 +478,8 @@
         Returns
       </h5>
 
-      <div class="flex flex-col space-y-4 text-sm">
-        <div class="flex justify-between">
+      <div class="flex flex-col gap-4 text-sm">
+        <div class="flex justify-between gap-4">
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.monthly?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -529,7 +529,7 @@
           </div>
         </div>
 
-        <div class="flex justify-between">
+        <div class="flex justify-between gap-4">
           <div
             class="flex-1"
             [ngClass]="stock.performance?.[activeExchange]?.yearly?.one?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
@@ -591,8 +591,8 @@
         Scrip Info
       </h5>
 
-      <div class="flex flex-col space-y-4 text-sm">
-        <div class="flex justify-between">
+      <div class="flex flex-col gap-4 text-sm">
+        <div class="flex justify-between gap-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">NSE</div>
             <div class="flex">
@@ -617,7 +617,7 @@
           </div>
         </div>
 
-        <div class="flex justify-between">
+        <div class="flex justify-between gap-4">
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Sector
