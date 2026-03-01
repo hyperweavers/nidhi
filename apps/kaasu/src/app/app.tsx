@@ -1,12 +1,12 @@
-// Uncomment this line to use CSS modules
-// import styles from './app.module.css';
-import NxWelcome from './nx-welcome';
+import { Button, ThemeProvider, ThemeSwitcher } from '@nidhi/ui';
 
 export function App() {
   return (
-    <div>
-      <NxWelcome title="kaasu" />
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <Button>Hello World</Button>
+
+      <ThemeSwitcher></ThemeSwitcher>
+    </ThemeProvider>
   );
 }
 

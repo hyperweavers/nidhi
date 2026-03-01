@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "radix-mira",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "libs/ui/src/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/libs/ui/src/components",
+    "utils": "@/libs/ui/src/libs/utils",
+    "ui": "@/libs/ui/src/components",
+    "lib": "@/libs/ui/src/libs",
+    "hooks": "@/libs/ui/src/hooks"
+  },
+  "iconLibrary": "tabler"
+}
