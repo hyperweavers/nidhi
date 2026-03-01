@@ -5,5 +5,39 @@
   "projectType": "library",
   "tags": [],
   "// targets": "to see all targets run: nx show project ui --web",
-  "targets": {}
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "lint:styles": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "stylelint 'libs/ui/**/*.css'"
+      }
+    },
+    "format": {
+      "executor": "@nx/workspace:format",
+      "options": {
+        "files": ["libs/ui"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/libs/ui",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  }
 }
