@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@nidhi/ui": ["libs/ui/src/index.ts"]
+      "@nidhi-ui/*": ["libs/ui/src/components/*"],
+      "@nidhi-utils/*": ["libs/ui/src/libs/*"],
+      "@nidhi-hooks/*": ["libs/ui/src/hooks/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
