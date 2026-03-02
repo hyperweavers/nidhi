@@ -11,7 +11,12 @@ export class ValueOrPlaceholderPipe implements PipeTransform {
   private readonly locale = inject<string>(LOCALE_ID);
 
   transform(value: unknown, format = '1.2-2'): string {
-    if (value === null || value === undefined || value === '') {
+    if (
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      Number.isNaN(value)
+    ) {
       return Constants.placeholders.NO_VALUE;
     }
 

@@ -154,10 +154,16 @@ export class PortfolioPage implements AfterViewInit {
           .filter((holding) => {
             switch (filter) {
               case PortfolioFilter.DAY_GAINERS:
-                return holding.quote?.nse?.change?.direction === Direction.UP;
+                return (
+                  holding.quote?.nse?.change?.direction === Direction.UP ||
+                  holding.quote?.bse?.change?.direction === Direction.UP
+                );
 
               case PortfolioFilter.DAY_LOSERS:
-                return holding.quote?.nse?.change?.direction === Direction.DOWN;
+                return (
+                  holding.quote?.nse?.change?.direction === Direction.DOWN ||
+                  holding.quote?.bse?.change?.direction === Direction.DOWN
+                );
 
               case PortfolioFilter.OVERALL_GAINERS:
                 return holding.totalProfitLoss?.direction === Direction.UP;

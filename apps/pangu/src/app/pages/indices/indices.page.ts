@@ -439,10 +439,6 @@ export class IndicesPage implements OnDestroy {
             secondsVisible: false,
           },
         });
-
-        this.areaSeries = this.chart.addSeries(AreaSeries, {
-          lineWidth: 1,
-        });
       }
 
       if (!this.areaSeries) {

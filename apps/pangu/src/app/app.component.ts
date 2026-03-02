@@ -20,7 +20,7 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { initFlowbite } from 'flowbite';
-import { Observable, delay, filter, map, tap } from 'rxjs';
+import { Observable, delay, filter, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Constants } from './constants';
@@ -91,15 +91,19 @@ export class AppComponent implements OnInit {
     });
 
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.pipe(
-        filter(
-          (event: VersionEvent): event is VersionReadyEvent =>
-            event.type === 'VERSION_READY',
-        ),
-        map(() => {
+      this.swUpdate.versionUpdates
+        .pipe(
+          untilDestroyed(this),
+          filter(
+            (event: VersionEvent): event is VersionReadyEvent =>
+              event.type === 'VERSION_READY',
+          ),
+        )
+        .subscribe(() => {
           this.showUpdateModal = true;
-        }),
-      );
+
+          this.cdr.markForCheck();
+        });
     }
 
     this.configureInstallModel();
@@ -180,7 +184,11 @@ export class AppComponent implements OnInit {
 
   private configureInstallModel(): void {
     if (this.platform.IOS) {
-      if ('standalone' in window.navigator && window.navigator.standalone) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (
+        'standalone' in window.navigator &&
+        !(window.navigator as any).standalone
+      ) {
         this.showInstallModal = true;
         this.ios = true;
       }
