@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, combineLatest, map, shareReplay } from 'rxjs';
+import { Observable, combineLatest, map, shareReplay, tap } from 'rxjs';
 
 import { Constants } from '../constants';
 import { Index } from '../models/index';
@@ -7,20 +7,31 @@ import { Kpi, KpiCard } from '../models/kpi';
 import { Portfolio } from '../models/portfolio';
 import { MarketService } from './core/market.service';
 import { PortfolioService } from './portfolio.service';
+import { Period } from '../models/chart';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
+  private marketService = inject(MarketService);
+
   public kpi$: Observable<Kpi>;
 
+  private portfolioStockSymbols!: string[];
+
   constructor() {
-    const marketService = inject(MarketService);
     const portfolioService = inject(PortfolioService);
 
     this.kpi$ = combineLatest([
-      marketService.getMainIndices().pipe(shareReplay(1)),
-      portfolioService.portfolio$,
+      this.marketService.getMainIndices().pipe(shareReplay(1)),
+      portfolioService.portfolio$.pipe(
+        tap(
+          (portfolio) =>
+            (this.portfolioStockSymbols = portfolio.holdings
+              .map((holding) => holding.vendorCode.etm.chart)
+              .filter((code) => !!code) as string[]),
+        ),
+      ),
     ]).pipe(
       map(([indices, portfolio]: [Index[], Portfolio]) => ({
         cards: [
@@ -62,5 +73,11 @@ export class DashboardService {
         ],
       })),
     );
+  }
+
+  public getPortfolioChart(period: Period) {
+    return this.marketService.getHistoricPeerChart(this.portfolioStockSymbols, period).pipe(map((peerChartData) => {
+
+    }));
   }
 }

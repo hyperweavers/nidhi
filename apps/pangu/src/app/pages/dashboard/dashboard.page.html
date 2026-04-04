@@ -52,7 +52,236 @@
     </div>
     }
   </div>
-  } } @else {
+  }
+
+  <!-- Chart Section -->
+  <div
+    #chartContainer
+    class="flex flex-col"
+    [class.md:py-4]="!isChartInFullscreen"
+  >
+    <div
+      class="relative flex flex-1 flex-col bg-white py-4 dark:bg-gray-800"
+      [ngClass]="isChartInFullscreen ? 'pe-4' : 'md:shadow-sm md:rounded-md md:border md:border-gray-200 md:dark:border-gray-700'"
+    >
+      <div class="flex max-w-full px-4 pb-4">
+        <!-- Crosshair Details -->
+        <div
+          class="flex h-8 max-w-36 min-w-36 flex-col pe-2 text-xs text-gray-900 md:max-w-none md:flex-row md:space-x-3 md:pe-4 dark:text-white"
+        >
+          @if (chartCrosshairData) {
+          <div class="flex md:flex-col">
+            <div class="text-gray-500 dark:text-gray-400">Open:&nbsp;</div>
+            {{ chartCrosshairData.open | valueOrPlaceholder }}
+          </div>
+
+          <div class="flex md:flex-col">
+            <div class="text-gray-500 dark:text-gray-400">Close:&nbsp;</div>
+            {{ chartCrosshairData.close | valueOrPlaceholder }}
+          </div>
+
+          <div class="flex md:flex-col">
+            <div class="text-gray-500 dark:text-gray-400">Low:&nbsp;</div>
+            {{ chartCrosshairData.low | valueOrPlaceholder }}
+          </div>
+
+          <div class="flex md:flex-col">
+            <div class="text-gray-500 dark:text-gray-400">High:&nbsp;</div>
+            {{ chartCrosshairData.high | valueOrPlaceholder }}
+          </div>
+
+          <div class="flex md:flex-col">
+            <div class="text-gray-500 dark:text-gray-400">Volume:&nbsp;</div>
+            {{ chartCrosshairData.volume | valueOrPlaceholder: '1.0-0' }}
+          </div>
+
+          @if (chartCrosshairData.change) {
+          <div
+            class="flex whitespace-nowrap md:flex-col"
+            [ngClass]="chartCrosshairData.change.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div class="text-gray-500 dark:text-gray-400">Change:&nbsp;</div>
+            {{ chartCrosshairData.change.value | valueOrPlaceholder }} ({{
+            chartCrosshairData.change.percentage | valueOrPlaceholder }}%)
+          </div>
+          } }
+        </div>
+
+        <!-- Range Selector -->
+        <div class="flex flex-1 justify-end">
+          <div class="inline-flex h-8 rounded-md shadow-xs" role="group">
+            <button
+              (click)="setPeriod(Period.ONE_DAY)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-md border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              1D
+            </button>
+
+            <button
+              (click)="setPeriod(Period.ONE_WEEK)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              1W
+            </button>
+
+            <button
+              (click)="setPeriod(Period.ONE_MONTH)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              1M
+            </button>
+
+            <button
+              (click)="setPeriod(Period.THREE_MONTHS)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              3M
+            </button>
+
+            <button
+              (click)="setPeriod(Period.SIX_MONTHS)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              6M
+            </button>
+
+            <button
+              (click)="setPeriod(Period.ONE_YEAR)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              1Y
+            </button>
+
+            <button
+              (click)="setPeriod(Period.FIVE_YEAR)"
+              type="button"
+              class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-md border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
+              [ngClass]="activePeriod() === Period.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+            >
+              5Y
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div #chart [ngClass]="isChartInFullscreen ? 'flex-1' : 'w-full h-80'">
+        @if (isChartLoading) {
+        <div
+          class="flex h-full flex-1 items-center justify-center"
+          role="status"
+        >
+          <svg
+            aria-hidden="true"
+            class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span class="sr-only">Loading...</span>
+        </div>
+        } @if (isChartNoData) {
+        <div
+          class="flex h-full flex-col items-center justify-center text-gray-500 dark:text-gray-400"
+          role="status"
+        >
+          <svg
+            class="mx-auto mb-4 h-12 w-12"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+
+          <span>No Data</span>
+        </div>
+        }
+      </div>
+
+      <div
+        class="absolute"
+        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden bottom-1 right-1'"
+      >
+        <button
+          (click)="toggleFullscreen()"
+          type="button"
+          class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          @if (isChartInFullscreen) {
+          <span class="sr-only">Minimize</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"
+            />
+          </svg>
+          } @else {
+          <span class="sr-only">Expand</span>
+
+          <svg
+            class="h-6 w-6"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+  } @else {
   <div class="flex flex-1 items-center justify-center" role="status">
     <svg
       aria-hidden="true"
