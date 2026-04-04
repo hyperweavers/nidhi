@@ -1,4 +1,5 @@
-import { Change, Performance, VendorCode } from './market';
+import { VendorCode } from '../adapters/market.adapter';
+import { Change, Performance } from './market';
 
 export interface Stock {
   id?: string; // Database UUID

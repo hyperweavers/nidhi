@@ -38,6 +38,10 @@ export const Constants = {
       'https://etapi.indiatimes.com/charts/mrkts/history?resolution=1D&countback=0&',
     INDEX_INTRA_DAY_CHART:
       'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
+    STOCK_INTRA_DAY_PEER_CHART:
+      'https://etapi.indiatimes.com/charts/peercharts?datatype=intraday&scripcodetype=company&exchangeid=50&scripcode=',
+    STOCK_HISTORIC_PEER_CHART:
+      'https://etapi.indiatimes.com/charts/peercharts?scripcodetype=company&exchangeid=50&',
   },
   settings: {
     THEME: 'theme',

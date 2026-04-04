@@ -12,3 +12,23 @@ export interface ChartData {
   previousDayClose?: number;
   change?: Change;
 }
+
+export interface PeerChartData {
+  symbol: string;
+  data: ChartData[];
+}
+
+export enum ChartCategory {
+  STOCK = 'stock',
+  INDEX = 'index',
+}
+
+export enum Period {
+  ONE_DAY = '1D',
+  ONE_WEEK = '1W',
+  ONE_MONTH = '1M',
+  THREE_MONTHS = '3M',
+  SIX_MONTHS = '6M',
+  ONE_YEAR = '1Y',
+  FIVE_YEAR = '5Y',
+}

@@ -14,10 +14,6 @@ import {
   timer,
 } from 'rxjs';
 
-import { Constants } from '../../constants';
-import { ChartData } from '../../models/chart';
-import { Direction, MarketStatus, Status } from '../../models/market';
-import { Stock } from '../../models/stock';
 import {
   ChartResponseStatus,
   HistoricChartResponse,
@@ -25,7 +21,11 @@ import {
   MarketState,
   SearchResponse,
   StockResponse,
-} from '../../models/vendor/mc';
+} from '../../adapters/market.adapter';
+import { Constants } from '../../constants';
+import { ChartData } from '../../models/chart';
+import { Direction, MarketStatus, Status } from '../../models/market';
+import { Stock } from '../../models/stock';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';

@@ -3,10 +3,13 @@ import { inject, Injectable } from '@angular/core';
 
 import { map, Observable } from 'rxjs';
 
+import {
+  currencyCodeMap,
+  CurrencyListResponse,
+  ForexResponse,
+} from '../../adapters/market.adapter';
 import { Constants } from '../../constants';
 import { Currency, CurrencyMatrix } from '../../models/currency';
-import { CurrencyListResponse } from '../../models/vendor/etm';
-import { currencyCodeMap, ForexResponse } from '../../models/vendor/mc';
 
 @Injectable({
   providedIn: 'root',

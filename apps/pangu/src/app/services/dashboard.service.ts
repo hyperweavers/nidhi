@@ -14,19 +14,15 @@ import { PortfolioService } from './portfolio.service';
 export class DashboardService {
   public kpi$: Observable<Kpi>;
 
-  private indices$: Observable<Index[]>;
-  private portfolio$: Observable<Portfolio>;
-
   constructor() {
     const marketService = inject(MarketService);
     const portfolioService = inject(PortfolioService);
 
-    this.indices$ = marketService.getMainIndices().pipe(shareReplay(1));
-
-    this.portfolio$ = portfolioService.portfolio$;
-
-    this.kpi$ = combineLatest([this.indices$, this.portfolio$]).pipe(
-      map(([indices, portfolio]) => ({
+    this.kpi$ = combineLatest([
+      marketService.getMainIndices().pipe(shareReplay(1)),
+      portfolioService.portfolio$,
+    ]).pipe(
+      map(([indices, portfolio]: [Index[], Portfolio]) => ({
         cards: [
           ...(portfolio.holdings.length > 0
             ? [
