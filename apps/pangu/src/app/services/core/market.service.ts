@@ -170,7 +170,7 @@ export class MarketService {
               vendorCode: {
                 etm: {
                   primary: stock.companyId,
-                  chart: stock.symbol,
+                  chart: stock.nseScripdCode,
                 },
               },
               quote: {
@@ -460,7 +460,7 @@ export class MarketService {
       const frequency =
         PeriodFrequencyQueryParamMap[periodQueryParam as PeriodQueryParam] ||
         '';
-      const queryParams = `symbol=${encodeURIComponent(symbols.join(','))}&period=${periodQueryParam}&frequency=${frequency}`;
+      const queryParams = `scripcode=${encodeURIComponent(symbols.join(','))}&period=${periodQueryParam}&frequency=${frequency}`;
 
       if (periodQueryParam && frequency) {
         return this.http
@@ -469,7 +469,7 @@ export class MarketService {
           )
           .pipe(
             map(({ results }): PeerChartData[] => {
-              return results.length > 0
+              return results?.length > 0
                 ? results.map(
                     ({ companydata, quoteData }): PeerChartData => ({
                       symbol: companydata.scripcode,
@@ -482,10 +482,7 @@ export class MarketService {
                                 timeZone: 'Asia/Kolkata',
                               },
                             ),
-                            value:
-                              quoteData.ReturnPChange ||
-                              quoteData.returnPChange ||
-                              0,
+                            value: quoteData.Close || quoteData.close || 0,
                           }),
                         ) || [],
                     }),
@@ -536,10 +533,7 @@ export class MarketService {
                                 timeZone: 'Asia/Kolkata',
                               },
                             ),
-                            value:
-                              quoteData.ReturnPChange ||
-                              quoteData.returnPChange ||
-                              0,
+                            value: quoteData.Close || quoteData.close || 0,
                           }),
                         ) || [],
                     }),
