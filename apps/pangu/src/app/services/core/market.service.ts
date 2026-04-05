@@ -237,9 +237,7 @@ export class MarketService {
             return indices.map((index) => ({
               id: index.indexid,
               name: index.indexName,
-              exchange: ExchangeNameToCodeMap[
-                index.exchange as ExchangeName
-              ] as unknown as ExchangeName,
+              exchange: ExchangeCodeToNameMap[index.exchange as ExchangeCode],
               vendorCode: {
                 etm: {
                   primary: index.indexid,
@@ -779,9 +777,10 @@ export class MarketService {
                 (indexDetails): Index => ({
                   id: indexDetails.assetId,
                   name: indexDetails.assetName,
-                  exchange: ExchangeNameToCodeMap[
-                    indexDetails.assetExchangeId as ExchangeName
-                  ] as unknown as ExchangeName,
+                  exchange:
+                    ExchangeCodeToNameMap[
+                      indexDetails.assetExchangeId as ExchangeCode
+                    ],
                   vendorCode: {
                     etm: {
                       primary: indexDetails.assetId,
@@ -869,7 +868,7 @@ export class MarketService {
           constituents: this.http
             .get<IndexConstituents>(
               Constants.api.INDEX_CONSTITUENTS +
-                `exchange=${ExchangeCodeToNameMap[exchange as unknown as ExchangeCode] || ''}&indexid=${code}&sortby=netChange`,
+                `exchange=${ExchangeNameToCodeMap[exchange] || ''}&indexid=${code}&sortby=netChange`,
             )
             .pipe(
               map(({ searchresult }): Stock[] =>
