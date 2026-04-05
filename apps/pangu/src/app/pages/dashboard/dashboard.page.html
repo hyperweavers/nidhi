@@ -58,117 +58,75 @@
   <div
     #chartContainer
     class="flex flex-col"
-    [class.md:py-4]="!isChartInFullscreen"
+    [class.py-4]="!isChartInFullscreen"
   >
     <div
       class="relative flex flex-1 flex-col bg-white py-4 dark:bg-gray-800"
-      [ngClass]="isChartInFullscreen ? 'pe-4' : 'md:shadow-sm md:rounded-md md:border md:border-gray-200 md:dark:border-gray-700'"
+      [ngClass]="isChartInFullscreen ? 'pe-4' : 'shadow-sm rounded-md border border-gray-200 dark:border-gray-700'"
     >
       <div class="flex max-w-full px-4 pb-4">
-        <!-- Crosshair Details -->
-        <div
-          class="flex h-8 max-w-36 min-w-36 flex-col pe-2 text-xs text-gray-900 md:max-w-none md:flex-row md:space-x-3 md:pe-4 dark:text-white"
-        >
-          @if (chartCrosshairData) {
-          <div class="flex md:flex-col">
-            <div class="text-gray-500 dark:text-gray-400">Open:&nbsp;</div>
-            {{ chartCrosshairData.open | valueOrPlaceholder }}
-          </div>
-
-          <div class="flex md:flex-col">
-            <div class="text-gray-500 dark:text-gray-400">Close:&nbsp;</div>
-            {{ chartCrosshairData.close | valueOrPlaceholder }}
-          </div>
-
-          <div class="flex md:flex-col">
-            <div class="text-gray-500 dark:text-gray-400">Low:&nbsp;</div>
-            {{ chartCrosshairData.low | valueOrPlaceholder }}
-          </div>
-
-          <div class="flex md:flex-col">
-            <div class="text-gray-500 dark:text-gray-400">High:&nbsp;</div>
-            {{ chartCrosshairData.high | valueOrPlaceholder }}
-          </div>
-
-          <div class="flex md:flex-col">
-            <div class="text-gray-500 dark:text-gray-400">Volume:&nbsp;</div>
-            {{ chartCrosshairData.volume | valueOrPlaceholder: '1.0-0' }}
-          </div>
-
-          @if (chartCrosshairData.change) {
-          <div
-            class="flex whitespace-nowrap md:flex-col"
-            [ngClass]="chartCrosshairData.change.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-          >
-            <div class="text-gray-500 dark:text-gray-400">Change:&nbsp;</div>
-            {{ chartCrosshairData.change.value | valueOrPlaceholder }} ({{
-            chartCrosshairData.change.percentage | valueOrPlaceholder }}%)
-          </div>
-          } }
-        </div>
-
         <!-- Range Selector -->
         <div class="flex flex-1 justify-end">
           <div class="inline-flex h-8 rounded-md shadow-xs" role="group">
             <button
-              (click)="setPeriod(Period.ONE_DAY)"
+              (click)="setChartPeriod(Period.ONE_DAY)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-s-md border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.ONE_DAY ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               1D
             </button>
 
             <button
-              (click)="setPeriod(Period.ONE_WEEK)"
+              (click)="setChartPeriod(Period.ONE_WEEK)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.ONE_WEEK ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               1W
             </button>
 
             <button
-              (click)="setPeriod(Period.ONE_MONTH)"
+              (click)="setChartPeriod(Period.ONE_MONTH)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.ONE_MONTH ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               1M
             </button>
 
             <button
-              (click)="setPeriod(Period.THREE_MONTHS)"
+              (click)="setChartPeriod(Period.THREE_MONTHS)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.THREE_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               3M
             </button>
 
             <button
-              (click)="setPeriod(Period.SIX_MONTHS)"
+              (click)="setChartPeriod(Period.SIX_MONTHS)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.SIX_MONTHS ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               6M
             </button>
 
             <button
-              (click)="setPeriod(Period.ONE_YEAR)"
+              (click)="setChartPeriod(Period.ONE_YEAR)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center border border-r-0 border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.ONE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               1Y
             </button>
 
             <button
-              (click)="setPeriod(Period.FIVE_YEAR)"
+              (click)="setChartPeriod(Period.FIVE_YEAR)"
               type="button"
               class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 w-8 items-center justify-center rounded-e-md border border-gray-200 text-xs focus:z-10 focus:ring-2 dark:border-gray-700"
-              [ngClass]="activePeriod() === Period.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+              [ngClass]="activeChartPeriod() === Period.FIVE_YEAR ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
             >
               5Y
             </button>

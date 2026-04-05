@@ -502,50 +502,36 @@ export class MarketService {
     }
   }
 
-  public getIntraDayPeerChart(
-    symbols: string[],
-    period: Period,
-  ): Observable<PeerChartData[]> {
+  public getIntraDayPeerChart(symbols: string[]): Observable<PeerChartData[]> {
     if (symbols?.length > 0) {
-      const periodQueryParam = PeriodMap[period] || '';
-      const frequency =
-        PeriodFrequencyQueryParamMap[periodQueryParam as PeriodQueryParam] ||
-        '';
-
-      if (periodQueryParam && frequency) {
-        return this.http
-          .get<StockPeerChart>(
-            Constants.api.STOCK_INTRA_DAY_PEER_CHART +
-              encodeURIComponent(symbols.join(',')),
-          )
-          .pipe(
-            map(({ results }): PeerChartData[] => {
-              return results.length > 0
-                ? results.map(
-                    ({ companydata, quoteData }): PeerChartData => ({
-                      symbol: companydata.scripcode,
-                      data:
-                        quoteData.map(
-                          (quoteData): ChartData => ({
-                            time: new Date(quoteData.Date).toLocaleDateString(
-                              'en-CA',
-                              {
-                                timeZone: 'Asia/Kolkata',
-                              },
-                            ),
-                            value: quoteData.Close || quoteData.close || 0,
-                          }),
-                        ) || [],
-                    }),
-                  )
-                : [];
-            }),
-          );
-      } else {
-        console.error(`Unable to map period with frequency: ${period}`);
-
-        return of([]);
-      }
+      return this.http
+        .get<StockPeerChart>(
+          Constants.api.STOCK_INTRA_DAY_PEER_CHART +
+            encodeURIComponent(symbols.join(',')),
+        )
+        .pipe(
+          map(({ results }): PeerChartData[] => {
+            return results.length > 0
+              ? results.map(
+                  ({ companydata, quoteData }): PeerChartData => ({
+                    symbol: companydata.scripcode,
+                    data:
+                      quoteData.map(
+                        (quoteData): ChartData => ({
+                          time: new Date(quoteData.Date).toLocaleDateString(
+                            'en-CA',
+                            {
+                              timeZone: 'Asia/Kolkata',
+                            },
+                          ),
+                          value: quoteData.Close || quoteData.close || 0,
+                        }),
+                      ) || [],
+                  }),
+                )
+              : [];
+          }),
+        );
     } else {
       console.error(`Stock symbol list is empty: ${symbols}`);
 

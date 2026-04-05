@@ -17,6 +17,7 @@ import {
   AreaSeries,
   IChartApi,
   ISeriesApi,
+  LineType,
   MouseEventParams,
   createChart,
 } from 'lightweight-charts';
@@ -436,20 +437,31 @@ export class StocksPage implements OnDestroy {
           handleScale: false,
           timeScale: {
             lockVisibleTimeRangeOnResize: true,
-            timeVisible: intraDay,
             secondsVisible: false,
           },
         });
       }
 
+      this.chart.applyOptions({
+        timeScale: {
+          timeVisible: intraDay,
+        },
+      });
+
       if (!this.areaSeries) {
         this.areaSeries = this.chart.addSeries(AreaSeries, {
           lineWidth: 1,
-          lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
+          lineType: LineType.Curved,
         });
       }
 
+      this.areaSeries.applyOptions({
+        lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
+      });
+
       this.areaSeries.setData(data);
+
+      this.chart.timeScale().fitContent();
 
       this.setChartTimeRange(this.activeChartTimeRange);
 
