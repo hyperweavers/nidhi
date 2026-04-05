@@ -3,7 +3,6 @@ import {
   BehaviorSubject,
   Observable,
   combineLatest,
-  iif,
   map,
   of,
   shareReplay,
@@ -87,11 +86,11 @@ export class DashboardService {
         const symbols = holdings
           .map((holding) => holding.vendorCode.etm.chart)
           .filter((code) => !!code) as string[];
+
         return holdings.length > 0
-          ? iif(
-              () => period === Period.ONE_DAY,
-              this.marketService.getIntraDayPeerChart(symbols),
-              this.marketService.getHistoricPeerChart(symbols, period),
+          ? (period === Period.ONE_DAY
+              ? this.marketService.getIntraDayPeerChart(symbols)
+              : this.marketService.getHistoricPeerChart(symbols, period)
             ).pipe(
               map((peerChartData) => {
                 if (

@@ -455,6 +455,12 @@ export class MarketService {
     symbols: string[],
     period: Period,
   ): Observable<PeerChartData[]> {
+    if (period === Period.ONE_DAY) {
+      console.error(`Period not supported: ${period}`);
+
+      return of([]);
+    }
+
     if (symbols?.length > 0) {
       const periodQueryParam = PeriodMap[period] || '';
       const frequency =
