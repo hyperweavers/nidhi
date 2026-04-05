@@ -15,8 +15,34 @@ import {
   timer,
 } from 'rxjs';
 
+import {
+  CompanyDetails,
+  Dashboard,
+  DashboardQuery,
+  ExchangeCode,
+  ExchangeCodeToNameMap,
+  ExchangeNameToCodeMap,
+  History,
+  IndexConstituents,
+  IndexDetails,
+  IndexQuotes,
+  IntraDay,
+  IntraDayStatus,
+  PeriodFrequencyQueryParamMap,
+  PeriodMap,
+  PeriodQueryParam,
+  SearchResult,
+  SearchResultSecondary,
+  StockPeerChart,
+  VendorStatus,
+} from '../../adapters/market.adapter';
 import { Constants } from '../../constants';
-import { ChartData } from '../../models/chart';
+import {
+  ChartCategory,
+  ChartData,
+  PeerChartData,
+  Period,
+} from '../../models/chart';
 import { Index } from '../../models/index';
 import {
   Direction,
@@ -26,31 +52,9 @@ import {
   Status,
 } from '../../models/market';
 import { Quote, Stock } from '../../models/stock';
-import {
-  CompanyDetails,
-  Dashboard,
-  DashboardQuery,
-  ExchangeCode,
-  History,
-  IndexConstituents,
-  IndexDetails,
-  IndexQuotes,
-  SearchResult,
-  VendorStatus,
-} from '../../models/vendor/etm';
-import {
-  IntraDay,
-  IntraDayStatus,
-  SearchResultSecondary,
-} from '../../models/vendor/mc';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';
-
-export enum ChartCategory {
-  STOCK,
-  INDEX,
-}
 
 @Injectable({
   providedIn: 'root',
@@ -166,7 +170,7 @@ export class MarketService {
               vendorCode: {
                 etm: {
                   primary: stock.companyId,
-                  chart: stock.symbol,
+                  chart: stock.nseScripdCode,
                 },
               },
               quote: {
@@ -233,9 +237,9 @@ export class MarketService {
             return indices.map((index) => ({
               id: index.indexid,
               name: index.indexName,
-              exchange: MarketUtils.getExchangeNameFromVendorCode(
-                index.exchange as ExchangeCode,
-              ),
+              exchange: ExchangeNameToCodeMap[
+                index.exchange as ExchangeName
+              ] as unknown as ExchangeName,
               vendorCode: {
                 etm: {
                   primary: index.indexid,
@@ -445,6 +449,100 @@ export class MarketService {
             ),
           )
       : of([]);
+  }
+
+  public getHistoricPeerChart(
+    symbols: string[],
+    period: Period,
+  ): Observable<PeerChartData[]> {
+    if (period === Period.ONE_DAY) {
+      console.error(`Period not supported: ${period}`);
+
+      return of([]);
+    }
+
+    if (symbols?.length > 0) {
+      const periodQueryParam = PeriodMap[period] || '';
+      const frequency =
+        PeriodFrequencyQueryParamMap[periodQueryParam as PeriodQueryParam] ||
+        '';
+      const queryParams = `scripcode=${encodeURIComponent(symbols.join(','))}&period=${periodQueryParam}&frequency=${frequency}`;
+
+      if (periodQueryParam && frequency) {
+        return this.http
+          .get<StockPeerChart>(
+            Constants.api.STOCK_HISTORIC_PEER_CHART + queryParams,
+          )
+          .pipe(
+            map(({ results }): PeerChartData[] => {
+              return results?.length > 0
+                ? results.map(
+                    ({ companydata, quoteData }): PeerChartData => ({
+                      symbol: companydata.scripcode,
+                      data:
+                        quoteData.map(
+                          (quoteData): ChartData => ({
+                            time: new Date(quoteData.Date).toLocaleDateString(
+                              'en-CA',
+                              {
+                                timeZone: 'Asia/Kolkata',
+                              },
+                            ),
+                            value: quoteData.Close || quoteData.close || 0,
+                          }),
+                        ) || [],
+                    }),
+                  )
+                : [];
+            }),
+          );
+      } else {
+        console.error(`Unable to map period with frequency: ${period}`);
+
+        return of([]);
+      }
+    } else {
+      console.error(`Stock symbol list is empty: ${symbols}`);
+
+      return of([]);
+    }
+  }
+
+  public getIntraDayPeerChart(symbols: string[]): Observable<PeerChartData[]> {
+    if (symbols?.length > 0) {
+      return this.http
+        .get<StockPeerChart>(
+          Constants.api.STOCK_INTRA_DAY_PEER_CHART +
+            encodeURIComponent(symbols.join(',')),
+        )
+        .pipe(
+          map(({ results }): PeerChartData[] => {
+            return results.length > 0
+              ? results.map(
+                  ({ companydata, quoteData }): PeerChartData => ({
+                    symbol: companydata.scripcode,
+                    data:
+                      quoteData.map(
+                        (quoteData): ChartData => ({
+                          time: new Date(quoteData.Date).toLocaleDateString(
+                            'en-CA',
+                            {
+                              timeZone: 'Asia/Kolkata',
+                            },
+                          ),
+                          value: quoteData.Close || quoteData.close || 0,
+                        }),
+                      ) || [],
+                  }),
+                )
+              : [];
+          }),
+        );
+    } else {
+      console.error(`Stock symbol list is empty: ${symbols}`);
+
+      return of([]);
+    }
   }
 
   private getStockDetails(code: string): Observable<Stock> {
@@ -681,9 +779,9 @@ export class MarketService {
                 (indexDetails): Index => ({
                   id: indexDetails.assetId,
                   name: indexDetails.assetName,
-                  exchange: MarketUtils.getExchangeNameFromVendorCode(
-                    indexDetails.assetExchangeId as ExchangeCode,
-                  ),
+                  exchange: ExchangeNameToCodeMap[
+                    indexDetails.assetExchangeId as ExchangeName
+                  ] as unknown as ExchangeName,
                   vendorCode: {
                     etm: {
                       primary: indexDetails.assetId,
@@ -771,7 +869,7 @@ export class MarketService {
           constituents: this.http
             .get<IndexConstituents>(
               Constants.api.INDEX_CONSTITUENTS +
-                `exchange=${MarketUtils.getExchangeVendorCodeFromName(exchange)}&indexid=${code}&sortby=netChange`,
+                `exchange=${ExchangeCodeToNameMap[exchange as unknown as ExchangeCode] || ''}&indexid=${code}&sortby=netChange`,
             )
             .pipe(
               map(({ searchresult }): Stock[] =>

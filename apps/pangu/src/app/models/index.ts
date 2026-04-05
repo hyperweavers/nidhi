@@ -1,10 +1,6 @@
-import {
-  AdvanceDecline,
-  Change,
-  ExchangeName,
-  Performance,
-  VendorCode,
-} from './market';
+import { VendorCode } from '../adapters/market.adapter';
+
+import { AdvanceDecline, Change, ExchangeName, Performance } from './market';
 import { Stock } from './stock';
 
 export interface Index {

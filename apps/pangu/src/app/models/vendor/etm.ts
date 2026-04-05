@@ -417,6 +417,37 @@ export interface SearchResult {
   lastTradedPrice: string;
 }
 
+export interface StockPeerChart {
+  results: StockPeerChartResult[];
+}
+
+export interface StockPeerChartResult {
+  quoteData: StockPeerChartQuoteData[];
+  companydata: StockPeerChartCompanyData;
+}
+
+export interface StockPeerChartQuoteData {
+  Close: number;
+  Date: string;
+  Volume: number;
+  ReturnPChange: number;
+  returnPChange: number;
+  close: number;
+  volume: number;
+}
+
+export interface StockPeerChartCompanyData {
+  securityTypeId: number;
+  scripcode: string;
+  companyid: number;
+  exchangeid: number;
+  scripcodetype: string;
+  seoname: string;
+  companyname: string;
+  listingid: number;
+  companyshortname: string;
+}
+
 export interface VendorCode {
   primary: string;
   chart?: string;
@@ -438,7 +469,34 @@ export enum IndexReturnLabel {
   FIVE_YEAR = '5Y',
 }
 
+export enum PeriodQueryParam {
+  ONE_WEEK = '1w',
+  ONE_MONTH = '1m',
+  THREE_MONTH = '3m',
+  SIX_MONTH = '6m',
+  ONE_YEAR = '1y',
+  FIVE_YEAR = '5y',
+}
+
+export enum FrequencyQueryParam {
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month',
+}
+
 export enum ExchangeCode {
   NSE = '50',
   BSE = '47',
 }
+
+export const PeriodFrequencyQueryParamMap: Record<
+  PeriodQueryParam,
+  FrequencyQueryParam
+> = {
+  [PeriodQueryParam.ONE_WEEK]: FrequencyQueryParam.DAY,
+  [PeriodQueryParam.ONE_MONTH]: FrequencyQueryParam.DAY,
+  [PeriodQueryParam.THREE_MONTH]: FrequencyQueryParam.WEEK,
+  [PeriodQueryParam.SIX_MONTH]: FrequencyQueryParam.WEEK,
+  [PeriodQueryParam.ONE_YEAR]: FrequencyQueryParam.WEEK,
+  [PeriodQueryParam.FIVE_YEAR]: FrequencyQueryParam.MONTH,
+};

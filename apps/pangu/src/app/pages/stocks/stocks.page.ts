@@ -17,6 +17,7 @@ import {
   AreaSeries,
   IChartApi,
   ISeriesApi,
+  LineType,
   MouseEventParams,
   createChart,
 } from 'lightweight-charts';
@@ -31,27 +32,14 @@ import {
   tap,
 } from 'rxjs';
 
-import { ChartData } from '../../models/chart';
+import { ChartCategory, ChartData, Period } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
-import {
-  ChartCategory,
-  MarketService,
-} from '../../services/core/market.service';
+import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
 import { ChartUtils } from '../../utils/chart.utils';
-
-enum ChartTimeRange {
-  ONE_DAY = '1D',
-  ONE_WEEK = '1W',
-  ONE_MONTH = '1M',
-  THREE_MONTHS = '3M',
-  SIX_MONTHS = '6M',
-  ONE_YEAR = '1Y',
-  FIVE_YEAR = '5Y',
-}
 
 @UntilDestroy()
 @Component({
@@ -74,7 +62,7 @@ export class StocksPage implements OnDestroy {
 
   public chartCrosshairData?: ChartData;
 
-  public activeChartTimeRange = ChartTimeRange.ONE_DAY;
+  public activeChartTimeRange = Period.ONE_DAY;
   public activeExchange = ExchangeName.NSE;
 
   public isChartLoading = true;
@@ -83,7 +71,7 @@ export class StocksPage implements OnDestroy {
 
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
-  public readonly ChartTimeRange = ChartTimeRange;
+  public readonly ChartTimeRange = Period;
 
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
 
@@ -278,38 +266,38 @@ export class StocksPage implements OnDestroy {
     );
   }
 
-  public setChartTimeRange(range: ChartTimeRange): void {
+  public setChartTimeRange(range: Period): void {
     if (range) {
       this.activeChartTimeRange = range;
 
-      this.showIntraDayChart$.next(range === ChartTimeRange.ONE_DAY);
+      this.showIntraDayChart$.next(range === Period.ONE_DAY);
 
-      if (range !== ChartTimeRange.ONE_DAY) {
+      if (range !== Period.ONE_DAY) {
         const to = new Date();
         let from!: number;
 
         switch (range) {
-          case ChartTimeRange.ONE_WEEK:
+          case Period.ONE_WEEK:
             from = ChartUtils.getTimestampSince(to, 10); // 10 days considered as one week as it includes weekend
             break;
 
-          case ChartTimeRange.ONE_MONTH:
+          case Period.ONE_MONTH:
             from = ChartUtils.getTimestampSince(to, 30);
             break;
 
-          case ChartTimeRange.THREE_MONTHS:
+          case Period.THREE_MONTHS:
             from = ChartUtils.getTimestampSince(to, 90);
             break;
 
-          case ChartTimeRange.SIX_MONTHS:
+          case Period.SIX_MONTHS:
             from = ChartUtils.getTimestampSince(to, 180);
             break;
 
-          case ChartTimeRange.ONE_YEAR:
+          case Period.ONE_YEAR:
             from = ChartUtils.getTimestampSince(to, 365);
             break;
 
-          case ChartTimeRange.FIVE_YEAR:
+          case Period.FIVE_YEAR:
             from = ChartUtils.getTimestampSince(to, 5 * 356);
             break;
 
@@ -449,20 +437,31 @@ export class StocksPage implements OnDestroy {
           handleScale: false,
           timeScale: {
             lockVisibleTimeRangeOnResize: true,
-            timeVisible: intraDay,
             secondsVisible: false,
           },
         });
       }
 
+      this.chart.applyOptions({
+        timeScale: {
+          timeVisible: intraDay,
+        },
+      });
+
       if (!this.areaSeries) {
         this.areaSeries = this.chart.addSeries(AreaSeries, {
           lineWidth: 1,
-          lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
+          lineType: LineType.Curved,
         });
       }
 
+      this.areaSeries.applyOptions({
+        lastPriceAnimation: this.isMarketOpen && intraDay ? 1 : 0,
+      });
+
       this.areaSeries.setData(data);
+
+      this.chart.timeScale().fitContent();
 
       this.setChartTimeRange(this.activeChartTimeRange);
 

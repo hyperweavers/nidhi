@@ -46,22 +46,22 @@ import { PortfolioService } from '../../services/portfolio.service';
 declare const Datepicker: any;
 
 enum PortfolioFilter {
-  NONE,
-  DAY_GAINERS,
-  DAY_LOSERS,
-  OVERALL_GAINERS,
-  OVERALL_LOSERS,
+  NONE = 'none',
+  DAY_GAINERS = 'day_gainers',
+  DAY_LOSERS = 'day_losers',
+  OVERALL_GAINERS = 'overall_gainers',
+  OVERALL_LOSERS = 'overall_losers',
 }
 
 enum PortfolioSortType {
-  NAME,
-  DAY_PROFIT_LOSS,
-  OVERALL_PROFIT_LOSS,
+  NAME = 'name',
+  DAY_PROFIT_LOSS = 'daily_profit_loss',
+  OVERALL_PROFIT_LOSS = 'overall_profit_loss',
 }
 
 enum PortfolioSortOrder {
-  ASC,
-  DSC,
+  ASC = 'asc',
+  DSC = 'dsc',
 }
 
 @Flowbite()

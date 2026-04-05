@@ -1,9 +1,11 @@
 import Dexie, { Table } from 'dexie';
 
+import {
+  CompanyDetails,
+  SearchResultSecondary,
+} from '../adapters/market.adapter';
 import { Constants } from '../constants';
 import { Holding } from '../models/portfolio';
-import { CompanyDetails } from '../models/vendor/etm';
-import { SearchResultSecondary } from '../models/vendor/mc';
 
 class AppDB extends Dexie {
   stocks!: Table<Holding, string>;

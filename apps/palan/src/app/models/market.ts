@@ -1,5 +1,3 @@
-import { VendorCode as McVendorCode } from './vendor/mc';
-
 export interface MarketStatus {
   lastUpdated: number;
   status: Status;
@@ -27,13 +25,10 @@ export interface YearlyPerformance {
   five: Change;
   ten?: Change;
 }
-export interface VendorCode {
-  mc: McVendorCode;
-}
 
 export enum Status {
-  OPEN,
-  CLOSED,
+  OPEN = 'open',
+  CLOSED = 'closed',
 }
 
 export enum Direction {

@@ -1,24 +1,11 @@
-import { Direction, ExchangeName } from '../models/market';
+import { Direction } from '../models/market';
 import { ScripCode } from '../models/stock';
-import { ExchangeCode } from '../models/vendor/etm';
 
 export class MarketUtils {
   public static POSITIVE_WHOLE_NUMBER_REGEXP = new RegExp(/^\d+$/);
 
   public static getDirection(value: number): Direction {
     return value >= 0 ? Direction.UP : Direction.DOWN;
-  }
-
-  public static getExchangeNameFromVendorCode(
-    code: ExchangeCode,
-  ): ExchangeName {
-    return code === ExchangeCode.NSE ? ExchangeName.NSE : ExchangeName.BSE;
-  }
-
-  public static getExchangeVendorCodeFromName(
-    name: ExchangeName,
-  ): ExchangeCode {
-    return name === ExchangeName.NSE ? ExchangeCode.NSE : ExchangeCode.BSE;
   }
 
   public static stringToNumber(value: string): number {

@@ -1,16 +1,8 @@
-import { VendorCode as EtmVendorCode } from './vendor/etm';
-import { VendorCode as McVendorCode } from './vendor/mc';
-
 export interface MarketStatus {
   lastUpdated: number;
   status: Status;
   startTime: number;
   endTime: number;
-}
-
-export interface VendorCode {
-  etm: EtmVendorCode;
-  mc?: McVendorCode;
 }
 
 export interface AdvanceDecline {
@@ -40,8 +32,8 @@ export interface YearlyPerformance {
 }
 
 export enum Status {
-  OPEN,
-  CLOSED,
+  OPEN = 'open',
+  CLOSED = 'closed',
 }
 
 export enum ExchangeName {
