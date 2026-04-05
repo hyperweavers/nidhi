@@ -134,13 +134,6 @@ export class DashboardService {
                       }
                     });
 
-                    // Calculate portfolio metrics for this date
-                    const { percentageChange } = this.calculatePortfolioAtDate(
-                      holdings,
-                      dateTimestamp,
-                      priceMap,
-                    );
-
                     return {
                       time: new Date(dateTimestamp).toLocaleDateString(
                         'en-CA',
@@ -148,7 +141,11 @@ export class DashboardService {
                           timeZone: 'Asia/Kolkata',
                         },
                       ),
-                      value: percentageChange,
+                      value: this.calculatePortfolioChangeAtDate(
+                        holdings,
+                        dateTimestamp,
+                        priceMap,
+                      ),
                     };
                   },
                 );
@@ -159,6 +156,41 @@ export class DashboardService {
           : of([]);
       }),
     );
+  }
+
+  /**
+   * Calculate portfolio performance change in percentage at a specific date
+   * Given the price map (symbol -> price on that date)
+   */
+  private calculatePortfolioChangeAtDate(
+    holdings: Holding[],
+    dateTimestamp: number,
+    priceMap: Map<string, number>,
+  ): number {
+    let portfolioMarketValue = 0;
+    let portfolioInvestment = 0;
+
+    holdings.forEach((holding) => {
+      const { quantity, investment } = this.calculateHoldingAtDate(
+        holding,
+        dateTimestamp,
+      );
+
+      if (quantity > 0) {
+        const holdingSymbol = holding.vendorCode.etm.chart;
+        if (holdingSymbol) {
+          const price = priceMap.get(holdingSymbol) || 0;
+          portfolioMarketValue += price * quantity;
+        }
+      }
+
+      portfolioInvestment += investment;
+    });
+
+    return portfolioInvestment > 0
+      ? ((portfolioMarketValue - portfolioInvestment) / portfolioInvestment) *
+          100
+      : 0;
   }
 
   /**
@@ -185,51 +217,5 @@ export class DashboardService {
     });
 
     return { quantity, investment };
-  }
-
-  /**
-   * Calculate portfolio performance metrics at a specific date
-   * Given the price map (symbol -> price on that date)
-   */
-  private calculatePortfolioAtDate(
-    holdings: Holding[],
-    dateTimestamp: number,
-    priceMap: Map<string, number>,
-  ): {
-    marketValue: number;
-    investment: number;
-    percentageChange: number;
-  } {
-    let portfolioMarketValue = 0;
-    let portfolioInvestment = 0;
-
-    holdings.forEach((holding) => {
-      const { quantity, investment } = this.calculateHoldingAtDate(
-        holding,
-        dateTimestamp,
-      );
-
-      if (quantity > 0) {
-        const holdingSymbol = holding.vendorCode.etm.chart;
-        if (holdingSymbol) {
-          const price = priceMap.get(holdingSymbol) || 0;
-          portfolioMarketValue += price * quantity;
-        }
-      }
-
-      portfolioInvestment += investment;
-    });
-
-    const percentageChange =
-      portfolioInvestment > 0
-        ? ((portfolioMarketValue - portfolioInvestment) / portfolioInvestment) *
-          100
-        : 0;
-
-    return {
-      marketValue: portfolioMarketValue,
-      investment: portfolioInvestment,
-      percentageChange,
-    };
   }
 }
