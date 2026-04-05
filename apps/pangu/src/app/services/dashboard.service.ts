@@ -23,16 +23,17 @@ import { PortfolioService } from './portfolio.service';
 })
 export class DashboardService {
   private marketService = inject(MarketService);
-  private portfolioService = inject(PortfolioService);
 
   public kpi$: Observable<Kpi>;
 
   private readonly holdings$ = new BehaviorSubject<Holding[]>([]);
 
   constructor() {
+    const portfolioService = inject(PortfolioService);
+
     this.kpi$ = combineLatest([
       this.marketService.getMainIndices().pipe(shareReplay(1)),
-      this.portfolioService.portfolio$.pipe(
+      portfolioService.portfolio$.pipe(
         tap((portfolio) => {
           this.holdings$.next(portfolio.holdings);
         }),
