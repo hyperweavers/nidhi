@@ -26,7 +26,7 @@ export class DashboardService {
 
   public kpi$: Observable<Kpi>;
 
-  private readonly holdings$ = new BehaviorSubject<Holding[]>([]);
+  private readonly portfolio$ = new BehaviorSubject<Portfolio | null>(null);
 
   constructor() {
     const portfolioService = inject(PortfolioService);
@@ -35,7 +35,7 @@ export class DashboardService {
       this.marketService.getMainIndices().pipe(shareReplay(1)),
       portfolioService.portfolio$.pipe(
         tap((portfolio) => {
-          this.holdings$.next(portfolio.holdings);
+          this.portfolio$.next(portfolio);
         }),
       ),
     ]).pipe(
@@ -82,78 +82,102 @@ export class DashboardService {
   }
 
   public getPortfolioChart(period: Period): Observable<ChartData[]> {
-    return this.holdings$.pipe(
-      switchMap((holdings) => {
-        const symbols = holdings
-          .map((holding) => holding.vendorCode.etm.chart)
-          .filter((code) => !!code) as string[];
+    return this.portfolio$.pipe(
+      switchMap((portfolio) => {
+        if (portfolio) {
+          const { holdings } = portfolio;
+          const symbols = holdings
+            .map((holding) => holding.vendorCode.etm.chart)
+            .filter((code) => !!code) as string[];
 
-        return holdings.length > 0
-          ? (period === Period.ONE_DAY
-              ? this.marketService.getIntraDayPeerChart(symbols)
-              : this.marketService.getHistoricPeerChart(symbols, period)
-            ).pipe(
-              map((peerChartData) => {
-                if (
-                  !peerChartData ||
-                  peerChartData.length === 0 ||
-                  holdings.length === 0
-                ) {
-                  return [];
-                }
+          return holdings.length > 0
+            ? (period === Period.ONE_DAY
+                ? this.marketService.getIntraDayPeerChart(symbols)
+                : this.marketService.getHistoricPeerChart(symbols, period)
+              ).pipe(
+                map((peerChartData) => {
+                  if (
+                    !peerChartData ||
+                    peerChartData.length === 0 ||
+                    holdings.length === 0
+                  ) {
+                    return [];
+                  }
 
-                // Get all unique dates from the peer chart data
-                const dateSet = new Set<string>();
-                peerChartData.forEach((peer) => {
-                  peer.data.forEach((point) => {
-                    dateSet.add(String(point.time));
-                  });
-                });
-
-                const dates = Array.from(dateSet)
-                  .sort((a, b) => {
-                    const dateA = new Date(a).getTime();
-                    const dateB = new Date(b).getTime();
-                    return dateA - dateB;
-                  })
-                  .map((dateStr) => new Date(dateStr).getTime());
-
-                // For each date, build price map and calculate portfolio performance
-                const portfolioChartData: ChartData[] = dates.map(
-                  (dateTimestamp) => {
-                    const priceMap = new Map<string, number>();
-
-                    // Build price map for this date from peer chart data
-                    peerChartData.forEach((peer) => {
-                      const dataPoint = peer.data.find(
-                        (point) =>
-                          new Date(point.time).getTime() === dateTimestamp,
-                      );
-                      if (dataPoint && dataPoint.value !== undefined) {
-                        priceMap.set(peer.symbol, dataPoint.value);
-                      }
+                  // Get all unique dates from the peer chart data
+                  const dateSet = new Set<string>();
+                  peerChartData.forEach((peer) => {
+                    peer.data.forEach((point) => {
+                      dateSet.add(String(point.time));
                     });
+                  });
 
-                    return {
-                      time: new Date(dateTimestamp).toLocaleDateString(
-                        'en-CA',
-                        {
-                          timeZone: 'Asia/Kolkata',
-                        },
-                      ),
-                      value: this.calculatePortfolioChangeAtDate(
-                        holdings,
-                        dateTimestamp,
-                        priceMap,
-                      ),
-                    };
-                  },
-                );
+                  const dates = Array.from(dateSet)
+                    .sort((a, b) => {
+                      const dateA = new Date(a).getTime();
+                      const dateB = new Date(b).getTime();
+                      return dateA - dateB;
+                    })
+                    .map((dateStr) => new Date(dateStr).getTime());
 
-                return portfolioChartData;
-              }),
-            )
-          : of([]);
+                  // For each date, build price map and calculate portfolio performance
+                  const portfolioChartData: ChartData[] = dates.map(
+                    (dateTimestamp) => {
+                      const priceMap = new Map<string, number>();
+
+                      // Build price map for this date from peer chart data
+                      peerChartData.forEach((peer) => {
+                        const dataPoint = peer.data.find(
+                          (point) =>
+                            new Date(point.time).getTime() === dateTimestamp,
+                        );
+                        if (dataPoint && dataPoint.value !== undefined) {
+                          priceMap.set(peer.symbol, dataPoint.value);
+                        }
+                      });
+
+                      return {
+                        time: new Date(dateTimestamp).toLocaleDateString(
+                          'en-CA',
+                          {
+                            timeZone: 'Asia/Kolkata',
+                          },
+                        ),
+                        value: this.calculatePortfolioChangeAtDate(
+                          holdings,
+                          dateTimestamp,
+                          priceMap,
+                        ),
+                      };
+                    },
+                  );
+
+                  return portfolioChartData;
+                }),
+              )
+            : of([]);
+        } else {
+          return of([]);
+        }
+      }),
+    );
+  }
+
+  public getPortfolioComposition(): Observable<{
+    weight: number[];
+    stocks: string[];
+  }> {
+    return this.portfolio$.pipe(
+      map((portfolio) => {
+        if (portfolio) {
+          const { holdings, marketValue } = portfolio;
+
+          return holdings.length > 0
+            ? this.calculatePortfolioWeight(holdings, marketValue)
+            : { weight: [], stocks: [] };
+        } else {
+          return { weight: [], stocks: [] };
+        }
       }),
     );
   }
@@ -217,5 +241,24 @@ export class DashboardService {
     });
 
     return { quantity, investment };
+  }
+
+  private calculatePortfolioWeight(
+    holdings: Holding[],
+    totalMarketValue: number,
+  ): { weight: number[]; stocks: string[] } {
+    return holdings.reduce(
+      (acc, holding) => {
+        const { name, marketValue } = holding;
+
+        acc.weight.push(
+          marketValue ? (marketValue / totalMarketValue) * 100 : 0,
+        );
+        acc.stocks.push(name);
+
+        return acc;
+      },
+      { weight: [] as number[], stocks: [] as string[] },
+    );
   }
 }

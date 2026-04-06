@@ -6,8 +6,6 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideCharts } from 'ng2-charts';
-
 import {
   ArcElement,
   BarController,
@@ -21,6 +19,8 @@ import {
   PointElement,
   Tooltip,
 } from 'chart.js';
+import { provideCharts } from 'ng2-charts';
+
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
