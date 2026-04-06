@@ -54,24 +54,27 @@
   </div>
   }
 
-  <!-- Chart Section -->
+  <!-- Portfolio Performance Chart Section -->
   <div
-    #chartContainer
+    #portfolioPerformanceChartContainer
     class="flex flex-col"
-    [class.py-4]="!isChartInFullscreen"
+    [class.py-4]="!isPortfolioPerformanceChartInFullscreen"
   >
     <div
       class="relative flex flex-1 flex-col bg-white py-4 dark:bg-gray-800"
-      [ngClass]="isChartInFullscreen ? 'pe-4' : 'shadow-sm rounded-md border border-gray-200 dark:border-gray-700'"
+      [ngClass]="isPortfolioPerformanceChartInFullscreen ? 'pe-4' : 'shadow-sm rounded-md border border-gray-200 dark:border-gray-700'"
     >
       <div class="flex max-w-full px-4 pb-4">
-        <!-- Range Selector -->
-        <div class="flex flex-1 justify-between">
+        <!-- Title & Range Selector -->
+        <div class="flex flex-1 flex-col justify-between md:flex-row">
           <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
             Portfolio Performance
           </h3>
 
-          <div class="inline-flex h-8 rounded-md shadow-xs" role="group">
+          <div
+            class="inline-flex h-8 justify-end rounded-md pt-4 shadow-xs md:pt-0"
+            role="group"
+          >
             <button
               (click)="setChartPeriod(Period.ONE_DAY)"
               type="button"
@@ -138,9 +141,12 @@
         </div>
       </div>
 
-      <!-- Chart -->
-      <div #chart [ngClass]="isChartInFullscreen ? 'flex-1' : 'w-full h-80'">
-        @if (isChartLoading) {
+      <!-- Portfolio Performance Chart -->
+      <div
+        #portfolioPerformanceChart
+        [ngClass]="isPortfolioPerformanceChartInFullscreen ? 'flex-1' : 'w-full h-80'"
+      >
+        @if (isPortfolioPerformanceChartLoading) {
         <div
           class="flex h-full flex-1 items-center justify-center"
           role="status"
@@ -163,7 +169,7 @@
           </svg>
           <span class="sr-only">Loading...</span>
         </div>
-        } @if (isChartNoData) {
+        } @if (isPortfolioPerformanceChartNoData) {
         <div
           class="flex h-full flex-col items-center justify-center text-gray-500 dark:text-gray-400"
           role="status"
@@ -191,14 +197,14 @@
 
       <div
         class="absolute"
-        [ngClass]="isChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden bottom-1 right-1'"
+        [ngClass]="isPortfolioPerformanceChartInFullscreen ? 'block bottom-2 right-3' : 'block sm:hidden bottom-1 right-1'"
       >
         <button
           (click)="toggleFullscreen()"
           type="button"
           class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         >
-          @if (isChartInFullscreen) {
+          @if (isPortfolioPerformanceChartInFullscreen) {
           <span class="sr-only">Minimize</span>
 
           <svg
@@ -241,6 +247,24 @@
           }
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Composition Chart Section -->
+  <div
+    class="relative w-full rounded-md border border-gray-200 bg-white py-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h3 class="px-4 text-base font-normal text-gray-500 dark:text-gray-400">
+      Portfolio Composition
+    </h3>
+
+    <div class="h-80 py-4">
+      <canvas
+        baseChart
+        [type]="ChartType.DOUGHNUT"
+        [data]="portfolioCompositionChartData"
+        [options]="portfolioCompositionChartOptions"
+      ></canvas>
     </div>
   </div>
   } @else {
