@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -27,7 +27,7 @@ jobs:
         # run: npx nx-cloud start-ci-run --distribute-on="4 linux-medium-js" --stop-agents-after="lint,build,test,e2e-ci"
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'npm' # Cache node_modules
@@ -36,7 +36,7 @@ jobs:
         run: npm ci
 
       - name: Set NX SHAs
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
 
       - name: Set Tracking Branch for NX
         if: ${{ github.event_name == 'pull_request' }}
