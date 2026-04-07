@@ -247,18 +247,20 @@ export class DashboardService {
     holdings: Holding[],
     totalMarketValue: number,
   ): { weight: number[]; stocks: string[] } {
-    return holdings.reduce(
-      (acc, holding) => {
-        const { name, marketValue } = holding;
+    return holdings
+      .sort((a, b) => (b.marketValue || 0) - (a.marketValue || 0))
+      .reduce(
+        (acc, holding) => {
+          const { name, marketValue } = holding;
 
-        acc.weight.push(
-          marketValue ? (marketValue / totalMarketValue) * 100 : 0,
-        );
-        acc.stocks.push(name);
+          acc.weight.push(
+            marketValue ? (marketValue / totalMarketValue) * 100 : 0,
+          );
+          acc.stocks.push(name);
 
-        return acc;
-      },
-      { weight: [] as number[], stocks: [] as string[] },
-    );
+          return acc;
+        },
+        { weight: [] as number[], stocks: [] as string[] },
+      );
   }
 }

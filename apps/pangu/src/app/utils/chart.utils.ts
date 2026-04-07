@@ -49,6 +49,9 @@ export class ChartUtils {
       responsive: true,
       maintainAspectRatio: false,
       cutout: `${size || 70}%`,
+      layout: {
+        padding: 22,
+      },
       plugins: {
         legend: {
           display: displayLegend,
@@ -98,7 +101,7 @@ export class ChartUtils {
     // Contrast Settings:
     // For 'light' background, we use dark foreground (low lightness: 35%).
     // For 'dark' background, we use bright foreground (high lightness: 75%).
-    const lightness = theme === ColorScheme.LIGHT ? '35%' : '75%';
+    const lightness = theme === ColorScheme.LIGHT ? '50%' : '60%';
     const saturation = '75%'; // High saturation for visual pop
 
     for (let i = 0; i < count; i++) {
