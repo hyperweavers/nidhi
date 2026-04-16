@@ -50,7 +50,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        # Latest version v6 introduced a breaking change in credentials storage that
+        # affects the deploy action. Until, deploy action fixes it, sticking with v5.
+        uses: actions/checkout@v5
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
