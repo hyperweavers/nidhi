@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Dropdown } from 'flowbite';
 import {
   BehaviorSubject,
@@ -82,6 +82,8 @@ export class PortfolioPage implements AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
   private readonly marketService = inject(MarketService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly transactionDateInputRef = viewChild<ElementRef>(
     'transactionDateInput',
@@ -194,6 +196,8 @@ export class PortfolioPage implements AfterViewInit {
       })),
       share(),
     );
+
+    this.restoreFromQueryParams();
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
       debounceTime(500), // TODO: Review the time
@@ -404,7 +408,7 @@ export class PortfolioPage implements AfterViewInit {
 
   public filterPortfolio(filter: PortfolioFilter): void {
     this.portfolioFilter$.next(filter);
-
+    this.syncQueryParams();
     if (this.filterDropdown) {
       this.filterDropdown.hide();
     }
@@ -412,7 +416,7 @@ export class PortfolioPage implements AfterViewInit {
 
   public clearPortfolioFilters(): void {
     this.portfolioFilter$.next(PortfolioFilter.NONE);
-
+    this.syncQueryParams();
     if (this.filterDropdown) {
       this.filterDropdown.hide();
     }
@@ -423,10 +427,76 @@ export class PortfolioPage implements AfterViewInit {
     order: PortfolioSortOrder,
   ): void {
     this.portfolioSort$.next([type, order]);
+    this.syncQueryParams();
+    if (this.sortDropdown) {
+      this.sortDropdown.hide();
+    }
+  }
+
+  public clearAllFilters(): void {
+    this.portfolioFilter$.next(PortfolioFilter.NONE);
+    this.portfolioSort$.next([
+      PortfolioSortType.DAY_PROFIT_LOSS,
+      PortfolioSortOrder.DSC,
+    ]);
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
 
     if (this.sortDropdown) {
       this.sortDropdown.hide();
     }
+    if (this.filterDropdown) {
+      this.filterDropdown.hide();
+    }
+  }
+
+  private restoreFromQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const sortType = params.get('sortType') as PortfolioSortType | null;
+    const sortOrder = params.get('sortOrder') as PortfolioSortOrder | null;
+
+    if (
+      sortType &&
+      sortOrder &&
+      Object.values(PortfolioSortType).includes(sortType) &&
+      Object.values(PortfolioSortOrder).includes(sortOrder)
+    ) {
+      this.portfolioSort$.next([sortType, sortOrder]);
+    }
+
+    const filter = params.get('filter') as PortfolioFilter | null;
+
+    if (filter && Object.values(PortfolioFilter).includes(filter)) {
+      this.portfolioFilter$.next(filter);
+    }
+  }
+
+  private syncQueryParams(): void {
+    const [sortType, sortOrder] = this.portfolioSort$.getValue();
+    const filter = this.portfolioFilter$.getValue();
+    const queryParams: Record<string, string> = {};
+
+    if (
+      sortType !== PortfolioSortType.DAY_PROFIT_LOSS ||
+      sortOrder !== PortfolioSortOrder.DSC
+    ) {
+      queryParams['sortType'] = sortType;
+      queryParams['sortOrder'] = sortOrder;
+    }
+
+    if (filter !== PortfolioFilter.NONE) {
+      queryParams['filter'] = filter;
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      replaceUrl: true,
+    });
   }
 
   private showTransactionFormError(message: string): void {
