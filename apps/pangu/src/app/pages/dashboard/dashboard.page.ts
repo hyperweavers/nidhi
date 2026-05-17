@@ -78,6 +78,9 @@ export class DashboardPage {
   public isPortfolioPerformanceChartInFullscreen = false;
   public isPortfolioPerformanceChartNoData = false;
 
+  public isPortfolioCompositionChartLoading = true;
+  public isPortfolioCompositionChartNoData = false;
+
   public portfolioCompositionChartData: DoughnutChartData<
     ChartType.DOUGHNUT,
     number[],
@@ -153,9 +156,6 @@ export class DashboardPage {
         untilDestroyed(this),
       )
       .subscribe((data) => {
-        this.isPortfolioPerformanceChartLoading = false;
-        this.isPortfolioPerformanceChartNoData = data.length === 0;
-
         if (data.length > 0) {
           this.isPortfolioPerformanceChartNoData = false;
 
@@ -242,16 +242,27 @@ export class DashboardPage {
 
     combineLatest([
       dashboardService.getPortfolioComposition(),
-      settingsService.settings$.pipe(distinctUntilKeyChanged('colorScheme')),
+      settingsService.settings$.pipe(
+        distinctUntilKeyChanged('colorScheme'),
+        tap(() => (this.isPortfolioCompositionChartLoading = true)),
+      ),
     ])
       .pipe(untilDestroyed(this))
       .subscribe(([{ weight, stocks }, { colorScheme }]) => {
-        const colors = ChartUtils.generateChartColors(
-          stocks.length,
-          colorScheme,
-        );
+        if (stocks.length > 0) {
+          this.isPortfolioCompositionChartNoData = false;
 
-        this.updatePortfolioCompositionChart(weight, stocks, colors);
+          const colors = ChartUtils.generateChartColors(
+            stocks.length,
+            colorScheme,
+          );
+
+          this.updatePortfolioCompositionChart(weight, stocks, colors);
+        } else {
+          this.isPortfolioCompositionChartNoData = true;
+        }
+
+        this.isPortfolioCompositionChartLoading = false;
       });
   }
 
