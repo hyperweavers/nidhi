@@ -433,24 +433,33 @@ export class PortfolioPage implements AfterViewInit {
     }
   }
 
-  public clearAllFilters(): void {
-    this.portfolioFilter$.next(PortfolioFilter.NONE);
-    this.portfolioSort$.next([
-      PortfolioSortType.DAY_PROFIT_LOSS,
-      PortfolioSortOrder.DSC,
-    ]);
+  public clearFiltersAndSort(): void {
+    const [sortType, sortOrder] = this.portfolioSort$.getValue();
+    const filter = this.portfolioFilter$.getValue();
 
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {},
-      replaceUrl: true,
-    });
+    if (
+      sortType !== PortfolioSortType.DAY_PROFIT_LOSS ||
+      sortOrder !== PortfolioSortOrder.DSC ||
+      filter !== PortfolioFilter.NONE
+    ) {
+      this.portfolioFilter$.next(PortfolioFilter.NONE);
+      this.portfolioSort$.next([
+        PortfolioSortType.DAY_PROFIT_LOSS,
+        PortfolioSortOrder.DSC,
+      ]);
 
-    if (this.sortDropdown) {
-      this.sortDropdown.hide();
-    }
-    if (this.filterDropdown) {
-      this.filterDropdown.hide();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true,
+      });
+
+      if (this.sortDropdown) {
+        this.sortDropdown.hide();
+      }
+      if (this.filterDropdown) {
+        this.filterDropdown.hide();
+      }
     }
   }
 
