@@ -86,23 +86,38 @@ export class DashboardPage {
     number[],
     string | string[]
   > = {
+    labels: [[], [], []],
     datasets: [
       {
         ...ChartUtils.defaultDoughnutChartDataset,
         borderWidth: 1,
-        hoverOffset: 25,
+        weight: 3,
+      },
+      {
+        ...ChartUtils.defaultDoughnutChartDataset,
+        borderWidth: 1,
+        weight: 2,
+      },
+      {
+        ...ChartUtils.defaultDoughnutChartDataset,
+        borderWidth: 1,
+        weight: 1,
       },
     ],
   };
 
   public portfolioCompositionChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    ChartUtils.getDoughnutChartOptions(false, 55, (context) => {
-      const transformedValue = this.decimalPipe.transform(
-        context.parsed,
-        '1.2-2',
-      );
+    ChartUtils.getMultiRingDoughnutChartOptions('30%', (context) => {
+      const value = this.decimalPipe.transform(context.parsed, '1.2-2');
+      const label = value ? `${value}%` : '';
 
-      return transformedValue ? `${transformedValue}%` : '';
+      if (context.datasetIndex === 0) {
+        return `Stock: ${context.label} — ${label}`;
+      } else if (context.datasetIndex === 1) {
+        return `Sector: ${context.label} — ${label}`;
+      } else {
+        return `Market Cap: ${context.label} — ${label}`;
+      }
     });
 
   public readonly Direction = Direction;
@@ -248,22 +263,62 @@ export class DashboardPage {
       ),
     ])
       .pipe(untilDestroyed(this))
-      .subscribe(([{ weight, stocks }, { colorScheme }]) => {
-        if (stocks.length > 0) {
-          this.isPortfolioCompositionChartNoData = false;
+      .subscribe(
+        ([
+          {
+            weight,
+            stocks,
+            sectors,
+            sectorWeights,
+            marketCaps,
+            marketCapWeights,
+          },
+          { colorScheme },
+        ]) => {
+          const stockCount = stocks.length;
+          const sectorCount = sectors.length;
+          const marketCapCount = marketCaps.length;
 
-          const colors = ChartUtils.generateChartColors(
-            stocks.length,
-            colorScheme,
-          );
+          if (stockCount > 0) {
+            this.isPortfolioCompositionChartNoData = false;
 
-          this.updatePortfolioCompositionChart(weight, stocks, colors);
-        } else {
-          this.isPortfolioCompositionChartNoData = true;
-        }
+            const colors = ChartUtils.generateChartColors(
+              stockCount + sectorCount + marketCapCount,
+              colorScheme,
+            );
 
-        this.isPortfolioCompositionChartLoading = false;
-      });
+            const allLabels: string[] = [...stocks, ...sectors, ...marketCaps];
+
+            const stockDataWithPadding: number[] = [
+              ...weight,
+              ...Array(sectorCount + marketCapCount).fill(0),
+            ];
+            const sectorDataWithPadding: number[] = [
+              ...Array(stockCount).fill(0),
+              ...sectorWeights,
+              ...Array(marketCapCount).fill(0),
+            ];
+            const marketCapDataWithPadding: number[] = [
+              ...Array(stockCount + sectorCount).fill(0),
+              ...marketCapWeights,
+            ];
+
+            this.updatePortfolioCompositionChart(
+              stockDataWithPadding,
+              allLabels,
+              colors,
+              sectorDataWithPadding,
+              colors,
+              marketCapDataWithPadding,
+              colors,
+            );
+          } else {
+            this.isPortfolioCompositionChartNoData = true;
+          }
+
+          this.isPortfolioCompositionChartLoading = false;
+        },
+      );
   }
 
   public setChartPeriod(period: Period): void {
@@ -378,28 +433,31 @@ export class DashboardPage {
   }
 
   private updatePortfolioCompositionChart(
-    data: number[],
+    stockData: number[],
     labels: string[],
-    colors: string[],
+    stockColors: string[],
+    sectorData: number[],
+    sectorColors: string[],
+    marketCapData: number[],
+    marketCapColors: string[],
   ) {
-    if (data.length > 0) {
-      this.portfolioCompositionChartData.datasets[0].data = data;
-    }
+    this.portfolioCompositionChartData.labels = labels;
 
-    if (labels.length > 0) {
-      this.portfolioCompositionChartData.labels = labels;
-    }
+    this.portfolioCompositionChartData.datasets[0].data = stockData;
+    this.portfolioCompositionChartData.datasets[0].backgroundColor =
+      stockColors;
 
-    if (colors.length > 0) {
-      this.portfolioCompositionChartData.datasets[0].backgroundColor = colors;
-    }
+    this.portfolioCompositionChartData.datasets[1].data = sectorData;
+    this.portfolioCompositionChartData.datasets[1].backgroundColor =
+      sectorColors;
 
-    // Refresh the chart
-    if (data.length > 0 || labels.length > 0) {
-      const chart = this.portfolioCompositionChart();
-      if (chart) {
-        chart.update();
-      }
+    this.portfolioCompositionChartData.datasets[2].data = marketCapData;
+    this.portfolioCompositionChartData.datasets[2].backgroundColor =
+      marketCapColors;
+
+    const chart = this.portfolioCompositionChart();
+    if (chart) {
+      chart.update();
     }
   }
 }

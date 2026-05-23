@@ -166,17 +166,56 @@ export class DashboardService {
   public getPortfolioComposition(): Observable<{
     weight: number[];
     stocks: string[];
+    sectors: string[];
+    sectorWeights: number[];
+    marketCaps: string[];
+    marketCapWeights: number[];
   }> {
     return this.portfolio$.pipe(
       map((portfolio) => {
         if (portfolio) {
           const { holdings, marketValue } = portfolio;
 
-          return holdings.length > 0
-            ? this.calculatePortfolioWeight(holdings, marketValue)
-            : { weight: [], stocks: [] };
+          if (holdings.length > 0) {
+            const stockWeights = this.calculatePortfolioWeight(
+              holdings,
+              marketValue,
+            );
+            const sectorWeights = this.calculateSectorWeight(
+              holdings,
+              marketValue,
+            );
+            const marketCapWeights = this.calculateMarketCapWeight(
+              holdings,
+              marketValue,
+            );
+
+            return {
+              ...stockWeights,
+              sectors: sectorWeights.sectors,
+              sectorWeights: sectorWeights.weights,
+              marketCaps: marketCapWeights.marketCaps,
+              marketCapWeights: marketCapWeights.weights,
+            };
+          } else {
+            return {
+              weight: [],
+              stocks: [],
+              sectors: [],
+              sectorWeights: [],
+              marketCaps: [],
+              marketCapWeights: [],
+            };
+          }
         } else {
-          return { weight: [], stocks: [] };
+          return {
+            weight: [],
+            stocks: [],
+            sectors: [],
+            sectorWeights: [],
+            marketCaps: [],
+            marketCapWeights: [],
+          };
         }
       }),
     );
@@ -248,6 +287,7 @@ export class DashboardService {
     totalMarketValue: number,
   ): { weight: number[]; stocks: string[] } {
     return holdings
+      .filter((h) => (h.marketValue || 0) > 0)
       .sort((a, b) => (b.marketValue || 0) - (a.marketValue || 0))
       .reduce(
         (acc, holding) => {
@@ -262,5 +302,57 @@ export class DashboardService {
         },
         { weight: [] as number[], stocks: [] as string[] },
       );
+  }
+
+  private calculateSectorWeight(
+    holdings: Holding[],
+    totalMarketValue: number,
+  ): { sectors: string[]; weights: number[] } {
+    const sectorMap = new Map<string, number>();
+
+    for (const h of holdings) {
+      const mv = h.marketValue || 0;
+      if (mv <= 0) continue;
+
+      const sector = h.details?.sector || 'Unknown';
+      sectorMap.set(sector, (sectorMap.get(sector) || 0) + mv);
+    }
+
+    const entries = Array.from(sectorMap.entries()).sort((a, b) => b[1] - a[1]);
+
+    return entries.reduce(
+      (acc, [sector, value]) => {
+        acc.sectors.push(sector);
+        acc.weights.push((value / totalMarketValue) * 100);
+        return acc;
+      },
+      { sectors: [] as string[], weights: [] as number[] },
+    );
+  }
+
+  private calculateMarketCapWeight(
+    holdings: Holding[],
+    totalMarketValue: number,
+  ): { marketCaps: string[]; weights: number[] } {
+    const capMap = new Map<string, number>();
+
+    for (const h of holdings) {
+      const mv = h.marketValue || 0;
+      if (mv <= 0) continue;
+
+      const capType = h.metrics?.nse?.marketCapType || 'Not Classified';
+      capMap.set(capType, (capMap.get(capType) || 0) + mv);
+    }
+
+    const entries = Array.from(capMap.entries()).sort((a, b) => b[1] - a[1]);
+
+    return entries.reduce(
+      (acc, [capType, value]) => {
+        acc.marketCaps.push(capType);
+        acc.weights.push((value / totalMarketValue) * 100);
+        return acc;
+      },
+      { marketCaps: [] as string[], weights: [] as number[] },
+    );
   }
 }

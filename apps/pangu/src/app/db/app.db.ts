@@ -98,6 +98,20 @@ class AppDB extends Dexie {
     this.version(2).stores({
       stocks: '&id, &scripCode.isin',
     });
+
+    this.version(3)
+      .stores({
+        stocks: '&id, &scripCode.isin',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('stocks')
+          .toCollection()
+          .modify((stock) => {
+            stock.details = stock.details || {};
+            stock.metrics = stock.metrics || {};
+          }),
+      );
   }
 }
 
