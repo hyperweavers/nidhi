@@ -1,7 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map, shareReplay, switchMap } from 'rxjs';
+import {
+  Observable,
+  concatMap,
+  from,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { db } from '../db/app.db';
 import { Direction } from '../models/market';
 import { Holding, Portfolio, TransactionType } from '../models/portfolio';
 import { Stock } from '../models/stock';
@@ -14,14 +23,15 @@ import { StorageService } from './core/storage.service';
 export class PortfolioService {
   public portfolio$: Observable<Portfolio>;
 
+  private readonly marketService = inject(MarketService);
+
   constructor() {
     const storageService = inject(StorageService);
-    const marketService = inject(MarketService);
 
     this.portfolio$ = from(storageService.stocks$)
       .pipe(
         switchMap((storageStocks) => {
-          return marketService
+          return this.marketService
             .getStocks(
               storageStocks.map(
                 (storageStock) => storageStock.vendorCode.etm.primary,
@@ -60,6 +70,8 @@ export class PortfolioService {
 
                   return {
                     ...marketStock,
+                    details: storageStock?.details ?? marketStock.details,
+                    metrics: storageStock?.metrics ?? marketStock.metrics,
                     id: storageStock?.id || uuid(),
                     transactions: storageStock?.transactions || [],
                     quantity,
@@ -172,5 +184,63 @@ export class PortfolioService {
         }),
       )
       .pipe(shareReplay(1));
+
+    this.portfolio$
+      .pipe(
+        tap((portfolio) => {
+          this.enrichMissingDetails(portfolio.holdings);
+        }),
+      )
+      .subscribe();
+  }
+
+  private enriching = false;
+
+  private enrichMissingDetails(holdings: Holding[]): void {
+    if (this.enriching) {
+      return;
+    }
+
+    const missing = holdings.filter(
+      (h) =>
+        h.vendorCode.etm.primary &&
+        (!h.details?.sector || !h.metrics?.nse?.marketCap),
+    );
+
+    if (missing.length === 0) {
+      return;
+    }
+
+    this.enriching = true;
+
+    from(missing)
+      .pipe(
+        concatMap((holding) =>
+          this.marketService.getStock(holding.vendorCode.etm.primary, true),
+        ),
+        tap((stock) => {
+          if (
+            stock?.scripCode?.isin &&
+            stock?.details?.sector &&
+            stock?.metrics?.nse?.marketCap
+          ) {
+            db.stocks
+              .where('scripCode.isin')
+              .equals(stock.scripCode.isin)
+              .modify({ details: stock.details, metrics: stock.metrics })
+              .catch(() => {
+                /* empty - enrichment is best-effort */
+              });
+          }
+        }),
+      )
+      .subscribe({
+        error: () => {
+          /* best-effort enrichment, errors are skipped */
+        },
+        complete: () => {
+          this.enriching = false;
+        },
+      });
   }
 }
