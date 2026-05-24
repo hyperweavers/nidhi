@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {
   NavigationEnd,
+  NavigationStart,
   Router,
   RouterLink,
   RouterModule,
@@ -19,10 +20,12 @@ import {
   VersionEvent,
   VersionReadyEvent,
 } from '@angular/service-worker';
+import { LOGGER } from '@nidhi/shared-logger';
 import { initFlowbite } from 'flowbite';
 import { delay, filter } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { APP_VERSION } from '../generated/version';
 import { Constants } from './constants';
 import { Flowbite } from './decorators/flowbite.decorator';
 import { SettingsService } from './services/core/settings.service';
@@ -43,6 +46,7 @@ export class AppComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly settingsService = inject(SettingsService);
+  private readonly logger = inject(LOGGER);
 
   private readonly MEDIA_SIZE_LARGE = 1024;
 
@@ -51,6 +55,7 @@ export class AppComponent implements OnInit {
   public showInstallModal?: boolean;
   public ios?: boolean;
 
+  public readonly appVersion = APP_VERSION;
   public readonly Routes = Constants.routes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,7 +65,9 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(untilDestroyed(this), delay(100))
       .subscribe((event) => {
-        if (event instanceof NavigationEnd) {
+        if (event instanceof NavigationStart) {
+          this.sidebarOpen = false;
+        } else if (event instanceof NavigationEnd) {
           initFlowbite();
         }
       });
@@ -141,7 +148,7 @@ export class AppComponent implements OnInit {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error(
+        this.logger.error(
           `An error occurred while trying to share the app: ${error}`,
         );
       } finally {

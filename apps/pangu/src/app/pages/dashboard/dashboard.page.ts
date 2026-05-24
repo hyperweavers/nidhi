@@ -13,6 +13,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { LOGGER } from '@nidhi/shared-logger';
 import { ChartConfiguration, ChartData as DoughnutChartData } from 'chart.js';
 import {
   AreaSeries,
@@ -61,6 +62,7 @@ export class DashboardPage {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly decimalPipe = inject(DecimalPipe);
+  private readonly logger = inject(LOGGER);
 
   private readonly portfolioCompositionChart = viewChild(BaseChartDirective);
 
@@ -361,7 +363,7 @@ export class DashboardPage {
             (screen.orientation as any)
               .lock('landscape')
               .catch((error: Error) => {
-                console.error(
+                this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
               });
@@ -369,7 +371,7 @@ export class DashboardPage {
             this.cdr.markForCheck();
           })
           .catch((error: Error) => {
-            console.error(
+            this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
           });

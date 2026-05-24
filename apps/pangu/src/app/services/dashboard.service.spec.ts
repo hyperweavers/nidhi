@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { LOGGER } from '@nidhi/shared-logger';
 
 import { provideHttpClient } from '@angular/common/http';
 import { DashboardService } from './dashboard.service';
@@ -8,7 +9,18 @@ describe('DashboardService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient()],
+      providers: [
+        provideHttpClient(),
+        {
+          provide: LOGGER,
+          useValue: {
+            captureException: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+            info: jest.fn(),
+          },
+        },
+      ],
     });
     service = TestBed.inject(DashboardService);
   });

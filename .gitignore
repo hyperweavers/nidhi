@@ -43,3 +43,11 @@ Thumbs.db
 .angular
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Generated sentry config
+apps/*/src/generated/

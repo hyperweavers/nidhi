@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { LOGGER } from '@nidhi/shared-logger';
 
 import { map, Observable } from 'rxjs';
 
@@ -16,6 +17,7 @@ import { Currency, CurrencyMatrix } from '../../models/currency';
 })
 export class CurrencyService {
   private readonly http = inject(HttpClient);
+  private readonly logger = inject(LOGGER);
 
   public getCurrencyList(): Observable<Currency[]> {
     return this.http
@@ -39,7 +41,7 @@ export class CurrencyService {
         const matrix: CurrencyMatrix = {};
 
         if (response.success !== 1) {
-          console.error('Failed to fetch forex rates!');
+          this.logger.error('Failed to fetch forex rates!');
         } else {
           const headers = response.data.headers;
           const rates = response.data.data;

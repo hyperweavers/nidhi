@@ -1,3 +1,4 @@
+import { LoggerAdapter } from '@nidhi/shared-logger';
 import { Direction } from '../models/market';
 import { ScripCode } from '../models/stock';
 
@@ -55,6 +56,7 @@ export class MarketUtils {
 
   public static extractScripCodesFromMcSearchResult(
     result: string,
+    logger?: LoggerAdapter,
   ): ScripCode | null {
     let codeString = '';
 
@@ -64,9 +66,7 @@ export class MarketUtils {
           .parseFromString(result, 'text/html')
           .querySelector('span')?.textContent || '';
     } catch (error) {
-      console.error(
-        `An error occurred while trying to parse MC search result "${result}": ${error}`,
-      );
+      logger?.captureException(error);
     }
 
     if (codeString) {

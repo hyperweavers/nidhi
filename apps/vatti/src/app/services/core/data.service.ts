@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { LOGGER } from '@nidhi/shared-logger';
 import {
   Observable,
   catchError,
@@ -23,6 +24,7 @@ import { PostOfficeSavingsSchemes } from '../../models/deposit';
 })
 export class DataService {
   private readonly http = inject(HttpClient);
+  private readonly logger = inject(LOGGER);
 
   private readonly HTTP_REQUEST_TIMEOUT_MS = 5_000; // 5 Seconds
 
@@ -42,7 +44,7 @@ export class DataService {
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
-          console.error(error);
+          this.logger.error(error);
 
           return of(0);
         }),
@@ -66,7 +68,7 @@ export class DataService {
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
-          console.error(error);
+          this.logger.error(error);
 
           return of(null);
         }),
@@ -81,7 +83,7 @@ export class DataService {
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
-          console.error(error);
+          this.logger.error(error);
 
           return of(null);
         }),
@@ -96,7 +98,7 @@ export class DataService {
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
-          console.error(error);
+          this.logger.error(error);
 
           return of(null);
         }),
@@ -111,7 +113,7 @@ export class DataService {
       .pipe(
         timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
-          console.error(error);
+          this.logger.error(error);
 
           return of(null);
         }),

@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'pangu',
   preset: '../../jest.preset.js',

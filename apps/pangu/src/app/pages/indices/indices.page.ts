@@ -14,6 +14,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { LOGGER } from '@nidhi/shared-logger';
 import {
   AreaSeries,
   IChartApi,
@@ -55,6 +56,7 @@ import { ChartUtils } from '../../utils/chart.utils';
 export class IndicesPage implements OnDestroy {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly logger = inject(LOGGER);
 
   private readonly chartContainerRef = viewChild<ElementRef>('chartContainer');
   private readonly chartRef = viewChild<ElementRef>('chart');
@@ -294,7 +296,7 @@ export class IndicesPage implements OnDestroy {
             break;
 
           default:
-            console.warn(`Invalid range: ${range}`);
+            this.logger.warn(`Invalid range: ${range}`);
         }
 
         if (this.chart && from > 0) {
@@ -376,7 +378,7 @@ export class IndicesPage implements OnDestroy {
             (screen.orientation as any)
               .lock('landscape')
               .catch((error: Error) => {
-                console.error(
+                this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
               });
@@ -384,7 +386,7 @@ export class IndicesPage implements OnDestroy {
             this.cdr.markForCheck();
           })
           .catch((error: Error) => {
-            console.error(
+            this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
           });

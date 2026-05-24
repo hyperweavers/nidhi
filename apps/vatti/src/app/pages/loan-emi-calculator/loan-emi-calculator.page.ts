@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LOGGER } from '@nidhi/shared-logger';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
@@ -53,6 +54,7 @@ enum Charts {
 export class LoanEmiCalculatorPage implements OnInit {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly logger = inject(LOGGER);
   private readonly decimalPipe = inject(DecimalPipe);
 
   private readonly loanStartDateInput =
@@ -296,7 +298,7 @@ export class LoanEmiCalculatorPage implements OnInit {
             (screen.orientation as any)
               .lock('landscape')
               .catch((error: Error) => {
-                console.error(
+                this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
               });
@@ -304,7 +306,7 @@ export class LoanEmiCalculatorPage implements OnInit {
             this.cdr.markForCheck();
           })
           .catch((error: Error) => {
-            console.error(
+            this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
           });

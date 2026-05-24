@@ -9,6 +9,8 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { ArcElement, DoughnutController, Legend, Tooltip } from 'chart.js';
 import { provideCharts } from 'ng2-charts';
 
+import { ConsoleLogger, LOGGER } from '@nidhi/shared-logger';
+import { provideSentry, SentryLogger } from '@nidhi/shared-sentry';
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -23,5 +25,10 @@ export const appConfig: ApplicationConfig = {
     provideCharts({
       registerables: [DoughnutController, ArcElement, Legend, Tooltip],
     }),
+    ...(!isDevMode() ? provideSentry() : []),
+    {
+      provide: LOGGER,
+      useClass: isDevMode() ? ConsoleLogger : SentryLogger,
+    },
   ],
 };

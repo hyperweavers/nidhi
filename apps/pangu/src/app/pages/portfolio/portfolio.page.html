@@ -140,6 +140,8 @@
             >
               <li
                 (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -164,6 +166,8 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -188,6 +192,8 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -212,6 +218,8 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -236,6 +244,8 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -260,6 +270,8 @@
               </li>
               <li
                 (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                (keydown.enter)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
@@ -333,30 +345,40 @@
             >
               <li
                 (click)="clearPortfolioFilters()"
+                (keydown.enter)="clearPortfolioFilters()"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 All
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
+                (keydown.enter)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Day Gainers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
+                (keydown.enter)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Day Losers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
+                (keydown.enter)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Overall Gainers
               </li>
               <li
                 (click)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
+                (keydown.enter)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
+                tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Overall Losers
@@ -615,6 +637,8 @@
             @for (stock of stocks; track stock.vendorCode.etm.primary) {
             <li
               (click)="selectStock(stock)"
+              (keydown.enter)="selectStock(stock)"
+              tabindex="0"
               class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >
               {{ stock.name | valueOrPlaceholder }}

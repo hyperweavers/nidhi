@@ -58,6 +58,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LOGGER } from '@nidhi/shared-logger';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { addMonths } from 'date-fns';
 import { BaseChartDirective } from 'ng2-charts';
@@ -102,6 +103,7 @@ enum Charts {
 export class RecurringDepositCalculatorPage implements OnInit {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly logger = inject(LOGGER);
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly datePipe = inject(DatePipe);
 
@@ -377,7 +379,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
             (screen.orientation as any)
               .lock('landscape')
               .catch((error: Error) => {
-                console.error(
+                this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
               });
@@ -385,7 +387,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
             this.cdr.markForCheck();
           })
           .catch((error: Error) => {
-            console.error(
+            this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
           });
