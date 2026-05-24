@@ -10,7 +10,7 @@ if (!projectName) {
 }
 
 const envVarName = `SENTRY_DSN_${projectName.toUpperCase()}`;
-const dsn = process.env[envVarName] || '__DSN_PLACEHOLDER__';
+const dsn = process.env.SENTRY_DSN || process.env[envVarName] || '';
 
 const dir = `apps/${projectName}/src/generated`;
 mkdirSync(dir, { recursive: true });
