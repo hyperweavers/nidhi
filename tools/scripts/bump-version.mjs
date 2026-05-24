@@ -37,6 +37,19 @@ try {
   // No commits found
 }
 
+if (!log && lastVersionCommit) {
+  const appChanges = execSync(
+    `git diff-tree --no-commit-id -r --name-only "${lastVersionCommit}" -- "${projectDir}/" ':!${versionFile}'`,
+    { encoding: 'utf-8' },
+  ).trim();
+  if (appChanges) {
+    log = execSync(
+      `git log --oneline -1 "${lastVersionCommit}" -- "${projectDir}/"`,
+      { encoding: 'utf-8' },
+    ).trim();
+  }
+}
+
 if (!log) {
   // No changes — keep current version, just regenerate
   const generatedDir = `apps/${projectName}/src/generated`;

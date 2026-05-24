@@ -63,6 +63,7 @@
     },
     "prebuild-version": {
       "executor": "nx:run-commands",
+      "cache": false,
       "outputs": ["{projectRoot}/src/generated/version.ts"],
       "inputs": ["{projectRoot}/version"],
       "options": {
@@ -71,6 +72,7 @@
     },
     "prebuild-sentry": {
       "executor": "nx:run-commands",
+      "cache": false,
       "outputs": ["{projectRoot}/src/generated/sentry-config.ts"],
       "inputs": ["{workspaceRoot}/.env"],
       "options": {
