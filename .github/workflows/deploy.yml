@@ -87,10 +87,13 @@ jobs:
         run: |
           npx @sentry/cli releases new "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" --project "${{ matrix.app }}"
-          npx @sentry/cli releases files "${{ steps.bump-version.outputs.version }}" \
-            upload-sourcemaps dist/apps/${{ matrix.app }}/browser \
-            --url-prefix '~/browser' --validate \
-            --org "$SENTRY_ORG" --project "${{ matrix.app }}"
+          npx @sentry/cli sourcemaps upload \
+            --release "${{ steps.bump-version.outputs.version }}" \
+            --org "$SENTRY_ORG" \
+            --project "${{ matrix.app }}" \
+            --url-prefix '~/browser' \
+            --validate \
+            dist/apps/${{ matrix.app }}/browser
           npx @sentry/cli releases finalize "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" --project "${{ matrix.app }}"
 
