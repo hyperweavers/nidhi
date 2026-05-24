@@ -105,6 +105,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
+      "dependsOn": ["prebuild-version", "prebuild-sentry"],
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/vatti/jest.config.ts",
