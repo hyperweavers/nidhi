@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { LOGGER } from '@nidhi/shared-logger';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { addDays, yearsToDays } from 'date-fns';
 import { BaseChartDirective } from 'ng2-charts';
@@ -58,6 +59,7 @@ enum Charts {
 export class PostOfficeSavingsSchemesPage {
   //implements OnInit {
   private readonly document = inject<Document>(DOCUMENT);
+  private readonly logger = inject(LOGGER);
   private readonly decimalPipe = inject(DecimalPipe);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -316,7 +318,7 @@ export class PostOfficeSavingsSchemesPage {
             (screen.orientation as any)
               .lock('landscape')
               .catch((error: Error) => {
-                console.error(
+                this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
               });
@@ -324,7 +326,7 @@ export class PostOfficeSavingsSchemesPage {
             this.cdr.markForCheck();
           })
           .catch((error: Error) => {
-            console.error(
+            this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
           });

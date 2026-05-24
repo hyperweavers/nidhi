@@ -57,9 +57,9 @@
       <main>
         <!-- Investment Type -->
         <div class="mb-6 flex">
-          <label
+          <span
             class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
-            >Investment Type</label
+            >Investment Type</span
           >
           <div class="flex">
             <div class="me-4 flex items-center">
@@ -161,10 +161,10 @@
           @if (investmentType === InvestmentType.OneTime) {
           <!-- Senior Citizen -->
           <div class="mb-6 flex items-center">
-            <label
+            <span
               class="block text-sm font-medium text-gray-900 dark:text-white"
               >Are you a senior citizen?
-            </label>
+            </span>
 
             <div class="flex-1 ps-1">
               <div
@@ -244,9 +244,9 @@
 
           <!-- Woman -->
           <div class="mb-6 flex">
-            <label
+            <span
               class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
-              >Are you a women?</label
+              >Are you a women?</span
             >
             <div class="ms-4 flex">
               <div class="me-4 flex items-center">
@@ -286,9 +286,9 @@
           } @else {
           <!-- Girl Child -->
           <div class="mb-6 flex">
-            <label
+            <span
               class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
-              >Do you have a girl child below the age of 10 years?</label
+              >Do you have a girl child below the age of 10 years?</span
             >
             <div class="ms-4 flex">
               <div class="me-4 flex items-center">
@@ -364,7 +364,12 @@
     <ul
       class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
-      <li class="me-2" (click)="onTabChange(Tabs.EARNING_COMPARISON)">
+      <li
+        class="me-2"
+        (click)="onTabChange(Tabs.EARNING_COMPARISON)"
+        (keydown.enter)="onTabChange(Tabs.EARNING_COMPARISON)"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.EARNING_COMPARISON"
@@ -372,7 +377,12 @@
           Earning Comparison
         </p>
       </li>
-      <li class="me-2" (click)="onTabChange(Tabs.SCHEME_COMPARISON)">
+      <li
+        class="me-2"
+        (click)="onTabChange(Tabs.SCHEME_COMPARISON)"
+        (keydown.enter)="onTabChange(Tabs.SCHEME_COMPARISON)"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.SCHEME_COMPARISON"
@@ -481,13 +491,11 @@
       <tbody>
         @for (scheme of schemesWithReturns; track scheme.id) {
         <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-          <td scope="col" class="min-w-36 p-2 py-3 sm:p-4">
-            {{ scheme.name }}
-          </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="min-w-36 p-2 py-3 sm:p-4">{{ scheme.name }}</td>
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.returns.principal | number: '1.0-0' }}
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.returns.interest | number: '1.0-0' }} @if
             (scheme.interestPayoutFrequencyPerYear) {
             <div
@@ -501,10 +509,10 @@
             </div>
             }
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.returns.maturity | number: '1.0-0' }}
           </td>
-          <td scope="col" class="p-2 py-3 text-center whitespace-nowrap sm:p-4">
+          <td class="p-2 py-3 text-center whitespace-nowrap sm:p-4">
             {{ scheme.returns.maturityDate | date: 'mediumDate' }}
           </td>
         </tr>
@@ -643,22 +651,20 @@
       <tbody>
         @for (scheme of schemesWithReturns; track scheme.id) {
         <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-          <td scope="col" class="min-w-36 p-2 py-3 sm:p-4">
-            {{ scheme.name }}
-          </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="min-w-36 p-2 py-3 sm:p-4">{{ scheme.name }}</td>
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.interestRate | number: '1.2-2' }}%
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.returns.effectiveYield | number: '1.2-2' }}%
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.id === PostOfficeSavingsSchemeId.KVP ?
             (((scheme.maturityTenure - 0.5) | number: '1.0-0') + ' Years ' +
             (((scheme.maturityTenure * 12) % 12) | number: '1.0-0') + ' Months')
             : (scheme.maturityTenure + ' Years') }}
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.compoundingFrequencyPerYear >
             scheme.interestPayoutFrequencyPerYear ? 'Compound' : 'Simple' }} @if
             (scheme.interestPayoutFrequencyPerYear) {
@@ -671,7 +677,7 @@
             </div>
             }
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ scheme.compoundingFrequencyPerYear >
             scheme.interestPayoutFrequencyPerYear ?
             compoundingFrequencyMap.get(scheme.compoundingFrequencyPerYear) :

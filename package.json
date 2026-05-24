@@ -25,6 +25,7 @@
     "@angular/service-worker": "21.2.0",
     "@ngneat/until-destroy": "^10.0.0",
     "@nx/angular": "22.5.3",
+    "@sentry/angular": "^10.53.1",
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
     "dexie": "^4.3.0",
@@ -57,6 +58,7 @@
     "@nx/web": "22.5.3",
     "@nx/workspace": "22.5.3",
     "@schematics/angular": "21.2.0",
+    "@sentry/cli": "^3.4.3",
     "@stylistic/eslint-plugin": "^5.9.0",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.17",
@@ -67,8 +69,10 @@
     "@typescript-eslint/eslint-plugin": "8.56.1",
     "@typescript-eslint/parser": "8.56.1",
     "@typescript-eslint/utils": "8.56.1",
+    "angular-eslint": "^21.4.0",
     "autoprefixer": "^10.4.27",
     "cypress": "15.11.0",
+    "dotenv": "^17.4.2",
     "eslint": "~9.39.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-cypress": "4.3.0",
@@ -89,6 +93,7 @@
     "tailwindcss": "^4.2.1",
     "ts-jest": "29.4.6",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.56.1"
   }
 }

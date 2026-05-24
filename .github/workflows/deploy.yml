@@ -70,8 +70,41 @@ jobs:
       # - name: Lint and Run Unit & E2E Tests
       #   run: npx nx affected --target=lint,test,e2e-ci --parallel
 
+      - name: Bump Version
+        id: bump-version
+        run: |
+          NEW_VERSION=$(node tools/scripts/bump-version.mjs ${{ matrix.app }})
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build ${{ matrix.app }} App
         run: npx nx build ${{ matrix.app }} --configuration production --base-href ./
+
+      - name: Upload Source Maps to Sentry
+        if: steps.bump-version.outputs.version != ''
+        env:
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          npx @sentry/cli releases new "${{ steps.bump-version.outputs.version }}" \
+            --org "$SENTRY_ORG" --project "${{ matrix.app }}"
+          npx @sentry/cli releases files "${{ steps.bump-version.outputs.version }}" \
+            upload-sourcemaps dist/apps/${{ matrix.app }}/browser \
+            --url-prefix '~/browser' --validate \
+            --org "$SENTRY_ORG" --project "${{ matrix.app }}"
+          npx @sentry/cli releases finalize "${{ steps.bump-version.outputs.version }}" \
+            --org "$SENTRY_ORG" --project "${{ matrix.app }}"
+
+      - name: Remove Source Maps from Deploy Artifact
+        run: find dist/apps/${{ matrix.app }}/browser -name '*.map' -delete
+
+      - name: Commit Version Bump
+        if: steps.bump-version.outputs.version != ''
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add apps/${{ matrix.app }}/version
+          git commit -m "chore: bump ${{ matrix.app }} to ${{ steps.bump-version.outputs.version }} [skip ci]"
+          git push
 
       - name: Prepare ${{ matrix.app }} App for Deployment
         run: |

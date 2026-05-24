@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { LOGGER } from '@nidhi/shared-logger';
 import {
   BehaviorSubject,
   Observable,
@@ -36,6 +37,7 @@ import { SettingsService } from './settings.service';
 export class MarketService {
   private readonly http = inject(HttpClient);
   private readonly settingsService = inject(SettingsService);
+  private readonly logger = inject(LOGGER);
 
   public marketStatus$: Observable<MarketStatus>;
 
@@ -106,6 +108,7 @@ export class MarketService {
                   scripCode:
                     MarketUtils.extractScripCodesFromMcSearchResult(
                       searchResult.pdt_dis_nm,
+                      this.logger,
                     ) ?? {},
                   vendorCode: {
                     mc: {
@@ -312,7 +315,7 @@ export class MarketService {
             )
         : of([]);
     } else {
-      console.error(`Invalid symbol: ${symbol}`);
+      this.logger.error(`Invalid symbol: ${symbol}`);
 
       return of([]);
     }
@@ -337,7 +340,7 @@ export class MarketService {
         ),
       );
     } else {
-      console.error(`Invalid symbol: ${symbol}`);
+      this.logger.error(`Invalid symbol: ${symbol}`);
 
       return of([]);
     }

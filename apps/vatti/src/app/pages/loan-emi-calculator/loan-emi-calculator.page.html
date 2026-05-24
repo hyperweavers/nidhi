@@ -9,9 +9,9 @@
     <section class="mb-6 grid grid-cols-1 md:grid-cols-2 md:gap-10">
       <main>
         <div class="mb-6 flex">
-          <label
+          <span
             class="block flex-1 text-sm font-medium text-gray-900 dark:text-white"
-            >Interest Rate Type</label
+            >Interest Rate Type</span
           >
           <div class="flex">
             <div class="me-4 flex items-center">
@@ -589,7 +589,12 @@
     <ul
       class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
-      <li class="me-2" (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.AMORTIZATION_SCHEDULE"
+        (keydown.enter)="activeTab = Tabs.AMORTIZATION_SCHEDULE"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.AMORTIZATION_SCHEDULE"
@@ -597,7 +602,12 @@
           Amortization Schedule
         </p>
       </li>
-      <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY"
+        (keydown.enter)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
@@ -607,7 +617,12 @@
       </li>
       @if (interestRateType === InterestRateType.FLOATING && rateChanges.length
       > 0) {
-      <li class="me-2" (click)="activeTab = Tabs.INTEREST_RATE_REVISIONS">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.INTEREST_RATE_REVISIONS"
+        (keydown.enter)="activeTab = Tabs.INTEREST_RATE_REVISIONS"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           [class.active]="activeTab === Tabs.INTEREST_RATE_REVISIONS"

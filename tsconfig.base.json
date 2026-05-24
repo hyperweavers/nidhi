@@ -5,7 +5,6 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es2015",
@@ -14,7 +13,10 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@nidhi/shared-logger": ["libs/shared/logger/src/index.ts"],
+      "@nidhi/shared-sentry": ["libs/shared/sentry/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

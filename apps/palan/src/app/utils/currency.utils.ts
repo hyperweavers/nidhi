@@ -1,3 +1,4 @@
+import { LoggerAdapter } from '@nidhi/shared-logger';
 import { CurrencyMatrix } from '../models/currency';
 
 export class CurrencyUtils {
@@ -5,9 +6,12 @@ export class CurrencyUtils {
     currencyMatrix: CurrencyMatrix,
     from: string,
     to: string,
+    logger?: LoggerAdapter,
   ): number {
     if (!currencyMatrix[from] || !currencyMatrix[from][to]) {
-      console.error(`Conversion rate not found for ${from} to ${to}`);
+      logger?.captureException(
+        new Error(`Conversion rate not found for ${from} to ${to}`),
+      );
 
       return -1;
     }

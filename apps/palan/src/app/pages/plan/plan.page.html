@@ -35,6 +35,8 @@
           @for (stock of stocks; track stock.vendorCode.mc.primary) {
           <li
             (click)="selectStock(stock)"
+            (keydown.enter)="selectStock(stock)"
+            tabindex="0"
             class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
           >
             {{ stock.name }}

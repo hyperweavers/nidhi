@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { LOGGER } from '@nidhi/shared-logger';
 import {
   BehaviorSubject,
   Observable,
@@ -62,6 +63,7 @@ import { SettingsService } from './settings.service';
 export class MarketService {
   private readonly http = inject(HttpClient);
   private readonly settingsService = inject(SettingsService);
+  private readonly logger = inject(LOGGER);
 
   public marketStatus$: Observable<MarketStatus>;
 
@@ -346,7 +348,7 @@ export class MarketService {
           )
         : of([]);
     } else {
-      console.error(`Stock / Index not found for symbol: ${symbol}`);
+      this.logger.error(`Stock / Index not found for symbol: ${symbol}`);
 
       return of([]);
     }
@@ -388,7 +390,7 @@ export class MarketService {
           )
         : of([]);
     } else {
-      console.error(`Stock / Index not found for symbol: ${symbol}`);
+      this.logger.error(`Stock / Index not found for symbol: ${symbol}`);
 
       return of([]);
     }
@@ -454,7 +456,7 @@ export class MarketService {
     period: Period,
   ): Observable<PeerChartData[]> {
     if (period === Period.ONE_DAY) {
-      console.error(`Period not supported: ${period}`);
+      this.logger.error(`Period not supported: ${period}`);
 
       return of([]);
     }
@@ -495,12 +497,12 @@ export class MarketService {
             }),
           );
       } else {
-        console.error(`Unable to map period with frequency: ${period}`);
+        this.logger.error(`Unable to map period with frequency: ${period}`);
 
         return of([]);
       }
     } else {
-      console.error(`Stock symbol list is empty: ${symbols}`);
+      this.logger.error(`Stock symbol list is empty: ${symbols}`);
 
       return of([]);
     }
@@ -537,7 +539,7 @@ export class MarketService {
           }),
         );
     } else {
-      console.error(`Stock symbol list is empty: ${symbols}`);
+      this.logger.error(`Stock symbol list is empty: ${symbols}`);
 
       return of([]);
     }

@@ -10,6 +10,7 @@
   "tags": [],
   "targets": {
     "build": {
+      "dependsOn": ["prebuild-version", "prebuild-sentry", "^build"],
       "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -31,6 +32,11 @@
       },
       "configurations": {
         "production": {
+          "sourceMap": {
+            "scripts": true,
+            "hidden": true,
+            "vendor": false
+          },
           "budgets": [
             {
               "type": "initial",
@@ -54,7 +60,24 @@
       },
       "defaultConfiguration": "production"
     },
+    "prebuild-version": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/generated/version.ts"],
+      "inputs": ["{projectRoot}/version"],
+      "options": {
+        "command": "node tools/scripts/generate-version.mjs {projectName}"
+      }
+    },
+    "prebuild-sentry": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/src/generated/sentry-config.ts"],
+      "inputs": ["{workspaceRoot}/.env"],
+      "options": {
+        "command": "node tools/scripts/generate-sentry-env.mjs {projectName}"
+      }
+    },
     "serve": {
+      "dependsOn": ["prebuild-version", "prebuild-sentry"],
       "executor": "@angular-devkit/build-angular:dev-server",
       "configurations": {
         "production": {

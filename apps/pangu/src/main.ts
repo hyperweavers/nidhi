@@ -1,8 +1,21 @@
+import { isDevMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
+import * as Sentry from '@sentry/angular';
 
+import { initSentry } from '@nidhi/shared-sentry';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
+import { SENTRY_DSN } from './generated/sentry-config';
+import { APP_VERSION } from './generated/version';
 
-bootstrapApplication(AppComponent, appConfig).catch((err) =>
-  console.error(err),
-);
+if (!isDevMode()) {
+  initSentry(SENTRY_DSN, APP_VERSION);
+}
+
+bootstrapApplication(AppComponent, appConfig).catch((err) => {
+  if (!isDevMode()) {
+    Sentry.captureException(err);
+  } else {
+    console.error('Bootstrap error:', err);
+  }
+});

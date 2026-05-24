@@ -21,11 +21,13 @@ import {
   VersionEvent,
   VersionReadyEvent,
 } from '@angular/service-worker';
+import { LOGGER } from '@nidhi/shared-logger';
 import { initFlowbite } from 'flowbite';
 import { delay, filter, map, Observable, tap } from 'rxjs';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { APP_VERSION } from '../generated/version';
 import { Constants } from './constants';
 import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
@@ -51,6 +53,7 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly marketService = inject(MarketService);
   private readonly settingsService = inject(SettingsService);
+  private readonly logger = inject(LOGGER);
 
   private readonly MEDIA_SIZE_LARGE = 1024;
 
@@ -64,6 +67,7 @@ export class AppComponent implements OnInit {
   public ios?: boolean;
   public refreshing?: boolean;
 
+  public readonly appVersion = APP_VERSION;
   public readonly Routes = Constants.routes;
   public readonly Status = Status;
 
@@ -84,9 +88,8 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(untilDestroyed(this), delay(100))
       .subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          initFlowbite();
-        } else if (event instanceof NavigationStart) {
+        if (event instanceof NavigationStart) {
+          this.sidebarOpen = false;
           if (
             !this.plan() &&
             (event.url === Constants.routes.ROOT ||
@@ -95,6 +98,8 @@ export class AppComponent implements OnInit {
           ) {
             this.router.navigate([Constants.routes.PLAN]);
           }
+        } else if (event instanceof NavigationEnd) {
+          initFlowbite();
         }
       });
 
@@ -178,7 +183,7 @@ export class AppComponent implements OnInit {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error(
+        this.logger.error(
           `An error occurred while trying to share the app: ${error}`,
         );
       } finally {

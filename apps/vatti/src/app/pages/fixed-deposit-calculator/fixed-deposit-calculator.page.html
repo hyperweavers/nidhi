@@ -364,7 +364,12 @@
       class="mt-6 hidden flex-wrap border-b border-gray-200 text-center text-sm font-medium text-gray-500 sm:flex dark:border-gray-700 dark:text-gray-400"
     >
       @if (annualSummary.length > 0) {
-      <li class="me-2" (click)="activeTab = Tabs.ANNUAL_SUMMARY">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.ANNUAL_SUMMARY"
+        (keydown.enter)="activeTab = Tabs.ANNUAL_SUMMARY"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.ANNUAL_SUMMARY"
@@ -373,7 +378,12 @@
         </p>
       </li>
       } @if (compoundingSummary.length > 0) {
-      <li class="me-2" (click)="activeTab = Tabs.COMPOUNDING_SUMMARY">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.COMPOUNDING_SUMMARY"
+        (keydown.enter)="activeTab = Tabs.COMPOUNDING_SUMMARY"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.COMPOUNDING_SUMMARY"
@@ -382,7 +392,12 @@
         </p>
       </li>
       } @if (payoutSchedule.length > 0) {
-      <li class="me-2" (click)="activeTab = Tabs.PAYOUT_SCHEDULE">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.PAYOUT_SCHEDULE"
+        (keydown.enter)="activeTab = Tabs.PAYOUT_SCHEDULE"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4 hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
           [class.active]="activeTab === Tabs.PAYOUT_SCHEDULE"
@@ -391,7 +406,12 @@
         </p>
       </li>
       } @if (financialYearSummary.length > 0) {
-      <li class="me-2" (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY">
+      <li
+        class="me-2"
+        (click)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY"
+        (keydown.enter)="activeTab = Tabs.FINANCIAL_YEAR_SUMMARY"
+        tabindex="0"
+      >
         <p
           class="inline-block cursor-pointer rounded-t-lg p-4"
           [class.active]="activeTab === Tabs.FINANCIAL_YEAR_SUMMARY"
@@ -507,22 +527,20 @@
       <tbody>
         @for (summary of annualSummary; track summary.year) {
         <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
-            {{ summary.year }}
-          </td>
+          <td class="p-2 py-3 text-center sm:p-4">{{ summary.year }}</td>
           @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ summary.openingBalance | number : '1.0-0' }}
           </td>
           }
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ summary.yearlyInterestEarned | number : '1.0-0' }}
           </td>
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ summary.totalInterestEarned | number : '1.0-0' }}
           </td>
           @if (interestPayoutFrequency === InterestPayoutFrequency.Maturity) {
-          <td scope="col" class="p-2 py-3 text-center sm:p-4">
+          <td class="p-2 py-3 text-center sm:p-4">
             {{ summary.closingBalance | number : '1.0-0' }}
           </td>
           }
@@ -638,19 +656,19 @@
           compoundingSummary.length ? compoundingSummary.length :
           (compoundingSummaryPage * pageSize) + pageSize); track summary.date) {
           <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.date | date: 'MMM yy' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.openingBalance | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.amountDeposited | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.interestEarned | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.closingBalance | number: '1.0-0' }}
             </td>
           </tr>
@@ -749,10 +767,10 @@
           payoutSchedule.length : (payoutSchedulePage * pageSize) + pageSize);
           track payout.date) {
           <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ payout.date | date: 'MMM yy' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ payout.interest | number: '1.0-0' }}
             </td>
           </tr>
@@ -932,19 +950,19 @@
           @for (summary of financialYearSummary; track
           summary.financialYearLabel) {
           <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.financialYearLabel }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.openingBalance | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.amountDeposited | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.interestEarned | number: '1.0-0' }}
             </td>
-            <td scope="col" class="p-2 py-3 text-center sm:p-4">
+            <td class="p-2 py-3 text-center sm:p-4">
               {{ summary.closingBalance | number: '1.0-0' }}
             </td>
           </tr>
