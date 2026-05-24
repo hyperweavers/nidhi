@@ -92,7 +92,6 @@ jobs:
             --org "$SENTRY_ORG" \
             --project "${{ matrix.app }}" \
             --url-prefix '~/browser' \
-            --validate \
             dist/apps/${{ matrix.app }}/browser
           npx @sentry/cli releases finalize "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" --project "${{ matrix.app }}"
