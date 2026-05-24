@@ -77,7 +77,14 @@ jobs:
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build ${{ matrix.app }} App
-        run: npx nx build ${{ matrix.app }} --configuration production --base-href ./
+        env:
+          SENTRY_DSN: ${{ vars[format('SENTRY_DSN_{0}', matrix.app)] }}
+        run: |
+          if [ -z "$SENTRY_DSN" ]; then
+            echo "Error: SENTRY_DSN_$(echo '${{ matrix.app }}' | tr '[:lower:]' '[:upper:]') GitHub Variable is not set"
+            exit 1
+          fi
+          npx nx build ${{ matrix.app }} --configuration production --base-href ./
 
       - name: Upload Source Maps to Sentry
         if: steps.bump-version.outputs.version != ''
