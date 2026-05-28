@@ -2,6 +2,10 @@ Thank you for taking the time to submit this pull request!
 
 > _Provide a succinct and descriptive title for the pull request, e.g., "Improve caching mechanism for API calls"_
 
+## Summary
+
+> _Provide a summary of the proposed change(s)._
+
 ## Affected App(s)
 
 - [ ] Pangu
