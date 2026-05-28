@@ -1,0 +1,46 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "code-generator",
+  "instructions": ["AGENTS.md"],
+  "agent": {
+    "code-generator": {
+      "model": "big-pickle/model",
+      "mode": "primary",
+      "description": "Generates Angular 21 standalone components, services, pages, pipes, directives, and Nx library scaffolding following project conventions.",
+      "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "unit-test": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Writes and updates Jest 30 unit tests for Angular standalone components, services, and pipes using jest-preset-angular and project mocking patterns.",
+      "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "code-reviewer": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Reviews code for Angular conventions, Nx module boundaries, Tailwind patterns, test coverage, and overall code quality.",
+      "permission": { "edit": "deny", "bash": "allow" }
+    },
+    "security-analyst": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Audits code for XSS, insecure IndexedDB usage, PWA service worker issues, Sentry PII leakage, and dependency vulnerabilities.",
+      "permission": { "edit": "deny", "bash": "allow" }
+    },
+    "migration": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Executes Nx migrate, Angular update, npm-check-updates, and Sentry CLI tasks safely and incrementally.",
+      "permission": { "edit": "allow", "bash": "allow" }
+    }
+  },
+  "command": {
+    "monitor-ci": {
+      "description": "Monitor Nx Cloud CI pipeline and handle self-healing fixes. Usage: /monitor-ci [--max-cycles N] [--timeout MINUTES] [--verbosity minimal|medium|verbose] [--branch BRANCH] [--fresh] [--auto-fix-workflow] [--new-cipe-timeout MINUTES] [--local-verify-attempts N]",
+      "prompt": "# Monitor CI Command\n\nYou are the orchestrator for monitoring Nx Cloud CI pipeline executions and handling self-healing fixes. You spawn subagents to interact with Nx Cloud, run deterministic decision scripts, and take action based on the results.\n\n## Context\n\n- **Current Branch:** !\\`git branch --show-current\\`\n- **Current Commit:** !\\`git rev-parse --short HEAD\\`\n- **Remote Status:** !\\`git status -sb | head -1\\`\n\n## User Instructions\n\n${input:args}\n\n**Important:** If user provides specific instructions, respect them over default behaviors described below.\n\n## Configuration Defaults\n\n| Setting | Default | Description |\n| --- | --- | --- |\n| \\`--max-cycles\\` | 10 | Maximum **agent-initiated** CI Attempt cycles before timeout |\n| \\`--timeout\\` | 120 | Maximum duration in minutes |\n| \\`--verbosity\\` | medium | Output level: minimal, medium, verbose |\n| \\`--branch\\` | (auto-detect) | Branch to monitor |\n| \\`--fresh\\` | false | Ignore previous context, start fresh |\n| \\`--auto-fix-workflow\\` | false | Attempt common fixes for pre-CI-Attempt failures (e.g., lockfile updates) |\n| \\`--new-cipe-timeout\\` | 10 | Minutes to wait for new CI Attempt after action |\n| \\`--local-verify-attempts\\` | 3 | Max local verification + enhance cycles before pushing to CI |\n\nParse any overrides from ${input:args} and merge with defaults.\n\n## Architecture Overview\n\n1. **This command (orchestrator)**: spawns subagents, runs scripts, prints status, does local coding work\n2. **ci-monitor subagent**: calls one MCP tool (ci_information or update_self_healing_fix), returns structured result, exits\n3. **ci-poll-decide.mjs (deterministic script)**: takes ci_information result + state, returns action + status message\n4. **ci-state-update.mjs (deterministic script)**: manages budget gates, post-action state transitions, and cycle classification\n\n## Session Context Behavior\n\nIf the user previously ran /monitor-ci in this session, you may have prior state (poll counts, last CI Attempt URL, etc.). Resume from that state unless \\`--fresh\\` is set.\n\n## MCP Tool Reference\n\nThree field sets control polling efficiency — use the lightest set that gives you what you need:\n\n\\`\\`\\`yaml\nWAIT_FIELDS: 'cipeUrl,commitSha,cipeStatus'\nLIGHT_FIELDS: 'cipeStatus,cipeUrl,branch,commitSha,selfHealingStatus,verificationStatus,userAction,failedTaskIds,verifiedTaskIds,selfHealingEnabled,failureClassification,couldAutoApplyTasks,autoApplySkipped,autoApplySkipReason,shortLink,confidence,confidenceReasoning,hints,selfHealingSkippedReason,selfHealingSkipMessage'\nHEAVY_FIELDS: 'taskOutputSummary,suggestedFix,suggestedFixReasoning,suggestedFixDescription'\n\\`\\`\\`\n\nThe \\`ci_information\\` tool accepts \\`branch\\` (optional, defaults to current git branch), \\`select\\` (comma-separated field names), and \\`pageToken\\` (0-based pagination for long strings).\n\nThe \\`update_self_healing_fix\\` tool accepts a \\`shortLink\\` and an action: \\`APPLY\\`, \\`REJECT\\`, or \\`RERUN_ENVIRONMENT_STATE\\`.\n\n## Monitoring Loop\n\n### Step 1: Initialize Tracking\n\n\\`\\`\\`\ncycle_count = 0\nstart_time = now()\nno_progress_count = 0\nlocal_verify_count = 0\nenv_rerun_count = 0\nlast_cipe_url = null\nexpected_commit_sha = null\nagent_triggered = false\npoll_count = 0\nwait_mode = false\n\\`\\`\\`\n\n### Step 2: Polling Loop\n\nRepeat until done:\n\n1. Spawn ci-monitor subagent with FETCH_STATUS command using the appropriate field set (WAIT in wait mode, LIGHT otherwise)\n2. Run decision script: \\`node .opencode/skills/monitor-ci/scripts/ci-poll-decide.mjs\\` with the subagent result and state\n3. Process output: \\`poll\\` → sleep and loop, \\`wait\\` → sleep and loop, \\`done\\` → proceed\n\n### Step 3: Handle Actionable Status\n\nWhen decision script returns \\`done\\`, use the returned code:\n\n- \\`ci_success\\`, \\`cipe_canceled\\`, \\`cipe_timed_out\\`, \\`polling_timeout\\`, \\`circuit_breaker\\`, \\`environment_rerun_cap\\` — exit with message\n- \\`fix_auto_applying\\` — enter wait mode, record \\`last_cipe_url\\`, loop\n- \\`fix_apply_ready\\` — call \\`update_self_healing_fix APPLY\\` via subagent\n- \\`fix_needs_local_verify\\` — fetch HEAVY fields, run locally, then apply or enhance\n- \\`fix_needs_review\\` — fetch HEAVY fields, analyze and decide\n- \\`fix_failed\\` / \\`no_fix\\` — fetch HEAVY fields, attempt local fix (gate check first)\n- \\`environment_issue\\` — call \\`RERUN_ENVIRONMENT_STATE\\` via subagent\n- \\`self_healing_throttled\\` — reject old fixes, attempt local fix\n- \\`no_new_cipe\\` — auto-fix workflow or exit with guidance\n- \\`cipe_no_tasks\\` — retry once with empty commit\n\n### Step 4: Cycle Check (after every \\`done\\` action)\n\nRun: \\`node .opencode/skills/monitor-ci/scripts/ci-state-update.mjs cycle-check \\` with current state\n\n## Anti-Patterns\n\n- Do NOT use CI provider CLIs with \\`--watch\\` flags — bypasses Nx Cloud self-healing\n- Do NOT write custom CI polling scripts\n- Do NOT cancel CI workflows\n- Do NOT independently fix CI failures while polling — races with self-healing\n\n## Error Handling\n\n| Error | Action |\n| --- | --- |\n| Git rebase conflict | Report to user, exit |\n| MCP tool error | Retry once, if fails report to user |\n| Subagent spawn failure | Retry once, if fails exit with error |\n| Decision script error | Treat as error status, increment no_progress_count |\n\n## Git Safety\n\nStage specific files by name — \\`git add -A\\` risks committing unrelated work-in-progress or secrets.\n\n## User Instruction Examples\n\n| Instruction | Effect |\n| --- | --- |\n| \\\"never auto-apply\\\" | Always prompt before applying any fix |\n| \\\"always ask before git push\\\" | Prompt before each push |\n| \\\"reject any fix for e2e tasks\\\" | Auto-reject if failedTaskIds contains e2e |\n| \\\"if confidence < 70, reject\\\" | Check confidence field before applying |\n| \\\"run nx affected -t typecheck before applying\\\" | Add local verification step |\n| \\\"auto-fix workflow failures\\\" | Attempt lockfile updates on pre-CI-Attempt failures |"
+    }
+  },
+  "skills": {
+    "paths": [".opencode/skills"]
+  }
+}

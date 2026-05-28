@@ -1,5 +1,10 @@
 ---
 description: CI helper for /monitor-ci. Fetches CI status, retrieves fix details, or updates self-healing fixes. Executes one MCP tool call and returns the result.
+mode: subagent
+model: big-pickle/model
+permission:
+  edit: deny
+  bash: allow
 ---
 
 # CI Monitor Subagent

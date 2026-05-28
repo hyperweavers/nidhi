@@ -1,0 +1,62 @@
+# Nidhi — Nx Angular 21 Monorepo
+
+## Project Overview
+
+Three privacy-focused open-source personal finance PWAs:
+
+| App                       | Purpose                                        | Tech highlights                                                                   |
+| ------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Pangu** (`apps/pangu/`) | Stock portfolio manager (Indian markets)       | Dexie IndexedDB, Chart.js, lightweight-charts, Economic Times / Moneycontrol APIs |
+| **Vatti** (`apps/vatti/`) | Financial calculators                          | FD/RD/EMI/gold calculators, Chart.js                                              |
+| **Palan** (`apps/palan/`) | ESPP manager (US markets)                      | Dexie IndexedDB, Moneycontrol US APIs, currency config                            |
+| **Shared libs**           | `@nidhi/shared-logger`, `@nidhi/shared-sentry` | Console/Sentry loggers, Sentry init                                               |
+
+## Key Conventions
+
+- **Angular 21 standalone** — no `NgModule`; import components directly in `imports` array
+- **ChangeDetectionStrategy.OnPush** on every component
+- **`inject()`** over constructor injection (no `private`-prefix DI fields)
+- **`@UntilDestroy()`** + `@UntilDestroy({ checkProperties: true })` for RxJS lifecycle management; use `pipe(untilDestroyed(this))` or subclass `subscribe` / `next` via the decorator
+- **RxJS + signals** — use `BehaviorSubject`/`Observable` for services, convert to signals in components via `toSignal()` / `toObservable()`
+- **Tailwind CSS 4 + Flowbite** — utility classes, no separate CSS files for layout; component-scoped styles only for overrides
+- **Dexie** — IndexedDB wrapper; schema in `db/`; version migrations in `dexie.version.ts`
+- **Sentry** — production only; `beforeSend` strips query strings; `ConsoleLogger` in dev, `SentryLogger` in prod (via `LOGGER` injection token)
+- **Chart.js** — via `ng2-charts` for doughnut charts; `lightweight-charts` for area/performance charts
+- **Services** — in `services/core/` for singleton app services, `services/` for feature-specific ones
+
+## Nx Monorepo
+
+- **Package manager**: npm
+- **Run tasks**: `npx nx <target> <project>` (e.g., `npx nx test pangu`)
+- **Affected commands**: `npx nx affected -t <target>`
+- **Generators**: `npx nx g @nx/angular:<schematic>`
+- **Path aliases**: `@nidhi/shared-logger`, `@nidhi/shared-sentry`
+- **Module boundaries**: enforced by `@nx/enforce-module-boundaries`
+
+## Testing
+
+- **Unit**: Jest 30 + `jest-preset-angular` + `jest-canvas-mock`
+- **E2E**: Cypress 15 (per app, `*-e2e` projects)
+- **Test setup**: `test-setup.ts` configures zone, `matchMedia`, `ResizeObserver`, and `DatePicker` mocks
+- **Run**: `npx nx test <app>` or `npx nx affected -t test`
+
+## CI/CD
+
+- **PR CI**: `.github/workflows/ci.yml` — format:check, lint, build, test
+- **Deploy**: `.github/workflows/deploy.yml` — build, Sentry source maps, deploy to GitHub Pages
+- **Prebuild**: `tools/scripts/generate-version.mjs` and `generate-sentry-env.mjs` write generated files
+
+## Nx Workflow
+
+- For navigating/exploring the workspace, invoke the `nx-workspace` skill first — it has patterns for querying projects, targets, and dependencies
+- When running tasks (build, lint, test, e2e, etc.), always prefer running through `nx` (`nx run`, `nx run-many`, `nx affected`) instead of underlying tooling directly
+- Prefix nx commands with the workspace's package manager: `npx nx build`, `npm exec nx test`
+- The workspace is connected to Nx Cloud (see `nx.json` for access token) — CI self-healing and the `/monitor-ci` command depend on it
+- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`
+- Never guess CLI flags — check `--help` or the `nx_docs` skill first
+- For scaffolding tasks (apps, libs, components), always invoke the `nx-generate` skill first
+- After creating new packages, use `link-workspace-packages` skill to wire up dependencies
+
+## Commit Convention
+
+[Conventional Commits](https://www.conventionalcommits.org/) enforced via husky + lint-staged.
