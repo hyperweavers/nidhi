@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
+import { LOGGER } from '@nidhi/shared-logger';
+
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
@@ -20,7 +22,9 @@ export class ExportPage {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
+  private readonly logger = inject(LOGGER);
 
+  public statusMessage?: string;
   public showStatusModal?: boolean;
   public showExportProgress?: boolean;
 
@@ -30,21 +34,30 @@ export class ExportPage {
 
     this.cdr.markForCheck();
 
-    const blob = await this.storageService.exportDb(
-      this.progressCallback.bind(this),
-    );
+    try {
+      const blob = await this.storageService.exportDb(
+        this.progressCallback.bind(this),
+      );
 
-    const url = window.URL.createObjectURL(blob);
-    const a = this.document.createElement('a');
-    this.document.body.appendChild(a);
-    a.setAttribute('style', 'display: none');
-    a.href = url;
-    a.download = 'pangu-data.json';
+      const url = window.URL.createObjectURL(blob);
+      const a = this.document.createElement('a');
+      this.document.body.appendChild(a);
+      a.setAttribute('style', 'display: none');
+      a.href = url;
+      a.download = 'pangu-data.json';
 
-    a.click();
+      a.click();
 
-    window.URL.revokeObjectURL(url);
-    a.remove();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      this.logger.captureException(error);
+
+      this.statusMessage = 'Failed to export data. Please try again.';
+      this.showExportProgress = false;
+    }
+
+    this.cdr.markForCheck();
   }
 
   public closeStatusModal(): void {
@@ -53,6 +66,7 @@ export class ExportPage {
 
   private progressCallback(progress: Progress): boolean {
     if (progress.done) {
+      this.statusMessage = 'Data exported successfully!';
       this.showExportProgress = false;
     }
 

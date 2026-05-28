@@ -5,6 +5,56 @@
     Plan
   </h1>
 
+  @if (showPlanView) {
+  <div class="max-w-sm space-y-4 py-2">
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        >Company</span
+      >
+      <p class="text-gray-700 dark:text-gray-300">{{ plan()?.stock?.name }}</p>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        >Lock-in Period</span
+      >
+      <p class="text-gray-700 dark:text-gray-300">
+        {{ lockInPeriodYears() }} years {{ lockInPeriodMonths() }} months {{
+        lockInPeriodDays() }} days
+      </p>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        >Purchase Currency</span
+      >
+      <p class="text-gray-700 dark:text-gray-300">
+        {{ plan()?.currencies?.purchase?.country }} - {{
+        plan()?.currencies?.purchase?.code }}
+      </p>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        >Contribution Currency</span
+      >
+      <p class="text-gray-700 dark:text-gray-300">
+        {{ plan()?.currencies?.contribution?.country }} - {{
+        plan()?.currencies?.contribution?.code }}
+      </p>
+    </div>
+
+    <div class="flex justify-center gap-2 pt-4">
+      <button
+        (click)="isEditMode = true"
+        type="button"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-md px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
+      >
+        Edit
+      </button>
+    </div>
+  </div>
+  } @else {
   <div class="max-w-sm space-y-4 py-2">
     <!-- Stock -->
     <div class="relative">
@@ -18,7 +68,6 @@
         name="name"
         id="name"
         [(ngModel)]="name"
-        [disabled]="!!plan() && !isEditMode"
         class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         placeholder="Type company name/symbol..."
         required
@@ -68,7 +117,6 @@
             id="lock-in-peroid-years"
             name="lockInPeriodYears"
             [(ngModel)]="lockInPeriodYears"
-            [disabled]="!!plan() && !isEditMode"
             class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Years"
           />
@@ -86,7 +134,6 @@
             id="lock-in-peroid-months"
             name="lockInPeriodMonths"
             [(ngModel)]="lockInPeriodMonths"
-            [disabled]="!!plan() && !isEditMode"
             class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Months"
           />
@@ -104,7 +151,6 @@
             id="lock-in-peroid-days"
             name="lockInPeriodDays"
             [(ngModel)]="lockInPeriodDays"
-            [disabled]="!!plan() && !isEditMode"
             class="focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="Days"
           />
@@ -122,7 +168,6 @@
         id="purchase-currency"
         name="purchaseCurrency"
         [(ngModel)]="purchaseCurrency"
-        [disabled]="!!plan() && !isEditMode"
         class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         required
       >
@@ -150,7 +195,6 @@
         id="contribution-currency"
         name="contributionCurrency"
         [(ngModel)]="contributionCurrency"
-        [disabled]="!!plan() && !isEditMode"
         class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         required
       >
@@ -174,8 +218,38 @@
         type="submit"
         class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-md px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
       >
-        {{ (!!plan() && !isEditMode) ? 'Edit' : 'Save' }}
+        {{ plan() ? 'Save' : 'Create' }}
       </button>
     </div>
   </div>
+  }
+
+  <!-- Status Message Modal -->
+  @if (showStatusMessage && statusMessage) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    (click)="closeStatusMessage()"
+    (keydown.escape)="closeStatusMessage()"
+    tabindex="0"
+    role="dialog"
+  >
+    <div
+      class="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      tabindex="-1"
+    >
+      <p class="text-gray-700 dark:text-gray-300">{{ statusMessage }}</p>
+      <div class="mt-4 flex justify-end">
+        <button
+          (click)="closeStatusMessage()"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+  }
 </div>

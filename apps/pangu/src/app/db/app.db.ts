@@ -17,16 +17,24 @@ class AppDB extends Dexie {
       stocks: '&id, &scripCode.nse',
     });
 
-    // Upgrade DB from version 1 to 2
-    let updatedStocks = [];
-    this.on('ready', async () => {
-      const oldStocks = await this.stocks.toArray();
+    this.version(2).stores({
+      stocks: '&id, &scripCode.isin',
+    });
 
-      updatedStocks = await Promise.all(
-        oldStocks.map(async (stock) => {
-          if (!stock.scripCode.isin) {
+    this.version(3).stores({
+      stocks: '&id, &scripCode.isin',
+    });
+
+    this.on('ready', async () => {
+      const allStocks = await this.stocks.toArray();
+      const pendingStocks = allStocks.filter((stock) => !stock.scripCode?.isin);
+      if (pendingStocks.length === 0) return;
+
+      const updatedStocks = await Promise.all(
+        pendingStocks.map(async (stock) => {
+          try {
             const res = await fetch(
-              Constants.api.STOCK_QUOTE + stock.vendorCode.etm,
+              Constants.api.STOCK_QUOTE + stock.vendorCode.etm.primary,
             );
 
             if (res.ok) {
@@ -82,36 +90,16 @@ class AppDB extends Dexie {
                   },
                 },
               };
-            } else {
-              return stock;
             }
-          } else {
-            return stock;
+          } catch {
+            // skip silently
           }
+          return stock;
         }),
       );
 
-      this.stocks.clear();
-      this.stocks.bulkAdd(updatedStocks);
+      await this.stocks.bulkPut(updatedStocks);
     });
-
-    this.version(2).stores({
-      stocks: '&id, &scripCode.isin',
-    });
-
-    this.version(3)
-      .stores({
-        stocks: '&id, &scripCode.isin',
-      })
-      .upgrade((tx) =>
-        tx
-          .table('stocks')
-          .toCollection()
-          .modify((stock) => {
-            stock.details = stock.details || {};
-            stock.metrics = stock.metrics || {};
-          }),
-      );
   }
 }
 

@@ -28,7 +28,7 @@ export const Flowbite = () => {
 
 export const initFlowbiteComponents = () => {
   flowbiteQueue.next(() => {
-    const elements = document.querySelectorAll('*');
+    const elements = document.querySelectorAll('[data-]');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const flowbiteElements: any[] = [];
     const initializedElements = Array.from(

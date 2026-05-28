@@ -417,6 +417,8 @@ export class RecurringDepositCalculatorPage implements OnInit {
       this.updateCompoundingSummaryChartData();
       this.updateFinancialYearSummaryChartData();
 
+      this.cdr.markForCheck();
+
       return;
     }
 
@@ -504,6 +506,8 @@ export class RecurringDepositCalculatorPage implements OnInit {
     this.activeTab = Tabs.ANNUAL_SUMMARY;
 
     this.updateEarningsChartData();
+
+    this.cdr.markForCheck();
   }
 
   private generateAnnualSummary(): void {
@@ -689,7 +693,7 @@ export class RecurringDepositCalculatorPage implements OnInit {
         (item, index) =>
           item.closingBalance -
           Math.min(index + 1, this.compoundingSummary.length - 1) *
-            (12 / Number(this.compoundingFrequency)) *
+            (12 / (Number(this.compoundingFrequency) || 1)) *
             this.monthlyInstallment,
       );
 

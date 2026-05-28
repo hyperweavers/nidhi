@@ -59,6 +59,7 @@ export class DataService {
             ) || 0,
         ),
         distinctUntilChanged(),
+        shareReplay(1),
       );
 
     this.postOfficeSavingsSchemes$ = this.http

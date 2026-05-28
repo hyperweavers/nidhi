@@ -70,6 +70,8 @@ export class AppComponent implements OnInit {
         } else if (event instanceof NavigationEnd) {
           initFlowbite();
         }
+
+        this.cdr.markForCheck();
       });
 
     this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
@@ -79,9 +81,9 @@ export class AppComponent implements OnInit {
         }
       } else {
         this.sidebarOpen = false;
-
-        this.cdr.markForCheck();
       }
+
+      this.cdr.markForCheck();
     });
 
     if (this.swUpdate.isEnabled) {
@@ -95,6 +97,8 @@ export class AppComponent implements OnInit {
         )
         .subscribe(() => {
           this.showUpdateModal = true;
+
+          this.cdr.markForCheck();
         });
     }
 

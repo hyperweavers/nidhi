@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { ExportProgress as Progress } from 'dexie-export-import';
 
+import { LOGGER } from '@nidhi/shared-logger';
+
 import { StorageService } from '../../services/core/storage.service';
 
 @Component({
@@ -20,6 +22,7 @@ import { StorageService } from '../../services/core/storage.service';
 export class ImportPage {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
+  private readonly logger = inject(LOGGER);
 
   private readonly importFileInputRef =
     viewChild<ElementRef>('importFileInput');
@@ -36,21 +39,38 @@ export class ImportPage {
   }
 
   public async import(): Promise<void> {
+    this.statusMessage = '';
+
     if (this.importFile) {
-      this.statusMessage = '';
       this.showStatusModal = true;
       this.showImportProgress = true;
 
       this.cdr.markForCheck();
 
-      await this.storageService.importDb(
-        this.importFile,
-        this.progressCallback.bind(this),
-      );
+      try {
+        await this.storageService.importDb(
+          this.importFile,
+          this.progressCallback.bind(this),
+        );
+      } catch (error) {
+        this.logger.captureException(error);
+
+        this.importFile = null;
+
+        const importFileInputRef = this.importFileInputRef();
+        if (importFileInputRef) {
+          importFileInputRef.nativeElement.value = '';
+        }
+
+        this.statusMessage = 'Failed to import data. Please try again.';
+        this.showImportProgress = false;
+      }
     } else {
       this.statusMessage = 'Please select a file to import!';
       this.showStatusModal = true;
     }
+
+    this.cdr.markForCheck();
   }
 
   public closeStatusModal(): void {
@@ -59,15 +79,15 @@ export class ImportPage {
 
   private progressCallback(progress: Progress): boolean {
     if (progress.done) {
-      this.statusMessage = 'Data imported successfully!';
-      this.showImportProgress = false;
-
       this.importFile = null;
 
       const importFileInputRef = this.importFileInputRef();
       if (importFileInputRef) {
         importFileInputRef.nativeElement.value = '';
       }
+
+      this.statusMessage = 'Data imported successfully!';
+      this.showImportProgress = false;
     }
 
     this.cdr.markForCheck();

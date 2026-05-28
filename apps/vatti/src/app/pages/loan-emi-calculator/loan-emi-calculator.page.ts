@@ -619,6 +619,8 @@ export class LoanEmiCalculatorPage implements OnInit {
     if (this.interestRateType === InterestRateType.FLOATING) {
       this.updateRevisionChart();
     }
+
+    this.cdr.markForCheck();
   }
 
   private calculateMonthlyPayment(

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 import {
   currencyCodeMap,
@@ -32,6 +32,11 @@ export class CurrencyService {
             }),
           ),
         ),
+        catchError((error) => {
+          this.logger.error(error);
+
+          return of([]);
+        }),
       );
   }
 
@@ -61,6 +66,11 @@ export class CurrencyService {
         }
 
         return matrix;
+      }),
+      catchError((error) => {
+        this.logger.error(error);
+
+        return of({});
       }),
     );
   }

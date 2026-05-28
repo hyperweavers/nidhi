@@ -20,16 +20,10 @@ export class PlanService {
   }
 
   public async addOrUpdate(plan: Plan): Promise<void> {
-    const existingPlan = await db.plan.orderBy(':id').first();
-
-    if (existingPlan?.id) {
-      await db.plan.update(existingPlan.id, plan);
-    } else {
-      plan = {
-        ...plan,
-        id: uuid(),
-      };
-      await db.plan.add(plan, plan.id);
+    if (!plan.id) {
+      plan = { ...plan, id: uuid() };
     }
+
+    await db.plan.put(plan);
   }
 }

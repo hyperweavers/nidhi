@@ -21,9 +21,11 @@ import { StorageService } from './core/storage.service';
   providedIn: 'root',
 })
 export class PortfolioService {
+  private readonly marketService = inject(MarketService);
+
   public portfolio$: Observable<Portfolio>;
 
-  private readonly marketService = inject(MarketService);
+  private enriching = false;
 
   constructor() {
     const storageService = inject(StorageService);
@@ -193,8 +195,6 @@ export class PortfolioService {
       )
       .subscribe();
   }
-
-  private enriching = false;
 
   private enrichMissingDetails(holdings: Holding[]): void {
     if (this.enriching) {

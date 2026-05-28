@@ -67,10 +67,10 @@ export class PostOfficeSavingsSchemesPage {
     'investmentStartDateInput',
   );
 
-  private readonly earningsChart = viewChild.required('earningsChart', {
+  private readonly earningsChart = viewChild('earningsChart', {
     read: BaseChartDirective,
   });
-  private readonly interestRateChart = viewChild.required('interestRateChart', {
+  private readonly interestRateChart = viewChild('interestRateChart', {
     read: BaseChartDirective,
   });
 

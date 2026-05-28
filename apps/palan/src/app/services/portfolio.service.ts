@@ -134,7 +134,9 @@ export class PortfolioService {
                     });
 
                     const dayProfitLossPercentage =
-                      (dayProfitLossValue / previousMarketValue) * 100 || 0;
+                      previousMarketValue !== 0
+                        ? (dayProfitLossValue / previousMarketValue) * 100
+                        : 0;
                     const totalProfitLossValue = marketValue - investment;
                     const totalProfitLossPercentage =
                       (totalProfitLossValue / investment) * 100 || 0;

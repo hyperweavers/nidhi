@@ -24,7 +24,7 @@ import { ChartUtils } from '../../utils/chart.utils';
   templateUrl: './gold-jewellery-price-calculator.page.html',
   styleUrl: './gold-jewellery-price-calculator.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DataService, DecimalPipe],
+  providers: [DecimalPipe],
 })
 export class GoldJewelleryPriceCalculatorPage {
   private readonly decimalPipe = inject(DecimalPipe);
