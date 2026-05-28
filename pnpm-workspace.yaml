@@ -1,0 +1,16 @@
+packages:
+  - 'apps/*'
+  - 'libs/*'
+  - 'libs/shared/*'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@sentry/cli'
+  - '@swc/core'
+  - 'cypress'
+  - 'esbuild'
+  - 'less'
+  - 'lmdb'
+  - 'msgpackr-extract'
+  - 'nx'
+  - 'unrs-resolver'

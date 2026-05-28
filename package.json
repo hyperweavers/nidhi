@@ -2,16 +2,16 @@
   "name": "@nidhi/source",
   "version": "0.0.0",
   "license": "AGPL-3.0-or-later",
+  "private": true,
   "scripts": {
-    "migrate": "npx nx@latest migrate latest && rm -rf node_modules package-lock.json && npm i && npx nx@latest migrate --run-migrations --create-commits",
+    "migrate": "npx nx@latest migrate latest && rm -rf node_modules pnpm-lock.yaml && pnpm install && npx nx@latest migrate --run-migrations --create-commits",
     "update-deps:dry-run": "npm-check-updates",
-    "update-deps": "npm-check-updates -u && rm -rf node_modules package-lock.json && npm install",
+    "update-deps": "npm-check-updates -u && rm -rf node_modules pnpm-lock.yaml && pnpm install",
     "generate-icons:pangu": "npx pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && npx nx format pangu",
     "generate-icons:vatti": "npx pwa-asset-generator apps/vatti/public/icons/logo.svg apps/vatti/public/icons/ --manifest apps/vatti/public/manifest.webmanifest --index apps/vatti/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format vatti",
     "generate-icons:palan": "npx pwa-asset-generator apps/palan/public/icons/logo.svg apps/palan/public/icons/ --manifest apps/palan/public/manifest.webmanifest --index apps/palan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && npx nx format palan",
     "prepare": "husky"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "21.2.14",
     "@angular/cdk": "21.2.13",
@@ -97,5 +97,10 @@
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.60.0"
+  },
+  "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
   }
 }

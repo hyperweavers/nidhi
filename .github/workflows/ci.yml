@@ -29,14 +29,17 @@ jobs:
         # Replace above command with the below one when e2e tests are available
         # run: npx nx-cloud start-ci-run --distribute-on="4 linux-medium-js" --stop-agents-after="lint,build,test,e2e-ci"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm' # Cache node_modules
+          cache: 'pnpm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Set NX SHAs
         uses: nrwl/nx-set-shas@v5
