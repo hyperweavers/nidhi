@@ -22,7 +22,7 @@ import {
 } from '@angular/service-worker';
 import { LOGGER } from '@nidhi/shared-logger';
 import { initFlowbite } from 'flowbite';
-import { Observable, delay, filter, map, tap } from 'rxjs';
+import { Observable, delay, filter, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { APP_VERSION } from '../generated/version';
@@ -92,21 +92,25 @@ export class AppComponent implements OnInit {
         }
       } else {
         this.sidebarOpen = false;
-
-        this.cdr.markForCheck();
       }
+
+      this.cdr.markForCheck();
     });
 
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.pipe(
-        filter(
-          (event: VersionEvent): event is VersionReadyEvent =>
-            event.type === 'VERSION_READY',
-        ),
-        map(() => {
+      this.swUpdate.versionUpdates
+        .pipe(
+          filter(
+            (event: VersionEvent): event is VersionReadyEvent =>
+              event.type === 'VERSION_READY',
+          ),
+          untilDestroyed(this),
+        )
+        .subscribe(() => {
           this.showUpdateModal = true;
-        }),
-      );
+
+          this.cdr.markForCheck();
+        });
     }
 
     this.configureInstallModel();

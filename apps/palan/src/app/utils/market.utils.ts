@@ -47,11 +47,13 @@ export class MarketUtils {
   }
 
   public static getLastBusinessDay(date: Date): Date {
-    while (!MarketUtils.isBusinessDay(date)) {
-      date.setDate(date.getDate() - 1);
+    const d = new Date(date);
+
+    while (!MarketUtils.isBusinessDay(d)) {
+      d.setDate(d.getDate() - 1);
     }
 
-    return date;
+    return d;
   }
 
   public static extractScripCodesFromMcSearchResult(

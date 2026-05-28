@@ -73,6 +73,8 @@ export class StorageService {
     await importInto(db, blob, {
       progressCallback,
     });
+
+    this.reconnectLiveQuery();
   }
 
   public async exportDb(
@@ -87,5 +89,11 @@ export class StorageService {
     await db.delete();
 
     await db.open();
+
+    this.reconnectLiveQuery();
+  }
+
+  private reconnectLiveQuery(): void {
+    this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
   }
 }

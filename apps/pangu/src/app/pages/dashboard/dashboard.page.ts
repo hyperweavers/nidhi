@@ -110,6 +110,8 @@ export class DashboardPage {
 
   public portfolioCompositionChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
     ChartUtils.getMultiRingDoughnutChartOptions('30%', (context) => {
+      if (context.parsed === 0) return '';
+
       const value = this.decimalPipe.transform(context.parsed, '1.2-2');
       const label = value ? `${value}%` : '';
 
@@ -128,6 +130,8 @@ export class DashboardPage {
 
   private isMarketOpen = false;
 
+  private colorScheme = ColorScheme.DARK;
+
   private chart?: IChartApi;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areaSeries?: ISeriesApi<any>;
@@ -141,6 +145,32 @@ export class DashboardPage {
       .pipe(untilDestroyed(this))
       .subscribe(({ status }) => {
         this.isMarketOpen = status === Status.OPEN;
+
+        this.cdr.markForCheck();
+      });
+
+    settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
+      const chartRef = this.portfolioPerformanceChartRef();
+      if (this.chart && chartRef) {
+        this.chart.resize(
+          chartRef.nativeElement.offsetWidth,
+          chartRef.nativeElement.offsetHeight,
+        );
+
+        this.chart.timeScale().fitContent();
+
+        this.setChartPeriod(this.activeChartPeriod());
+      }
+    });
+
+    settingsService.settings$
+      .pipe(untilDestroyed(this), distinctUntilKeyChanged('colorScheme'))
+      .subscribe(({ colorScheme }) => {
+        this.colorScheme = colorScheme;
+
+        if (colorScheme && this.chart) {
+          ChartUtils.applyChartColorScheme(this.chart, colorScheme);
+        }
       });
 
     this.kpi$ = dashboardService.kpi$;
@@ -169,7 +199,7 @@ export class DashboardPage {
           this.isPortfolioPerformanceChartLoading = true;
         }),
         switchMap((period) => dashboardService.getPortfolioChart(period)),
-        delay(100), // A delay of 100ms is added to let Angular run change detection and update chart container element ref.
+        delay(100),
         untilDestroyed(this),
       )
       .subscribe((data) => {
@@ -199,56 +229,9 @@ export class DashboardPage {
             });
           }
 
-          settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
-            const chartRef = this.portfolioPerformanceChartRef();
-            if (this.chart && chartRef) {
-              this.chart.resize(
-                chartRef.nativeElement.offsetWidth,
-                chartRef.nativeElement.offsetHeight,
-              );
-
-              this.chart.timeScale().fitContent();
-
-              this.setChartPeriod(this.activeChartPeriod());
-            }
-          });
-
-          settingsService.settings$
-            .pipe(untilDestroyed(this), distinctUntilKeyChanged('colorScheme'))
-            .subscribe(({ colorScheme }) => {
-              if (colorScheme && this.chart) {
-                this.chart.applyOptions({
-                  layout: {
-                    textColor:
-                      colorScheme === ColorScheme.DARK ? '#fff' : '#111827',
-                  },
-                  timeScale: {
-                    visible: true,
-                    borderColor:
-                      colorScheme === ColorScheme.DARK ? '#374151' : '#E5E7EB',
-                  },
-                  rightPriceScale: {
-                    visible: true,
-                    borderColor:
-                      colorScheme === ColorScheme.DARK ? '#374151' : '#E5E7EB',
-                  },
-                  crosshair: {
-                    horzLine: {
-                      labelBackgroundColor:
-                        colorScheme === ColorScheme.DARK
-                          ? '#111827'
-                          : '#f3f4f6',
-                    },
-                    vertLine: {
-                      labelBackgroundColor:
-                        colorScheme === ColorScheme.DARK
-                          ? '#111827'
-                          : '#f3f4f6',
-                    },
-                  },
-                });
-              }
-            });
+          if (this.chart) {
+            ChartUtils.applyChartColorScheme(this.chart, this.colorScheme);
+          }
         } else {
           this.isPortfolioPerformanceChartNoData = true;
         }
@@ -289,6 +272,13 @@ export class DashboardPage {
               colorScheme,
             );
 
+            const stockColors = colors.slice(0, stockCount);
+            const sectorColors = colors.slice(
+              stockCount,
+              stockCount + sectorCount,
+            );
+            const marketCapColors = colors.slice(stockCount + sectorCount);
+
             const allLabels: string[] = [...stocks, ...sectors, ...marketCaps];
 
             const stockDataWithPadding: number[] = [
@@ -308,11 +298,21 @@ export class DashboardPage {
             this.updatePortfolioCompositionChart(
               stockDataWithPadding,
               allLabels,
-              colors,
+              [
+                ...stockColors,
+                ...Array(sectorCount + marketCapCount).fill('transparent'),
+              ],
               sectorDataWithPadding,
-              colors,
+              [
+                ...Array(stockCount).fill('transparent'),
+                ...sectorColors,
+                ...Array(marketCapCount).fill('transparent'),
+              ],
               marketCapDataWithPadding,
-              colors,
+              [
+                ...Array(stockCount + sectorCount).fill('transparent'),
+                ...marketCapColors,
+              ],
             );
           } else {
             this.isPortfolioCompositionChartNoData = true;

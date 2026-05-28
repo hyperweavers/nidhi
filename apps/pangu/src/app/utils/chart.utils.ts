@@ -4,7 +4,7 @@ import {
   TooltipItem,
   TooltipModel,
 } from 'chart.js';
-import { UTCTimestamp } from 'lightweight-charts';
+import { IChartApi, UTCTimestamp } from 'lightweight-charts';
 
 import { ChartType } from '../models/chart';
 import { ColorScheme } from '../models/settings';
@@ -135,38 +135,44 @@ export class ChartUtils {
     };
   }
 
+  public static applyChartColorScheme(
+    chart: IChartApi,
+    colorScheme: ColorScheme,
+  ): void {
+    const textColor = colorScheme === ColorScheme.DARK ? '#fff' : '#111827';
+    const borderColor =
+      colorScheme === ColorScheme.DARK ? '#374151' : '#E5E7EB';
+    const labelBg = colorScheme === ColorScheme.DARK ? '#111827' : '#f3f4f6';
+
+    chart.applyOptions({
+      layout: { textColor },
+      timeScale: { visible: true, borderColor },
+      rightPriceScale: { visible: true, borderColor },
+      crosshair: {
+        horzLine: { labelBackgroundColor: labelBg },
+        vertLine: { labelBackgroundColor: labelBg },
+      },
+    });
+  }
+
   public static generateChartColors(
     count: number,
     theme: ColorScheme,
   ): string[] {
-    const colors: string[] = [];
-    const usedHues: number[] = [];
-    const minHueGap = 30;
-
-    // Contrast Settings:
-    // For 'light' background, we use dark foreground (low lightness: 50%).
-    // For 'dark' background, we use bright foreground (high lightness: 60%).
     const lightness = theme === ColorScheme.LIGHT ? '50%' : '60%';
-    const saturation = '50%';
+    const hues = Array.from({ length: count }, (_, i) =>
+      Math.round((360 / count) * i),
+    );
 
-    for (let i = 0; i < count; i++) {
-      let hue: number;
+    for (let i = hues.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
 
-      do {
-        hue = Math.round(Math.random() * 360);
-      } while (
-        usedHues.some(
-          (h) =>
-            Math.abs(h - hue) < minHueGap ||
-            360 - Math.abs(h - hue) < minHueGap,
-        )
-      );
-
-      usedHues.push(hue);
-
-      colors.push(`hsl(${hue}, ${saturation}, ${lightness})`);
+      [hues[i], hues[j]] = [hues[j], hues[i]];
     }
 
-    return colors;
+    return hues.map(
+      (hue) =>
+        `hsl(${hue}, ${55 + Math.floor(Math.random() * 40)}%, ${lightness})`,
+    );
   }
 }

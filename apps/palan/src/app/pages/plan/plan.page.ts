@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   effect,
   inject,
@@ -10,6 +11,7 @@ import {
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -20,6 +22,9 @@ import {
   tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
+
+import { LOGGER } from '@nidhi/shared-logger';
+
 import { Constants } from '../../constants';
 import { Currency } from '../../models/currency';
 import { Plan } from '../../models/plan';
@@ -29,6 +34,7 @@ import { MarketService } from '../../services/core/market.service';
 import { PlanService } from '../../services/core/plan.service';
 import { DateUtils } from '../../utils/date.utils';
 
+@UntilDestroy()
 @Component({
   selector: 'app-plan',
   imports: [CommonModule, FormsModule],
@@ -38,7 +44,9 @@ import { DateUtils } from '../../utils/date.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanPage {
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly planService = inject(PlanService);
+  private readonly logger = inject(LOGGER);
 
   public stockSearchResults$: Observable<Stock[]>;
   public currencyList$: Observable<Currency[]>;
@@ -56,15 +64,21 @@ export class PlanPage {
 
   public showSearchResults?: boolean;
   public isEditMode = false;
+  public showStatusMessage?: boolean;
+  public statusMessage?: string;
 
   private selectedStock?: Stock;
+
+  public get showPlanView(): boolean {
+    return !!this.plan() && !this.isEditMode;
+  }
 
   constructor() {
     const marketService = inject(MarketService);
     const currencyService = inject(CurrencyService);
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500), // TODO: Review the time
+      debounceTime(500),
       distinctUntilChanged(),
       tap((query) => {
         this.showSearchResults = false;
@@ -93,6 +107,7 @@ export class PlanPage {
           this.showSearchResults = true;
         }
       }),
+      untilDestroyed(this),
     );
 
     this.currencyList$ = currencyService
@@ -108,7 +123,7 @@ export class PlanPage {
     this.plan = toSignal<Plan | undefined>(this.planService.plan$);
 
     effect(() => {
-      if (this.plan()) {
+      if (this.plan() && !this.isEditMode) {
         const lockInPeriod = DateUtils.convertDaysToYearsMonthsDays(
           this.plan()?.lockInPeriod || 0,
         );
@@ -144,13 +159,16 @@ export class PlanPage {
 
   public async save() {
     if (!this.plan() || this.isEditMode) {
+      const purchaseCurrency = this.purchaseCurrency();
+      const contributionCurrency = this.contributionCurrency();
+
       if (
         this.selectedStock &&
         (this.lockInPeriodYears() > 0 ||
           this.lockInPeriodMonths() > 0 ||
           this.lockInPeriodDays() > 0) &&
-        this.purchaseCurrency() &&
-        this.contributionCurrency()
+        purchaseCurrency &&
+        contributionCurrency
       ) {
         const plan: Plan = {
           id: this.plan()?.id || uuid(),
@@ -162,17 +180,32 @@ export class PlanPage {
               this.lockInPeriodDays(),
             ) || 0,
           currencies: {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            purchase: this.purchaseCurrency()!,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            contribution: this.contributionCurrency()!,
+            purchase: purchaseCurrency,
+            contribution: contributionCurrency,
           },
         };
 
-        await this.planService.addOrUpdate(plan);
+        try {
+          await this.planService.addOrUpdate(plan);
+
+          this.isEditMode = false;
+          this.statusMessage = 'Plan saved successfully!';
+        } catch (error) {
+          this.logger.captureException(error);
+
+          this.statusMessage = 'Failed to save plan. Please try again.';
+        }
+
+        this.showStatusMessage = true;
+
+        this.cdr.markForCheck();
       }
     } else {
       this.isEditMode = true;
     }
+  }
+
+  public closeStatusMessage(): void {
+    this.showStatusMessage = false;
   }
 }

@@ -1,10 +1,16 @@
-import { Directive, ElementRef, inject, output } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  OnDestroy,
+  inject,
+  output,
+} from '@angular/core';
 
 @Directive({
   selector: '[appDrawerClosed]',
   standalone: true,
 })
-export class DrawerClosedDirective {
+export class DrawerClosedDirective implements OnDestroy {
   private readonly elementRef = inject(ElementRef);
 
   readonly appDrawerClosed = output<void>();
@@ -25,5 +31,9 @@ export class DrawerClosedDirective {
       attributeFilter: ['role'],
       attributeOldValue: true,
     });
+  }
+
+  public ngOnDestroy(): void {
+    this.changes.disconnect();
   }
 }

@@ -23,7 +23,7 @@ import {
 } from '@angular/service-worker';
 import { LOGGER } from '@nidhi/shared-logger';
 import { initFlowbite } from 'flowbite';
-import { delay, filter, map, Observable, tap } from 'rxjs';
+import { delay, filter, Observable, tap } from 'rxjs';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -101,6 +101,8 @@ export class AppComponent implements OnInit {
         } else if (event instanceof NavigationEnd) {
           initFlowbite();
         }
+
+        this.cdr.markForCheck();
       });
 
     this.settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
@@ -110,21 +112,25 @@ export class AppComponent implements OnInit {
         }
       } else {
         this.sidebarOpen = false;
-
-        this.cdr.markForCheck();
       }
+
+      this.cdr.markForCheck();
     });
 
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.pipe(
-        filter(
-          (event: VersionEvent): event is VersionReadyEvent =>
-            event.type === 'VERSION_READY',
-        ),
-        map(() => {
+      this.swUpdate.versionUpdates
+        .pipe(
+          filter(
+            (event: VersionEvent): event is VersionReadyEvent =>
+              event.type === 'VERSION_READY',
+          ),
+          untilDestroyed(this),
+        )
+        .subscribe(() => {
           this.showUpdateModal = true;
-        }),
-      );
+
+          this.cdr.markForCheck();
+        });
     }
 
     this.configureInstallModel();

@@ -76,6 +76,9 @@ export class StocksPage implements OnDestroy {
 
   public activeChartTimeRange = Period.ONE_DAY;
 
+  private readonly boundCrosshairHandler =
+    this.chartCrosshairMoveEventHandler.bind(this);
+
   public isChartLoading = true;
   public isChartInFullscreen = false;
   public isChartNoData = false;
@@ -87,6 +90,8 @@ export class StocksPage implements OnDestroy {
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
 
   private isMarketOpen = false;
+
+  private colorScheme = ColorScheme.DARK;
 
   private historicChartData?: Map<string | number, ChartData>;
   private chart?: IChartApi;
@@ -102,6 +107,32 @@ export class StocksPage implements OnDestroy {
       .pipe(untilDestroyed(this))
       .subscribe(({ status }) => {
         this.isMarketOpen = status === Status.OPEN;
+
+        this.cdr.markForCheck();
+      });
+
+    settingsService.resize$.pipe(untilDestroyed(this)).subscribe(() => {
+      const chartRef = this.chartRef();
+      if (this.chart && chartRef) {
+        this.chart.resize(
+          chartRef.nativeElement.offsetWidth,
+          chartRef.nativeElement.offsetHeight,
+        );
+
+        this.chart.timeScale().fitContent();
+
+        this.setChartTimeRange(this.activeChartTimeRange);
+      }
+    });
+
+    settingsService.settings$
+      .pipe(untilDestroyed(this), distinctUntilKeyChanged('colorScheme'))
+      .subscribe(({ colorScheme }) => {
+        this.colorScheme = colorScheme;
+
+        if (colorScheme && this.chart) {
+          ChartUtils.applyChartColorScheme(this.chart, colorScheme);
+        }
       });
 
     this.stock$ = toObservable(this.id).pipe(
@@ -188,67 +219,12 @@ export class StocksPage implements OnDestroy {
                   });
                 }
 
-                settingsService.resize$
-                  .pipe(untilDestroyed(this))
-                  .subscribe(() => {
-                    const chartRef = this.chartRef();
-                    if (this.chart && chartRef) {
-                      this.chart.resize(
-                        chartRef.nativeElement.offsetWidth,
-                        chartRef.nativeElement.offsetHeight,
-                      );
-
-                      this.chart.timeScale().fitContent();
-
-                      this.setChartTimeRange(this.activeChartTimeRange);
-                    }
-                  });
-
-                settingsService.settings$
-                  .pipe(
-                    untilDestroyed(this),
-                    distinctUntilKeyChanged('colorScheme'),
-                  )
-                  .subscribe(({ colorScheme }) => {
-                    if (colorScheme && this.chart) {
-                      this.chart.applyOptions({
-                        layout: {
-                          textColor:
-                            colorScheme === ColorScheme.DARK
-                              ? '#fff'
-                              : '#111827',
-                        },
-                        timeScale: {
-                          visible: true,
-                          borderColor:
-                            colorScheme === ColorScheme.DARK
-                              ? '#374151'
-                              : '#E5E7EB',
-                        },
-                        rightPriceScale: {
-                          visible: true,
-                          borderColor:
-                            colorScheme === ColorScheme.DARK
-                              ? '#374151'
-                              : '#E5E7EB',
-                        },
-                        crosshair: {
-                          horzLine: {
-                            labelBackgroundColor:
-                              colorScheme === ColorScheme.DARK
-                                ? '#111827'
-                                : '#f3f4f6',
-                          },
-                          vertLine: {
-                            labelBackgroundColor:
-                              colorScheme === ColorScheme.DARK
-                                ? '#111827'
-                                : '#f3f4f6',
-                          },
-                        },
-                      });
-                    }
-                  });
+                if (this.chart) {
+                  ChartUtils.applyChartColorScheme(
+                    this.chart,
+                    this.colorScheme,
+                  );
+                }
               } else {
                 this.isChartNoData = true;
               }
@@ -295,7 +271,7 @@ export class StocksPage implements OnDestroy {
             break;
 
           case Period.FIVE_YEAR:
-            from = ChartUtils.getTimestampSince(to, 5 * 356);
+            from = ChartUtils.getTimestampSince(to, 5 * 365);
             break;
 
           default:
@@ -399,9 +375,7 @@ export class StocksPage implements OnDestroy {
 
   public ngOnDestroy(): void {
     if (this.chart) {
-      this.chart.unsubscribeCrosshairMove(
-        this.chartCrosshairMoveEventHandler.bind(this),
-      );
+      this.chart.unsubscribeCrosshairMove(this.boundCrosshairHandler);
     }
   }
 
@@ -456,17 +430,18 @@ export class StocksPage implements OnDestroy {
 
       this.setChartTimeRange(this.activeChartTimeRange);
 
-      this.chart.subscribeCrosshairMove(
-        this.chartCrosshairMoveEventHandler.bind(this),
-      );
+      this.chart.subscribeCrosshairMove(this.boundCrosshairHandler);
     }
   }
 
   private chartCrosshairMoveEventHandler({ time }: MouseEventParams): void {
     if (time && this.historicChartData && this.historicChartData.size > 0) {
-      this.chartCrosshairData = this.historicChartData.get(
-        time.toLocaleString(),
-      );
+      const key =
+        typeof time === 'object'
+          ? `${time.year}-${time.month}-${time.day}`
+          : time;
+
+      this.chartCrosshairData = this.historicChartData.get(key);
 
       // FIXME: Add a debounce to avoid max call stack error. After the fix, remove setting lineColor in chart data (at service level)
       // if (this.areaSeries && this.chartCrosshairData?.change?.direction) {

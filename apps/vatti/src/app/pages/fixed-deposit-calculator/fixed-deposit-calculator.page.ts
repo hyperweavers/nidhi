@@ -419,6 +419,8 @@ export class FixedDepositCalculatorPage implements OnInit {
       this.updateCompoundingSummaryChartData();
       this.updateFinancialYearSummaryChartData();
 
+      this.cdr.markForCheck();
+
       return;
     }
 
@@ -473,6 +475,8 @@ export class FixedDepositCalculatorPage implements OnInit {
     this.activeTab = Tabs.ANNUAL_SUMMARY;
 
     this.updateEarningsChartData();
+
+    this.cdr.markForCheck();
   }
 
   private generatePayoutSchedule(annualRate: number, timeInYears: number) {
