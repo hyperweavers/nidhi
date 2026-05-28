@@ -156,10 +156,10 @@ export class PostOfficeSavingsSchemesPage {
         return tooltipItems.length > 0
           ? `Maturity: ${
               this.decimalPipe.transform(
-                tooltipItems.reduce(
-                  (acc, cv) => (acc += cv?.parsed?.y || 0),
-                  0,
-                ),
+                tooltipItems.reduce((acc, cv) => {
+                  acc += cv?.parsed?.y || 0;
+                  return acc;
+                }, 0),
                 '1.0-0',
               ) || ''
             }`
@@ -336,7 +336,7 @@ export class PostOfficeSavingsSchemesPage {
 
   calculateMaturityAmount() {
     const schemes = this.schemes.filter((scheme) => {
-      let eligible = true;
+      let eligible;
 
       if (this.investmentType === InvestmentType.OneTime) {
         eligible = !scheme.depositTenure;
@@ -413,14 +413,13 @@ export class PostOfficeSavingsSchemesPage {
         const yearlyInvestment = this.depositAmount * 12;
 
         let openingBalance = 0;
-        let interestEarnedPerYear = 0;
         let closingBalance = 0;
         let totalInterest = 0;
 
         for (let year = 1; year <= maturityTenure; year++) {
           const x = year <= depositTenure ? yearlyInvestment : 0;
           openingBalance += x;
-          interestEarnedPerYear = openingBalance * (interestRate / 100);
+          const interestEarnedPerYear = openingBalance * (interestRate / 100);
           totalInterest += interestEarnedPerYear;
           closingBalance = openingBalance + interestEarnedPerYear;
           openingBalance = closingBalance;

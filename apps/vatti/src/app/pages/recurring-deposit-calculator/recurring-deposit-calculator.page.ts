@@ -240,10 +240,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
         return tooltipItems.length > 0
           ? `Closing Balance: ${
               this.decimalPipe.transform(
-                tooltipItems.reduce(
-                  (acc, cv) => (acc += cv?.parsed?.y || 0),
-                  0,
-                ),
+                tooltipItems.reduce((acc, cv) => {
+                  acc += cv?.parsed?.y || 0;
+                  return acc;
+                }, 0),
                 '1.0-0',
               ) || ''
             }`
@@ -490,7 +490,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
     if (this.installmentSummary.length > 0) {
       this.totalDeposit = this.monthlyInstallment * totalInstallments;
       this.maturityAmount = Math.round(
-        this.installmentSummary.reduce((acc, cv) => (acc += cv.balance), 0),
+        this.installmentSummary.reduce((acc, cv) => {
+          acc += cv.balance;
+          return acc;
+        }, 0),
       );
       this.interestEarned = this.maturityAmount - this.totalDeposit;
     } else {
