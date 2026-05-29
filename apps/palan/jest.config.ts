@@ -1,9 +1,12 @@
+import * as path from 'path';
+
+const workspaceRoot = path.resolve(__dirname, '../..');
 const reporters: Array<string | [string, Record<string, string>]> = ['default'];
 if (process.env['CI']) {
   reporters.push([
     'jest-junit',
     {
-      outputDirectory: '../../test-results/apps/palan',
+      outputDirectory: path.join(workspaceRoot, 'test-results/apps/palan'),
       outputName: 'junit.xml',
     },
   ]);
