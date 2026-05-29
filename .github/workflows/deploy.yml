@@ -80,7 +80,7 @@ jobs:
           # Write GPG key from variable and verify fingerprint
           printf '%s\n' "$CODECOV_GPG_KEY" > /tmp/codecov_pgp.asc
           gpg --import /tmp/codecov_pgp.asc
-          gpg --fingerprint "Codecov Uploader" | \
+          gpg --fingerprint "Codecov Uploader" | tr -s ' ' | \
             grep -q "$CODECOV_GPG_FINGERPRINT" || {
               echo "ERROR: Codecov GPG key fingerprint mismatch"
               exit 1
