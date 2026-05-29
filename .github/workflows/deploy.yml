@@ -69,17 +69,18 @@ jobs:
         run: npx nx affected -t lint test --parallel
 
       - name: Upload coverage and test results to Codecov
-        if: always()
         env:
           CODECOV_VERSION: ${{ vars.CODECOV_VERSION }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_GPG_FINGERPRINT: ${{ vars.CODECOV_GPG_FINGERPRINT }}
           CODECOV_GPG_KEY: ${{ vars.CODECOV_GPG_KEY }}
         run: |
+          export GNUPGHOME=$(mktemp -d)
+
           # Write GPG key from variable and verify fingerprint
-          echo "$CODECOV_GPG_KEY" > /tmp/codecov_pgp.asc
-          gpg --no-default-keyring --keyring trustedkeys.gpg --import /tmp/codecov_pgp.asc
-          gpg --no-default-keyring --keyring trustedkeys.gpg --fingerprint "Codecov Uploader" | \
+          printf '%s\n' "$CODECOV_GPG_KEY" > /tmp/codecov_pgp.asc
+          gpg --import /tmp/codecov_pgp.asc
+          gpg --fingerprint "Codecov Uploader" | \
             grep -q "$CODECOV_GPG_FINGERPRINT" || {
               echo "ERROR: Codecov GPG key fingerprint mismatch"
               exit 1
@@ -89,7 +90,7 @@ jobs:
           curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov"
           curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM"
           curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM.sig"
-          gpgv --keyring ./trustedkeys.gpg codecov.SHA256SUM.sig codecov.SHA256SUM
+          gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
           sha256sum -c codecov.SHA256SUM
           chmod +x codecov
 
@@ -148,7 +149,8 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           npx @codecov/bundle-analyzer dist/apps/${{ matrix.app }}/browser \
-            --bundle-name ${{ matrix.app }}
+            --bundle-name ${{ matrix.app }} \
+            --upload-token "$CODECOV_TOKEN"
 
       - name: Upload Source Maps to Sentry
         if: steps.bump-version.outputs.version != ''
