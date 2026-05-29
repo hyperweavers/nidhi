@@ -9,7 +9,8 @@
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/test-results/{projectRoot}"
       ],
       "options": {
         "jestConfig": "libs/shared/logger/jest.config.ts",

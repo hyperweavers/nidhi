@@ -1,8 +1,20 @@
+const reporters: Array<string | [string, Record<string, string>]> = ['default'];
+if (process.env['CI']) {
+  reporters.push([
+    'jest-junit',
+    {
+      outputDirectory: '../../../test-results/libs/shared/sentry',
+      outputName: 'junit.xml',
+    },
+  ]);
+}
+
 export default {
   displayName: 'shared-sentry',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/shared/sentry',
+  reporters,
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

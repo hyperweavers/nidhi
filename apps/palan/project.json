@@ -51,6 +51,7 @@
             }
           ],
           "outputHashing": "all",
+          "statsJson": true,
           "serviceWorker": "apps/palan/ngsw-config.json"
         },
         "development": {
@@ -108,7 +109,10 @@
     "test": {
       "executor": "@nx/jest:jest",
       "dependsOn": ["prebuild-version", "prebuild-sentry"],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/test-results/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/palan/jest.config.ts",
         "tsConfig": "apps/palan/tsconfig.spec.json"

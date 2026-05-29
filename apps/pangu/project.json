@@ -50,6 +50,7 @@
             }
           ],
           "outputHashing": "all",
+          "statsJson": true,
           "serviceWorker": "apps/pangu/ngsw-config.json"
         },
         "development": {
@@ -104,7 +105,10 @@
     "test": {
       "executor": "@nx/jest:jest",
       "dependsOn": ["prebuild-version", "prebuild-sentry"],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/test-results/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/pangu/jest.config.ts",
         "tsConfig": "apps/pangu/tsconfig.spec.json"

@@ -10,14 +10,22 @@
   "tags": [],
   "targets": {
     "build": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry", "^build"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry",
+        "^build"
+      ],
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/vatti",
         "index": "apps/vatti/src/index.html",
         "browser": "apps/vatti/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/vatti/tsconfig.app.json",
         "inlineStyleLanguage": "css",
         "assets": [
@@ -26,7 +34,9 @@
             "input": "apps/vatti/public"
           }
         ],
-        "styles": ["apps/vatti/src/styles.css"],
+        "styles": [
+          "apps/vatti/src/styles.css"
+        ],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
         ]
@@ -51,6 +61,7 @@
             }
           ],
           "outputHashing": "all",
+          "statsJson": true,
           "serviceWorker": "apps/vatti/ngsw-config.json"
         },
         "development": {
@@ -64,8 +75,12 @@
     "prebuild-version": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/version.ts"],
-      "inputs": ["{projectRoot}/version"],
+      "outputs": [
+        "{projectRoot}/src/generated/version.ts"
+      ],
+      "inputs": [
+        "{projectRoot}/version"
+      ],
       "options": {
         "command": "node tools/scripts/generate-version.mjs {projectName}"
       }
@@ -73,14 +88,21 @@
     "prebuild-sentry": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/sentry-config.ts"],
-      "inputs": ["{workspaceRoot}/.env"],
+      "outputs": [
+        "{projectRoot}/src/generated/sentry-config.ts"
+      ],
+      "inputs": [
+        "{workspaceRoot}/.env"
+      ],
       "options": {
         "command": "node tools/scripts/generate-sentry-env.mjs {projectName}"
       }
     },
     "serve": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
       "executor": "@angular-devkit/build-angular:dev-server",
       "options": {
         "port": 4300
@@ -107,8 +129,14 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/test-results/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/vatti/jest.config.ts",
         "tsConfig": "apps/vatti/tsconfig.spec.json"

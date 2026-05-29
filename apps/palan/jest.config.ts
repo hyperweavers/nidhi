@@ -1,8 +1,20 @@
+const reporters: Array<string | [string, Record<string, string>]> = ['default'];
+if (process.env['CI']) {
+  reporters.push([
+    'jest-junit',
+    {
+      outputDirectory: '../../test-results/apps/palan',
+      outputName: 'junit.xml',
+    },
+  ]);
+}
+
 export default {
   displayName: 'palan',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/apps/palan',
+  reporters,
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
