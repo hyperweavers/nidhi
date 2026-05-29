@@ -80,6 +80,9 @@ jobs:
               exit 1
             }
 
+          # Export to old-style trustedkeys.gpg for gpgv
+          gpg --export > "$GNUPGHOME/trustedkeys.gpg"
+
           # Download and verify binary
           curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov"
           curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM"
