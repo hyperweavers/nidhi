@@ -1,8 +1,23 @@
+import * as path from 'path';
+
+const workspaceRoot = process.env['NX_WORKSPACE_ROOT'] || '../..';
+const reporters: Array<string | [string, Record<string, string>]> = ['default'];
+if (process.env['CI']) {
+  reporters.push([
+    'jest-junit',
+    {
+      outputDirectory: path.join(workspaceRoot, 'test-results/apps/vatti'),
+      outputName: 'junit.xml',
+    },
+  ]);
+}
+
 export default {
   displayName: 'vatti',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/apps/vatti',
+  reporters,
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

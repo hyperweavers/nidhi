@@ -12,6 +12,8 @@ jobs:
   format-lint-build-test:
     name: Format, Lint, Build & Test
     runs-on: ubuntu-latest
+    env:
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN_READ_ONLY }}
 
     steps:
       - name: Checkout
@@ -22,6 +24,7 @@ jobs:
       - name: Setup NX Cloud
         # Linux agents: https://github.com/nrwl/nx-cloud-workflows/blob/main/launch-templates/linux.yaml
         # CLI Rf: https://nx.dev/ci/reference/nx-cloud-cli
+        # Ref: https://nx.dev/ci/reference/nx-cloud-cli#stopagentsafter
         run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="lint,build,test"
         # Replace above command with the below one when e2e tests are available
         # run: npx nx-cloud start-ci-run --distribute-on="4 linux-medium-js" --stop-agents-after="lint,build,test,e2e-ci"
@@ -45,9 +48,93 @@ jobs:
       - name: Format
         run: npx nx-cloud record -- nx format:check
 
-      - name: Lint, Build and Run Unit Tests
-        # Ref: https://nx.dev/ci/reference/nx-cloud-cli#stopagentsafter
-        run: npx nx affected -t lint & npx nx affected -t build & npx nx affected -t test
+      - name: Lint and Run Unit Tests
+        run: npx nx affected -t lint test --parallel
+
+      - name: Build
+        run: npx nx affected -t build --configuration=production --parallel
+
+      - name: Restore artifacts from Nx Cloud cache
+        id: restore-cache
+        continue-on-error: true
+        run: |
+          npx nx affected -t test --no-cloud
+          npx nx affected -t build --configuration=production --no-cloud
+
+      - name: Upload coverage and test results to Codecov
+        if: steps.restore-cache.outcome == 'success'
+        env:
+          CODECOV_VERSION: ${{ vars.CODECOV_VERSION }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_GPG_FINGERPRINT: ${{ vars.CODECOV_GPG_FINGERPRINT }}
+          CODECOV_GPG_KEY: ${{ vars.CODECOV_GPG_KEY }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+
+          # Write GPG key from variable and verify fingerprint
+          printf '%s\n' "$CODECOV_GPG_KEY" > /tmp/codecov_pgp.asc
+          gpg --import /tmp/codecov_pgp.asc
+          gpg --fingerprint "Codecov Uploader" | tr -s ' ' | \
+            grep -q "$CODECOV_GPG_FINGERPRINT" || {
+              echo "ERROR: Codecov GPG key fingerprint mismatch"
+              exit 1
+            }
+
+          # Export to old-style trustedkeys.gpg for gpgv
+          gpg --export > "$GNUPGHOME/trustedkeys.gpg"
+
+          # Download and verify binary
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov"
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM"
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM.sig"
+          gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
+          sha256sum -c codecov.SHA256SUM
+          chmod +x codecov
+
+          # Upload coverage (per-project flags)
+          for dir in coverage/apps/*/; do
+            if [ -f "$dir/clover.xml" ]; then
+              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "$(basename "$dir")"
+            fi
+          done
+          for dir in coverage/libs/*/*/; do
+            if [ -f "$dir/clover.xml" ]; then
+              lib="$(basename "$dir")"
+              parent="$(basename "$(dirname "$dir")")"
+              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "${parent}-${lib}"
+            fi
+          done
+
+          # Upload test results (per-project flags)
+          for dir in test-results/apps/*/; do
+            if [ -f "$dir/junit.xml" ]; then
+              ./codecov do-upload --report-type test_results --disable-search -Z \
+                -f "$dir/junit.xml" -F "$(basename "$dir")"
+            fi
+          done
+          for dir in test-results/libs/*/*/; do
+            if [ -f "$dir/junit.xml" ]; then
+              lib="$(basename "$dir")"
+              parent="$(basename "$(dirname "$dir")")"
+              ./codecov do-upload --report-type test_results --disable-search -Z \
+                -f "$dir/junit.xml" -F "${parent}-${lib}"
+            fi
+          done
+
+      - name: Upload bundle analysis to Codecov
+        if: steps.restore-cache.outcome == 'success'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          for dir in dist/apps/*/browser; do
+            if [ -d "$dir" ]; then
+              app="${dir#dist/apps/}"
+              app="${app%/browser}"
+              npx @codecov/bundle-analyzer "$dir" \
+                --bundle-name "$app" \
+                --upload-token "$CODECOV_TOKEN"
+            fi
+          done
 
       # Disabled e2e tests until available
       # - name: Lint, Build and Run Unit & E2E Tests

@@ -35,13 +35,10 @@
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "options": {
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
+        "passWithNoTests": true,
+        "codeCoverage": true,
+        "ci": true,
+        "coverageReporters": ["html", "clover"]
       }
     },
     "build": {
@@ -138,5 +135,5 @@
       "unitTestRunner": "jest"
     }
   },
-  "nxCloudAccessToken": "ZDcxZTIyNmItZGRmNy00OGM1LTk5Y2MtYmY2ZGY3OWU0ODYyfHJlYWQtd3JpdGU="
+  "nxCloudId": "6630a85587325a6e92bf3d24"
 }

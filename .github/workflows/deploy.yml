@@ -44,6 +44,8 @@ jobs:
     needs: find-affected-apps
     if: needs.find-affected-apps.outputs.apps != '[]'
     runs-on: ubuntu-latest
+    env:
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN_READ_WRITE }}
     strategy:
       matrix:
         app: ${{ fromJson(needs.find-affected-apps.outputs.apps) }}
@@ -64,7 +66,66 @@ jobs:
         run: npm ci
 
       - name: Lint and Run Unit Tests
-        run: npx nx affected --target=lint,test --parallel
+        run: npx nx affected -t lint test --parallel
+
+      - name: Upload coverage and test results to Codecov
+        env:
+          CODECOV_VERSION: ${{ vars.CODECOV_VERSION }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_GPG_FINGERPRINT: ${{ vars.CODECOV_GPG_FINGERPRINT }}
+          CODECOV_GPG_KEY: ${{ vars.CODECOV_GPG_KEY }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+
+          # Write GPG key from variable and verify fingerprint
+          printf '%s\n' "$CODECOV_GPG_KEY" > /tmp/codecov_pgp.asc
+          gpg --import /tmp/codecov_pgp.asc
+          gpg --fingerprint "Codecov Uploader" | tr -s ' ' | \
+            grep -q "$CODECOV_GPG_FINGERPRINT" || {
+              echo "ERROR: Codecov GPG key fingerprint mismatch"
+              exit 1
+            }
+
+          # Export to old-style trustedkeys.gpg for gpgv
+          gpg --export > "$GNUPGHOME/trustedkeys.gpg"
+
+          # Download and verify binary
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov"
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM"
+          curl -Os "https://cli.codecov.io/${CODECOV_VERSION}/linux/codecov.SHA256SUM.sig"
+          gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
+          sha256sum -c codecov.SHA256SUM
+          chmod +x codecov
+
+          # Upload coverage (per-project flags)
+          for dir in coverage/apps/*/; do
+            if [ -f "$dir/clover.xml" ]; then
+              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "$(basename "$dir")"
+            fi
+          done
+          for dir in coverage/libs/*/*/; do
+            if [ -f "$dir/clover.xml" ]; then
+              lib="$(basename "$dir")"
+              parent="$(basename "$(dirname "$dir")")"
+              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "${parent}-${lib}"
+            fi
+          done
+
+          # Upload test results (per-project flags)
+          for dir in test-results/apps/*/; do
+            if [ -f "$dir/junit.xml" ]; then
+              ./codecov do-upload --report-type test_results --disable-search -Z \
+                -f "$dir/junit.xml" -F "$(basename "$dir")"
+            fi
+          done
+          for dir in test-results/libs/*/*/; do
+            if [ -f "$dir/junit.xml" ]; then
+              lib="$(basename "$dir")"
+              parent="$(basename "$(dirname "$dir")")"
+              ./codecov do-upload --report-type test_results --disable-search -Z \
+                -f "$dir/junit.xml" -F "${parent}-${lib}"
+            fi
+          done
 
       # Disabled e2e tests until available
       # - name: Lint and Run Unit & E2E Tests
@@ -85,6 +146,14 @@ jobs:
             exit 1
           fi
           npx nx build ${{ matrix.app }} --configuration production --base-href ./
+
+      - name: Upload bundle analysis to Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          npx @codecov/bundle-analyzer dist/apps/${{ matrix.app }}/browser \
+            --bundle-name ${{ matrix.app }} \
+            --upload-token "$CODECOV_TOKEN"
 
       - name: Upload Source Maps to Sentry
         if: steps.bump-version.outputs.version != ''
