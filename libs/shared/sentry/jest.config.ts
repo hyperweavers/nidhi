@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-const workspaceRoot = path.resolve(__dirname, '../../..');
+const workspaceRoot = process.env['NX_WORKSPACE_ROOT'] || '../../..';
 const reporters: Array<string | [string, Record<string, string>]> = ['default'];
 if (process.env['CI']) {
   reporters.push([
