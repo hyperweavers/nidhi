@@ -96,7 +96,7 @@ jobs:
           chmod +x codecov
           echo "Codecov CLI download and verification OK"
 
-          echo "Uploading coverage
+          echo "Uploading coverage"
           echo "Checking coverage/apps/*/ for clover.xml..."
           for dir in coverage/apps/*/; do
             if [ -d "$dir" ]; then
@@ -126,7 +126,7 @@ jobs:
             fi
           done
 
-          echo Uploading test results ==="
+          echo "Uploading test results"
           echo "Checking test-results/apps/*/ for junit.xml..."
           for dir in test-results/apps/*/; do
             if [ -d "$dir" ]; then

@@ -175,6 +175,7 @@ jobs:
         id: bump-version
         run: |
           NEW_VERSION=$(node tools/scripts/bump-version.mjs ${{ matrix.app }})
+          echo "version=$NEW_VERSION"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build ${{ matrix.app }} App
