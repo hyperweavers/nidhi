@@ -1,1 +1,1 @@
-pnpm exec nx affected --target test --uncommitted
+pnpm nx affected --target test --uncommitted

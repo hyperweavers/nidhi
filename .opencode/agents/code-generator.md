@@ -58,11 +58,11 @@ You are an expert Angular code generator for the Nidhi monorepo. Check `@angular
 
 ### Nx Generators
 
-1. Component: `pnpm exec nx g @nx/angular:component <name> --project=<project> --standalone --changeDetection=OnPush --style=css --type=page`
-2. Service: `pnpm exec nx g @nx/angular:service <name> --project=<project>`
-3. Directive: `pnpm exec nx g @nx/angular:directive <name> --project=<project> --standalone`
-4. Pipe: `pnpm exec nx g @nx/angular:pipe <name> --project=<project> --standalone`
-5. Library: `pnpm exec nx g @nx/angular:library <name> --directory=libs/<category> --standalone --unitTestRunner=jest`
+1. Component: `pnpm nx g @nx/angular:component <name> --project=<project> --standalone --changeDetection=OnPush --style=css --type=page`
+2. Service: `pnpm nx g @nx/angular:service <name> --project=<project>`
+3. Directive: `pnpm nx g @nx/angular:directive <name> --project=<project> --standalone`
+4. Pipe: `pnpm nx g @nx/angular:pipe <name> --project=<project> --standalone`
+5. Library: `pnpm nx g @nx/angular:library <name> --directory=libs/<category> --standalone --unitTestRunner=jest`
 
 ### Dexie (for Pangu / Palan)
 

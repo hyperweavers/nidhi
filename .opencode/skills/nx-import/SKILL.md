@@ -86,8 +86,8 @@ Inferred targets (via Nx plugins) resolve config relative to project root — no
 ### Plugin Detection
 
 - **Whole-repo import**: `nx import` detects and offers to install plugins. Accept them.
-- **Subdirectory import**: Plugins NOT auto-detected. Manually add with `pnpm exec nx add @nx/PLUGIN`. Check `include`/`exclude` patterns — defaults won't match alternate directories (e.g. `apps-beta/`).
-- Run `pnpm exec nx reset` after any plugin config changes.
+- **Subdirectory import**: Plugins NOT auto-detected. Manually add with `pnpm nx add @nx/PLUGIN`. Check `include`/`exclude` patterns — defaults won't match alternate directories (e.g. `apps-beta/`).
+- Run `pnpm nx reset` after any plugin config changes.
 
 ### Redundant Root Files (Whole-Repo Only)
 
@@ -110,7 +110,7 @@ Subdirectory import doesn't bring the source's root `eslint.config.mjs`, but pro
 
 1. Install ESLint deps first: `pnpm add -wD eslint@^9 @nx/eslint-plugin typescript-eslint` (plus framework-specific plugins)
 2. Create root `eslint.config.mjs` (copy from source or create with `@nx/eslint-plugin` base rules)
-3. Then `pnpm exec nx add @nx/eslint` to register the plugin in `nx.json`
+3. Then `pnpm nx add @nx/eslint` to register the plugin in `nx.json`
 
 Install `typescript-eslint` explicitly — pnpm's strict hoisting won't auto-resolve this transitive dep of `@nx/eslint-plugin`.
 
@@ -171,7 +171,7 @@ Nx presets create `jest.preset.js` at the workspace root, and project jest confi
 
 **Fix**:
 
-1. Run `pnpm exec nx add @nx/jest` — registers `@nx/jest/plugin` in `nx.json` and updates `namedInputs`
+1. Run `pnpm nx add @nx/jest` — registers `@nx/jest/plugin` in `nx.json` and updates `namedInputs`
 2. Create `jest.preset.js` at workspace root (see `references/JEST.md` for content) — `nx add` only creates this when a generator runs, not on bare `nx add`
 3. Install test runner deps: `pnpm add -wD jest jest-environment-jsdom ts-jest @types/jest`
 4. Install framework-specific test deps as needed (see `references/JEST.md`)

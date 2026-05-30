@@ -27,9 +27,9 @@ Three privacy-focused open-source personal finance PWAs:
 ## Nx Monorepo
 
 - **Package manager**: pnpm
-- **Run tasks**: `pnpm exec nx <target> <project>` (e.g., `pnpm exec nx test pangu`)
-- **Affected commands**: `pnpm exec nx affected -t <target>`
-- **Generators**: `pnpm exec nx g @nx/angular:<schematic>`
+- **Run tasks**: `pnpm nx <target> <project>` (e.g., `pnpm nx test pangu`)
+- **Affected commands**: `pnpm nx affected -t <target>`
+- **Generators**: `pnpm nx g @nx/angular:<schematic>`
 - **Path aliases**: `@nidhi/shared-logger`, `@nidhi/shared-sentry`
 - **Module boundaries**: enforced by `@nx/enforce-module-boundaries`
 
@@ -38,7 +38,7 @@ Three privacy-focused open-source personal finance PWAs:
 - **Unit**: Jest + `jest-preset-angular` + `jest-canvas-mock`. Check `jest` version in `package.json`.
 - **E2E**: Cypress (per app, `*-e2e` projects). Check `cypress` version in `package.json`.
 - **Test setup**: `test-setup.ts` configures zone, `matchMedia`, `ResizeObserver`, and `DatePicker` mocks
-- **Run**: `pnpm exec nx test <app>` or `pnpm exec nx affected -t test`
+- **Run**: `pnpm nx test <app>` or `pnpm nx affected -t test`
 
 ## CI/CD
 
@@ -50,7 +50,7 @@ Three privacy-focused open-source personal finance PWAs:
 
 - For navigating/exploring the workspace, invoke the `nx-workspace` skill first — it has patterns for querying projects, targets, and dependencies
 - When running tasks (build, lint, test, e2e, etc.), always prefer running through `nx` (`nx run`, `nx run-many`, `nx affected`) instead of underlying tooling directly
-- Prefix nx commands with the workspace's package manager: `pnpm exec nx build`
+- Prefix nx commands with `pnpm`: `pnpm nx build`
 - The workspace is connected to Nx Cloud (see `nx.json` for access token) — CI self-healing and the `/monitor-ci` command depend on it
 - You have access to the Nx MCP server and its tools — use them to inspect workspace configuration and project graph
 - For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`

@@ -4,12 +4,12 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
-    "migrate": "pnpm exec nx migrate latest && rm -rf node_modules pnpm-lock.yaml && pnpm install && pnpm exec nx migrate --run-migrations --create-commits",
+    "migrate": "pnpx nx@latest migrate latest && rm -rf node_modules pnpm-lock.yaml && pnpm install && pnpx nx@latest migrate --run-migrations --create-commits",
     "update-deps:dry-run": "npm-check-updates",
     "update-deps": "npm-check-updates -u && rm -rf node_modules pnpm-lock.yaml && pnpm install",
-    "generate-icons:pangu": "pnpm exec pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && pnpm exec nx format pangu",
-    "generate-icons:vatti": "pnpm exec pwa-asset-generator apps/vatti/public/icons/logo.svg apps/vatti/public/icons/ --manifest apps/vatti/public/manifest.webmanifest --index apps/vatti/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && pnpm exec nx format vatti",
-    "generate-icons:palan": "pnpm exec pwa-asset-generator apps/palan/public/icons/logo.svg apps/palan/public/icons/ --manifest apps/palan/public/manifest.webmanifest --index apps/palan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && pnpm exec nx format palan",
+    "generate-icons:pangu": "pnpx pwa-asset-generator apps/pangu/src/assets/icons/logo.svg apps/pangu/src/assets/icons/ --manifest apps/pangu/src/manifest.webmanifest --index apps/pangu/src/index.html --path-override 'assets/icons' --opaque false --padding 0 --type png --mstile && pnpx nx format pangu",
+    "generate-icons:vatti": "pnpx pwa-asset-generator apps/vatti/public/icons/logo.svg apps/vatti/public/icons/ --manifest apps/vatti/public/manifest.webmanifest --index apps/vatti/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && pnpx nx format vatti",
+    "generate-icons:palan": "pnpx pwa-asset-generator apps/palan/public/icons/logo.svg apps/palan/public/icons/ --manifest apps/palan/public/manifest.webmanifest --index apps/palan/src/index.html --path-override 'icons' --opaque false --padding 0 --type png --mstile && pnpx nx format palan",
     "prepare": "husky"
   },
   "dependencies": {
