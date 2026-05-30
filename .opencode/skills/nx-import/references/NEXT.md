@@ -193,7 +193,7 @@ No naming conflicts between frameworks.
 - See VITE.md Scenario 6 for the full multi-import scenario
 - Next.js-specific findings:
   1. `@nx/next:init` rewrote all scripts to `nx next:*` format — removed all rewritten scripts
-  2. Stale files: `node_modules/`, `package-lock.json`, `.gitignore` — deleted (npm workspace, no pnpm files)
+  2. Stale files: `node_modules/`, `pnpm-lock.yaml`, `.gitignore` — deleted (npm workspace, no pnpm files)
   3. ESLint self-contained via `eslint-config-next` — no root config needed
   4. No tsconfig changes needed — `noEmit: true` stays; `next build` handles type checking
 - Targets: `next:build`, `next:dev`, `next:start`, `eslint:lint`

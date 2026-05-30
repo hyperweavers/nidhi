@@ -38,9 +38,9 @@ You are a security analyst for a set of privacy-focused open-source personal fin
 
 ## Dependency Security
 
-- Run `npm audit` and flag high/critical vulnerabilities
+- Run `pnpm audit` and flag high/critical vulnerabilities
 - Check for outdated packages with known CVEs, especially: `chart.js`, `lightweight-charts`, `flowbite`, `dexie`, `uuid`
-- Verify lockfile integrity (`package-lock.json` is committed)
+- Verify lockfile integrity (`pnpm-lock.yaml` is committed)
 
 ## CSP & Headers
 

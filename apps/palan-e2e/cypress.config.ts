@@ -7,13 +7,13 @@ export default defineConfig({
     ...nxE2EPreset(__filename, {
       cypressDir: 'src',
       webServerCommands: {
-        default: 'npx nx run palan:serve',
-        production: 'npx nx run palan:serve-static',
+        default: 'pnpm exec nx run palan:serve',
+        production: 'pnpm exec nx run palan:serve-static',
       },
-      ciWebServerCommand: 'npx nx run palan:serve-static',
-      ciBaseUrl: 'http://localhost:4200',
+      ciWebServerCommand: 'pnpm exec nx run palan:serve-static',
+      ciBaseUrl: 'http://localhost:4400',
     }),
-    baseUrl: 'http://localhost:4200',
+    baseUrl: 'http://localhost:4400',
     // Please ensure you use `cy.origin()` when navigating between domains and remove this option.
     // See https://docs.cypress.io/app/references/migration-guide#Changes-to-cyorigin
     injectDocumentDomain: true,

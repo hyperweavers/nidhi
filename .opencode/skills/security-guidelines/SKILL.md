@@ -82,8 +82,8 @@ Note: GitHub Pages does not support custom CSP headers. Document this as a limit
 Run before every major release:
 
 ```bash
-npm audit
-npm outdated
+pnpm audit
+pnpm outdated
 ```
 
 Known high-risk dependencies to watch:

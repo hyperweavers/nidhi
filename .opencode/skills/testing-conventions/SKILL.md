@@ -120,16 +120,16 @@ describe(`${FeatureService.name}`, () => {
 
 ```bash
 # Single project
-npx nx test pangu
-npx nx test vatti
-npx nx test palan
+pnpm exec nx test pangu
+pnpm exec nx test vatti
+pnpm exec nx test palan
 
 # All affected
-npx nx affected -t test
+pnpm exec nx affected -t test
 
 # With coverage
-npx nx test pangu --codeCoverage
+pnpm exec nx test pangu --codeCoverage
 
 # Watch mode
-npx nx test pangu --watch
+pnpm exec nx test pangu --watch
 ```
