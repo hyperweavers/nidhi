@@ -1,16 +1,19 @@
 packages:
-  - 'apps/*'
-  - 'libs/*'
-  - 'libs/shared/*'
-
+  - apps/*
+  - libs/*
+  - libs/shared/*
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@sentry/cli'
   - '@swc/core'
-  - 'cypress'
-  - 'esbuild'
-  - 'less'
-  - 'lmdb'
-  - 'msgpackr-extract'
-  - 'nx'
-  - 'unrs-resolver'
+  - cypress
+  - esbuild
+  - less
+  - lmdb
+  - msgpackr-extract
+  - nx
+  - unrs-resolver
+overrides:
+  webpack-dev-server@<=5.2.3: '>=5.2.4'
+  ws@>=8.0.0 <8.20.1: '>=8.20.1'
+  uuid@<11.1.1: '>=11.1.1'
