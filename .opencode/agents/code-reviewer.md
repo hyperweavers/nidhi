@@ -27,7 +27,7 @@ You are a strict but constructive code reviewer for the Nidhi monorepo. Review c
 
 ## Styling
 
-- Tailwind CSS 4 utility classes — no custom CSS for layout unless unavoidable
+- Tailwind CSS utility classes — no custom CSS for layout unless unavoidable. Check `tailwindcss` version in `package.json`.
 - Dark mode via `dark:` variant
 - No hardcoded colors — use Tailwind theme palette
 - Flowbite classes should follow library conventions

@@ -7,3 +7,4 @@ description: Find and add Nx plugins. USE WHEN user wants to discover available 
 
 - List plugins: `pnpm nx list`
 - Install plugins `pnpm nx add <plugin>`. Example: `pnpm nx add @nx/react`.
+- Run `pnpm exec nx reset` after adding a new plugin to ensure targets are inferred correctly.

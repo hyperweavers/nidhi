@@ -1,9 +1,11 @@
 ---
 name: testing-conventions
-description: Use when writing or reviewing Jest 30 unit tests for Angular 21 standalone components, services, and pipes in the Nidhi monorepo. Covers jest-preset-angular setup, mocking patterns, test boilerplate, and coverage expectations.
+description: Use when writing or reviewing Jest unit tests for Angular standalone components, services, and pipes in the Nidhi monorepo. Covers jest-preset-angular setup, mocking patterns, test boilerplate, and coverage expectations.
 ---
 
 # Testing Conventions
+
+Check `@angular/core`, `jest`, and `jest-preset-angular` versions in `package.json` for the current major versions.
 
 ## Setup
 

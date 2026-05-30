@@ -1,4 +1,4 @@
-# Nidhi — Nx Angular 21 Monorepo
+# Nidhi — Nx Angular Monorepo
 
 ## Project Overview
 
@@ -13,12 +13,12 @@ Three privacy-focused open-source personal finance PWAs:
 
 ## Key Conventions
 
-- **Angular 21 standalone** — no `NgModule`; import components directly in `imports` array
+- **Angular standalone** — no `NgModule`; import components directly in `imports` array. Check `@angular/core` version in `package.json` for current major.
 - **ChangeDetectionStrategy.OnPush** on every component
 - **`inject()`** over constructor injection (no `private`-prefix DI fields)
 - **`@UntilDestroy()`** + `@UntilDestroy({ checkProperties: true })` for RxJS lifecycle management; use `pipe(untilDestroyed(this))` or subclass `subscribe` / `next` via the decorator
 - **RxJS + signals** — use `BehaviorSubject`/`Observable` for services, convert to signals in components via `toSignal()` / `toObservable()`
-- **Tailwind CSS 4 + Flowbite** — utility classes, no separate CSS files for layout; component-scoped styles only for overrides
+- **Tailwind CSS + Flowbite** — utility classes, no separate CSS files for layout; component-scoped styles only for overrides. Check `tailwindcss` version in `package.json`.
 - **Dexie** — IndexedDB wrapper; schema in `db/`; version migrations in `dexie.version.ts`
 - **Sentry** — production only; `beforeSend` strips query strings; `ConsoleLogger` in dev, `SentryLogger` in prod (via `LOGGER` injection token)
 - **Chart.js** — via `ng2-charts` for doughnut charts; `lightweight-charts` for area/performance charts
@@ -35,8 +35,8 @@ Three privacy-focused open-source personal finance PWAs:
 
 ## Testing
 
-- **Unit**: Jest 30 + `jest-preset-angular` + `jest-canvas-mock`
-- **E2E**: Cypress 15 (per app, `*-e2e` projects)
+- **Unit**: Jest + `jest-preset-angular` + `jest-canvas-mock`. Check `jest` version in `package.json`.
+- **E2E**: Cypress (per app, `*-e2e` projects). Check `cypress` version in `package.json`.
 - **Test setup**: `test-setup.ts` configures zone, `matchMedia`, `ResizeObserver`, and `DatePicker` mocks
 - **Run**: `pnpm exec nx test <app>` or `pnpm exec nx affected -t test`
 
@@ -52,6 +52,7 @@ Three privacy-focused open-source personal finance PWAs:
 - When running tasks (build, lint, test, e2e, etc.), always prefer running through `nx` (`nx run`, `nx run-many`, `nx affected`) instead of underlying tooling directly
 - Prefix nx commands with the workspace's package manager: `pnpm exec nx build`
 - The workspace is connected to Nx Cloud (see `nx.json` for access token) — CI self-healing and the `/monitor-ci` command depend on it
+- You have access to the Nx MCP server and its tools — use them to inspect workspace configuration and project graph
 - For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`
 - Never guess CLI flags — check `--help` or the `nx_docs` skill first
 - For scaffolding tasks (apps, libs, components), always invoke the `nx-generate` skill first

@@ -1,9 +1,11 @@
 ---
 name: angular-conventions
-description: Use when generating or reviewing Angular 21 code in the Nidhi monorepo. Covers standalone components, OnPush, inject() DI, @UntilDestroy, RxJS/signals, Tailwind 4 + Flowbite, Dexie schemas, and Chart.js/lightweight-charts integration patterns.
+description: Use when generating or reviewing Angular code in the Nidhi monorepo. Covers standalone components, OnPush, inject() DI, @UntilDestroy, RxJS/signals, Tailwind + Flowbite, Dexie schemas, and Chart.js/lightweight-charts integration patterns.
 ---
 
-# Angular 21 Conventions
+# Angular Conventions
+
+Check `@angular/core` version in `package.json` for the current major. All conventions below assume the installed Angular version — adjust if APIs differ across majors.
 
 ## Standalone Components
 
@@ -72,12 +74,13 @@ readonly prices = toSignal(this.marketService.prices$, { initialValue: [] });
 <div *ngFor="let price of prices()">{{ price.value }}</div>
 ```
 
-## Tailwind CSS 4 + Flowbite
+## Tailwind CSS + Flowbite
 
 - Utility classes in templates; no CSS files for layout
 - Dark mode: `<div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">`
 - Flowbite components via existing CDK classes
 - Responsive: `sm:`, `md:`, `lg:` prefixes
+- Check `tailwindcss` version in `package.json`.
 
 ## Dexie Schema (apps with DB)
 

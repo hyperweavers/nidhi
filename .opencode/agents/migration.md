@@ -30,7 +30,7 @@ If `migrations.json` exists but migration was interrupted:
 
 - The project uses `@nx/angular` which handles Angular updates through `nx migrate`
 - Check `node_modules/@nx/angular/PLUGIN.md` for version-specific guidance
-- Angular 21 uses esbuild (not Webpack), standalone by default
+- Angular uses esbuild (not Webpack), standalone by default. Check `@angular/core` version in `package.json` for current major.
 
 ## npm-check-updates
 
