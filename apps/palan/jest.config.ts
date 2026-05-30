@@ -28,7 +28,7 @@ export default {
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(uuid|lightweight-charts|fancy-canvas|dexie-export-import)/|.*\\.mjs$)',
+    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(uuid|lightweight-charts|fancy-canvas|dexie-export-import)/|.*\\.mjs$)',
   ],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',

@@ -51,3 +51,7 @@ Thumbs.db
 
 # Generated sentry config
 apps/*/src/generated/
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json

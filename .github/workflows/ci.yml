@@ -21,22 +21,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Setup NX Cloud
         # Linux agents: https://github.com/nrwl/nx-cloud-workflows/blob/main/launch-templates/linux.yaml
         # CLI Rf: https://nx.dev/ci/reference/nx-cloud-cli
         # Ref: https://nx.dev/ci/reference/nx-cloud-cli#stopagentsafter
-        run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="lint,build,test"
+        run: pnpx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="lint,build,test"
         # Replace above command with the below one when e2e tests are available
-        # run: npx nx-cloud start-ci-run --distribute-on="4 linux-medium-js" --stop-agents-after="lint,build,test,e2e-ci"
+        # run: pnpx nx-cloud start-ci-run --distribute-on="4 linux-medium-js" --stop-agents-after="lint,build,test,e2e-ci"
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm' # Cache node_modules
+          cache: 'pnpm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Set NX SHAs
         uses: nrwl/nx-set-shas@v5
@@ -46,20 +49,20 @@ jobs:
         run: git branch --track main origin/main
 
       - name: Format
-        run: npx nx-cloud record -- nx format:check
+        run: pnpm nx-cloud record -- nx format:check
 
       - name: Lint and Run Unit Tests
-        run: npx nx affected -t lint test --parallel
+        run: pnpm nx affected -t lint test --parallel
 
       - name: Build
-        run: npx nx affected -t build --configuration=production --parallel
+        run: pnpm nx affected -t build --configuration=production --parallel
 
       - name: Restore artifacts from Nx Cloud cache
         id: restore-cache
         continue-on-error: true
         run: |
-          npx nx affected -t test --no-agents
-          npx nx affected -t build --configuration=production --no-agents
+          pnpm nx affected -t test --no-agents
+          pnpm nx affected -t build --configuration=production --no-agents
 
       - name: Upload coverage and test results to Codecov
         if: steps.restore-cache.outcome == 'success'
@@ -93,7 +96,7 @@ jobs:
           chmod +x codecov
           echo "Codecov CLI download and verification OK"
 
-          echo "Uploading coverage
+          echo "Uploading coverage"
           echo "Checking coverage/apps/*/ for clover.xml..."
           for dir in coverage/apps/*/; do
             if [ -d "$dir" ]; then
@@ -123,7 +126,7 @@ jobs:
             fi
           done
 
-          echo Uploading test results ==="
+          echo "Uploading test results"
           echo "Checking test-results/apps/*/ for junit.xml..."
           for dir in test-results/apps/*/; do
             if [ -d "$dir" ]; then
@@ -167,7 +170,7 @@ jobs:
               app="${dir#dist/apps/}"
               app="${app%/browser}"
               echo "FOUND: $dir, uploading bundle=$app"
-              npx @codecov/bundle-analyzer "$dir" \
+              pnpx @codecov/bundle-analyzer "$dir" \
                 --bundle-name "$app" \
                 --upload-token "$CODECOV_TOKEN"
               echo "UPLOAD OK: $app bundle analysis"
@@ -177,4 +180,4 @@ jobs:
       # Disabled e2e tests until available
       # - name: Lint, Build and Run Unit & E2E Tests
       #   Ref: https://nx.dev/ci/reference/nx-cloud-cli#stopagentsafter
-      #   run: nx affected -t lint & npx nx affected -t build & npx nx affected -t test & npx nx affected -t e2e-ci
+      #   run: pnpm nx affected -t lint & pnpm nx affected -t build & pnpm nx affected -t test & pnpm nx affected -t e2e-ci

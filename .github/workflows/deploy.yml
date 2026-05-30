@@ -21,14 +21,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm' # Cache node_modules
+          cache: 'pnpm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Set NX SHAs
         uses: nrwl/nx-set-shas@v5
@@ -36,7 +39,7 @@ jobs:
       - name: Detect Affected Apps
         id: affected-apps
         run: |
-          affected=$(npx --yes nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json)
+          affected=$(pnpm nx show projects --affected --type app --base=origin/main~1 --head=origin/main --json)
           echo "apps=$affected" >> $GITHUB_OUTPUT
 
   deploy:
@@ -56,17 +59,20 @@ jobs:
         # affects the deploy action. Until, deploy action fixes it, sticking with v5.
         uses: actions/checkout@v5
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm' # Cache node_modules
+          cache: 'pnpm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Lint and Run Unit Tests
-        run: npx nx affected -t lint test --parallel
+        run: pnpm nx affected -t lint test --parallel
 
       - name: Upload coverage and test results to Codecov
         env:
@@ -163,12 +169,13 @@ jobs:
 
       # Disabled e2e tests until available
       # - name: Lint and Run Unit & E2E Tests
-      #   run: npx nx affected --target=lint,test,e2e-ci --parallel
+      #   run: pnpm nx affected --target=lint,test,e2e-ci --parallel
 
       - name: Bump Version
         id: bump-version
         run: |
           NEW_VERSION=$(node tools/scripts/bump-version.mjs ${{ matrix.app }})
+          echo "version=$NEW_VERSION"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build ${{ matrix.app }} App
@@ -179,13 +186,13 @@ jobs:
             echo "Error: SENTRY_DSN_$(echo '${{ matrix.app }}' | tr '[:lower:]' '[:upper:]') GitHub Variable is not set"
             exit 1
           fi
-          npx nx build ${{ matrix.app }} --configuration production --base-href ./
+          pnpm nx build ${{ matrix.app }} --configuration production --base-href ./
 
       - name: Upload bundle analysis to Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          npx @codecov/bundle-analyzer dist/apps/${{ matrix.app }}/browser \
+          pnpx @codecov/bundle-analyzer dist/apps/${{ matrix.app }}/browser \
             --bundle-name ${{ matrix.app }} \
             --upload-token "$CODECOV_TOKEN"
 
@@ -195,15 +202,15 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          npx @sentry/cli releases new "${{ steps.bump-version.outputs.version }}" \
+          pnpm sentry-cli releases new "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" --project "${{ matrix.app }}"
-          npx @sentry/cli sourcemaps upload \
+          pnpm sentry-cli sourcemaps upload \
             --release "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" \
             --project "${{ matrix.app }}" \
             --url-prefix '~/browser' \
             dist/apps/${{ matrix.app }}/browser
-          npx @sentry/cli releases finalize "${{ steps.bump-version.outputs.version }}" \
+          pnpm sentry-cli releases finalize "${{ steps.bump-version.outputs.version }}" \
             --org "$SENTRY_ORG" --project "${{ matrix.app }}"
 
       - name: Remove Source Maps from Deploy Artifact

@@ -232,10 +232,10 @@ export class FixedDepositCalculatorPage implements OnInit {
         return tooltipItems.length > 0
           ? `Total Interest: ${
               this.decimalPipe.transform(
-                tooltipItems.reduce(
-                  (acc, cv) => (acc += cv?.parsed?.y || 0),
-                  0,
-                ) - this.depositAmount,
+                tooltipItems.reduce((acc, cv) => {
+                  acc += cv?.parsed?.y || 0;
+                  return acc;
+                }, 0) - this.depositAmount,
                 '1.0-0',
               ) || ''
             }`
@@ -532,7 +532,10 @@ export class FixedDepositCalculatorPage implements OnInit {
 
     this.averagePayout =
       this.payoutSchedule.length > 0
-        ? this.payoutSchedule.reduce((acc, cv) => (acc += cv.interest), 0) /
+        ? this.payoutSchedule.reduce((acc, cv) => {
+            acc += cv.interest;
+            return acc;
+          }, 0) /
           (Number(this.interestPayoutFrequency) * timeInYears)
         : 0;
 

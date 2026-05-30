@@ -1,5 +1,5 @@
 {
-  "apps/**/*.{ts,js,css,html,md,json}": ["npx nx affected:lint --fix --files"],
-  "*.css": ["npx stylelint --fix"],
-  "*": ["npx nx format:write --files"]
+  "apps/**/*.{ts,js,css,html,md,json}": ["pnpm nx affected:lint --fix --files"],
+  "*.css": ["pnpm stylelint --fix"],
+  "*": ["pnpm nx format:write --files"]
 }

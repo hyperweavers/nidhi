@@ -7,10 +7,10 @@ export default defineConfig({
     ...nxE2EPreset(__filename, {
       cypressDir: 'src',
       webServerCommands: {
-        default: 'nx run pangu:serve:development',
-        production: 'nx run pangu:serve:production',
+        default: 'pnpm nx run pangu:serve:development',
+        production: 'pnpm nx run pangu:serve:production',
       },
-      ciWebServerCommand: 'nx run pangu:serve-static',
+      ciWebServerCommand: 'pnpm nx run pangu:serve-static',
     }),
     baseUrl: 'http://localhost:4200',
     // Please ensure you use `cy.origin()` when navigating between domains and remove this option.

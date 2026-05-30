@@ -1,0 +1,40 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "code-generator",
+  "instructions": ["AGENTS.md"],
+  "agent": {
+    "code-generator": {
+      "model": "big-pickle/model",
+      "mode": "primary",
+      "description": "Generates Angular standalone components, services, pages, pipes, directives, and Nx library scaffolding following project conventions.",
+      "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "unit-test": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Writes and updates Jest unit tests for Angular standalone components, services, and pipes using jest-preset-angular and project mocking patterns.",
+      "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "code-reviewer": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Reviews code for Angular conventions, Nx module boundaries, Tailwind patterns, test coverage, and overall code quality.",
+      "permission": { "edit": "deny", "bash": "allow" }
+    },
+    "security-analyst": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Audits code for XSS, insecure IndexedDB usage, PWA service worker issues, Sentry PII leakage, and dependency vulnerabilities.",
+      "permission": { "edit": "deny", "bash": "allow" }
+    },
+    "migration": {
+      "model": "big-pickle/model",
+      "mode": "subagent",
+      "description": "Executes Nx migrate, Angular update, npm-check-updates, and Sentry CLI tasks safely and incrementally.",
+      "permission": { "edit": "allow", "bash": "allow" }
+    }
+  },
+  "skills": {
+    "paths": [".opencode/skills"]
+  }
+}
