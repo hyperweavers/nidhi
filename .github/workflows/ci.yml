@@ -58,8 +58,8 @@ jobs:
         id: restore-cache
         continue-on-error: true
         run: |
-          npx nx affected -t test --no-cloud
-          npx nx affected -t build --configuration=production --no-cloud
+          npx nx affected -t test --no-agents
+          npx nx affected -t build --configuration=production --no-agents
 
       - name: Upload coverage and test results to Codecov
         if: steps.restore-cache.outcome == 'success'
@@ -69,6 +69,7 @@ jobs:
           CODECOV_GPG_FINGERPRINT: ${{ vars.CODECOV_GPG_FINGERPRINT }}
           CODECOV_GPG_KEY: ${{ vars.CODECOV_GPG_KEY }}
         run: |
+          echo "Setting up GPG and downloading Codecov CLI..."
           export GNUPGHOME=$(mktemp -d)
 
           # Write GPG key from variable and verify fingerprint
@@ -90,34 +91,67 @@ jobs:
           gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
           sha256sum -c codecov.SHA256SUM
           chmod +x codecov
+          echo "Codecov CLI download and verification OK"
 
-          # Upload coverage (per-project flags)
+          echo "Uploading coverage
+          echo "Checking coverage/apps/*/ for clover.xml..."
           for dir in coverage/apps/*/; do
-            if [ -f "$dir/clover.xml" ]; then
-              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "$(basename "$dir")"
+            if [ -d "$dir" ]; then
+              flag=$(basename "$dir")
+              if [ -f "$dir/clover.xml" ]; then
+                echo "FOUND: $dir/clover.xml, uploading as flag=$flag"
+                ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "$flag"
+                echo "UPLOAD OK: $flag coverage"
+              else
+                echo "SKIP: $dir — no clover.xml found"
+              fi
             fi
           done
+          echo "Checking coverage/libs/*/*/ for clover.xml..."
           for dir in coverage/libs/*/*/; do
-            if [ -f "$dir/clover.xml" ]; then
-              lib="$(basename "$dir")"
-              parent="$(basename "$(dirname "$dir")")"
-              ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "${parent}-${lib}"
+            if [ -d "$dir" ]; then
+              lib=$(basename "$dir")
+              parent=$(basename "$(dirname "$dir")")
+              flag="${parent}-${lib}"
+              if [ -f "$dir/clover.xml" ]; then
+                echo "FOUND: $dir/clover.xml, uploading as flag=$flag"
+                ./codecov upload-process --disable-search -Z -f "$dir/clover.xml" -F "$flag"
+                echo "UPLOAD OK: $flag coverage"
+              else
+                echo "SKIP: $dir — no clover.xml found"
+              fi
             fi
           done
 
-          # Upload test results (per-project flags)
+          echo Uploading test results ==="
+          echo "Checking test-results/apps/*/ for junit.xml..."
           for dir in test-results/apps/*/; do
-            if [ -f "$dir/junit.xml" ]; then
-              ./codecov do-upload --report-type test_results --disable-search -Z \
-                -f "$dir/junit.xml" -F "$(basename "$dir")"
+            if [ -d "$dir" ]; then
+              flag=$(basename "$dir")
+              if [ -f "$dir/junit.xml" ]; then
+                echo "FOUND: $dir/junit.xml, uploading as flag=$flag"
+                ./codecov do-upload --report-type test_results --disable-search -Z \
+                  -f "$dir/junit.xml" -F "$flag"
+                echo "UPLOAD OK: $flag test results"
+              else
+                echo "SKIP: $dir — no junit.xml found"
+              fi
             fi
           done
+          echo "Checking test-results/libs/*/*/ for junit.xml..."
           for dir in test-results/libs/*/*/; do
-            if [ -f "$dir/junit.xml" ]; then
-              lib="$(basename "$dir")"
-              parent="$(basename "$(dirname "$dir")")"
-              ./codecov do-upload --report-type test_results --disable-search -Z \
-                -f "$dir/junit.xml" -F "${parent}-${lib}"
+            if [ -d "$dir" ]; then
+              lib=$(basename "$dir")
+              parent=$(basename "$(dirname "$dir")")
+              flag="${parent}-${lib}"
+              if [ -f "$dir/junit.xml" ]; then
+                echo "FOUND: $dir/junit.xml, uploading as flag=$flag"
+                ./codecov do-upload --report-type test_results --disable-search -Z \
+                  -f "$dir/junit.xml" -F "$flag"
+                echo "UPLOAD OK: $flag test results"
+              else
+                echo "SKIP: $dir — no junit.xml found"
+              fi
             fi
           done
 
@@ -126,13 +160,17 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
+          echo "Uploading bundle analysis"
+          echo "Checking dist/apps/*/browser for bundles..."
           for dir in dist/apps/*/browser; do
             if [ -d "$dir" ]; then
               app="${dir#dist/apps/}"
               app="${app%/browser}"
+              echo "FOUND: $dir, uploading bundle=$app"
               npx @codecov/bundle-analyzer "$dir" \
                 --bundle-name "$app" \
                 --upload-token "$CODECOV_TOKEN"
+              echo "UPLOAD OK: $app bundle analysis"
             fi
           done
 
