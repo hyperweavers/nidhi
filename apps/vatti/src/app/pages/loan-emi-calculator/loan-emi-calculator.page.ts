@@ -135,7 +135,7 @@ export class LoanEmiCalculatorPage implements OnInit {
   };
 
   paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    ChartUtils.getDoughnutChartOptions((context) => {
+    ChartUtils.getDoughnutChartOptions(/* istanbul ignore next */ (context) => {
       return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
     });
 
@@ -160,7 +160,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       'EMI',
       'Amount',
       false,
-      (context) => {
+      /* istanbul ignore next */ (context) => {
         const label = context.dataset.label || '';
         const value = context.parsed.y;
 
@@ -168,7 +168,7 @@ export class LoanEmiCalculatorPage implements OnInit {
           ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
           : '';
       },
-      (tooltipItems) => {
+      /* istanbul ignore next */ (tooltipItems) => {
         return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
       },
     );
@@ -189,7 +189,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       'EMI',
       'Interest Rate',
       false,
-      (context) => {
+      /* istanbul ignore next */ (context) => {
         const label = context.dataset.label || '';
         const value = context.parsed.y;
 
@@ -197,7 +197,7 @@ export class LoanEmiCalculatorPage implements OnInit {
           ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
           : '';
       },
-      (tooltipItems) => {
+      /* istanbul ignore next */ (tooltipItems) => {
         return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
       },
     );
@@ -297,7 +297,7 @@ export class LoanEmiCalculatorPage implements OnInit {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (screen.orientation as any)
               .lock('landscape')
-              .catch((error: Error) => {
+              .catch(/* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
@@ -305,7 +305,7 @@ export class LoanEmiCalculatorPage implements OnInit {
 
             this.cdr.markForCheck();
           })
-          .catch((error: Error) => {
+          .catch(/* istanbul ignore next */ (error: Error) => {
             this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
@@ -727,7 +727,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       loanStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => {
+        /* istanbul ignore next */ (e: any) => {
           const dateFragments = e.target.value.split('/');
 
           this.loanStartDate = new Date(

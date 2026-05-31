@@ -17,6 +17,14 @@ export default {
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/apps/palan',
+  coverageThreshold: {
+    global: {
+      statements: 90,
+      branches: 80,
+      functions: 85,
+      lines: 90,
+    },
+  },
   reporters,
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
@@ -28,7 +36,7 @@ export default {
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(uuid|lightweight-charts|fancy-canvas|dexie-export-import)/|.*\\.mjs$)',
+    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(uuid|lightweight-charts|fancy-canvas|dexie-export-import|msw|@mswjs)/|.*\\.mjs$)',
   ],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',

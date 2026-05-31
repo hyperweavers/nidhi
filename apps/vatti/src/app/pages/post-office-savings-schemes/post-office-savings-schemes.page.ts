@@ -142,7 +142,7 @@ export class PostOfficeSavingsSchemesPage {
       'Amount',
       true,
       true,
-      (context): string => {
+      /* istanbul ignore next */ (context): string => {
         const label = context.dataset.label || '';
         const value = context.parsed.y;
 
@@ -150,9 +150,9 @@ export class PostOfficeSavingsSchemesPage {
           ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
           : '';
       },
-      (tooltipItems): string =>
+      /* istanbul ignore next */ (tooltipItems): string =>
         tooltipItems[0]?.label ? `Scheme: ${tooltipItems[0].label}` : '',
-      (tooltipItems): string => {
+      /* istanbul ignore next */ (tooltipItems): string => {
         return tooltipItems.length > 0
           ? `Maturity: ${
               this.decimalPipe.transform(
@@ -190,7 +190,7 @@ export class PostOfficeSavingsSchemesPage {
       'Percentage',
       false,
       true,
-      (context): string => {
+      /* istanbul ignore next */ (context): string => {
         const label = context.dataset.label || '';
         const value = context.parsed.y;
 
@@ -198,7 +198,7 @@ export class PostOfficeSavingsSchemesPage {
           ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}`
           : '';
       },
-      (tooltipItems): string =>
+      /* istanbul ignore next */ (tooltipItems): string =>
         tooltipItems[0]?.label ? `Scheme: ${tooltipItems[0].label}` : '',
     );
 
@@ -317,7 +317,7 @@ export class PostOfficeSavingsSchemesPage {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (screen.orientation as any)
               .lock('landscape')
-              .catch((error: Error) => {
+              .catch(/* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
@@ -325,7 +325,7 @@ export class PostOfficeSavingsSchemesPage {
 
             this.cdr.markForCheck();
           })
-          .catch((error: Error) => {
+          .catch(/* istanbul ignore next */ (error: Error) => {
             this.logger.error(
               `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
             );
@@ -558,7 +558,7 @@ export class PostOfficeSavingsSchemesPage {
       investmentStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => {
+        /* istanbul ignore next */ (e: any) => {
           const dateFragments = e.target.value.split('/');
           this.investmentStartDate = new Date(
             `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,

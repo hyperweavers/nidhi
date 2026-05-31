@@ -17,6 +17,14 @@ export default {
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/apps/vatti',
+  coverageThreshold: {
+    global: {
+      statements: 90,
+      branches: 80,
+      functions: 85,
+      lines: 90,
+    },
+  },
   reporters,
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
@@ -27,7 +35,9 @@ export default {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(msw|@mswjs)/|.*\\.mjs$)',
+  ],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',
     'jest-preset-angular/build/serializers/ng-snapshot',
