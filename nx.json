@@ -38,7 +38,7 @@
         "passWithNoTests": true,
         "codeCoverage": true,
         "ci": true,
-        "coverageReporters": ["html", "clover"]
+        "coverageReporters": ["text-summary", "html", "clover"]
       }
     },
     "build": {
