@@ -1,19 +1,16 @@
-jest.mock(
-  'dexie',
-  () => {
-    const mockTable = {
-      toArray: jest.fn(),
-      bulkPut: jest.fn(),
-    };
-    class MockDexie {
-      version = jest.fn().mockReturnThis();
-      stores = jest.fn().mockReturnThis();
-      on = jest.fn();
-      stocks = mockTable;
-    }
-    return { __esModule: true, default: MockDexie, Table: class {} };
-  },
-);
+jest.mock('dexie', () => {
+  const mockTable = {
+    toArray: jest.fn(),
+    bulkPut: jest.fn(),
+  };
+  class MockDexie {
+    version = jest.fn().mockReturnThis();
+    stores = jest.fn().mockReturnThis();
+    on = jest.fn();
+    stocks = mockTable;
+  }
+  return { __esModule: true, default: MockDexie, Table: class {} };
+});
 
 jest.mock('flowbite');
 
@@ -231,7 +228,11 @@ describe('AppDB', () => {
 
   it('should handle stock with all data missing', async () => {
     db.stocks.toArray.mockResolvedValue([
-      { id: '1', scripCode: undefined, vendorCode: { etm: { primary: 'XYZ' } } },
+      {
+        id: '1',
+        scripCode: undefined,
+        vendorCode: { etm: { primary: 'XYZ' } },
+      },
     ]);
 
     (global.fetch as jest.Mock).mockRejectedValue(new Error('network error'));
@@ -245,7 +246,11 @@ describe('AppDB', () => {
 
   it('should not call bulkPut when all stocks already have ISIN', async () => {
     db.stocks.toArray.mockResolvedValue([
-      { id: '1', scripCode: { isin: 'INE002A01018' }, vendorCode: { etm: { primary: 'ABC' } } },
+      {
+        id: '1',
+        scripCode: { isin: 'INE002A01018' },
+        vendorCode: { etm: { primary: 'ABC' } },
+      },
     ]);
     await readyHandler();
     expect(db.stocks.bulkPut).not.toHaveBeenCalled();

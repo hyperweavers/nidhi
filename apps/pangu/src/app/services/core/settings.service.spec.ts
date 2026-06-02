@@ -1,17 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, timeout } from 'rxjs';
 
-import { SettingsService } from './settings.service';
-import { ColorScheme, RefreshInterval, Theme } from '../../models/settings';
 import { Constants } from '../../constants';
+import { ColorScheme, RefreshInterval, Theme } from '../../models/settings';
+import { SettingsService } from './settings.service';
 
 describe('SettingsService', () => {
   let service: SettingsService;
   let mediaChangeListener: ((event: { matches: boolean }) => void) | undefined;
 
   function setupMatchMediaMock(initialMatches = false) {
-    jest.spyOn(window as any, 'matchMedia').mockImplementation(
-      (query: string) => ({
+    jest
+      .spyOn(window as any, 'matchMedia')
+      .mockImplementation((query: string) => ({
         matches: initialMatches,
         media: query,
         onchange: null,
@@ -28,8 +29,7 @@ describe('SettingsService', () => {
           ),
         removeEventListener: jest.fn(),
         dispatchEvent: jest.fn(),
-      }),
-    );
+      }));
   }
 
   beforeEach(() => {
@@ -207,27 +207,47 @@ describe('SettingsService', () => {
     });
 
     it('should not update for null value', () => {
-      localStorage.setItem(Constants.settings.REFRESH_INTERVAL, String(RefreshInterval.ONE_MINUTE));
+      localStorage.setItem(
+        Constants.settings.REFRESH_INTERVAL,
+        String(RefreshInterval.ONE_MINUTE),
+      );
       service.setRefreshInterval(null as unknown as RefreshInterval);
-      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(String(RefreshInterval.ONE_MINUTE));
+      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(
+        String(RefreshInterval.ONE_MINUTE),
+      );
     });
 
     it('should not update for undefined value', () => {
-      localStorage.setItem(Constants.settings.REFRESH_INTERVAL, String(RefreshInterval.ONE_MINUTE));
+      localStorage.setItem(
+        Constants.settings.REFRESH_INTERVAL,
+        String(RefreshInterval.ONE_MINUTE),
+      );
       service.setRefreshInterval(undefined as unknown as RefreshInterval);
-      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(String(RefreshInterval.ONE_MINUTE));
+      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(
+        String(RefreshInterval.ONE_MINUTE),
+      );
     });
 
     it('should not update for NaN value', () => {
-      localStorage.setItem(Constants.settings.REFRESH_INTERVAL, String(RefreshInterval.ONE_MINUTE));
+      localStorage.setItem(
+        Constants.settings.REFRESH_INTERVAL,
+        String(RefreshInterval.ONE_MINUTE),
+      );
       service.setRefreshInterval(NaN as unknown as RefreshInterval);
-      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(String(RefreshInterval.ONE_MINUTE));
+      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(
+        String(RefreshInterval.ONE_MINUTE),
+      );
     });
 
     it('should not update for value not in RefreshInterval enum', () => {
-      localStorage.setItem(Constants.settings.REFRESH_INTERVAL, String(RefreshInterval.ONE_MINUTE));
+      localStorage.setItem(
+        Constants.settings.REFRESH_INTERVAL,
+        String(RefreshInterval.ONE_MINUTE),
+      );
       service.setRefreshInterval(12345 as unknown as RefreshInterval);
-      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(String(RefreshInterval.ONE_MINUTE));
+      expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(
+        String(RefreshInterval.ONE_MINUTE),
+      );
     });
 
     it('should update for FIFTEEN_SECONDS value', () => {
@@ -269,14 +289,18 @@ describe('SettingsService', () => {
       document.documentElement.classList.add('dark');
       (service as any).applyTheme(Theme.DARK);
       const classList = document.documentElement.classList;
-      const darkCount = Array.from(classList).filter((c) => c === 'dark').length;
+      const darkCount = Array.from(classList).filter(
+        (c) => c === 'dark',
+      ).length;
       expect(darkCount).toBe(1);
     });
 
     it('should not remove dark class twice', () => {
       (service as any).applyTheme(Theme.LIGHT);
       const classList = document.documentElement.classList;
-      const darkCount = Array.from(classList).filter((c) => c === 'dark').length;
+      const darkCount = Array.from(classList).filter(
+        (c) => c === 'dark',
+      ).length;
       expect(darkCount).toBe(0);
     });
 
@@ -393,19 +417,25 @@ describe('SettingsService', () => {
     it('should not store undefined color scheme', () => {
       localStorage.setItem(Constants.settings.COLOR_SCHEME, ColorScheme.LIGHT);
       (service as any).setColorScheme(undefined);
-      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(ColorScheme.LIGHT);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.LIGHT,
+      );
     });
 
     it('should not store null color scheme', () => {
       localStorage.setItem(Constants.settings.COLOR_SCHEME, ColorScheme.LIGHT);
       (service as any).setColorScheme(null);
-      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(ColorScheme.LIGHT);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.LIGHT,
+      );
     });
 
     it('should not store invalid color scheme', () => {
       localStorage.setItem(Constants.settings.COLOR_SCHEME, ColorScheme.LIGHT);
       (service as any).setColorScheme('invalid_scheme');
-      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(ColorScheme.LIGHT);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.LIGHT,
+      );
     });
   });
 

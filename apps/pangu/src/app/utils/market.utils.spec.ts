@@ -1,5 +1,5 @@
-import { MarketUtils } from './market.utils';
 import { Direction } from '../models/market';
+import { MarketUtils } from './market.utils';
 
 describe('MarketUtils', () => {
   describe('getDirection', () => {
@@ -158,9 +158,11 @@ describe('MarketUtils', () => {
 
     it('should call logger.captureException when DOMParser throws', () => {
       const mockLogger = { captureException: jest.fn() };
-      jest.spyOn(DOMParser.prototype, 'parseFromString').mockImplementation(() => {
-        throw new Error('Parse failure');
-      });
+      jest
+        .spyOn(DOMParser.prototype, 'parseFromString')
+        .mockImplementation(() => {
+          throw new Error('Parse failure');
+        });
 
       const result = MarketUtils.extractScripCodesFromMcSearchResult(
         '<span>test</span>',
@@ -175,9 +177,11 @@ describe('MarketUtils', () => {
     });
 
     it('should not throw when DOMParser throws and no logger is provided', () => {
-      jest.spyOn(DOMParser.prototype, 'parseFromString').mockImplementation(() => {
-        throw new Error('Parse failure');
-      });
+      jest
+        .spyOn(DOMParser.prototype, 'parseFromString')
+        .mockImplementation(() => {
+          throw new Error('Parse failure');
+        });
 
       expect(() =>
         MarketUtils.extractScripCodesFromMcSearchResult('<span>test</span>'),

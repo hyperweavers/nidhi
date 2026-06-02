@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { DeletePage } from './delete.page';
 import { StorageService } from '../../services/core/storage.service';
+import { DeletePage } from './delete.page';
 
 describe('DeletePage', () => {
   let component: DeletePage;
@@ -12,7 +12,12 @@ describe('DeletePage', () => {
 
   beforeEach(async () => {
     storageService = { deleteDb: jest.fn() };
-    logger = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+    logger = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [DeletePage],

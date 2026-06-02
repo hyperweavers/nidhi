@@ -1,9 +1,9 @@
-import { Provider } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Provider } from '@angular/core';
 import { LOGGER } from '@nidhi/shared-logger';
 import { setupServer } from 'msw/node';
-import { handlers, errorHandlers, timeoutHandlers } from './handlers';
+import { errorHandlers, handlers, timeoutHandlers } from './handlers';
 
 export const mockLogger = {
   captureException: jest.fn(),

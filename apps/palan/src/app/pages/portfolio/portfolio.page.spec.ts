@@ -1,11 +1,20 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 import { Direction } from '../../models/market';
 import { Plan } from '../../models/plan';
-import { ContributionSource, Portfolio, TransactionType } from '../../models/portfolio';
+import {
+  ContributionSource,
+  Portfolio,
+  TransactionType,
+} from '../../models/portfolio';
 import { PlanService } from '../../services/core/plan.service';
 import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';
@@ -30,7 +39,11 @@ describe('PortfolioPage', () => {
         averagePrice: 100,
         investment: 1000,
         marketValue: 1100,
-        totalProfitLoss: { direction: Direction.UP, percentage: 10, value: 100 },
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 10,
+          value: 100,
+        },
         quote: {
           price: 110,
           change: { direction: Direction.UP, value: 5, percentage: 4.76 },
@@ -77,7 +90,10 @@ describe('PortfolioPage', () => {
     await TestBed.configureTestingModule({
       imports: [PortfolioPage, RouterTestingModule],
       providers: [
-        { provide: PortfolioService, useValue: { portfolio$: portfolio$.asObservable() } },
+        {
+          provide: PortfolioService,
+          useValue: { portfolio$: portfolio$.asObservable() },
+        },
         { provide: PlanService, useValue: { plan$: plan$.asObservable() } },
         { provide: StorageService, useValue: mockStorageService },
       ],
@@ -115,7 +131,9 @@ describe('PortfolioPage', () => {
 
     expect(fixture.debugElement.query(By.css('table'))).toBeTruthy();
     const summaryDts = fixture.debugElement.queryAll(By.css('dt'));
-    const investmentDt = summaryDts.find(d => d.nativeElement.textContent.includes('1,000.00'));
+    const investmentDt = summaryDts.find((d) =>
+      d.nativeElement.textContent.includes('1,000.00'),
+    );
     expect(investmentDt).toBeTruthy();
   });
 
@@ -131,7 +149,9 @@ describe('PortfolioPage', () => {
 
   it('should show form validation error when addTransaction fails validation', () => {
     component.addTransaction();
-    expect(component.transactionFormError).toBe('One or more field(s) containing invalid value(s)!');
+    expect(component.transactionFormError).toBe(
+      'One or more field(s) containing invalid value(s)!',
+    );
   });
 
   it('should show future date error', () => {
@@ -222,7 +242,9 @@ describe('PortfolioPage', () => {
     fixture.detectChanges();
 
     const dds = fixture.debugElement.queryAll(By.css('dd'));
-    const investmentLabel = dds.find(d => d.nativeElement.textContent.trim() === 'Investment');
+    const investmentLabel = dds.find(
+      (d) => d.nativeElement.textContent.trim() === 'Investment',
+    );
     expect(investmentLabel).toBeTruthy();
   });
 
@@ -231,15 +253,21 @@ describe('PortfolioPage', () => {
     fixture.detectChanges();
 
     const summaryDts = fixture.debugElement.queryAll(By.css('dt'));
-    const dayPLDt = summaryDts.find(d => d.nativeElement.textContent.includes('4.76'));
+    const dayPLDt = summaryDts.find((d) =>
+      d.nativeElement.textContent.includes('4.76'),
+    );
     expect(dayPLDt).toBeTruthy();
     expect(dayPLDt!.nativeElement.classList).toContain('text-green-500');
   });
 
   it('should render buy/sell buttons', () => {
     const allButtons = fixture.debugElement.queryAll(By.css('button'));
-    const buyBtn = allButtons.find(b => b.nativeElement.textContent.trim() === 'Buy');
-    const sellBtn = allButtons.find(b => b.nativeElement.textContent.trim() === 'Sell');
+    const buyBtn = allButtons.find(
+      (b) => b.nativeElement.textContent.trim() === 'Buy',
+    );
+    const sellBtn = allButtons.find(
+      (b) => b.nativeElement.textContent.trim() === 'Sell',
+    );
     expect(buyBtn).toBeTruthy();
     expect(sellBtn).toBeTruthy();
   });

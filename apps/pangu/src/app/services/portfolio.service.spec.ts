@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of, throwError, timeout } from 'rxjs';
 
-import { PortfolioService } from './portfolio.service';
+import { db } from '../db/app.db';
+import { Direction } from '../models/market';
+import { Holding, TransactionType } from '../models/portfolio';
+import { Stock } from '../models/stock';
 import { MarketService } from './core/market.service';
 import { StorageService } from './core/storage.service';
-import { Direction } from '../models/market';
-import { Holding, Portfolio, TransactionType } from '../models/portfolio';
-import { Stock } from '../models/stock';
-import { db } from '../db/app.db';
+import { PortfolioService } from './portfolio.service';
 
 jest.mock('../db/app.db', () => ({
   db: {
@@ -44,7 +44,14 @@ function storageHolding(overrides?: Partial<Holding>): Holding {
       },
     },
     transactions: [
-      { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+      {
+        id: 'tx1',
+        type: TransactionType.BUY,
+        date: 1000,
+        quantity: 10,
+        price: 100,
+        charges: 10,
+      },
     ],
     ...overrides,
   };
@@ -81,9 +88,9 @@ describe('PortfolioService', () => {
 
     marketService = {
       getStocks: jest.fn().mockReturnValue(of(marketStocks)),
-      getStock: jest.fn().mockImplementation(
-        getStockReturn ?? (() => of(null)),
-      ),
+      getStock: jest
+        .fn()
+        .mockImplementation(getStockReturn ?? (() => of(null))),
     } as unknown as jest.Mocked<MarketService>;
 
     TestBed.resetTestingModule();
@@ -120,8 +127,22 @@ describe('PortfolioService', () => {
     it('calculates quantity correctly with BUY and SELL transactions', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
-          { id: 'tx2', type: TransactionType.SELL, date: 2000, quantity: 5, price: 105, charges: 8 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.SELL,
+            date: 2000,
+            quantity: 5,
+            price: 105,
+            charges: 8,
+          },
         ],
       });
       setup([sHolding], [marketStock()]);
@@ -137,8 +158,20 @@ describe('PortfolioService', () => {
     it('handles BUY and SELL transactions without charges (triggers || 0 fallback)', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100 },
-          { id: 'tx2', type: TransactionType.SELL, date: 2000, quantity: 5, price: 105 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.SELL,
+            date: 2000,
+            quantity: 5,
+            price: 105,
+          },
         ],
       });
       setup([sHolding], [marketStock()]);
@@ -154,8 +187,22 @@ describe('PortfolioService', () => {
     it('calculates investment correctly with BUY and SELL transactions', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
-          { id: 'tx2', type: TransactionType.SELL, date: 2000, quantity: 5, price: 105, charges: 8 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.SELL,
+            date: 2000,
+            quantity: 5,
+            price: 105,
+            charges: 8,
+          },
         ],
       });
       setup([sHolding], [marketStock()]);
@@ -171,10 +218,25 @@ describe('PortfolioService', () => {
     it('calculates marketValue from quote.price * quantity', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
         ],
       });
-      const mStock = marketStock({ quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
+      const mStock = marketStock({
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
       setup([sHolding], [mStock]);
 
       const portfolio = await firstValueFrom(
@@ -188,10 +250,25 @@ describe('PortfolioService', () => {
     it('calculates totalProfitLoss UP direction when value >= 0', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
         ],
       });
-      const mStock = marketStock({ quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
+      const mStock = marketStock({
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
       setup([sHolding], [mStock]);
 
       const portfolio = await firstValueFrom(
@@ -199,17 +276,34 @@ describe('PortfolioService', () => {
       );
 
       // investment = 1010, avgPrice = 101, P&L = (120-101)*10 = 190
-      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(Direction.UP);
+      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(
+        Direction.UP,
+      );
       expect(portfolio.holdings[0].totalProfitLoss!.value).toBe(190);
     });
 
     it('calculates totalProfitLoss DOWN direction when value < 0', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
         ],
       });
-      const mStock = marketStock({ quote: { nse: { price: 80, change: { direction: Direction.DOWN, percentage: -20, value: -20 }, close: 100 } } });
+      const mStock = marketStock({
+        quote: {
+          nse: {
+            price: 80,
+            change: { direction: Direction.DOWN, percentage: -20, value: -20 },
+            close: 100,
+          },
+        },
+      });
       setup([sHolding], [mStock]);
 
       const portfolio = await firstValueFrom(
@@ -217,17 +311,34 @@ describe('PortfolioService', () => {
       );
 
       // investment = 1010, avgPrice = 101, P&L = (80-101)*10 = -210
-      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(Direction.DOWN);
+      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(
+        Direction.DOWN,
+      );
       expect(portfolio.holdings[0].totalProfitLoss!.value).toBe(-210);
     });
 
     it('calculates dayProfitLoss from change.value * quantity', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
         ],
       });
-      const mStock = marketStock({ quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
+      const mStock = marketStock({
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
       setup([sHolding], [mStock]);
 
       const portfolio = await firstValueFrom(
@@ -244,16 +355,53 @@ describe('PortfolioService', () => {
       const sHolding1 = storageHolding({
         id: 'stored-1',
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        transactions: [{ id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 }],
+        transactions: [
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
+        ],
       });
       const sHolding2 = storageHolding({
         id: 'stored-2',
         name: 'TCS Ltd.',
         vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } },
-        transactions: [{ id: 'tx2', type: TransactionType.BUY, date: 1000, quantity: 5, price: 200, charges: 10 }],
+        transactions: [
+          {
+            id: 'tx2',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 5,
+            price: 200,
+            charges: 10,
+          },
+        ],
       });
-      const mStock1 = marketStock({ vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } }, quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
-      const mStock2 = marketStock({ name: 'TCS Ltd.', vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } }, quote: { nse: { price: 190, change: { direction: Direction.DOWN, percentage: -5, value: -10 }, close: 200 } } });
+      const mStock1 = marketStock({
+        vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
+      const mStock2 = marketStock({
+        name: 'TCS Ltd.',
+        vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } },
+        quote: {
+          nse: {
+            price: 190,
+            change: { direction: Direction.DOWN, percentage: -5, value: -10 },
+            close: 200,
+          },
+        },
+      });
 
       setup([sHolding1, sHolding2], [mStock1, mStock2]);
 
@@ -269,16 +417,53 @@ describe('PortfolioService', () => {
       const sHolding1 = storageHolding({
         id: 'stored-1',
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        transactions: [{ id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 }],
+        transactions: [
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
+        ],
       });
       const sHolding2 = storageHolding({
         id: 'stored-2',
         name: 'TCS Ltd.',
         vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } },
-        transactions: [{ id: 'tx2', type: TransactionType.BUY, date: 1000, quantity: 5, price: 200, charges: 10 }],
+        transactions: [
+          {
+            id: 'tx2',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 5,
+            price: 200,
+            charges: 10,
+          },
+        ],
       });
-      const mStock1 = marketStock({ vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } }, quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
-      const mStock2 = marketStock({ name: 'TCS Ltd.', vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } }, quote: { nse: { price: 150, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 145 } } });
+      const mStock1 = marketStock({
+        vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
+      const mStock2 = marketStock({
+        name: 'TCS Ltd.',
+        vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } },
+        quote: {
+          nse: {
+            price: 150,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 145,
+          },
+        },
+      });
 
       setup([sHolding1, sHolding2], [mStock1, mStock2]);
 
@@ -310,9 +495,21 @@ describe('PortfolioService', () => {
     it('handles storageStock with no matching marketStock gracefully', async () => {
       const sHolding = storageHolding({
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        transactions: [{ id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 }],
+        transactions: [
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
+        ],
       });
-      const mStock = marketStock({ vendorCode: { etm: { primary: 'comp-other', chart: 'OTHER' } }, name: 'Other Stock' });
+      const mStock = marketStock({
+        vendorCode: { etm: { primary: 'comp-other', chart: 'OTHER' } },
+        name: 'Other Stock',
+      });
 
       setup([sHolding], [mStock]);
 
@@ -329,14 +526,24 @@ describe('PortfolioService', () => {
       expect(portfolio.holdings[0].averagePrice).toBe(0);
       expect(portfolio.holdings[0].marketValue).toBe(0);
       expect(portfolio.holdings[0].totalProfitLoss!.value).toBe(0);
-      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(Direction.UP);
+      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(
+        Direction.UP,
+      );
     });
 
     it('handles percentage calculations when investment is 0 (division by zero → 0)', async () => {
       const sHolding = storageHolding({
         transactions: [],
       });
-      const mStock = marketStock({ quote: { nse: { price: 120, change: { direction: Direction.UP, percentage: 5, value: 10 }, close: 110 } } });
+      const mStock = marketStock({
+        quote: {
+          nse: {
+            price: 120,
+            change: { direction: Direction.UP, percentage: 5, value: 10 },
+            close: 110,
+          },
+        },
+      });
 
       setup([sHolding], [mStock]);
 
@@ -356,7 +563,14 @@ describe('PortfolioService', () => {
     it('handles missing quote gracefully on holding', async () => {
       const sHolding = storageHolding({
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 100, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 100,
+            charges: 10,
+          },
         ],
       });
       const mStock = marketStock({ quote: undefined });
@@ -371,7 +585,9 @@ describe('PortfolioService', () => {
       // Day P&L: no quote → change undefined → goes to else block → decline
       expect(portfolio.holdings[0].marketValue).toBe(0);
       expect(portfolio.holdings[0].totalProfitLoss!.value).toBe(0);
-      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(Direction.UP);
+      expect(portfolio.holdings[0].totalProfitLoss!.direction).toBe(
+        Direction.UP,
+      );
       expect(portfolio.dayAdvance.value).toBe(0);
       expect(portfolio.dayDecline.value).toBe(1);
     });
@@ -462,8 +678,8 @@ describe('PortfolioService', () => {
       (service as any).enrichMissingDetails([holdingMissing]);
 
       expect(db.stocks.where).toHaveBeenCalledWith('scripCode.isin');
-      const equalsMock = (db.stocks.where as jest.Mock).mock.results[0]
-        .value.equals;
+      const equalsMock = (db.stocks.where as jest.Mock).mock.results[0].value
+        .equals;
       expect(equalsMock).toHaveBeenCalledWith('INE002A01018');
       const modifyMock = equalsMock.mock.results[0].value.modify;
       expect(modifyMock).toHaveBeenCalledWith({
@@ -663,7 +879,19 @@ describe('PortfolioService', () => {
         scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
         details: { sector: 'Oil & Gas', industry: 'Refineries' },
-        metrics: { nse: { marketCapType: 'Large Cap', marketCap: 0, faceValue: 10, pe: 0, pb: 0, eps: 0, vwap: 0, dividendYield: 0, bookValue: 0 } },
+        metrics: {
+          nse: {
+            marketCapType: 'Large Cap',
+            marketCap: 0,
+            faceValue: 10,
+            pe: 0,
+            pb: 0,
+            eps: 0,
+            vwap: 0,
+            dividendYield: 0,
+            bookValue: 0,
+          },
+        },
       };
 
       setup([holdingMissing], [marketStock()], (code: string) =>
@@ -709,10 +937,8 @@ describe('PortfolioService', () => {
         metrics: undefined as any,
       });
 
-      setup(
-        [holdingMissing],
-        [marketStock()],
-        (code: string) => throwError(() => new Error('API failure')),
+      setup([holdingMissing], [marketStock()], (code: string) =>
+        throwError(() => new Error('API failure')),
       );
 
       (service as any).enriching = false;

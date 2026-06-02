@@ -1,13 +1,16 @@
 import { IChartApi } from 'lightweight-charts';
-import { ChartUtils } from './chart.utils';
-import { ChartType } from '../models/chart';
 import { ColorScheme } from '../models/settings';
+import { ChartUtils } from './chart.utils';
 
 describe('ChartUtils', () => {
   describe('epochToUtcTimestamp', () => {
     it('should return -1 for null / undefined', () => {
-      expect(ChartUtils.epochToUtcTimestamp(null as unknown as number)).toBe(-1);
-      expect(ChartUtils.epochToUtcTimestamp(undefined as unknown as number)).toBe(-1);
+      expect(ChartUtils.epochToUtcTimestamp(null as unknown as number)).toBe(
+        -1,
+      );
+      expect(
+        ChartUtils.epochToUtcTimestamp(undefined as unknown as number),
+      ).toBe(-1);
     });
 
     it('should return -1 for 0', () => {
@@ -35,7 +38,9 @@ describe('ChartUtils', () => {
     });
 
     it('should return -1 for undefined', () => {
-      expect(ChartUtils.getTimestampSince(undefined as unknown as Date, 5)).toBe(-1);
+      expect(
+        ChartUtils.getTimestampSince(undefined as unknown as Date, 5),
+      ).toBe(-1);
     });
 
     it('should return -1 for non-Date object', () => {
@@ -140,26 +145,38 @@ describe('ChartUtils', () => {
   describe('getMultiRingDoughnutChartOptions', () => {
     it('should return options with legend hidden', () => {
       const callback = jest.fn();
-      const options = ChartUtils.getMultiRingDoughnutChartOptions('60%', callback);
+      const options = ChartUtils.getMultiRingDoughnutChartOptions(
+        '60%',
+        callback,
+      );
       expect(options!.plugins!.legend!.display).toBe(false);
     });
 
     it('should use provided cutout value', () => {
       const callback = jest.fn();
-      const options = ChartUtils.getMultiRingDoughnutChartOptions('50%', callback);
+      const options = ChartUtils.getMultiRingDoughnutChartOptions(
+        '50%',
+        callback,
+      );
       expect(options!.cutout).toBe('50%');
     });
 
     it('should include tooltip label callback', () => {
       const callback = jest.fn();
-      const options = ChartUtils.getMultiRingDoughnutChartOptions('60%', callback);
+      const options = ChartUtils.getMultiRingDoughnutChartOptions(
+        '60%',
+        callback,
+      );
       expect(options!.plugins!.tooltip!.callbacks!.label).toBe(callback);
     });
 
     describe('labelColor callback', () => {
       it('should return color from dataset backgroundColor array', () => {
         const callback = jest.fn();
-        const options = ChartUtils.getMultiRingDoughnutChartOptions('60%', callback);
+        const options = ChartUtils.getMultiRingDoughnutChartOptions(
+          '60%',
+          callback,
+        );
         const labelColor = options!.plugins!.tooltip!.callbacks!.labelColor!;
         const result = labelColor({
           dataset: { backgroundColor: ['#ff0', '#f0f', '#0ff'] },
@@ -174,7 +191,10 @@ describe('ChartUtils', () => {
 
       it('should use defaultColor when backgroundColor is missing', () => {
         const callback = jest.fn();
-        const options = ChartUtils.getMultiRingDoughnutChartOptions('60%', callback);
+        const options = ChartUtils.getMultiRingDoughnutChartOptions(
+          '60%',
+          callback,
+        );
         const labelColor = options!.plugins!.tooltip!.callbacks!.labelColor!;
         const result = labelColor({
           dataset: {},

@@ -1,15 +1,18 @@
-import { TestBed } from '@angular/core/testing';
 import { LOCALE_ID } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
-import { ValueOrPlaceholderPipe } from './value-or-placeholder.pipe';
 import { Constants } from '../constants';
+import { ValueOrPlaceholderPipe } from './value-or-placeholder.pipe';
 
 describe('ValueOrPlaceholderPipe', () => {
   let pipe: ValueOrPlaceholderPipe;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ValueOrPlaceholderPipe, { provide: LOCALE_ID, useValue: 'en-US' }],
+      providers: [
+        ValueOrPlaceholderPipe,
+        { provide: LOCALE_ID, useValue: 'en-US' },
+      ],
     });
     pipe = TestBed.inject(ValueOrPlaceholderPipe);
   });

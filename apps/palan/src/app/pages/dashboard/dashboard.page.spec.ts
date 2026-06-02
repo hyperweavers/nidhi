@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
-import { Direction } from '../../models/market';
 import { Kpi, KpiCard } from '../../models/kpi';
+import { Direction } from '../../models/market';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardPage } from './dashboard.page';
 
@@ -53,13 +53,20 @@ describe('DashboardPage', () => {
 
     const cardTitles = fixture.debugElement.queryAll(By.css('h3'));
     expect(cardTitles.length).toBe(1);
-    expect(cardTitles[0].nativeElement.textContent.trim()).toContain('Portfolio');
+    expect(cardTitles[0].nativeElement.textContent.trim()).toContain(
+      'Portfolio',
+    );
   });
 
   it('should format value with number pipe', () => {
     kpi$.next({
       cards: [
-        { id: '1', title: 'T', value: 1234.5, change: { direction: Direction.UP, value: 10, percentage: 0.81 } },
+        {
+          id: '1',
+          title: 'T',
+          value: 1234.5,
+          change: { direction: Direction.UP, value: 10, percentage: 0.81 },
+        },
       ],
     });
     fixture.detectChanges();
@@ -113,7 +120,12 @@ describe('DashboardPage', () => {
   it('should not show subtitle when card lacks subtitle', () => {
     kpi$.next({
       cards: [
-        { id: '1', title: 'T', value: 100, change: { direction: Direction.UP, value: 1, percentage: 1 } },
+        {
+          id: '1',
+          title: 'T',
+          value: 100,
+          change: { direction: Direction.UP, value: 1, percentage: 1 },
+        },
       ],
     });
     fixture.detectChanges();

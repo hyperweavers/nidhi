@@ -93,14 +93,18 @@ describe('DeletePage', () => {
 
   it('should render Delete button', () => {
     const buttons = fixture.debugElement.queryAll(By.css('button'));
-    const deleteBtn = buttons.find(b => b.nativeElement.textContent.trim() === 'Delete');
+    const deleteBtn = buttons.find(
+      (b) => b.nativeElement.textContent.trim() === 'Delete',
+    );
     expect(deleteBtn).toBeTruthy();
   });
 
   it('should show delete progress spinner in DOM during delete', async () => {
     mockStorageService.deleteDb.mockImplementation(async () => {
       fixture.detectChanges();
-      const statusSection = fixture.debugElement.query(By.css('[class*="bg-opacity"]'));
+      const statusSection = fixture.debugElement.query(
+        By.css('[class*="bg-opacity"]'),
+      );
       expect(statusSection.nativeElement.textContent).toContain('Deleting...');
     });
 
@@ -113,18 +117,22 @@ describe('DeletePage', () => {
     await component.delete();
     fixture.detectChanges();
 
-    const statusSection = fixture.debugElement.query(By.css('[class*="bg-opacity"]'));
-    expect(statusSection.nativeElement.textContent).toContain('Data deleted successfully!');
+    const statusSection = fixture.debugElement.query(
+      By.css('[class*="bg-opacity"]'),
+    );
+    expect(statusSection.nativeElement.textContent).toContain(
+      'Data deleted successfully!',
+    );
     expect(statusSection.nativeElement.textContent).toContain('Ok');
   });
 
   it('should show confirmation modal with Yes/No buttons', () => {
-    const yesBtn = fixture.debugElement.queryAll(By.css('button')).find(
-      b => b.nativeElement.textContent.trim() === "Yes, I'm sure",
-    );
-    const noBtn = fixture.debugElement.queryAll(By.css('button')).find(
-      b => b.nativeElement.textContent.trim() === 'No, cancel',
-    );
+    const yesBtn = fixture.debugElement
+      .queryAll(By.css('button'))
+      .find((b) => b.nativeElement.textContent.trim() === "Yes, I'm sure");
+    const noBtn = fixture.debugElement
+      .queryAll(By.css('button'))
+      .find((b) => b.nativeElement.textContent.trim() === 'No, cancel');
 
     expect(yesBtn).toBeTruthy();
     expect(noBtn).toBeTruthy();

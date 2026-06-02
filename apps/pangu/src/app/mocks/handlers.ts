@@ -1,16 +1,16 @@
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { Constants } from '../constants';
 import {
-  mockIndexQuotes,
-  mockDashboard,
   mockCompanyDetails,
+  mockDashboard,
   mockHistory,
+  mockIndexConstituents,
+  mockIndexDetails,
+  mockIndexQuotes,
   mockIntraDay,
   mockSearchResults,
   mockSearchSecondary,
   mockStockPeerChart,
-  mockIndexDetails,
-  mockIndexConstituents,
 } from './data';
 
 export const handlers = [
@@ -98,12 +98,18 @@ export const handlers = [
 export const errorHandlers = [
   http.get(Constants.api.MARKET_STATUS, async () => {
     await delay(50);
-    return HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    return HttpResponse.json(
+      { message: 'Internal Server Error' },
+      { status: 500 },
+    );
   }),
 
   http.post(Constants.api.DASHBOARD, async () => {
     await delay(50);
-    return HttpResponse.json({ message: 'Service Unavailable' }, { status: 503 });
+    return HttpResponse.json(
+      { message: 'Service Unavailable' },
+      { status: 503 },
+    );
   }),
 
   http.get(Constants.api.STOCK_QUOTE + ':code', async () => {

@@ -1,11 +1,11 @@
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { Constants } from '../constants';
 import {
+  mockBanksInIndia,
   mockGoldRateResponse,
+  mockIbjaGoldRates,
   mockPostOfficeSavingsSchemes,
   mockRbiPolicyRates,
-  mockBanksInIndia,
-  mockIbjaGoldRates,
 } from './data';
 
 export const handlers = [
@@ -50,7 +50,10 @@ export const handlers = [
 export const errorHandlers = [
   http.post(Constants.api.GOLD_PRICE, async () => {
     await delay(50);
-    return HttpResponse.json({ message: 'Service Unavailable' }, { status: 503 });
+    return HttpResponse.json(
+      { message: 'Service Unavailable' },
+      { status: 503 },
+    );
   }),
 
   http.get(`${Constants.api.JSON_BLOB_STORAGE}/`, async () => {

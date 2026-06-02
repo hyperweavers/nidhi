@@ -4,8 +4,8 @@ jest.mock('flowbite', () => ({
   initFlowbite: jest.fn(),
 }));
 
-import { Flowbite, initFlowbiteComponents } from './flowbite.decorator';
 import { initFlowbite } from 'flowbite';
+import { Flowbite, initFlowbiteComponents } from './flowbite.decorator';
 
 describe('FlowbiteDecorator', () => {
   beforeEach(() => {

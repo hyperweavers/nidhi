@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of, timeout } from 'rxjs';
 
-import { DashboardService } from './dashboard.service';
-import { MarketService } from './core/market.service';
-import { PortfolioService } from './portfolio.service';
 import { PeerChartData, Period } from '../models/chart';
 import { Direction, ExchangeName } from '../models/market';
-import { Holding, TransactionType, Portfolio } from '../models/portfolio';
+import { Holding, Portfolio, TransactionType } from '../models/portfolio';
+import { MarketService } from './core/market.service';
+import { DashboardService } from './dashboard.service';
+import { PortfolioService } from './portfolio.service';
 
 const tcsTxDate = Date.now() - 86400000 * 45;
 const relianceTx1Date = Date.now() - 86400000 * 60;
@@ -20,7 +20,19 @@ const mockPortfolio: Portfolio = {
       scripCode: { nse: 'RELIANCE' },
       vendorCode: { etm: { primary: 'comp-123', chart: 'RELIANCE' } },
       details: { sector: 'Oil & Gas', industry: 'Refineries' },
-      metrics: { nse: { marketCapType: 'Large Cap', marketCap: 1800000000000, faceValue: 10, pe: 28.5, pb: 3.2, eps: 98, vwap: 2775, dividendYield: 0.5, bookValue: 850 } },
+      metrics: {
+        nse: {
+          marketCapType: 'Large Cap',
+          marketCap: 1800000000000,
+          faceValue: 10,
+          pe: 28.5,
+          pb: 3.2,
+          eps: 98,
+          vwap: 2775,
+          dividendYield: 0.5,
+          bookValue: 850,
+        },
+      },
       quote: {
         nse: {
           price: 2780.5,
@@ -29,14 +41,32 @@ const mockPortfolio: Portfolio = {
         },
       },
       transactions: [
-        { id: 'tx1', type: TransactionType.BUY, date: relianceTx1Date, quantity: 10, price: 2500, charges: 20 },
-        { id: 'tx2', type: TransactionType.BUY, date: relianceTx2Date, quantity: 5, price: 2600, charges: 15 },
+        {
+          id: 'tx1',
+          type: TransactionType.BUY,
+          date: relianceTx1Date,
+          quantity: 10,
+          price: 2500,
+          charges: 20,
+        },
+        {
+          id: 'tx2',
+          type: TransactionType.BUY,
+          date: relianceTx2Date,
+          quantity: 5,
+          price: 2600,
+          charges: 15,
+        },
       ],
       quantity: 15,
       averagePrice: 2533.33,
       investment: 38035,
       marketValue: 41707.5,
-      totalProfitLoss: { direction: Direction.UP, percentage: 9.65, value: 3672.5 },
+      totalProfitLoss: {
+        direction: Direction.UP,
+        percentage: 9.65,
+        value: 3672.5,
+      },
     },
     {
       id: 'h2',
@@ -44,7 +74,19 @@ const mockPortfolio: Portfolio = {
       scripCode: { nse: 'TCS' },
       vendorCode: { etm: { primary: 'comp-456', chart: 'TCS' } },
       details: { sector: 'Technology', industry: 'IT Services' },
-      metrics: { nse: { marketCapType: 'Large Cap', marketCap: 1200000000000, faceValue: 1, pe: 35, pb: 15, eps: 120, vwap: 3800, dividendYield: 1.2, bookValue: 250 } },
+      metrics: {
+        nse: {
+          marketCapType: 'Large Cap',
+          marketCap: 1200000000000,
+          faceValue: 1,
+          pe: 35,
+          pb: 15,
+          eps: 120,
+          vwap: 3800,
+          dividendYield: 1.2,
+          bookValue: 250,
+        },
+      },
       quote: {
         nse: {
           price: 3850,
@@ -53,13 +95,24 @@ const mockPortfolio: Portfolio = {
         },
       },
       transactions: [
-        { id: 'tx3', type: TransactionType.BUY, date: tcsTxDate, quantity: 8, price: 3600, charges: 25 },
+        {
+          id: 'tx3',
+          type: TransactionType.BUY,
+          date: tcsTxDate,
+          quantity: 8,
+          price: 3600,
+          charges: 25,
+        },
       ],
       quantity: 8,
       averagePrice: 3600,
       investment: 28825,
       marketValue: 30800,
-      totalProfitLoss: { direction: Direction.UP, percentage: 6.85, value: 1975 },
+      totalProfitLoss: {
+        direction: Direction.UP,
+        percentage: 6.85,
+        value: 1975,
+      },
     },
   ],
   investment: 66860,
@@ -188,10 +241,14 @@ describe('DashboardService', () => {
     it('should only emit index cards when portfolio has no holdings', async () => {
       const kpi = await firstValueFrom(service.kpi$.pipe(timeout(3000)));
 
-      const portfolioCards = kpi.cards.filter((c) => c.id.startsWith('portfolio.'));
+      const portfolioCards = kpi.cards.filter((c) =>
+        c.id.startsWith('portfolio.'),
+      );
       expect(portfolioCards.length).toBe(0);
 
-      const indexCards = kpi.cards.filter((c) => !c.id.startsWith('portfolio.'));
+      const indexCards = kpi.cards.filter(
+        (c) => !c.id.startsWith('portfolio.'),
+      );
       expect(indexCards.length).toBeGreaterThan(0);
     });
   });
@@ -203,13 +260,22 @@ describe('DashboardService', () => {
       TestBed.configureTestingModule({
         providers: [
           DashboardService,
-          { provide: MarketService, useValue: { getMainIndices: jest.fn().mockReturnValue(of([])), getIntraDayPeerChart: jest.fn().mockReturnValue(of([])), getHistoricPeerChart: jest.fn().mockReturnValue(of([])) } },
+          {
+            provide: MarketService,
+            useValue: {
+              getMainIndices: jest.fn().mockReturnValue(of([])),
+              getIntraDayPeerChart: jest.fn().mockReturnValue(of([])),
+              getHistoricPeerChart: jest.fn().mockReturnValue(of([])),
+            },
+          },
           { provide: PortfolioService, useValue: mockPortfolioService },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const data = await firstValueFrom(service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)));
+      const data = await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)),
+      );
       expect(data).toEqual([]);
     });
 
@@ -225,12 +291,17 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(mockPortfolio) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(mockPortfolio) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      await firstValueFrom(service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)));
+      await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)),
+      );
       expect(mockChartService.getIntraDayPeerChart).toHaveBeenCalled();
     });
 
@@ -246,12 +317,17 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(mockPortfolio) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(mockPortfolio) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      await firstValueFrom(service.getPortfolioChart(Period.ONE_MONTH).pipe(timeout(3000)));
+      await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_MONTH).pipe(timeout(3000)),
+      );
       expect(mockChartService.getHistoricPeerChart).toHaveBeenCalled();
     });
 
@@ -263,7 +339,14 @@ describe('DashboardService', () => {
           scripCode: { nse: 'NONE' },
           vendorCode: { etm: { primary: 'comp-789' } },
           transactions: [
-            { id: 'tx4', type: TransactionType.BUY, date: Date.now() - 86400000 * 10, quantity: 5, price: 500, charges: 10 },
+            {
+              id: 'tx4',
+              type: TransactionType.BUY,
+              date: Date.now() - 86400000 * 10,
+              quantity: 5,
+              price: 500,
+              charges: 10,
+            },
           ],
           quantity: 5,
           marketValue: 2500,
@@ -293,12 +376,17 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(portfolioNoChart) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(portfolioNoChart) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const data = await firstValueFrom(service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)));
+      const data = await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)),
+      );
       expect(data).toEqual([]);
       expect(mockChartService.getIntraDayPeerChart).not.toHaveBeenCalled();
     });
@@ -306,8 +394,12 @@ describe('DashboardService', () => {
     it('should return empty array when peer chart data is empty', async () => {
       const mockChartService = {
         getMainIndices: jest.fn().mockReturnValue(of([])),
-        getIntraDayPeerChart: jest.fn().mockReturnValue(of([] as PeerChartData[])),
-        getHistoricPeerChart: jest.fn().mockReturnValue(of([] as PeerChartData[])),
+        getIntraDayPeerChart: jest
+          .fn()
+          .mockReturnValue(of([] as PeerChartData[])),
+        getHistoricPeerChart: jest
+          .fn()
+          .mockReturnValue(of([] as PeerChartData[])),
       };
 
       TestBed.resetTestingModule();
@@ -315,12 +407,17 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(mockPortfolio) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(mockPortfolio) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const data = await firstValueFrom(service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)));
+      const data = await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)),
+      );
       expect(data).toEqual([]);
     });
 
@@ -332,8 +429,12 @@ describe('DashboardService', () => {
       const txDate2 = now - 86400000 * 30;
       const txDate3 = now - 86400000 * 45;
 
-      const chartDate1 = new Date(chartTs1).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-      const chartDate2 = new Date(chartTs2).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      const chartDate1 = new Date(chartTs1).toLocaleDateString('en-CA', {
+        timeZone: 'Asia/Kolkata',
+      });
+      const chartDate2 = new Date(chartTs2).toLocaleDateString('en-CA', {
+        timeZone: 'Asia/Kolkata',
+      });
 
       const peerChartData: PeerChartData[] = [
         {
@@ -358,14 +459,35 @@ describe('DashboardService', () => {
           {
             ...mockPortfolio.holdings[0],
             transactions: [
-              { id: 'tx1', type: TransactionType.BUY, date: txDate1, quantity: 10, price: 2500, charges: 20 },
-              { id: 'tx2', type: TransactionType.BUY, date: txDate2, quantity: 5, price: 2600, charges: 15 },
+              {
+                id: 'tx1',
+                type: TransactionType.BUY,
+                date: txDate1,
+                quantity: 10,
+                price: 2500,
+                charges: 20,
+              },
+              {
+                id: 'tx2',
+                type: TransactionType.BUY,
+                date: txDate2,
+                quantity: 5,
+                price: 2600,
+                charges: 15,
+              },
             ],
           },
           {
             ...mockPortfolio.holdings[1],
             transactions: [
-              { id: 'tx3', type: TransactionType.BUY, date: txDate3, quantity: 8, price: 3600, charges: 25 },
+              {
+                id: 'tx3',
+                type: TransactionType.BUY,
+                date: txDate3,
+                quantity: 8,
+                price: 3600,
+                charges: 25,
+              },
             ],
           },
         ],
@@ -382,12 +504,17 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(portfolioWithDates) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(portfolioWithDates) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const data = await firstValueFrom(service.getPortfolioChart(Period.ONE_MONTH).pipe(timeout(3000)));
+      const data = await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_MONTH).pipe(timeout(3000)),
+      );
 
       expect(data.length).toBe(2);
       expect(data[0].time).toBe(chartDate1);
@@ -399,8 +526,12 @@ describe('DashboardService', () => {
     it('should return empty array when peerChartData is null or undefined', async () => {
       const mockChartService = {
         getMainIndices: jest.fn().mockReturnValue(of([])),
-        getIntraDayPeerChart: jest.fn().mockReturnValue(of(null as unknown as PeerChartData[])),
-        getHistoricPeerChart: jest.fn().mockReturnValue(of(undefined as unknown as PeerChartData[])),
+        getIntraDayPeerChart: jest
+          .fn()
+          .mockReturnValue(of(null as unknown as PeerChartData[])),
+        getHistoricPeerChart: jest
+          .fn()
+          .mockReturnValue(of(undefined as unknown as PeerChartData[])),
       };
 
       TestBed.resetTestingModule();
@@ -408,19 +539,26 @@ describe('DashboardService', () => {
         providers: [
           DashboardService,
           { provide: MarketService, useValue: mockChartService },
-          { provide: PortfolioService, useValue: { portfolio$: of(mockPortfolio) } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of(mockPortfolio) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const data = await firstValueFrom(service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)));
+      const data = await firstValueFrom(
+        service.getPortfolioChart(Period.ONE_DAY).pipe(timeout(3000)),
+      );
       expect(data).toEqual([]);
     });
   });
 
   describe('getPortfolioComposition', () => {
     it('should return stock weights, sector weights and market cap weights', async () => {
-      const composition = await firstValueFrom(service.getPortfolioComposition().pipe(timeout(3000)));
+      const composition = await firstValueFrom(
+        service.getPortfolioComposition().pipe(timeout(3000)),
+      );
 
       expect(composition.stocks.length).toBeGreaterThan(0);
       expect(composition.weight.length).toBeGreaterThan(0);
@@ -431,7 +569,9 @@ describe('DashboardService', () => {
     });
 
     it('should allocate sector weights correctly', async () => {
-      const composition = await firstValueFrom(service.getPortfolioComposition().pipe(timeout(3000)));
+      const composition = await firstValueFrom(
+        service.getPortfolioComposition().pipe(timeout(3000)),
+      );
       const oilSectorIndex = composition.sectors.indexOf('Oil & Gas');
       expect(composition.sectorWeights[oilSectorIndex]).toBeGreaterThan(0);
     });
@@ -441,13 +581,21 @@ describe('DashboardService', () => {
       TestBed.configureTestingModule({
         providers: [
           DashboardService,
-          { provide: MarketService, useValue: { getMainIndices: jest.fn().mockReturnValue(of([])) } },
-          { provide: PortfolioService, useValue: { portfolio$: of({ ...mockPortfolio, holdings: [] }) } },
+          {
+            provide: MarketService,
+            useValue: { getMainIndices: jest.fn().mockReturnValue(of([])) },
+          },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: of({ ...mockPortfolio, holdings: [] }) },
+          },
         ],
       });
       service = TestBed.inject(DashboardService);
 
-      const composition = await firstValueFrom(service.getPortfolioComposition().pipe(timeout(3000)));
+      const composition = await firstValueFrom(
+        service.getPortfolioComposition().pipe(timeout(3000)),
+      );
       expect(composition.stocks).toEqual([]);
       expect(composition.weight).toEqual([]);
       expect(composition.sectors).toEqual([]);
@@ -464,14 +612,26 @@ describe('DashboardService', () => {
           name: 'RELIANCE',
           vendorCode: { etm: { chart: 'RELIANCE' } },
           transactions: [
-            { id: 'tx1', type: TransactionType.BUY, date: new Date('2024-01-05').getTime(), quantity: 10, price: 2500, charges: 20 },
+            {
+              id: 'tx1',
+              type: TransactionType.BUY,
+              date: new Date('2024-01-05').getTime(),
+              quantity: 10,
+              price: 2500,
+              charges: 20,
+            },
           ],
         } as Holding,
       ];
       const priceMap = new Map<string, number>([['RELIANCE', 2700]]);
 
-      const result = (service as any).calculatePortfolioChangeAtDate(holdings, baseTimestamp, priceMap);
-      const expectedChange = ((2700 * 10 - (10 * 2500 + 20)) / (10 * 2500 + 20)) * 100;
+      const result = (service as any).calculatePortfolioChangeAtDate(
+        holdings,
+        baseTimestamp,
+        priceMap,
+      );
+      const expectedChange =
+        ((2700 * 10 - (10 * 2500 + 20)) / (10 * 2500 + 20)) * 100;
       expect(result).toBeCloseTo(expectedChange, 2);
     });
 
@@ -482,13 +642,24 @@ describe('DashboardService', () => {
           name: 'RELIANCE',
           vendorCode: { etm: { chart: 'RELIANCE' } },
           transactions: [
-            { id: 'tx1', type: TransactionType.BUY, date: new Date('2024-01-05').getTime(), quantity: 10, price: 2500, charges: 20 },
+            {
+              id: 'tx1',
+              type: TransactionType.BUY,
+              date: new Date('2024-01-05').getTime(),
+              quantity: 10,
+              price: 2500,
+              charges: 20,
+            },
           ],
         } as Holding,
       ];
       const priceMap = new Map<string, number>();
 
-      const result = (service as any).calculatePortfolioChangeAtDate(holdings, baseTimestamp, priceMap);
+      const result = (service as any).calculatePortfolioChangeAtDate(
+        holdings,
+        baseTimestamp,
+        priceMap,
+      );
       const investment = 10 * 2500 + 20;
       const expectedChange = ((0 - investment) / investment) * 100;
       expect(result).toBeCloseTo(expectedChange, 2);
@@ -505,7 +676,11 @@ describe('DashboardService', () => {
       ];
       const priceMap = new Map<string, number>();
 
-      const result = (service as any).calculatePortfolioChangeAtDate(holdings, baseTimestamp, priceMap);
+      const result = (service as any).calculatePortfolioChangeAtDate(
+        holdings,
+        baseTimestamp,
+        priceMap,
+      );
       expect(result).toBe(0);
     });
 
@@ -516,13 +691,24 @@ describe('DashboardService', () => {
           name: 'RELIANCE',
           vendorCode: { etm: { chart: 'RELIANCE' } },
           transactions: [
-            { id: 'tx1', type: TransactionType.BUY, date: baseTimestamp + 86400000, quantity: 10, price: 2500, charges: 20 },
+            {
+              id: 'tx1',
+              type: TransactionType.BUY,
+              date: baseTimestamp + 86400000,
+              quantity: 10,
+              price: 2500,
+              charges: 20,
+            },
           ],
         } as Holding,
       ];
       const priceMap = new Map<string, number>([['RELIANCE', 2700]]);
 
-      const result = (service as any).calculatePortfolioChangeAtDate(holdings, baseTimestamp, priceMap);
+      const result = (service as any).calculatePortfolioChangeAtDate(
+        holdings,
+        baseTimestamp,
+        priceMap,
+      );
       expect(result).toBe(0);
     });
 
@@ -533,13 +719,24 @@ describe('DashboardService', () => {
           name: 'NOCHART',
           vendorCode: { etm: {} },
           transactions: [
-            { id: 'tx1', type: TransactionType.BUY, date: new Date('2024-01-05').getTime(), quantity: 10, price: 1000, charges: 10 },
+            {
+              id: 'tx1',
+              type: TransactionType.BUY,
+              date: new Date('2024-01-05').getTime(),
+              quantity: 10,
+              price: 1000,
+              charges: 10,
+            },
           ],
         } as unknown as Holding,
       ];
       const priceMap = new Map<string, number>();
 
-      const result = (service as any).calculatePortfolioChangeAtDate(holdings, baseTimestamp, priceMap);
+      const result = (service as any).calculatePortfolioChangeAtDate(
+        holdings,
+        baseTimestamp,
+        priceMap,
+      );
       const investment = 10 * 1000 + 10;
       const expectedChange = ((0 - investment) / investment) * 100;
       expect(result).toBeCloseTo(expectedChange, 2);
@@ -553,7 +750,14 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500, charges: 20 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+            charges: 20,
+          },
         ],
       } as unknown as Holding;
 
@@ -568,14 +772,28 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500, charges: 20 },
-          { id: 'tx2', type: TransactionType.SELL, date: 1500, quantity: 3, price: 2600, charges: 10 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+            charges: 20,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.SELL,
+            date: 1500,
+            quantity: 3,
+            price: 2600,
+            charges: 10,
+          },
         ],
       } as unknown as Holding;
 
       const result = (service as any).calculateHoldingAtDate(holding, 2000);
       expect(result.quantity).toBe(7);
-      expect(result.investment).toBe((10 * 2500 + 20) - (3 * 2600 + 10));
+      expect(result.investment).toBe(10 * 2500 + 20 - (3 * 2600 + 10));
     });
 
     it('should include charges in investment calculation', () => {
@@ -584,7 +802,14 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500, charges: 50 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+            charges: 50,
+          },
         ],
       } as unknown as Holding;
 
@@ -598,8 +823,22 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500, charges: 20 },
-          { id: 'tx2', type: TransactionType.BUY, date: 3000, quantity: 5, price: 2600, charges: 15 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+            charges: 20,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.BUY,
+            date: 3000,
+            quantity: 5,
+            price: 2600,
+            charges: 15,
+          },
         ],
       } as unknown as Holding;
 
@@ -614,7 +853,13 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+          },
         ],
       } as unknown as Holding;
 
@@ -629,14 +874,28 @@ describe('DashboardService', () => {
         name: 'RELIANCE',
         vendorCode: { etm: { chart: 'RELIANCE' } },
         transactions: [
-          { id: 'tx1', type: TransactionType.BUY, date: 1000, quantity: 10, price: 2500, charges: 20 },
-          { id: 'tx2', type: TransactionType.SELL, date: 1500, quantity: 10, price: 2600, charges: 15 },
+          {
+            id: 'tx1',
+            type: TransactionType.BUY,
+            date: 1000,
+            quantity: 10,
+            price: 2500,
+            charges: 20,
+          },
+          {
+            id: 'tx2',
+            type: TransactionType.SELL,
+            date: 1500,
+            quantity: 10,
+            price: 2600,
+            charges: 15,
+          },
         ],
       } as unknown as Holding;
 
       const result = (service as any).calculateHoldingAtDate(holding, 2000);
       expect(result.quantity).toBe(0);
-      expect(result.investment).toBe((10 * 2500 + 20) - (10 * 2600 + 15));
+      expect(result.investment).toBe(10 * 2500 + 20 - (10 * 2600 + 15));
     });
   });
 
@@ -684,9 +943,21 @@ describe('DashboardService', () => {
   describe('calculateSectorWeight (private)', () => {
     it('should aggregate multiple holdings in same sector', () => {
       const holdings = [
-        { name: 'H1', marketValue: 600, details: { sector: 'Technology' } } as Holding,
-        { name: 'H2', marketValue: 200, details: { sector: 'Technology' } } as Holding,
-        { name: 'H3', marketValue: 200, details: { sector: 'Oil & Gas' } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 600,
+          details: { sector: 'Technology' },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 200,
+          details: { sector: 'Technology' },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: 200,
+          details: { sector: 'Oil & Gas' },
+        } as Holding,
       ];
 
       const result = (service as any).calculateSectorWeight(holdings, 1000);
@@ -697,7 +968,11 @@ describe('DashboardService', () => {
 
     it('should use Unknown for holdings without sector details', () => {
       const holdings = [
-        { name: 'H1', marketValue: 300, details: { sector: 'Technology' } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 300,
+          details: { sector: 'Technology' },
+        } as Holding,
         { name: 'H2', marketValue: 200 } as Holding,
       ];
 
@@ -708,9 +983,21 @@ describe('DashboardService', () => {
 
     it('should skip holdings with zero or negative marketValue', () => {
       const holdings = [
-        { name: 'H1', marketValue: 400, details: { sector: 'Technology' } } as Holding,
-        { name: 'H2', marketValue: 0, details: { sector: 'Oil & Gas' } } as Holding,
-        { name: 'H3', marketValue: -100, details: { sector: 'Energy' } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 400,
+          details: { sector: 'Technology' },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 0,
+          details: { sector: 'Oil & Gas' },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: -100,
+          details: { sector: 'Energy' },
+        } as Holding,
       ];
 
       const result = (service as any).calculateSectorWeight(holdings, 400);
@@ -720,9 +1007,21 @@ describe('DashboardService', () => {
 
     it('should sort sectors by total market value descending', () => {
       const holdings = [
-        { name: 'H1', marketValue: 100, details: { sector: 'Small' } } as Holding,
-        { name: 'H2', marketValue: 500, details: { sector: 'Large' } } as Holding,
-        { name: 'H3', marketValue: 200, details: { sector: 'Medium' } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 100,
+          details: { sector: 'Small' },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 500,
+          details: { sector: 'Large' },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: 200,
+          details: { sector: 'Medium' },
+        } as Holding,
       ];
 
       const result = (service as any).calculateSectorWeight(holdings, 800);
@@ -733,9 +1032,21 @@ describe('DashboardService', () => {
   describe('calculateMarketCapWeight (private)', () => {
     it('should aggregate multiple market cap types', () => {
       const holdings = [
-        { name: 'H1', marketValue: 600, metrics: { nse: { marketCapType: 'Large Cap' } } } as Holding,
-        { name: 'H2', marketValue: 300, metrics: { nse: { marketCapType: 'Mid Cap' } } } as Holding,
-        { name: 'H3', marketValue: 100, metrics: { nse: { marketCapType: 'Small Cap' } } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 600,
+          metrics: { nse: { marketCapType: 'Large Cap' } },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 300,
+          metrics: { nse: { marketCapType: 'Mid Cap' } },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: 100,
+          metrics: { nse: { marketCapType: 'Small Cap' } },
+        } as Holding,
       ];
 
       const result = (service as any).calculateMarketCapWeight(holdings, 1000);
@@ -747,7 +1058,11 @@ describe('DashboardService', () => {
 
     it('should use Not Classified for holdings without market cap type', () => {
       const holdings = [
-        { name: 'H1', marketValue: 400, metrics: { nse: { marketCapType: 'Large Cap' } } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 400,
+          metrics: { nse: { marketCapType: 'Large Cap' } },
+        } as Holding,
         { name: 'H2', marketValue: 200 } as Holding,
         { name: 'H3', marketValue: 300, metrics: {} } as Holding,
       ];
@@ -759,9 +1074,21 @@ describe('DashboardService', () => {
 
     it('should skip holdings with zero or negative marketValue', () => {
       const holdings = [
-        { name: 'H1', marketValue: 500, metrics: { nse: { marketCapType: 'Large Cap' } } } as Holding,
-        { name: 'H2', marketValue: 0, metrics: { nse: { marketCapType: 'Mid Cap' } } } as Holding,
-        { name: 'H3', marketValue: -100, metrics: { nse: { marketCapType: 'Small Cap' } } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 500,
+          metrics: { nse: { marketCapType: 'Large Cap' } },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 0,
+          metrics: { nse: { marketCapType: 'Mid Cap' } },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: -100,
+          metrics: { nse: { marketCapType: 'Small Cap' } },
+        } as Holding,
       ];
 
       const result = (service as any).calculateMarketCapWeight(holdings, 500);
@@ -771,9 +1098,21 @@ describe('DashboardService', () => {
 
     it('should sort caps by total market value descending', () => {
       const holdings = [
-        { name: 'H1', marketValue: 200, metrics: { nse: { marketCapType: 'Small' } } } as Holding,
-        { name: 'H2', marketValue: 500, metrics: { nse: { marketCapType: 'Large' } } } as Holding,
-        { name: 'H3', marketValue: 300, metrics: { nse: { marketCapType: 'Medium' } } } as Holding,
+        {
+          name: 'H1',
+          marketValue: 200,
+          metrics: { nse: { marketCapType: 'Small' } },
+        } as Holding,
+        {
+          name: 'H2',
+          marketValue: 500,
+          metrics: { nse: { marketCapType: 'Large' } },
+        } as Holding,
+        {
+          name: 'H3',
+          marketValue: 300,
+          metrics: { nse: { marketCapType: 'Medium' } },
+        } as Holding,
       ];
 
       const result = (service as any).calculateMarketCapWeight(holdings, 1000);
@@ -782,7 +1121,11 @@ describe('DashboardService', () => {
 
     it('should handle holdings with undefined metrics.nse', () => {
       const holdings = [
-        { name: 'H1', marketValue: 300, metrics: { bse: { marketCapType: 'Large Cap' } } } as unknown as Holding,
+        {
+          name: 'H1',
+          marketValue: 300,
+          metrics: { bse: { marketCapType: 'Large Cap' } },
+        } as unknown as Holding,
       ];
 
       const result = (service as any).calculateMarketCapWeight(holdings, 300);

@@ -1,14 +1,14 @@
-import { http, HttpResponse, delay } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { Constants } from '../constants';
 import {
-  mockStockResponse,
-  mockForexResponse,
   mockCurrencyListResponse,
-  mockSearchResponse,
+  mockForexResponse,
   mockHistoricChartResponse,
   mockIntraDayChartResponse,
-  mockMarketStatusResponse,
   mockMarketClosedResponse,
+  mockMarketStatusResponse,
+  mockSearchResponse,
+  mockStockResponse,
 } from './data';
 
 export const handlers = [
@@ -51,7 +51,10 @@ export const handlers = [
 export const errorHandlers = [
   http.get(Constants.api.MARKET_STATUS + ':symbol', async () => {
     await delay(50);
-    return HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    return HttpResponse.json(
+      { message: 'Internal Server Error' },
+      { status: 500 },
+    );
   }),
 
   http.get(Constants.api.STOCK_QUOTE + ':code', async () => {
@@ -61,7 +64,10 @@ export const errorHandlers = [
 
   http.get(Constants.api.FOREX, async () => {
     await delay(50);
-    return HttpResponse.json({ message: 'Service Unavailable' }, { status: 503 });
+    return HttpResponse.json(
+      { message: 'Service Unavailable' },
+      { status: 503 },
+    );
   }),
 
   http.get(Constants.api.CURRENCY_LIST, async () => {
@@ -80,18 +86,33 @@ export const marketClosedHandlers = [
 export const failedForexHandlers = [
   http.get(Constants.api.FOREX, async () => {
     await delay(50);
-    return HttpResponse.json({ success: 0, data: { headers: [], flags: [], data: [] } });
+    return HttpResponse.json({
+      success: 0,
+      data: { headers: [], flags: [], data: [] },
+    });
   }),
 ];
 
 export const noDataHandlers = [
   http.get(Constants.api.STOCK_HISTORIC_CHART, async () => {
     await delay(50);
-    return HttpResponse.json({ s: 'no_data', t: [], o: [], h: [], l: [], c: [] });
+    return HttpResponse.json({
+      s: 'no_data',
+      t: [],
+      o: [],
+      h: [],
+      l: [],
+      c: [],
+    });
   }),
 
   http.get(Constants.api.STOCK_INTRA_DAY_CHART + ':symbol', async () => {
     await delay(50);
-    return HttpResponse.json({ s: 'no_data', data: [], direction: 0, nextCall: false });
+    return HttpResponse.json({
+      s: 'no_data',
+      data: [],
+      direction: 0,
+      nextCall: false,
+    });
   }),
 ];

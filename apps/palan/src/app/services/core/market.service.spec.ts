@@ -1,15 +1,18 @@
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { BehaviorSubject } from 'rxjs';
 
-import { MarketService } from './market.service';
-import { SettingsService } from './settings.service';
 import { LOGGER } from '@nidhi/shared-logger';
 import { Constants } from '../../constants';
 import { Direction, Status } from '../../models/market';
 import { ChartResponseStatus } from '../../models/vendor/mc';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
+import { MarketService } from './market.service';
+import { SettingsService } from './settings.service';
 
 const STATUS_URL = Constants.api.MARKET_STATUS + 'CAT:US';
 
@@ -24,11 +27,9 @@ function primeMarketOpen(
 ): void {
   const sub = service.marketStatus$.subscribe();
   service.refresh();
-  httpMock
-    .expectOne(STATUS_URL)
-    .flush({
-      data: { lastupd_epoch: 1609459200000, market_state: 'OPEN' },
-    } as any);
+  httpMock.expectOne(STATUS_URL).flush({
+    data: { lastupd_epoch: 1609459200000, market_state: 'OPEN' },
+  } as any);
   sub.unsubscribe();
 }
 
@@ -268,11 +269,9 @@ describe('MarketService', () => {
 
       service.refresh();
       // refresh() triggers both marketStatus$ merge and poll$ merge.
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne(Constants.api.STOCK_QUOTE + 'AAPL:US')
         .flush({ data: stockData } as any);
@@ -289,11 +288,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne(Constants.api.STOCK_QUOTE + 'AAPL:US')
         .flush({ data: stockData } as any);
@@ -316,11 +313,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne(Constants.api.STOCK_QUOTE + 'AAPL:US')
         .flush({ data: negData } as any);
@@ -347,11 +342,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne(Constants.api.STOCK_QUOTE + 'AAPL:US')
         .flush({ data: stockData } as any);
@@ -373,11 +366,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne(Constants.api.STOCK_QUOTE + 'AAPL:US')
         .flush({ data: edgeData } as any);
@@ -501,11 +492,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne((r) => r.url.includes('intra'))
         .flush({
@@ -524,11 +513,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne((r) => r.url.includes('intra'))
         .flush({ s: ChartResponseStatus.ERROR, data: [] } as any);
@@ -544,11 +531,9 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 0, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 0, market_state: 'OPEN' },
+      } as any);
       httpMock
         .expectOne((r) => r.url.includes('intra'))
         .flush({ s: ChartResponseStatus.OK, data: [] } as any);
@@ -578,18 +563,14 @@ describe('MarketService', () => {
       });
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 1609459200000, market_state: 'OPEN' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 1609459200000, market_state: 'OPEN' },
+      } as any);
 
       service.refresh();
-      httpMock
-        .expectOne(STATUS_URL)
-        .flush({
-          data: { lastupd_epoch: 1609459200001, market_state: 'CLOSED' },
-        } as any);
+      httpMock.expectOne(STATUS_URL).flush({
+        data: { lastupd_epoch: 1609459200001, market_state: 'CLOSED' },
+      } as any);
     });
   });
 });

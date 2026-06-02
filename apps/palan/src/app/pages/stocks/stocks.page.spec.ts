@@ -197,20 +197,18 @@ describe('StocksPage', () => {
 
   describe('chart initialization', () => {
     it('should initialize chart when intraday data arrives', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
       createComponent('TEST:US');
       tick(200);
 
@@ -229,20 +227,18 @@ describe('StocksPage', () => {
 
   describe('resize and colorScheme subscriptions', () => {
     it('should resize chart when resize$ emits after chart init', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
       createComponent('TEST:US');
       tick(200);
 
@@ -265,20 +261,18 @@ describe('StocksPage', () => {
     }));
 
     it('should apply color scheme on settings change after chart init', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
       createComponent('TEST:US');
       tick(200);
 
@@ -577,20 +571,18 @@ describe('StocksPage', () => {
 
   describe('chart colors based on direction', () => {
     it('should apply red colors when direction is DOWN with intraday data', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
       const downStock = {
         ...mockStock,
         quote: {
@@ -609,20 +601,18 @@ describe('StocksPage', () => {
     }));
 
     it('should apply blue colors when direction is undefined', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
       const noDirStock = {
         ...mockStock,
         quote: {
@@ -641,20 +631,18 @@ describe('StocksPage', () => {
     }));
 
     it('should apply lastPriceAnimation=1 when market is open with intraday', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              time: '2026-01-01',
-              value: 150,
-              open: 148,
-              close: 150,
-              high: 152,
-              low: 147,
-            },
-          ]),
-        );
+      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
+        of([
+          {
+            time: '2026-01-01',
+            value: 150,
+            open: 148,
+            close: 150,
+            high: 152,
+            low: 147,
+          },
+        ]),
+      );
 
       createComponent('TEST:US');
 

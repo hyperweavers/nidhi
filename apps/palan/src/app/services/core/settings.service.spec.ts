@@ -1,9 +1,9 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { skip } from 'rxjs';
 
-import { SettingsService } from './settings.service';
-import { ColorScheme, RefreshInterval, Theme } from '../../models/settings';
 import { Constants } from '../../constants';
+import { ColorScheme, RefreshInterval, Theme } from '../../models/settings';
+import { SettingsService } from './settings.service';
 
 describe('SettingsService', () => {
   let service: SettingsService;
@@ -79,12 +79,10 @@ describe('SettingsService', () => {
       service.settings$.pipe(skip(1)).subscribe((settings) => {
         expect(settings.theme).toBe(Theme.DARK);
         expect(settings.colorScheme).toBe(ColorScheme.DARK);
-        expect(
-          localStorage.getItem(Constants.settings.THEME),
-        ).toBe(Theme.DARK);
-        expect(
-          localStorage.getItem(Constants.settings.COLOR_SCHEME),
-        ).toBe(ColorScheme.DARK);
+        expect(localStorage.getItem(Constants.settings.THEME)).toBe(Theme.DARK);
+        expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+          ColorScheme.DARK,
+        );
         expect(document.documentElement.classList.contains('dark')).toBe(true);
         done();
       });
@@ -97,9 +95,9 @@ describe('SettingsService', () => {
       service.setTheme(Theme.LIGHT);
 
       expect(document.documentElement.classList.contains('dark')).toBe(false);
-      expect(
-        localStorage.getItem(Constants.settings.COLOR_SCHEME),
-      ).toBe(ColorScheme.LIGHT);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.LIGHT,
+      );
     });
 
     it('should not duplicate dark class when already applied', () => {
@@ -109,21 +107,19 @@ describe('SettingsService', () => {
       service.setTheme(Theme.DARK);
 
       expect(
-        (document.documentElement.classList.add as jest.Mock),
+        document.documentElement.classList.add as jest.Mock,
       ).not.toHaveBeenCalledWith('dark');
     });
 
     it('should do nothing when theme is invalid', () => {
       service.setTheme('invalid' as Theme);
 
+      expect(localStorage.getItem(Constants.settings.THEME)).toBeNull();
       expect(
-        localStorage.getItem(Constants.settings.THEME),
-      ).toBeNull();
-      expect(
-        (document.documentElement.classList.add as jest.Mock),
+        document.documentElement.classList.add as jest.Mock,
       ).not.toHaveBeenCalled();
       expect(
-        (document.documentElement.classList.remove as jest.Mock),
+        document.documentElement.classList.remove as jest.Mock,
       ).not.toHaveBeenCalled();
     });
 
@@ -144,9 +140,9 @@ describe('SettingsService', () => {
 
       service.settings$.pipe(skip(1)).subscribe((settings) => {
         expect(settings.refreshInterval).toBe(RefreshInterval.ONE_MINUTE);
-        expect(
-          localStorage.getItem(Constants.settings.REFRESH_INTERVAL),
-        ).toBe(String(RefreshInterval.ONE_MINUTE));
+        expect(localStorage.getItem(Constants.settings.REFRESH_INTERVAL)).toBe(
+          String(RefreshInterval.ONE_MINUTE),
+        );
         done();
       });
 
@@ -189,9 +185,7 @@ describe('SettingsService', () => {
         done();
       });
 
-      const listener = matchMediaListeners.get(
-        '(prefers-color-scheme: dark)',
-      );
+      const listener = matchMediaListeners.get('(prefers-color-scheme: dark)');
       listener!({ matches: true });
     });
 
@@ -201,15 +195,11 @@ describe('SettingsService', () => {
 
       service.settings$.pipe(skip(1)).subscribe((settings) => {
         expect(settings.colorScheme).toBe(ColorScheme.LIGHT);
-        expect(
-          document.documentElement.classList.contains('dark'),
-        ).toBe(false);
+        expect(document.documentElement.classList.contains('dark')).toBe(false);
         done();
       });
 
-      const listener = matchMediaListeners.get(
-        '(prefers-color-scheme: dark)',
-      );
+      const listener = matchMediaListeners.get('(prefers-color-scheme: dark)');
       listener!({ matches: false });
     });
 
@@ -218,13 +208,11 @@ describe('SettingsService', () => {
       service.setTheme(Theme.DARK);
       (document.documentElement.classList.add as jest.Mock).mockClear();
 
-      const listener = matchMediaListeners.get(
-        '(prefers-color-scheme: dark)',
-      );
+      const listener = matchMediaListeners.get('(prefers-color-scheme: dark)');
       listener!({ matches: true });
 
       expect(
-        (document.documentElement.classList.add as jest.Mock),
+        document.documentElement.classList.add as jest.Mock,
       ).not.toHaveBeenCalled();
     });
   });
@@ -232,39 +220,31 @@ describe('SettingsService', () => {
   describe('applyTheme', () => {
     describe('SYSTEM theme', () => {
       it('should apply light theme when prefers-color-scheme is light', () => {
-        jest
-          .spyOn(window, 'matchMedia')
-          .mockReturnValue({
-            matches: false,
-            media: '(prefers-color-scheme: dark)',
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            dispatchEvent: jest.fn(),
-          } as any);
+        jest.spyOn(window, 'matchMedia').mockReturnValue({
+          matches: false,
+          media: '(prefers-color-scheme: dark)',
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+        } as any);
 
         service = TestBed.inject(SettingsService);
 
-        expect(
-          document.documentElement.classList.contains('dark'),
-        ).toBe(false);
+        expect(document.documentElement.classList.contains('dark')).toBe(false);
       });
 
       it('should apply dark theme when prefers-color-scheme is dark', () => {
-        jest
-          .spyOn(window, 'matchMedia')
-          .mockReturnValue({
-            matches: true,
-            media: '(prefers-color-scheme: dark)',
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-            dispatchEvent: jest.fn(),
-          } as any);
+        jest.spyOn(window, 'matchMedia').mockReturnValue({
+          matches: true,
+          media: '(prefers-color-scheme: dark)',
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+        } as any);
 
         service = TestBed.inject(SettingsService);
 
-        expect(
-          document.documentElement.classList.contains('dark'),
-        ).toBe(true);
+        expect(document.documentElement.classList.contains('dark')).toBe(true);
       });
     });
 
@@ -277,7 +257,7 @@ describe('SettingsService', () => {
         service.setTheme(Theme.DARK);
 
         expect(
-          (document.documentElement.classList.add as jest.Mock),
+          document.documentElement.classList.add as jest.Mock,
         ).toHaveBeenCalledWith('dark');
       });
 
@@ -287,9 +267,9 @@ describe('SettingsService', () => {
 
         service.setTheme(Theme.DARK);
 
-        expect(
-          localStorage.getItem(Constants.settings.COLOR_SCHEME),
-        ).toBe(ColorScheme.DARK);
+        expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+          ColorScheme.DARK,
+        );
       });
     });
   });
@@ -316,9 +296,9 @@ describe('SettingsService', () => {
 
       service = TestBed.inject(SettingsService);
 
-      expect(
-        localStorage.getItem(Constants.settings.COLOR_SCHEME),
-      ).toBe(ColorScheme.LIGHT);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.LIGHT,
+      );
     });
 
     it('should not set theme when theme is empty string', () => {
@@ -331,16 +311,13 @@ describe('SettingsService', () => {
 
     it('should restore previously stored color scheme from localStorage on init', () => {
       localStorage.setItem(Constants.settings.THEME, Theme.DARK);
-      localStorage.setItem(
-        Constants.settings.COLOR_SCHEME,
-        ColorScheme.DARK,
-      );
+      localStorage.setItem(Constants.settings.COLOR_SCHEME, ColorScheme.DARK);
 
       service = TestBed.inject(SettingsService);
 
-      expect(
-        localStorage.getItem(Constants.settings.COLOR_SCHEME),
-      ).toBe(ColorScheme.DARK);
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBe(
+        ColorScheme.DARK,
+      );
     });
 
     it('should not persist color scheme from setColorScheme when value is not in the enum', () => {
@@ -348,9 +325,7 @@ describe('SettingsService', () => {
 
       service = TestBed.inject(SettingsService);
 
-      expect(
-        localStorage.getItem(Constants.settings.COLOR_SCHEME),
-      ).toBeNull();
+      expect(localStorage.getItem(Constants.settings.COLOR_SCHEME)).toBeNull();
     });
   });
 });

@@ -4,7 +4,9 @@ import { MarketUtils } from './market.utils';
 describe('MarketUtils', () => {
   describe('GLOBAL_SYMBOL_REGEXP', () => {
     it('should match valid global symbols', () => {
-      expect(MarketUtils.GLOBAL_SYMBOL_REGEXP.test('SYMBOL:COUNTRY')).toBe(true);
+      expect(MarketUtils.GLOBAL_SYMBOL_REGEXP.test('SYMBOL:COUNTRY')).toBe(
+        true,
+      );
       expect(MarketUtils.GLOBAL_SYMBOL_REGEXP.test('ABC:IN')).toBe(true);
       expect(MarketUtils.GLOBAL_SYMBOL_REGEXP.test('FOO:BAR')).toBe(true);
     });
@@ -182,9 +184,8 @@ describe('MarketUtils', () => {
         }),
       })) as any;
 
-      const result = MarketUtils.extractScripCodesFromMcSearchResult(
-        '<span>test</span>',
-      );
+      const result =
+        MarketUtils.extractScripCodesFromMcSearchResult('<span>test</span>');
 
       expect(result).toBeNull();
 

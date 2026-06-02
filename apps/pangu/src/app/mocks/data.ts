@@ -1,5 +1,16 @@
-import { IndexQuotes, Dashboard, CompanyDetails, History, IntraDay, SearchResult, SearchResultSecondary, StockPeerChart, IndexDetails, IndexConstituents } from '../adapters/market.adapter';
-import { VendorStatus, ExchangeCode } from '../models/vendor/etm';
+import {
+  CompanyDetails,
+  Dashboard,
+  History,
+  IndexConstituents,
+  IndexDetails,
+  IndexQuotes,
+  IntraDay,
+  SearchResult,
+  SearchResultSecondary,
+  StockPeerChart,
+} from '../adapters/market.adapter';
+import { VendorStatus } from '../models/vendor/etm';
 import { IntraDayStatus } from '../models/vendor/mc';
 
 export const mockIndexQuotes: IndexQuotes = {
@@ -342,8 +353,24 @@ export const mockStockPeerChart: StockPeerChart = {
         companyshortname: 'Reliance',
       },
       quoteData: [
-        { Close: 2745.5, Date: '2024-01-12', Volume: 1200000, ReturnPChange: 0, returnPChange: 0, close: 2745.5, volume: 1200000 },
-        { Close: 2780.5, Date: '2024-01-15', Volume: 1500000, ReturnPChange: 1.27, returnPChange: 1.27, close: 2780.5, volume: 1500000 },
+        {
+          Close: 2745.5,
+          Date: '2024-01-12',
+          Volume: 1200000,
+          ReturnPChange: 0,
+          returnPChange: 0,
+          close: 2745.5,
+          volume: 1200000,
+        },
+        {
+          Close: 2780.5,
+          Date: '2024-01-15',
+          Volume: 1500000,
+          ReturnPChange: 1.27,
+          returnPChange: 1.27,
+          close: 2780.5,
+          volume: 1500000,
+        },
       ],
     },
   ],

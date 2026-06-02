@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
-import { StorageService } from './storage.service';
 import { PlanService } from './plan.service';
+import { StorageService } from './storage.service';
 
 jest.mock('../../db/app.db', () => ({
   db: {
@@ -36,10 +36,10 @@ jest.mock('dexie', () => {
   };
 });
 
-import { db } from '../../db/app.db';
-import { importInto, exportDB } from 'dexie-export-import';
-import { v4 as uuid } from 'uuid';
 import { liveQuery } from 'dexie';
+import { exportDB, importInto } from 'dexie-export-import';
+import { v4 as uuid } from 'uuid';
+import { db } from '../../db/app.db';
 import { Transaction } from '../../models/portfolio';
 
 const mockPlan = {

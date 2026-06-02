@@ -652,14 +652,12 @@ describe('PortfolioPage', () => {
         },
       };
 
-      mockMarketService.getStock = jest
-        .fn()
-        .mockReturnValue(
-          of({
-            scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
-            vendorCode: { etm: { primary: 'RELIANCE' } },
-          }),
-        );
+      mockMarketService.getStock = jest.fn().mockReturnValue(
+        of({
+          scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
+          vendorCode: { etm: { primary: 'RELIANCE' } },
+        }),
+      );
       mockMarketService.searchSecondary = jest.fn().mockReturnValue(of([]));
 
       component.selectStock(stockNoIsin);
@@ -728,14 +726,12 @@ describe('PortfolioPage', () => {
         },
       };
 
-      mockMarketService.getStock = jest
-        .fn()
-        .mockReturnValue(
-          of({
-            scripCode: { bse: '500325', isin: 'INE002A01018' },
-            vendorCode: { etm: { primary: 'RELIANCE' } },
-          }),
-        );
+      mockMarketService.getStock = jest.fn().mockReturnValue(
+        of({
+          scripCode: { bse: '500325', isin: 'INE002A01018' },
+          vendorCode: { etm: { primary: 'RELIANCE' } },
+        }),
+      );
       mockMarketService.searchSecondary = jest.fn().mockReturnValue(of([]));
 
       component.selectStock(stockNoIsin);
@@ -761,16 +757,14 @@ describe('PortfolioPage', () => {
           vendorCode: { etm: { primary: 'RELIANCE' } },
         }),
       );
-      mockMarketService.searchSecondary = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              scripCode: { nse: 'SOMETHING_ELSE', isin: 'OTHER_ISIN' },
-              vendorCode: { etm: { primary: '' }, mc: { primary: 'other' } },
-            },
-          ]),
-        );
+      mockMarketService.searchSecondary = jest.fn().mockReturnValue(
+        of([
+          {
+            scripCode: { nse: 'SOMETHING_ELSE', isin: 'OTHER_ISIN' },
+            vendorCode: { etm: { primary: '' }, mc: { primary: 'other' } },
+          },
+        ]),
+      );
 
       component.selectStock(stockNoIsin);
       tick();
@@ -789,14 +783,12 @@ describe('PortfolioPage', () => {
         },
       };
 
-      mockMarketService.getStock = jest
-        .fn()
-        .mockReturnValue(
-          of({
-            scripCode: { isin: 'INE002A01018' },
-            vendorCode: { etm: { primary: 'RELIANCE' } },
-          }),
-        );
+      mockMarketService.getStock = jest.fn().mockReturnValue(
+        of({
+          scripCode: { isin: 'INE002A01018' },
+          vendorCode: { etm: { primary: 'RELIANCE' } },
+        }),
+      );
 
       component.selectStock(stockNoIsin);
       tick();
@@ -822,19 +814,17 @@ describe('PortfolioPage', () => {
           vendorCode: { etm: { primary: 'RELIANCE' } },
         }),
       );
-      mockMarketService.searchSecondary = jest
-        .fn()
-        .mockReturnValue(
-          of([
-            {
-              scripCode: { nse: 'RELIANCE', isin: 'OTHER_ISIN' },
-              vendorCode: {
-                etm: { primary: '' },
-                mc: { primary: 'mc-nse-match' },
-              },
+      mockMarketService.searchSecondary = jest.fn().mockReturnValue(
+        of([
+          {
+            scripCode: { nse: 'RELIANCE', isin: 'OTHER_ISIN' },
+            vendorCode: {
+              etm: { primary: '' },
+              mc: { primary: 'mc-nse-match' },
             },
-          ]),
-        );
+          },
+        ]),
+      );
 
       component.selectStock(stockNoIsin);
       tick();

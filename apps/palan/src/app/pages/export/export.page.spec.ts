@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { LOGGER } from '@nidhi/shared-logger';
 
@@ -20,7 +20,9 @@ describe('ExportPage', () => {
       info: jest.fn(),
     } as any;
 
-    window.URL.createObjectURL = jest.fn().mockReturnValue('blob:http://localhost/fake');
+    window.URL.createObjectURL = jest
+      .fn()
+      .mockReturnValue('blob:http://localhost/fake');
     window.URL.revokeObjectURL = jest.fn();
 
     await TestBed.configureTestingModule({
@@ -64,10 +66,14 @@ describe('ExportPage', () => {
 
     await component.export();
 
-    expect(mockStorageService.exportDb).toHaveBeenCalledWith(expect.any(Function));
+    expect(mockStorageService.exportDb).toHaveBeenCalledWith(
+      expect.any(Function),
+    );
     expect(window.URL.createObjectURL).toHaveBeenCalledWith(blob);
     expect(anchorMock.click).toHaveBeenCalled();
-    expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/fake');
+    expect(window.URL.revokeObjectURL).toHaveBeenCalledWith(
+      'blob:http://localhost/fake',
+    );
     expect(anchorMock.remove).toHaveBeenCalled();
     expect(component.showExportProgress).toBe(false);
     expect(component.showStatusModal).toBe(true);
@@ -80,7 +86,9 @@ describe('ExportPage', () => {
     await component.export();
 
     expect(mockLogger.captureException).toHaveBeenCalledWith(testError);
-    expect(component.statusMessage).toBe('Failed to export data. Please try again.');
+    expect(component.statusMessage).toBe(
+      'Failed to export data. Please try again.',
+    );
     expect(component.showExportProgress).toBe(false);
   });
 
@@ -117,14 +125,18 @@ describe('ExportPage', () => {
   });
 
   it('should render export button', () => {
-    const exportBtn = fixture.debugElement.query(By.css('button[type="button"]'));
+    const exportBtn = fixture.debugElement.query(
+      By.css('button[type="button"]'),
+    );
     expect(exportBtn.nativeElement.textContent.trim()).toBe('Export');
   });
 
   it('should show export progress spinner in DOM during export', async () => {
     mockStorageService.exportDb.mockImplementation(async () => {
       fixture.detectChanges();
-      const statusModal = fixture.debugElement.query(By.css('[class*="bg-opacity"]'));
+      const statusModal = fixture.debugElement.query(
+        By.css('[class*="bg-opacity"]'),
+      );
       expect(statusModal.nativeElement.textContent).toContain('Exporting...');
       return new Blob();
     });
@@ -163,8 +175,12 @@ describe('ExportPage', () => {
     await component.export();
     fixture.detectChanges();
 
-    const statusModal = fixture.debugElement.query(By.css('[class*="bg-opacity"]'));
-    expect(statusModal.nativeElement.textContent).toContain('Data exported successfully!');
+    const statusModal = fixture.debugElement.query(
+      By.css('[class*="bg-opacity"]'),
+    );
+    expect(statusModal.nativeElement.textContent).toContain(
+      'Data exported successfully!',
+    );
     expect(statusModal.nativeElement.textContent).toContain('Ok');
   });
 
@@ -173,7 +189,9 @@ describe('ExportPage', () => {
     component.showExportProgress = false;
     fixture.detectChanges();
 
-    const statusModal = fixture.debugElement.query(By.css('[class*="bg-opacity"]'));
+    const statusModal = fixture.debugElement.query(
+      By.css('[class*="bg-opacity"]'),
+    );
     const okBtn = statusModal?.query(By.css('button'));
     expect(okBtn?.nativeElement.textContent.trim()).toBe('Ok');
   });

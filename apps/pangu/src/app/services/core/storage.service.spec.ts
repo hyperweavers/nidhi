@@ -1,10 +1,10 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
-import { StorageService } from './storage.service';
 import { db } from '../../db/app.db';
 import { TransactionType } from '../../models/portfolio';
 import { Stock } from '../../models/stock';
+import { StorageService } from './storage.service';
 
 jest.mock('../../db/app.db', () => ({
   db: {
