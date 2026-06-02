@@ -110,6 +110,25 @@ describe('AppComponent', () => {
       tick(100);
     }));
 
+    it('should not change sidebarOpen for non-navigation events', fakeAsync(() => {
+      fixture.detectChanges();
+      component.sidebarOpen = false;
+      mockRouter.events.next('UNKNOWN_EVENT');
+      tick(100);
+      expect(component.sidebarOpen).toBe(false);
+    }));
+
+    it('should keep sidebar open when already open on resize >= 1024', () => {
+      fixture.detectChanges();
+      component.sidebarOpen = true;
+      Object.defineProperty(document.documentElement, 'clientWidth', {
+        value: 1200,
+        configurable: true,
+      });
+      mockSettingsService.resize$.next();
+      expect(component.sidebarOpen).toBe(true);
+    });
+
     it('should open sidebar on resize when clientWidth >= 1024 and closed', () => {
       fixture.detectChanges();
       component.sidebarOpen = false;
@@ -300,6 +319,37 @@ describe('AppComponent', () => {
   });
 
   describe('configureInstallModel', () => {
+    it('should show install modal on iOS when standalone is true', () => {
+      fixture.detectChanges();
+      const platform = (component as unknown as Record<string, unknown>)
+        .platform as Record<string, unknown>;
+      platform.IOS = true;
+
+      Object.defineProperty(window.navigator, 'standalone', {
+        value: true,
+        configurable: true,
+      });
+
+      component['configureInstallModel']();
+
+      expect(component.showInstallModal).toBe(true);
+      expect(component.ios).toBe(true);
+
+      delete (window.navigator as Record<string, unknown>).standalone;
+    });
+
+    it('should not show install modal on iOS when standalone not available', () => {
+      fixture.detectChanges();
+      const platform = (component as unknown as Record<string, unknown>)
+        .platform as Record<string, unknown>;
+      platform.IOS = true;
+
+      component['configureInstallModel']();
+
+      expect(component.showInstallModal).toBeUndefined();
+      expect(component.ios).toBeUndefined();
+    });
+
     it('should listen for beforeinstallprompt event', () => {
       let capturedCb: (e: object) => void = jest.fn();
       const origAddEventListener = window.addEventListener.bind(window);
