@@ -38,7 +38,6 @@ import { DateUtils } from '../../utils/date.utils';
 @Component({
   selector: 'app-plan',
   imports: [CommonModule, FormsModule],
-  providers: [CurrencyService],
   templateUrl: './plan.page.html',
   styleUrl: './plan.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

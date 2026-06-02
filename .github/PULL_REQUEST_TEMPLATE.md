@@ -12,6 +12,11 @@ Thank you for taking the time to submit this pull request!
 - [ ] Vatti
 - [ ] Palan
 
+## Affected Lib(s)
+
+- [ ] shared-logger
+- [ ] shared-sentry
+
 ## Change Type
 
 > _Please try to limit your pull request to one type, submit multiple pull requests if needed._

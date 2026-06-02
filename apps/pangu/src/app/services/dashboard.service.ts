@@ -1,13 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  BehaviorSubject,
   Observable,
   combineLatest,
   map,
   of,
   shareReplay,
   switchMap,
-  tap,
 } from 'rxjs';
 
 import { Constants } from '../constants';
@@ -23,21 +21,14 @@ import { PortfolioService } from './portfolio.service';
 })
 export class DashboardService {
   private marketService = inject(MarketService);
+  private portfolioService = inject(PortfolioService);
 
   public kpi$: Observable<Kpi>;
 
-  private readonly portfolio$ = new BehaviorSubject<Portfolio | null>(null);
-
   constructor() {
-    const portfolioService = inject(PortfolioService);
-
     this.kpi$ = combineLatest([
       this.marketService.getMainIndices().pipe(shareReplay(1)),
-      portfolioService.portfolio$.pipe(
-        tap((portfolio) => {
-          this.portfolio$.next(portfolio);
-        }),
-      ),
+      this.portfolioService.portfolio$,
     ]).pipe(
       map(([indices, portfolio]: [Index[], Portfolio]) => ({
         cards: [
@@ -82,83 +73,67 @@ export class DashboardService {
   }
 
   public getPortfolioChart(period: Period): Observable<ChartData[]> {
-    return this.portfolio$.pipe(
+    return this.portfolioService.portfolio$.pipe(
       switchMap((portfolio) => {
-        if (portfolio) {
-          const { holdings } = portfolio;
-          const symbols = holdings
-            .map((holding) => holding.vendorCode.etm.chart)
-            .filter((code) => !!code) as string[];
+        if (!portfolio?.holdings.length) return of([]);
+        const { holdings } = portfolio;
+        const symbols = holdings
+          .map((holding) => holding.vendorCode.etm.chart)
+          .filter((code) => !!code) as string[];
 
-          return holdings.length > 0
-            ? (period === Period.ONE_DAY
-                ? this.marketService.getIntraDayPeerChart(symbols)
-                : this.marketService.getHistoricPeerChart(symbols, period)
-              ).pipe(
-                map((peerChartData) => {
-                  if (
-                    !peerChartData ||
-                    peerChartData.length === 0 ||
-                    holdings.length === 0
-                  ) {
-                    return [];
-                  }
+        if (!symbols.length) return of([]);
 
-                  // Get all unique dates from the peer chart data
-                  const dateSet = new Set<string>();
-                  peerChartData.forEach((peer) => {
-                    peer.data.forEach((point) => {
-                      dateSet.add(String(point.time));
-                    });
-                  });
+        return (
+          period === Period.ONE_DAY
+            ? this.marketService.getIntraDayPeerChart(symbols)
+            : this.marketService.getHistoricPeerChart(symbols, period)
+        ).pipe(
+          map((peerChartData) => {
+            if (!peerChartData?.length) return [];
 
-                  const dates = Array.from(dateSet)
-                    .sort((a, b) => {
-                      const dateA = new Date(a).getTime();
-                      const dateB = new Date(b).getTime();
-                      return dateA - dateB;
-                    })
-                    .map((dateStr) => new Date(dateStr).getTime());
+            // Get all unique dates from the peer chart data
+            const dateSet = new Set<string>();
+            peerChartData.forEach((peer) => {
+              peer.data.forEach((point) => {
+                dateSet.add(String(point.time));
+              });
+            });
 
-                  // For each date, build price map and calculate portfolio performance
-                  const portfolioChartData: ChartData[] = dates.map(
-                    (dateTimestamp) => {
-                      const priceMap = new Map<string, number>();
+            const dates = Array.from(dateSet)
+              .sort((a, b) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+                return dateA - dateB;
+              })
+              .map((dateStr) => new Date(dateStr).getTime());
 
-                      // Build price map for this date from peer chart data
-                      peerChartData.forEach((peer) => {
-                        const dataPoint = peer.data.find(
-                          (point) =>
-                            new Date(point.time).getTime() === dateTimestamp,
-                        );
-                        if (dataPoint && dataPoint.value !== undefined) {
-                          priceMap.set(peer.symbol, dataPoint.value);
-                        }
-                      });
+            // For each date, build price map and calculate portfolio performance
+            return dates.map((dateTimestamp) => {
+              const priceMap = new Map<string, number>();
 
-                      return {
-                        time: new Date(dateTimestamp).toLocaleDateString(
-                          'en-CA',
-                          {
-                            timeZone: 'Asia/Kolkata',
-                          },
-                        ),
-                        value: this.calculatePortfolioChangeAtDate(
-                          holdings,
-                          dateTimestamp,
-                          priceMap,
-                        ),
-                      };
-                    },
-                  );
+              // Build price map for this date from peer chart data
+              peerChartData.forEach((peer) => {
+                const dataPoint = peer.data.find(
+                  (point) => new Date(point.time).getTime() === dateTimestamp,
+                );
+                if (dataPoint && dataPoint.value !== undefined) {
+                  priceMap.set(peer.symbol, dataPoint.value);
+                }
+              });
 
-                  return portfolioChartData;
+              return {
+                time: new Date(dateTimestamp).toLocaleDateString('en-CA', {
+                  timeZone: 'Asia/Kolkata',
                 }),
-              )
-            : of([]);
-        } else {
-          return of([]);
-        }
+                value: this.calculatePortfolioChangeAtDate(
+                  holdings,
+                  dateTimestamp,
+                  priceMap,
+                ),
+              };
+            });
+          }),
+        );
       }),
     );
   }
@@ -171,52 +146,39 @@ export class DashboardService {
     marketCaps: string[];
     marketCapWeights: number[];
   }> {
-    return this.portfolio$.pipe(
+    return this.portfolioService.portfolio$.pipe(
       map((portfolio) => {
-        if (portfolio) {
+        if (portfolio?.holdings.length > 0) {
           const { holdings, marketValue } = portfolio;
+          const stockWeights = this.calculatePortfolioWeight(
+            holdings,
+            marketValue,
+          );
+          const sectorWeights = this.calculateSectorWeight(
+            holdings,
+            marketValue,
+          );
+          const marketCapWeights = this.calculateMarketCapWeight(
+            holdings,
+            marketValue,
+          );
 
-          if (holdings.length > 0) {
-            const stockWeights = this.calculatePortfolioWeight(
-              holdings,
-              marketValue,
-            );
-            const sectorWeights = this.calculateSectorWeight(
-              holdings,
-              marketValue,
-            );
-            const marketCapWeights = this.calculateMarketCapWeight(
-              holdings,
-              marketValue,
-            );
-
-            return {
-              ...stockWeights,
-              sectors: sectorWeights.sectors,
-              sectorWeights: sectorWeights.weights,
-              marketCaps: marketCapWeights.marketCaps,
-              marketCapWeights: marketCapWeights.weights,
-            };
-          } else {
-            return {
-              weight: [],
-              stocks: [],
-              sectors: [],
-              sectorWeights: [],
-              marketCaps: [],
-              marketCapWeights: [],
-            };
-          }
-        } else {
           return {
-            weight: [],
-            stocks: [],
-            sectors: [],
-            sectorWeights: [],
-            marketCaps: [],
-            marketCapWeights: [],
+            ...stockWeights,
+            sectors: sectorWeights.sectors,
+            sectorWeights: sectorWeights.weights,
+            marketCaps: marketCapWeights.marketCaps,
+            marketCapWeights: marketCapWeights.weights,
           };
         }
+        return {
+          weight: [],
+          stocks: [],
+          sectors: [],
+          sectorWeights: [],
+          marketCaps: [],
+          marketCapWeights: [],
+        };
       }),
     );
   }

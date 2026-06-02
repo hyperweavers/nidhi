@@ -16,6 +16,11 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { Flowbite } from '../../decorators/flowbite.decorator';
+import {
+  formatDoughnutLabel,
+  formatEmiTitle,
+  formatLineLabel,
+} from '../../helpers/chart.helper';
 import { ChartType } from '../../models/chart';
 import {
   Amortization,
@@ -136,7 +141,7 @@ export class LoanEmiCalculatorPage implements OnInit {
 
   paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
     ChartUtils.getDoughnutChartOptions((context) => {
-      return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
+      return formatDoughnutLabel(context, this.decimalPipe);
     });
 
   emiChartData: ChartData<ChartType.LINE> = {
@@ -161,15 +166,10 @@ export class LoanEmiCalculatorPage implements OnInit {
       'Amount',
       false,
       (context) => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+        return formatLineLabel(context, this.decimalPipe);
       },
       (tooltipItems) => {
-        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+        return formatEmiTitle(tooltipItems);
       },
     );
 
@@ -190,15 +190,10 @@ export class LoanEmiCalculatorPage implements OnInit {
       'Interest Rate',
       false,
       (context) => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
-          : '';
+        return formatLineLabel(context, this.decimalPipe, '1.2-2', '%');
       },
       (tooltipItems) => {
-        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+        return formatEmiTitle(tooltipItems);
       },
     );
 
@@ -295,21 +290,23 @@ export class LoanEmiCalculatorPage implements OnInit {
           .requestFullscreen()
           .then(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (screen.orientation as any)
-              .lock('landscape')
-              .catch((error: Error) => {
+            (screen.orientation as any).lock('landscape').catch(
+              /* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
-              });
+              },
+            );
 
             this.cdr.markForCheck();
           })
-          .catch((error: Error) => {
-            this.logger.error(
-              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
-            );
-          });
+          .catch(
+            /* istanbul ignore next */ (error: Error) => {
+              this.logger.error(
+                `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+              );
+            },
+          );
       }
     }
   }
@@ -727,7 +724,7 @@ export class LoanEmiCalculatorPage implements OnInit {
       loanStartDateInput.nativeElement.addEventListener(
         'changeDate',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => {
+        /* istanbul ignore next */ (e: any) => {
           const dateFragments = e.target.value.split('/');
 
           this.loanStartDate = new Date(

@@ -4,12 +4,12 @@ export { CurrencyListResponse } from '../models/vendor/etm';
 export {
   ChartResponseStatus,
   currencyCodeMap,
-  ForexResponse,
-  HistoricChartResponse,
-  IntraDayChartResponse,
   MarketState,
-  SearchResponse,
-  StockResponse,
+  type ForexResponse,
+  type HistoricChartResponse,
+  type IntraDayChartResponse,
+  type SearchResponse,
+  type StockResponse,
 } from '../models/vendor/mc';
 
 export interface VendorCode {
