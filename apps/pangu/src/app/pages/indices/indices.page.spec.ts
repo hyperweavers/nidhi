@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { Directive, Input } from '@angular/core';
 import {
   ComponentFixture,
   TestBed,
@@ -7,19 +8,17 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BehaviorSubject, Subject, of } from 'rxjs';
-import { Directive, Input } from '@angular/core';
 
-import { IndicesPage } from './indices.page';
+import { LOGGER } from '@nidhi/shared-logger';
+import { ChartData, Period } from '../../models/chart';
+import { Index } from '../../models/index';
+import { Direction, ExchangeName, Status } from '../../models/market';
+import { ColorScheme } from '../../models/settings';
+import { Stock } from '../../models/stock';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
-import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
-import { LOGGER } from '@nidhi/shared-logger';
-import { Direction, ExchangeName, Status } from '../../models/market';
-import { Period, ChartCategory, ChartData } from '../../models/chart';
-import { ColorScheme } from '../../models/settings';
-import { Index } from '../../models/index';
-import { Stock } from '../../models/stock';
-import { Constants } from '../../constants';
+import { IndicesPage } from './indices.page';
 
 jest.mock('lightweight-charts', () => {
   const mTimeScale = {
@@ -52,7 +51,7 @@ function getMw() {
   return jest.requireMock('lightweight-charts');
 }
 
-@Directive({ selector: '[routerLink]', standalone: true })
+@Directive({ selector: '[routerLink]', standalone: true }) // eslint-disable-line @angular-eslint/directive-selector
 class MockRouterLink {
   @Input() routerLink?: unknown;
 }
@@ -240,7 +239,12 @@ describe('IndicesPage', () => {
   afterEach(() => {
     jest.clearAllMocks();
     settingsSubject.next(defaultSettings);
-    marketStatusSubject.next({ status: Status.OPEN, lastUpdated: Date.now(), startTime: 0, endTime: 0 });
+    marketStatusSubject.next({
+      status: Status.OPEN,
+      lastUpdated: Date.now(),
+      startTime: 0,
+      endTime: 0,
+    });
   });
 
   describe('creation', () => {
@@ -269,7 +273,9 @@ describe('IndicesPage', () => {
     });
 
     it('should render index value', () => {
-      const valueEl = fixture.debugElement.query(By.css('.text-lg.font-semibold'));
+      const valueEl = fixture.debugElement.query(
+        By.css('.text-lg.font-semibold'),
+      );
       expect(valueEl.nativeElement.textContent).toContain('22,000');
     });
 
@@ -281,7 +287,9 @@ describe('IndicesPage', () => {
 
     it('should render overview card', () => {
       const overviewHeading = fixture.debugElement.queryAll(By.css('h5'));
-      const texts = overviewHeading.map((h) => h.nativeElement.textContent.trim());
+      const texts = overviewHeading.map((h) =>
+        h.nativeElement.textContent.trim(),
+      );
       expect(texts).toContain('Overview');
     });
 
@@ -292,7 +300,9 @@ describe('IndicesPage', () => {
     });
 
     it('should render advance/decline bar', () => {
-      const adBar = fixture.debugElement.query(By.css('.rounded-full.bg-red-600'));
+      const adBar = fixture.debugElement.query(
+        By.css('.rounded-full.bg-red-600'),
+      );
       expect(adBar).toBeTruthy();
       const advanceBar = adBar?.query(By.css('.bg-green-500'));
       expect(advanceBar).toBeTruthy();
@@ -300,7 +310,9 @@ describe('IndicesPage', () => {
 
     it('should render returns card', () => {
       const returnsHeading = fixture.debugElement.queryAll(By.css('h5'));
-      const texts = returnsHeading.map((h) => h.nativeElement.textContent.trim());
+      const texts = returnsHeading.map((h) =>
+        h.nativeElement.textContent.trim(),
+      );
       expect(texts).toContain('Returns');
     });
   });
@@ -347,7 +359,9 @@ describe('IndicesPage', () => {
     });
 
     it('should render advance/decline values', () => {
-      const adText = fixture.debugElement.query(By.css('.flex.w-full.justify-between.text-sm'));
+      const adText = fixture.debugElement.query(
+        By.css('.flex.w-full.justify-between.text-sm'),
+      );
       expect(adText?.nativeElement.textContent).toContain('Advances');
       expect(adText?.nativeElement.textContent).toContain('Declines');
     });
@@ -450,7 +464,11 @@ describe('IndicesPage', () => {
         quote: {
           lastUpdated: Date.now(),
           value: 22000,
-          change: { direction: undefined as unknown as Direction, percentage: 0, value: 0 },
+          change: {
+            direction: undefined as unknown as Direction,
+            percentage: 0,
+            value: 0,
+          },
           open: 22000,
           close: 22000,
           low: 22000,

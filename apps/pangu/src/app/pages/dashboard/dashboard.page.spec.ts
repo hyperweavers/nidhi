@@ -1,25 +1,25 @@
 import { CommonModule } from '@angular/common';
+import { Directive, Input } from '@angular/core';
 import {
   ComponentFixture,
   fakeAsync,
-  flush,
   TestBed,
   tick,
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Directive, Input } from '@angular/core';
+import userEvent from '@testing-library/user-event';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { DashboardPage } from './dashboard.page';
-import { DashboardService } from '../../services/dashboard.service';
+import { LOGGER } from '@nidhi/shared-logger';
+import { ChartData, Period } from '../../models/chart';
+import { Kpi, KpiCard } from '../../models/kpi';
+import { Direction, Status } from '../../models/market';
+import { ColorScheme } from '../../models/settings';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
-import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
-import { LOGGER } from '@nidhi/shared-logger';
-import { Direction, Status } from '../../models/market';
-import { ChartData, Period } from '../../models/chart';
-import { ColorScheme } from '../../models/settings';
-import { Kpi, KpiCard } from '../../models/kpi';
+import { DashboardService } from '../../services/dashboard.service';
+import { DashboardPage } from './dashboard.page';
 
 jest.mock('lightweight-charts', () => {
   const mArea = {
@@ -40,12 +40,12 @@ jest.mock('lightweight-charts', () => {
   };
 });
 
-@Directive({ selector: '[routerLink]', standalone: true })
+@Directive({ selector: '[routerLink]', standalone: true }) // eslint-disable-line @angular-eslint/directive-selector
 class MockRouterLink {
   @Input() routerLink?: unknown;
 }
 
-@Directive({ selector: 'canvas[baseChart]', standalone: true })
+@Directive({ selector: 'canvas[baseChart]', standalone: true }) // eslint-disable-line @angular-eslint/directive-selector
 class MockBaseChartDirective {
   @Input() type?: string;
   @Input() data?: unknown;
@@ -254,7 +254,6 @@ describe('DashboardPage', () => {
   }
 
   describe('Portfolio Performance Chart', () => {
-
     it('should start with loading state', () => {
       expect(component.isPortfolioPerformanceChartLoading).toBe(true);
     });
@@ -270,6 +269,61 @@ describe('DashboardPage', () => {
 
       expect(getMw().createChart).toHaveBeenCalled();
       expect(getMw().createChart().addSeries).toHaveBeenCalled();
+    });
+
+    it('should re-use existing chart and series when already created', () => {
+      kpiSubject.next({ cards: createKpiCards() });
+      fixture.detectChanges();
+      const mw = getMw();
+      const chart = mw.createChart();
+      const series = mw.createChart().addSeries();
+      component['chart'] = chart;
+      component['areaSeries'] = series;
+      mw.createChart.mockClear();
+
+      const data: ChartData[] = [
+        { time: '2024-01-01', value: 100 },
+        { time: '2024-01-05', value: 110 },
+      ];
+      component['initPortfolioPerformanceChart'](data);
+
+      expect(mw.createChart).not.toHaveBeenCalled();
+      expect(chart.applyOptions).toHaveBeenCalled();
+      expect(series.setData).toHaveBeenCalledWith(data);
+    });
+
+    it('should set lastPriceAnimation to 1 when market open and intraday', () => {
+      kpiSubject.next({ cards: createKpiCards() });
+      fixture.detectChanges();
+      component['isMarketOpen'] = true;
+      component.activeChartPeriod.set(Period.ONE_DAY);
+      const series = getMw().createChart().addSeries();
+      component['chart'] = getMw().createChart();
+      component['areaSeries'] = series;
+
+      component['initPortfolioPerformanceChart']([
+        { time: '2024-01-01', value: 100 },
+      ]);
+      expect(series.applyOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ lastPriceAnimation: 1 }),
+      );
+    });
+
+    it('should set lastPriceAnimation to 0 when market closed', () => {
+      kpiSubject.next({ cards: createKpiCards() });
+      fixture.detectChanges();
+      component['isMarketOpen'] = false;
+      component.activeChartPeriod.set(Period.ONE_DAY);
+      const series = getMw().createChart().addSeries();
+      component['chart'] = getMw().createChart();
+      component['areaSeries'] = series;
+
+      component['initPortfolioPerformanceChart']([
+        { time: '2024-01-01', value: 100 },
+      ]);
+      expect(series.applyOptions).toHaveBeenCalledWith(
+        expect.objectContaining({ lastPriceAnimation: 0 }),
+      );
     });
 
     it('should show no data state when chart data empty', (done) => {
@@ -431,6 +485,21 @@ describe('DashboardPage', () => {
       expect(component.isPortfolioCompositionChartLoading).toBe(false);
     });
 
+    it('should update chart composition when baseChart directive exists', () => {
+      const updateSpy = jest.fn();
+      component['portfolioCompositionChart'] = () =>
+        ({ update: updateSpy }) as any;
+      component['updatePortfolioCompositionChart'](
+        [60, 40, 0, 0],
+        ['A', 'B', 'C', 'D'],
+        ['red', 'blue', 'transparent', 'transparent'],
+        [0, 0, 50, 50],
+        ['transparent', 'transparent', 'green', 'yellow'],
+        [0, 0, 0, 0],
+        ['transparent', 'transparent', 'transparent', 'transparent'],
+      );
+      expect(updateSpy).toHaveBeenCalled();
+    });
   });
 
   describe('Period switching', () => {
@@ -530,6 +599,25 @@ describe('DashboardPage', () => {
         expect.stringContaining('fullscreen error'),
       );
     });
+
+    it('should log error when screen orientation lock fails', async () => {
+      const el = document.createElement('div');
+      el.requestFullscreen = jest.fn().mockResolvedValue(undefined);
+      Object.defineProperty(
+        component,
+        'portfolioPerformanceChartContainerRef',
+        { writable: true, value: () => ({ nativeElement: el }) },
+      );
+      (screen.orientation as any).lock = jest
+        .fn()
+        .mockRejectedValue(new Error('orientation error'));
+      const logger = TestBed.inject(LOGGER);
+      component.toggleFullscreen();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('orientation'),
+      );
+    });
   });
 
   describe('Market status', () => {
@@ -561,6 +649,32 @@ describe('DashboardPage', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
+
+  describe('user interactions', () => {
+    it('should change chart period when 1W button is clicked', async () => {
+      kpiSubject.next({ cards: createKpiCards() });
+      fixture.detectChanges();
+      const weekBtn = Array.from(
+        fixture.nativeElement.querySelectorAll('[role="group"] button'),
+      ).find((b: HTMLButtonElement) => b.textContent.trim() === '1W');
+      expect(weekBtn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(weekBtn!);
+      fixture.detectChanges();
+      expect(component.activeChartPeriod()).toBe(Period.ONE_WEEK);
+    });
+
+    it('should change chart period when 3M button is clicked', async () => {
+      kpiSubject.next({ cards: createKpiCards() });
+      fixture.detectChanges();
+      const btn = Array.from(
+        fixture.nativeElement.querySelectorAll('[role="group"] button'),
+      ).find((b: HTMLButtonElement) => b.textContent.trim() === '3M');
+      expect(btn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(btn!);
+      fixture.detectChanges();
+      expect(component.activeChartPeriod()).toBe(Period.THREE_MONTHS);
+    });
+  });
 });
-
-

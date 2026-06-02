@@ -3,20 +3,30 @@ import { LOGGER } from '@nidhi/shared-logger';
 import { Chart, registerables } from 'chart.js';
 import { of } from 'rxjs';
 
-import { GoldJewelleryPriceCalculatorPage } from './gold-jewellery-price-calculator.page';
 import { DataService } from '../../services/core/data.service';
+import { GoldJewelleryPriceCalculatorPage } from './gold-jewellery-price-calculator.page';
 
 describe('GoldJewelleryPriceCalculatorPage', () => {
   let component: GoldJewelleryPriceCalculatorPage;
   let fixture: ComponentFixture<GoldJewelleryPriceCalculatorPage>;
-  let logger: { captureException: jest.Mock; error: jest.Mock; warn: jest.Mock; info: jest.Mock };
+  let logger: {
+    captureException: jest.Mock;
+    error: jest.Mock;
+    warn: jest.Mock;
+    info: jest.Mock;
+  };
 
   beforeAll(() => {
     Chart.register(...registerables);
   });
 
   beforeEach(async () => {
-    logger = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+    logger = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [GoldJewelleryPriceCalculatorPage],
@@ -101,9 +111,29 @@ describe('GoldJewelleryPriceCalculatorPage', () => {
     expect(component.showPriceLoading).toBe(false);
   });
 
+  it('should format tooltip label via decimal pipe', () => {
+    const options = component.priceBreakdownChartOptions as any;
+    const labelCallback: (ctx: { parsed: number }) => string =
+      options.plugins.tooltip.callbacks.label;
+    const result = labelCallback({ parsed: 12345 });
+    expect(result).toBe('12,345');
+  });
+
+  it('should return empty string in tooltip when parsed value is null or zero', () => {
+    const options = component.priceBreakdownChartOptions as any;
+    const labelCallback = options.plugins.tooltip.callbacks.label;
+    expect(labelCallback({ parsed: undefined })).toBe('');
+    expect(labelCallback({ parsed: 0 })).toBe('0');
+  });
+
   it('should handle gold rate subscription with zero price', () => {
     TestBed.resetTestingModule();
-    logger = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+    logger = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     TestBed.configureTestingModule({
       imports: [GoldJewelleryPriceCalculatorPage],

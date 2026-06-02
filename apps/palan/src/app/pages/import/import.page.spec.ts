@@ -48,7 +48,9 @@ describe('ImportPage', () => {
 
   it('should handle file input', () => {
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const event = { target: { files: { item: jest.fn().mockReturnValue(file) } } };
+    const event = {
+      target: { files: { item: jest.fn().mockReturnValue(file) } },
+    };
 
     component.handleFileInput(event);
 
@@ -78,7 +80,9 @@ describe('ImportPage', () => {
     await component.import();
 
     expect(mockLogger.captureException).toHaveBeenCalledWith(testError);
-    expect(component.statusMessage).toBe('Failed to import data. Please try again.');
+    expect(component.statusMessage).toBe(
+      'Failed to import data. Please try again.',
+    );
     expect(component.showImportProgress).toBe(false);
   });
 
@@ -126,7 +130,9 @@ describe('ImportPage', () => {
   });
 
   it('should enable the import button', () => {
-    const importBtn = fixture.debugElement.query(By.css('button[type="button"]'));
+    const importBtn = fixture.debugElement.query(
+      By.css('button[type="button"]'),
+    );
     expect(importBtn.nativeElement.textContent.trim()).toBe('Import');
   });
 
@@ -147,7 +153,9 @@ describe('ImportPage', () => {
     const testError = new Error('Import failed');
     mockStorageService.importDb.mockRejectedValue(testError);
     const mockNativeElement = { value: 'test.json' };
-    (component as any)['importFileInputRef'] = () => ({ nativeElement: mockNativeElement });
+    (component as any)['importFileInputRef'] = () => ({
+      nativeElement: mockNativeElement,
+    });
 
     await component.import();
 
@@ -158,11 +166,40 @@ describe('ImportPage', () => {
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
     component['importFile'] = file;
     const mockNativeElement = { value: 'test.json' };
-    (component as any)['importFileInputRef'] = () => ({ nativeElement: mockNativeElement });
+    (component as any)['importFileInputRef'] = () => ({
+      nativeElement: mockNativeElement,
+    });
 
     const result = component['progressCallback']({ done: true } as any);
 
     expect(result).toBe(true);
     expect(mockNativeElement.value).toBe('');
+  });
+
+  it('should handle import error when importFileInputRef is undefined', async () => {
+    const file = new File(['{}'], 'test.json', { type: 'application/json' });
+    component['importFile'] = file;
+    const testError = new Error('Import failed');
+    mockStorageService.importDb.mockRejectedValue(testError);
+    (component as any)['importFileInputRef'] = () => undefined;
+
+    await component.import();
+
+    expect(mockLogger.captureException).toHaveBeenCalledWith(testError);
+    expect(component.statusMessage).toBe(
+      'Failed to import data. Please try again.',
+    );
+  });
+
+  it('should handle progress done when importFileInputRef is undefined', () => {
+    const file = new File(['{}'], 'test.json', { type: 'application/json' });
+    component['importFile'] = file;
+    (component as any)['importFileInputRef'] = () => undefined;
+
+    const result = component['progressCallback']({ done: true } as any);
+
+    expect(result).toBe(true);
+    expect(component['importFile']).toBeNull();
+    expect(component.statusMessage).toBe('Data imported successfully!');
   });
 });

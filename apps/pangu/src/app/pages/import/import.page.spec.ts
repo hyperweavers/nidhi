@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { ImportPage } from './import.page';
 import { StorageService } from '../../services/core/storage.service';
+import { ImportPage } from './import.page';
 
 describe('ImportPage', () => {
   let component: ImportPage;
@@ -12,7 +12,12 @@ describe('ImportPage', () => {
 
   beforeEach(async () => {
     storageService = { importDb: jest.fn() };
-    logger = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+    logger = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ImportPage],
@@ -43,13 +48,18 @@ describe('ImportPage', () => {
   it('should import file successfully', async () => {
     const file = new File(['data'], 'test.json', { type: 'application/json' });
     component['importFile'] = file;
-    storageService.importDb.mockImplementation(async (_file: File, cb: (p: { done: boolean }) => boolean) => {
-      cb({ done: true });
-    });
+    storageService.importDb.mockImplementation(
+      async (_file: File, cb: (p: { done: boolean }) => boolean) => {
+        cb({ done: true });
+      },
+    );
 
     await component.import();
 
-    expect(storageService.importDb).toHaveBeenCalledWith(file, expect.any(Function));
+    expect(storageService.importDb).toHaveBeenCalledWith(
+      file,
+      expect.any(Function),
+    );
     expect(component.showStatusModal).toBe(true);
     expect(component.showImportProgress).toBe(false);
     expect(component.statusMessage).toBe('Data imported successfully!');
@@ -64,7 +74,9 @@ describe('ImportPage', () => {
     await component.import();
 
     expect(logger.captureException).toHaveBeenCalledWith(error);
-    expect(component.statusMessage).toBe('Failed to import data. Please try again.');
+    expect(component.statusMessage).toBe(
+      'Failed to import data. Please try again.',
+    );
     expect(component.showImportProgress).toBe(false);
     expect(component['importFile']).toBeNull();
   });
@@ -87,6 +99,16 @@ describe('ImportPage', () => {
     expect(component['importFile']).toBeNull();
     expect(component.statusMessage).toBe('Data imported successfully!');
     expect(component.showImportProgress).toBe(false);
+  });
+
+  it('should not update state on progress callback not done', () => {
+    component['importFile'] = new File(['data'], 'test.json');
+    component.statusMessage = '';
+    const result = (component as any).progressCallback({ done: false });
+
+    expect(result).toBe(true);
+    expect(component['importFile']).toBeTruthy();
+    expect(component.statusMessage).toBe('');
   });
 
   it('should close status modal', () => {

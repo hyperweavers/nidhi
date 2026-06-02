@@ -63,6 +63,12 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { addMonths } from 'date-fns';
 import { BaseChartDirective } from 'ng2-charts';
 
+import {
+  formatBarLabel,
+  formatBarTitle,
+  formatClosingBalanceFooter,
+  formatDoughnutLabel,
+} from '../../helpers/chart.helper';
 import { ChartType } from '../../models/chart';
 import { EnumObject } from '../../models/common';
 import {
@@ -194,9 +200,8 @@ export class RecurringDepositCalculatorPage implements OnInit {
     };
 
   depositChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    ChartUtils.getDoughnutChartOptions(
-      /* istanbul ignore next */ (context): string =>
-        this.decimalPipe.transform(context.parsed, '1.0-0') || '',
+    ChartUtils.getDoughnutChartOptions((context): string =>
+      formatDoughnutLabel(context, this.decimalPipe),
     );
 
   annualSummaryChartData: ChartData<ChartType.BAR> = {
@@ -226,28 +231,12 @@ export class RecurringDepositCalculatorPage implements OnInit {
       'Amount',
       true,
       true,
-      /* istanbul ignore next */ (context): string => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+      (context): string => {
+        return formatBarLabel(context, '1.0-0', this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems): string =>
-        tooltipItems[0]?.label ? `Year: ${tooltipItems[0].label}` : '',
-      /* istanbul ignore next */ (tooltipItems): string => {
-        return tooltipItems.length > 0
-          ? `Closing Balance: ${
-              this.decimalPipe.transform(
-                tooltipItems.reduce((acc, cv) => {
-                  acc += cv?.parsed?.y || 0;
-                  return acc;
-                }, 0),
-                '1.0-0',
-              ) || ''
-            }`
-          : '';
+      (tooltipItems): string => formatBarTitle(tooltipItems, 'Year'),
+      (tooltipItems): string => {
+        return formatClosingBalanceFooter(tooltipItems, this.decimalPipe);
       },
     );
 
@@ -268,16 +257,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
       'Amount',
       false,
       true,
-      /* istanbul ignore next */ (context): string => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+      (context): string => {
+        return formatBarLabel(context, '1.0-0', this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems): string =>
-        tooltipItems[0]?.label ? `Month: ${tooltipItems[0].label}` : '',
+      (tooltipItems): string => formatBarTitle(tooltipItems, 'Month'),
     );
 
   financialYearSummaryChartData: ChartData<ChartType.BAR> = {
@@ -297,16 +280,10 @@ export class RecurringDepositCalculatorPage implements OnInit {
       'Amount',
       true,
       true,
-      /* istanbul ignore next */ (context): string => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+      (context): string => {
+        return formatBarLabel(context, '1.0-0', this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems): string =>
-        tooltipItems[0]?.label ? `FY: ${tooltipItems[0].label}` : '',
+      (tooltipItems): string => formatBarTitle(tooltipItems, 'FY'),
     );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -376,21 +353,23 @@ export class RecurringDepositCalculatorPage implements OnInit {
           .requestFullscreen()
           .then(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (screen.orientation as any)
-              .lock('landscape')
-              .catch(/* istanbul ignore next */ (error: Error) => {
+            (screen.orientation as any).lock('landscape').catch(
+              /* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
-              });
+              },
+            );
 
             this.cdr.markForCheck();
           })
-          .catch(/* istanbul ignore next */ (error: Error) => {
-            this.logger.error(
-              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
-            );
-          });
+          .catch(
+            /* istanbul ignore next */ (error: Error) => {
+              this.logger.error(
+                `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+              );
+            },
+          );
       }
     }
   }

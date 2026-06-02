@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   ComponentFixture,
   TestBed,
@@ -6,17 +5,17 @@ import {
   tick,
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import userEvent from '@testing-library/user-event';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 
-import { StocksPage } from './stocks.page';
-import { MarketService } from '../../services/core/market.service';
-import { SettingsService } from '../../services/core/settings.service';
-import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { LOGGER } from '@nidhi/shared-logger';
+import { ChartData, Period } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
-import { Period, ChartData } from '../../models/chart';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
+import { MarketService } from '../../services/core/market.service';
+import { SettingsService } from '../../services/core/settings.service';
+import { StocksPage } from './stocks.page';
 
 jest.mock('lightweight-charts', () => {
   const mTimeScale = {
@@ -110,12 +109,37 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
 }
 
 const mockChartData: ChartData[] = [
-  { time: '2024-01-01', value: 2480, open: 2470, close: 2480, high: 2490, low: 2465, volume: 50000 },
-  { time: '2024-01-02', value: 2500, open: 2480, close: 2500, high: 2510, low: 2475, volume: 55000 },
+  {
+    time: '2024-01-01',
+    value: 2480,
+    open: 2470,
+    close: 2480,
+    high: 2490,
+    low: 2465,
+    volume: 50000,
+  },
+  {
+    time: '2024-01-02',
+    value: 2500,
+    open: 2480,
+    close: 2500,
+    high: 2510,
+    low: 2475,
+    volume: 55000,
+  },
 ];
 
-const defaultSettings = { theme: 'dark', colorScheme: ColorScheme.DARK, refreshInterval: 30000 };
-const marketStatusSubject = new BehaviorSubject<any>({ status: Status.OPEN, lastUpdated: Date.now(), startTime: 0, endTime: 0 });
+const defaultSettings = {
+  theme: 'dark',
+  colorScheme: ColorScheme.DARK,
+  refreshInterval: 30000,
+};
+const marketStatusSubject = new BehaviorSubject<any>({
+  status: Status.OPEN,
+  lastUpdated: Date.now(),
+  startTime: 0,
+  endTime: 0,
+});
 const settingsSubject = new BehaviorSubject(defaultSettings);
 const resizeSubject = new Subject<Event>();
 
@@ -124,10 +148,21 @@ describe('StocksPage', () => {
   let fixture: ComponentFixture<StocksPage>;
   let loggerMock: any;
 
-  function setMocks(overrides?: { stock?: Stock | null; intraDayChart?: ChartData[]; historicChart?: ChartData[] }) {
-    const stock = overrides?.stock !== undefined ? overrides.stock : createMockStock();
-    const intraDayChart = overrides?.intraDayChart !== undefined ? overrides.intraDayChart : mockChartData;
-    const historicChart = overrides?.historicChart !== undefined ? overrides.historicChart : mockChartData;
+  function setMocks(overrides?: {
+    stock?: Stock | null;
+    intraDayChart?: ChartData[];
+    historicChart?: ChartData[];
+  }) {
+    const stock =
+      overrides?.stock !== undefined ? overrides.stock : createMockStock();
+    const intraDayChart =
+      overrides?.intraDayChart !== undefined
+        ? overrides.intraDayChart
+        : mockChartData;
+    const historicChart =
+      overrides?.historicChart !== undefined
+        ? overrides.historicChart
+        : mockChartData;
 
     TestBed.overrideProvider(MarketService, {
       useValue: {
@@ -138,12 +173,24 @@ describe('StocksPage', () => {
       },
     });
     TestBed.overrideProvider(SettingsService, {
-      useValue: { settings$: settingsSubject, resize$: resizeSubject.asObservable() },
+      useValue: {
+        settings$: settingsSubject,
+        resize$: resizeSubject.asObservable(),
+      },
     });
   }
 
-  async function createFixture(overrides?: { stock?: Stock | null; intraDayChart?: ChartData[]; historicChart?: ChartData[] }) {
-    loggerMock = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+  async function createFixture(overrides?: {
+    stock?: Stock | null;
+    intraDayChart?: ChartData[];
+    historicChart?: ChartData[];
+  }) {
+    loggerMock = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [StocksPage],
@@ -170,7 +217,12 @@ describe('StocksPage', () => {
   afterEach(() => {
     jest.clearAllMocks();
     settingsSubject.next(defaultSettings);
-    marketStatusSubject.next({ status: Status.OPEN, lastUpdated: Date.now(), startTime: 0, endTime: 0 });
+    marketStatusSubject.next({
+      status: Status.OPEN,
+      lastUpdated: Date.now(),
+      startTime: 0,
+      endTime: 0,
+    });
   });
 
   describe('creation', () => {
@@ -190,11 +242,15 @@ describe('StocksPage', () => {
 
     it('should render stock name', () => {
       const nameEl = fixture.debugElement.query(By.css('.text-2xl'));
-      expect(nameEl.nativeElement.textContent.trim()).toContain('Reliance Industries');
+      expect(nameEl.nativeElement.textContent.trim()).toContain(
+        'Reliance Industries',
+      );
     });
 
     it('should render stock price', () => {
-      const priceEl = fixture.debugElement.query(By.css('.text-lg.font-semibold'));
+      const priceEl = fixture.debugElement.query(
+        By.css('.text-lg.font-semibold'),
+      );
       expect(priceEl.nativeElement.textContent).toContain('2,500');
     });
 
@@ -205,9 +261,15 @@ describe('StocksPage', () => {
     });
 
     it('should render exchange buttons when both scrip codes exist', () => {
-      const buttons = fixture.debugElement.queryAll(By.css('button[type="button"]'));
-      const nseBtn = buttons.find((b) => b.nativeElement.textContent.trim() === 'NSE');
-      const bseBtn = buttons.find((b) => b.nativeElement.textContent.trim() === 'BSE');
+      const buttons = fixture.debugElement.queryAll(
+        By.css('button[type="button"]'),
+      );
+      const nseBtn = buttons.find(
+        (b) => b.nativeElement.textContent.trim() === 'NSE',
+      );
+      const bseBtn = buttons.find(
+        (b) => b.nativeElement.textContent.trim() === 'BSE',
+      );
       expect(nseBtn).toBeTruthy();
       expect(bseBtn).toBeTruthy();
     });
@@ -219,7 +281,9 @@ describe('StocksPage', () => {
 
     it('should render metric cards (Overview, Metrics, Returns, Scrip Info)', () => {
       const headings = fixture.debugElement.queryAll(By.css('h5'));
-      const headingTexts = headings.map((h) => h.nativeElement.textContent.trim());
+      const headingTexts = headings.map((h) =>
+        h.nativeElement.textContent.trim(),
+      );
       expect(headingTexts).toContain('Overview');
       expect(headingTexts).toContain('Metrics');
       expect(headingTexts).toContain('Returns');
@@ -227,8 +291,12 @@ describe('StocksPage', () => {
     });
 
     it('should render NSE button as active by default', () => {
-      const buttons = fixture.debugElement.queryAll(By.css('[role="group"]:first-child button'));
-      const nseBtn = buttons.find((b) => b.nativeElement.textContent.trim() === 'NSE');
+      const buttons = fixture.debugElement.queryAll(
+        By.css('[role="group"]:first-child button'),
+      );
+      const nseBtn = buttons.find(
+        (b) => b.nativeElement.textContent.trim() === 'NSE',
+      );
       expect(nseBtn).toBeTruthy();
     });
   });
@@ -256,7 +324,9 @@ describe('StocksPage', () => {
     }));
 
     it('should set exchange to BSE when stock has no NSE scrip code', fakeAsync(async () => {
-      const bseOnlyStock = createMockStock({ scripCode: { nse: undefined, bse: '500325', isin: 'INE002A01018' } });
+      const bseOnlyStock = createMockStock({
+        scripCode: { nse: undefined, bse: '500325', isin: 'INE002A01018' },
+      });
       await createFixture({ stock: bseOnlyStock });
       tick(150);
       expect(component.activeExchange).toBe(ExchangeName.BSE);
@@ -274,7 +344,10 @@ describe('StocksPage', () => {
       await createFixture();
       tick(150);
       expect(getMw().createChart).toHaveBeenCalled();
-      expect(getMw().createChart().addSeries).toHaveBeenCalledWith('AreaSeries', expect.objectContaining({ lineWidth: 1 }));
+      expect(getMw().createChart().addSeries).toHaveBeenCalledWith(
+        'AreaSeries',
+        expect.objectContaining({ lineWidth: 1 }),
+      );
       expect(getMw().createChart().subscribeCrosshairMove).toHaveBeenCalled();
       expect(component.isChartLoading).toBe(false);
     }));
@@ -282,7 +355,9 @@ describe('StocksPage', () => {
     it('should set areaSeries data with chart data', fakeAsync(async () => {
       await createFixture();
       tick(150);
-      expect(getMw().createChart().addSeries().setData).toHaveBeenCalledWith(mockChartData);
+      expect(getMw().createChart().addSeries().setData).toHaveBeenCalledWith(
+        mockChartData,
+      );
     }));
 
     it('should show no-data state when chart data is empty', fakeAsync(async () => {
@@ -296,38 +371,72 @@ describe('StocksPage', () => {
       await createFixture();
       tick(150);
       expect(getMw().createChart().applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ layout: expect.objectContaining({ textColor: expect.any(String) }) }),
+        expect.objectContaining({
+          layout: expect.objectContaining({ textColor: expect.any(String) }),
+        }),
       );
     }));
 
     it('should set green line colors for upward direction', fakeAsync(async () => {
       await createFixture();
       tick(150);
-      expect(getMw().createChart().addSeries().applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ lineColor: '#22c55e' }),
-      );
+      expect(
+        getMw().createChart().addSeries().applyOptions,
+      ).toHaveBeenCalledWith(expect.objectContaining({ lineColor: '#22c55e' }));
     }));
 
     it('should set red line colors for downward direction', fakeAsync(async () => {
       const downStock = createMockStock({
-        quote: { nse: { price: 2400, change: { direction: Direction.DOWN, percentage: -1.5, value: -37.5 }, open: 2480, close: 2462.5, low: 2390, high: 2490, fiftyTwoWeekLow: 1800, fiftyTwoWeekHigh: 2800, volume: 5000000 } },
+        quote: {
+          nse: {
+            price: 2400,
+            change: {
+              direction: Direction.DOWN,
+              percentage: -1.5,
+              value: -37.5,
+            },
+            open: 2480,
+            close: 2462.5,
+            low: 2390,
+            high: 2490,
+            fiftyTwoWeekLow: 1800,
+            fiftyTwoWeekHigh: 2800,
+            volume: 5000000,
+          },
+        },
       });
       await createFixture({ stock: downStock });
       tick(150);
-      expect(getMw().createChart().addSeries().applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ lineColor: '#ef4444' }),
-      );
+      expect(
+        getMw().createChart().addSeries().applyOptions,
+      ).toHaveBeenCalledWith(expect.objectContaining({ lineColor: '#ef4444' }));
     }));
 
     it('should set default blue colors when direction is missing', fakeAsync(async () => {
       const noDirStock = createMockStock({
-        quote: { nse: { price: 2500, change: { direction: undefined as unknown as Direction, percentage: 0, value: 0 }, open: 2500, close: 2500, low: 2500, high: 2500, fiftyTwoWeekLow: 1800, fiftyTwoWeekHigh: 2800, volume: 5000000 } },
+        quote: {
+          nse: {
+            price: 2500,
+            change: {
+              direction: undefined as unknown as Direction,
+              percentage: 0,
+              value: 0,
+            },
+            open: 2500,
+            close: 2500,
+            low: 2500,
+            high: 2500,
+            fiftyTwoWeekLow: 1800,
+            fiftyTwoWeekHigh: 2800,
+            volume: 5000000,
+          },
+        },
       });
       await createFixture({ stock: noDirStock });
       tick(150);
-      expect(getMw().createChart().addSeries().applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ lineColor: '#2962FF' }),
-      );
+      expect(
+        getMw().createChart().addSeries().applyOptions,
+      ).toHaveBeenCalledWith(expect.objectContaining({ lineColor: '#2962FF' }));
     }));
 
     it('should not init chart when chartRef is not available', fakeAsync(async () => {
@@ -354,9 +463,13 @@ describe('StocksPage', () => {
 
     it('should show all period buttons in the DOM', () => {
       const periodLabels = ['1D', '1W', '1M', '3M', '6M', '1Y', '5Y'];
-      const buttons = fixture.debugElement.queryAll(By.css('[role="group"]:last-child button'));
+      const buttons = fixture.debugElement.queryAll(
+        By.css('[role="group"]:last-child button'),
+      );
       for (const label of periodLabels) {
-        expect(buttons.find((b) => b.nativeElement.textContent.trim() === label)).toBeTruthy();
+        expect(
+          buttons.find((b) => b.nativeElement.textContent.trim() === label),
+        ).toBeTruthy();
       }
     });
 
@@ -367,7 +480,9 @@ describe('StocksPage', () => {
       expect(component.activeChartTimeRange).toBe(Period.ONE_WEEK);
       expect(component['showIntraDayChart$'].getValue()).toBe(false);
       expect(chart.applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ timeScale: expect.objectContaining({ timeVisible: false }) }),
+        expect.objectContaining({
+          timeScale: expect.objectContaining({ timeVisible: false }),
+        }),
       );
     });
 
@@ -400,7 +515,9 @@ describe('StocksPage', () => {
 
     it('should log warning for invalid range', () => {
       component.setChartTimeRange('INVALID' as Period);
-      expect(loggerMock.warn).toHaveBeenCalledWith(expect.stringContaining('Invalid range'));
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid range'),
+      );
     });
 
     it('should not call chart methods when chart is undefined for historic range', () => {
@@ -419,19 +536,25 @@ describe('StocksPage', () => {
       expect(component.activeChartTimeRange).toBe(Period.ONE_DAY);
       expect(component['showIntraDayChart$'].getValue()).toBe(true);
       expect(chart.applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ timeScale: expect.objectContaining({ timeVisible: true }) }),
+        expect.objectContaining({
+          timeScale: expect.objectContaining({ timeVisible: true }),
+        }),
       );
     });
 
     it('should set visible logical range for ONE_DAY', () => {
       component.setChartTimeRange(Period.ONE_DAY);
-      expect(getMw().createChart().timeScale().setVisibleLogicalRange).toHaveBeenCalledWith({ from: 0, to: 375 });
+      expect(
+        getMw().createChart().timeScale().setVisibleLogicalRange,
+      ).toHaveBeenCalledWith({ from: 0, to: 375 });
     });
 
     it('should set lastPriceAnimation based on market open for ONE_DAY', () => {
       (component as any)['isMarketOpen'] = true;
       component.setChartTimeRange(Period.ONE_DAY);
-      expect(getMw().createChart().addSeries().applyOptions).toHaveBeenCalledWith(
+      expect(
+        getMw().createChart().addSeries().applyOptions,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({ lastPriceAnimation: 1 }),
       );
     });
@@ -448,19 +571,35 @@ describe('StocksPage', () => {
 
   describe('fullscreen', () => {
     beforeEach(() => {
-      Object.defineProperty(document, 'fullscreenElement', { writable: true, configurable: true, value: null });
-      Object.defineProperty(screen, 'orientation', { writable: true, configurable: true, value: { lock: jest.fn().mockResolvedValue(undefined) } });
+      Object.defineProperty(document, 'fullscreenElement', {
+        writable: true,
+        configurable: true,
+        value: null,
+      });
+      Object.defineProperty(screen, 'orientation', {
+        writable: true,
+        configurable: true,
+        value: { lock: jest.fn().mockResolvedValue(undefined) },
+      });
     });
 
     it('should set isChartInFullscreen true on entering fullscreen', () => {
-      Object.defineProperty(document, 'fullscreenElement', { writable: true, configurable: true, value: document.createElement('div') });
+      Object.defineProperty(document, 'fullscreenElement', {
+        writable: true,
+        configurable: true,
+        value: document.createElement('div'),
+      });
       component.onFullscreenChange();
       expect(component.isChartInFullscreen).toBe(true);
     });
 
     it('should set isChartInFullscreen false on exiting fullscreen', () => {
       component.isChartInFullscreen = true;
-      Object.defineProperty(document, 'fullscreenElement', { writable: true, configurable: true, value: null });
+      Object.defineProperty(document, 'fullscreenElement', {
+        writable: true,
+        configurable: true,
+        value: null,
+      });
       component.onFullscreenChange();
       expect(component.isChartInFullscreen).toBe(false);
     });
@@ -484,7 +623,11 @@ describe('StocksPage', () => {
     });
 
     it('should call exitFullscreen when already in fullscreen', () => {
-      Object.defineProperty(document, 'fullscreenElement', { writable: true, configurable: true, value: document.createElement('div') });
+      Object.defineProperty(document, 'fullscreenElement', {
+        writable: true,
+        configurable: true,
+        value: document.createElement('div'),
+      });
       document.exitFullscreen = jest.fn();
       component.toggleFullscreen();
       expect(document.exitFullscreen).toHaveBeenCalled();
@@ -492,11 +635,15 @@ describe('StocksPage', () => {
 
     it('should log error when requestFullscreen fails', async () => {
       const el = document.createElement('div');
-      el.requestFullscreen = jest.fn().mockRejectedValue(new Error('fullscreen error'));
+      el.requestFullscreen = jest
+        .fn()
+        .mockRejectedValue(new Error('fullscreen error'));
       (component as any)['chartContainerRef'] = () => ({ nativeElement: el });
       component.toggleFullscreen();
       await new Promise((r) => setTimeout(r, 0));
-      expect(loggerMock.error).toHaveBeenCalledWith(expect.stringContaining('fullscreen error'));
+      expect(loggerMock.error).toHaveBeenCalledWith(
+        expect.stringContaining('fullscreen error'),
+      );
     });
 
     it('should not call requestFullscreen when chartContainerRef is undefined', () => {
@@ -515,22 +662,29 @@ describe('StocksPage', () => {
     }));
 
     it('should set chartCrosshairData when crosshair moves with time object', () => {
-      const handler = getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
-      (component as any)['historicChartData'] = new Map([['2024-1-1', { time: '2024-01-01', value: 2480 }]]);
+      const handler =
+        getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
+      (component as any)['historicChartData'] = new Map([
+        ['2024-1-1', { time: '2024-01-01', value: 2480 }],
+      ]);
       handler({ time: { year: 2024, month: 1, day: 1 } });
       expect(component.chartCrosshairData).toBeDefined();
     });
 
     it('should set chartCrosshairData when crosshair moves with numeric time', () => {
-      const handler = getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
-      (component as any)['historicChartData'] = new Map([[1704067200, { time: 1704067200, value: 2480 }]]);
+      const handler =
+        getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
+      (component as any)['historicChartData'] = new Map([
+        [1704067200, { time: 1704067200, value: 2480 }],
+      ]);
       handler({ time: 1704067200 });
       expect(component.chartCrosshairData).toBeDefined();
     });
 
     it('should clear chartCrosshairData when time is null', () => {
       component.chartCrosshairData = { time: '2024-01-01', value: 2480 } as any;
-      const handler = getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
+      const handler =
+        getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
       handler({ time: undefined });
       expect(component.chartCrosshairData).toBeUndefined();
     });
@@ -538,7 +692,8 @@ describe('StocksPage', () => {
     it('should not set chartCrosshairData when historicChartData is empty', () => {
       component.chartCrosshairData = undefined;
       (component as any)['historicChartData'] = new Map();
-      const handler = getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
+      const handler =
+        getMw().createChart().subscribeCrosshairMove.mock.calls[0][0];
       handler({ time: '2024-01-01' });
       expect(component.chartCrosshairData).toBeUndefined();
     });
@@ -550,15 +705,28 @@ describe('StocksPage', () => {
     }));
 
     it('should update isMarketOpen when market status changes', () => {
-      marketStatusSubject.next({ status: Status.CLOSED, lastUpdated: Date.now(), startTime: 0, endTime: 0 });
+      marketStatusSubject.next({
+        status: Status.CLOSED,
+        lastUpdated: Date.now(),
+        startTime: 0,
+        endTime: 0,
+      });
       expect((component as any)['isMarketOpen']).toBe(false);
-      marketStatusSubject.next({ status: Status.OPEN, lastUpdated: Date.now(), startTime: 0, endTime: 0 });
+      marketStatusSubject.next({
+        status: Status.OPEN,
+        lastUpdated: Date.now(),
+        startTime: 0,
+        endTime: 0,
+      });
       expect((component as any)['isMarketOpen']).toBe(true);
     });
 
     it('should update colorScheme when settings change', fakeAsync(() => {
       tick(150);
-      settingsSubject.next({ ...defaultSettings, colorScheme: ColorScheme.LIGHT });
+      settingsSubject.next({
+        ...defaultSettings,
+        colorScheme: ColorScheme.LIGHT,
+      });
       tick();
       expect((component as any)['colorScheme']).toBe(ColorScheme.LIGHT);
     }));
@@ -568,7 +736,10 @@ describe('StocksPage', () => {
       const chart = getMw().createChart();
       (component as any)['chart'] = chart;
       chart.applyOptions.mockClear();
-      settingsSubject.next({ ...defaultSettings, colorScheme: ColorScheme.LIGHT });
+      settingsSubject.next({
+        ...defaultSettings,
+        colorScheme: ColorScheme.LIGHT,
+      });
       tick();
       expect(chart.applyOptions).toHaveBeenCalled();
     }));
@@ -629,8 +800,22 @@ describe('StocksPage', () => {
       await TestBed.configureTestingModule({
         imports: [StocksPage],
         providers: [
-          { provide: MarketService, useValue: { marketStatus$: marketStatusSubject, getStock: jest.fn().mockReturnValue(delayedStock), getIntraDayChart: jest.fn().mockReturnValue(of(mockChartData)), getHistoricalChart: jest.fn().mockReturnValue(of(mockChartData)) } },
-          { provide: SettingsService, useValue: { settings$: settingsSubject, resize$: resizeSubject.asObservable() } },
+          {
+            provide: MarketService,
+            useValue: {
+              marketStatus$: marketStatusSubject,
+              getStock: jest.fn().mockReturnValue(delayedStock),
+              getIntraDayChart: jest.fn().mockReturnValue(of(mockChartData)),
+              getHistoricalChart: jest.fn().mockReturnValue(of(mockChartData)),
+            },
+          },
+          {
+            provide: SettingsService,
+            useValue: {
+              settings$: settingsSubject,
+              resize$: resizeSubject.asObservable(),
+            },
+          },
           { provide: LOGGER, useValue: loggerMock },
         ],
       }).compileComponents();
@@ -647,16 +832,50 @@ describe('StocksPage', () => {
       delayedStock.complete();
       tick(150);
       fixture.detectChanges();
-      expect(fixture.debugElement.query(By.css('.text-2xl')).nativeElement.textContent).toContain('Reliance Industries');
+      expect(
+        fixture.debugElement.query(By.css('.text-2xl')).nativeElement
+          .textContent,
+      ).toContain('Reliance Industries');
     }));
   });
 
   describe('stock without scrip codes', () => {
     it('should not initialize chart when stock has no NSE or BSE scrip code', fakeAsync(async () => {
-      const noScripStock = createMockStock({ scripCode: { nse: undefined, bse: undefined, isin: 'INE002A01018' } });
+      const noScripStock = createMockStock({
+        scripCode: { nse: undefined, bse: undefined, isin: 'INE002A01018' },
+      });
       await createFixture({ stock: noScripStock });
       tick(150);
       expect(component.isChartLoading).toBe(true);
     }));
+  });
+
+  describe('user interactions', () => {
+    it('should switch exchange when BSE button is clicked', async () => {
+      await createFixture();
+      const buttons = fixture.debugElement.queryAll(By.css('button'));
+      const bseBtn = buttons.find(
+        (b) => b.nativeElement.textContent.trim() === 'BSE',
+      )?.nativeElement;
+      expect(bseBtn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(bseBtn!);
+      fixture.detectChanges();
+      expect(component.activeExchange).toBe(ExchangeName.BSE);
+    });
+
+    it('should change chart period when 1W button is clicked', async () => {
+      await createFixture();
+      const periodBtn = fixture.debugElement
+        .queryAll(By.css('[role="group"] button'))
+        .find(
+          (b) => b.nativeElement.textContent.trim() === '1W',
+        )?.nativeElement;
+      expect(periodBtn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(periodBtn!);
+      fixture.detectChanges();
+      expect(component.activeChartTimeRange).toBe(Period.ONE_WEEK);
+    });
   });
 });

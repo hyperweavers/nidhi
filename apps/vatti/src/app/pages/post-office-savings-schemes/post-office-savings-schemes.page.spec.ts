@@ -12,14 +12,26 @@ import {
   BarElement,
   CategoryScale,
   Chart,
+  Legend,
   LinearScale,
   Tooltip,
-  Legend,
 } from 'chart.js';
 import { Subject } from 'rxjs';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+);
 
+import {
+  formatBarLabel,
+  formatMaturityFooter,
+  formatSchemeTitle,
+} from '../../helpers/chart.helper';
 import {
   CompoundingFrequency,
   InterestPayoutFrequency,
@@ -259,9 +271,7 @@ describe('PostOfficeSavingsSchemesPage', () => {
     });
 
     it('should render the form with investment type radio buttons', () => {
-      const oneTimeRadio = fixture.debugElement.query(
-        By.css('#one-time'),
-      );
+      const oneTimeRadio = fixture.debugElement.query(By.css('#one-time'));
       expect(oneTimeRadio).toBeTruthy();
       expect(oneTimeRadio.nativeElement.checked).toBe(true);
     });
@@ -556,9 +566,7 @@ describe('PostOfficeSavingsSchemesPage', () => {
         (s) => s.id === PostOfficeSavingsSchemeId.NSC,
       );
       expect(nsc).toBeTruthy();
-      expect(nsc!.returns.maturity).toBeGreaterThan(
-        nsc!.returns.principal,
-      );
+      expect(nsc!.returns.maturity).toBeGreaterThan(nsc!.returns.principal);
     });
 
     it('should handle PPF path (deposit tenure, yearly compound)', () => {
@@ -614,7 +622,9 @@ describe('PostOfficeSavingsSchemesPage', () => {
       const form = fixture.debugElement.query(By.css('form'));
       expect(form).toBeTruthy();
 
-      const calcBtn = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const calcBtn = fixture.debugElement.query(
+        By.css('button[type="submit"]'),
+      );
       expect(calcBtn.nativeElement.textContent).toContain('Calculate');
     });
 
@@ -651,7 +661,7 @@ describe('PostOfficeSavingsSchemesPage', () => {
       expect(component.schemesWithReturns.length).toBeGreaterThan(0);
       expect(component.activeTab).toBe(0);
 
-      let tables = fixture.debugElement.queryAll(By.css('table'));
+      const tables = fixture.debugElement.queryAll(By.css('table'));
       expect(tables.length).toBe(1);
       expect(tables[0].nativeElement.textContent).toContain('Maturity Date');
 
@@ -701,54 +711,70 @@ describe('PostOfficeSavingsSchemesPage', () => {
 
   describe('chart options structure', () => {
     it('should have earnings chart options with correct callbacks', () => {
-      const cb = (component.earningsChartOptions as any).plugins.tooltip.callbacks;
-      const labelResult = cb.label({ dataset: { label: 'Interest' }, parsed: { y: 5000 } });
+      const cb = (component.earningsChartOptions as any).plugins.tooltip
+        .callbacks;
+      const labelResult = cb.label({
+        dataset: { label: 'Interest' },
+        parsed: { y: 5000 },
+      });
       expect(labelResult).toContain('Interest');
       expect(labelResult).toContain('5,000');
     });
 
     it('should return empty label when dataset label or value is missing', () => {
-      const cb = (component.earningsChartOptions as any).plugins.tooltip.callbacks;
+      const cb = (component.earningsChartOptions as any).plugins.tooltip
+        .callbacks;
       expect(cb.label({ dataset: { label: '' }, parsed: { y: 0 } })).toBe('');
     });
 
     it('should have interest rate chart options with correct callbacks', () => {
-      const cb = (component.interestRateChartOptions as any).plugins.tooltip.callbacks;
-      const labelResult = cb.label({ dataset: { label: 'Rate' }, parsed: { y: 7.5 } });
+      const cb = (component.interestRateChartOptions as any).plugins.tooltip
+        .callbacks;
+      const labelResult = cb.label({
+        dataset: { label: 'Rate' },
+        parsed: { y: 7.5 },
+      });
       expect(labelResult).toContain('7.50');
     });
 
     it('should return scheme label from title callback', () => {
-      const cb = (component.earningsChartOptions as any).plugins.tooltip.callbacks;
+      const cb = (component.earningsChartOptions as any).plugins.tooltip
+        .callbacks;
       expect(cb.title([{ label: 'TD-5Y' }])).toBe('Scheme: TD-5Y');
       expect(cb.title([{ label: '' }])).toBe('');
       expect(cb.title([])).toBe('');
     });
 
     it('should return closing balance from footer callback', () => {
-      const cb = (component.earningsChartOptions as any).plugins.tooltip.callbacks;
-      const items = [
-        { parsed: { y: 1000 } },
-        { parsed: { y: 2000 } },
-      ];
+      const cb = (component.earningsChartOptions as any).plugins.tooltip
+        .callbacks;
+      const items = [{ parsed: { y: 1000 } }, { parsed: { y: 2000 } }];
       const result = cb.footer(items);
       expect(result).toContain('3,000');
     });
 
     it('should return empty string from footer when no items', () => {
-      const cb = (component.earningsChartOptions as any).plugins.tooltip.callbacks;
+      const cb = (component.earningsChartOptions as any).plugins.tooltip
+        .callbacks;
       expect(cb.footer([])).toBe('');
     });
 
     it('should handle title callback for interest rate chart', () => {
-      const cb = (component.interestRateChartOptions as any).plugins.tooltip.callbacks;
+      const cb = (component.interestRateChartOptions as any).plugins.tooltip
+        .callbacks;
       expect(cb.title([{ label: 'PPF' }])).toBe('Scheme: PPF');
     });
   });
 
   describe('additional calculateSchemeReturns paths', () => {
     it('should handle PPF path with year beyond deposit tenure', () => {
-      const result = (component as any).calculateSchemeReturns(7.1, 15, 10, 0, 1);
+      const result = (component as any).calculateSchemeReturns(
+        7.1,
+        15,
+        10,
+        0,
+        1,
+      );
       expect(result.principal).toBeGreaterThan(0);
       expect(result.interest).toBeGreaterThan(0);
     });
@@ -773,5 +799,90 @@ describe('PostOfficeSavingsSchemesPage', () => {
       (component as any).updateInterestRateChartData();
       expect(chartRef.update).toHaveBeenCalled();
     });
+  });
+});
+
+describe('formatBarLabel', () => {
+  const mockDecimalPipe = {
+    transform: (v: number, f: string) => `${v.toLocaleString('en-IN')}`,
+  } as any;
+
+  it('should format with label and value using default format', () => {
+    expect(
+      formatBarLabel(
+        { dataset: { label: 'Interest' }, parsed: { y: 50000 } },
+        '1.0-0',
+        mockDecimalPipe,
+      ),
+    ).toBe('Interest: 50,000');
+  });
+
+  it('should return empty string when label is empty', () => {
+    expect(
+      formatBarLabel(
+        { dataset: { label: '' }, parsed: { y: 50000 } },
+        '1.0-0',
+        mockDecimalPipe,
+      ),
+    ).toBe('');
+  });
+
+  it('should return empty string when value is 0', () => {
+    expect(
+      formatBarLabel(
+        { dataset: { label: 'Principal' }, parsed: { y: 0 } },
+        '1.0-0',
+        mockDecimalPipe,
+      ),
+    ).toBe('');
+  });
+
+  it('should use custom format string', () => {
+    const pipe = { transform: (v: number, f: string) => v.toFixed(2) } as any;
+    expect(
+      formatBarLabel(
+        { dataset: { label: 'Rate' }, parsed: { y: 7.5 } },
+        '1.2-2',
+        pipe,
+      ),
+    ).toBe('Rate: 7.50');
+  });
+});
+
+describe('formatSchemeTitle', () => {
+  it('should format with Scheme prefix', () => {
+    expect(formatSchemeTitle([{ label: 'PPF' }])).toBe('Scheme: PPF');
+  });
+
+  it('should return empty string when no items', () => {
+    expect(formatSchemeTitle([])).toBe('');
+  });
+
+  it('should return empty string when first item has no label', () => {
+    expect(formatSchemeTitle([{ label: '' }])).toBe('');
+  });
+});
+
+describe('formatMaturityFooter', () => {
+  const mockDecimalPipe = {
+    transform: (v: number, f: string) => `${v.toLocaleString('en-IN')}`,
+  } as any;
+
+  it('should format maturity from sum of items', () => {
+    const items = [{ parsed: { y: 100000 } }, { parsed: { y: 50000 } }];
+    expect(formatMaturityFooter(items, mockDecimalPipe)).toBe(
+      'Maturity: 1,50,000',
+    );
+  });
+
+  it('should return empty string when no items', () => {
+    expect(formatMaturityFooter([], mockDecimalPipe)).toBe('');
+  });
+
+  it('should handle items with missing parsed data', () => {
+    const items = [{ parsed: { y: 5000 } }, {} as any];
+    expect(formatMaturityFooter(items, mockDecimalPipe)).toBe(
+      'Maturity: 5,000',
+    );
   });
 });

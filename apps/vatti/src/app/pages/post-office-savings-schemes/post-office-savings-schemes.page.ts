@@ -20,6 +20,11 @@ import {
   Flowbite,
   initFlowbiteComponents,
 } from '../../decorators/flowbite.decorator';
+import {
+  formatBarLabel,
+  formatMaturityFooter,
+  formatSchemeTitle,
+} from '../../helpers/chart.helper';
 import { ChartType } from '../../models/chart';
 import {
   CompoundingFrequency,
@@ -142,28 +147,12 @@ export class PostOfficeSavingsSchemesPage {
       'Amount',
       true,
       true,
-      /* istanbul ignore next */ (context): string => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+      (context): string => {
+        return formatBarLabel(context, '1.0-0', this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems): string =>
-        tooltipItems[0]?.label ? `Scheme: ${tooltipItems[0].label}` : '',
-      /* istanbul ignore next */ (tooltipItems): string => {
-        return tooltipItems.length > 0
-          ? `Maturity: ${
-              this.decimalPipe.transform(
-                tooltipItems.reduce((acc, cv) => {
-                  acc += cv?.parsed?.y || 0;
-                  return acc;
-                }, 0),
-                '1.0-0',
-              ) || ''
-            }`
-          : '';
+      (tooltipItems): string => formatSchemeTitle(tooltipItems),
+      (tooltipItems): string => {
+        return formatMaturityFooter(tooltipItems, this.decimalPipe);
       },
     );
 
@@ -190,16 +179,10 @@ export class PostOfficeSavingsSchemesPage {
       'Percentage',
       false,
       true,
-      /* istanbul ignore next */ (context): string => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}`
-          : '';
+      (context): string => {
+        return formatBarLabel(context, '1.2-2', this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems): string =>
-        tooltipItems[0]?.label ? `Scheme: ${tooltipItems[0].label}` : '',
+      (tooltipItems): string => formatSchemeTitle(tooltipItems),
     );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -315,21 +298,23 @@ export class PostOfficeSavingsSchemesPage {
           .requestFullscreen()
           .then(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (screen.orientation as any)
-              .lock('landscape')
-              .catch(/* istanbul ignore next */ (error: Error) => {
+            (screen.orientation as any).lock('landscape').catch(
+              /* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
-              });
+              },
+            );
 
             this.cdr.markForCheck();
           })
-          .catch(/* istanbul ignore next */ (error: Error) => {
-            this.logger.error(
-              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
-            );
-          });
+          .catch(
+            /* istanbul ignore next */ (error: Error) => {
+              this.logger.error(
+                `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+              );
+            },
+          );
       }
     }
   }

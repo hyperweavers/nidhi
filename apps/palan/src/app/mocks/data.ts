@@ -1,5 +1,13 @@
-import { StockResponse, ForexResponse, SearchResponse, HistoricChartResponse, IntraDayChartResponse, MarketState, ChartResponseStatus } from '../models/vendor/mc';
 import { CurrencyListResponse } from '../models/vendor/etm';
+import {
+  ChartResponseStatus,
+  ForexResponse,
+  HistoricChartResponse,
+  IntraDayChartResponse,
+  MarketState,
+  SearchResponse,
+  StockResponse,
+} from '../models/vendor/mc';
 
 export const mockStockResponse: StockResponse = {
   code: '200',
@@ -71,10 +79,30 @@ export const mockForexResponse: ForexResponse = {
 };
 
 export const mockCurrencyListResponse: CurrencyListResponse[] = [
-  { currencyCode: 'INR', country: 'India', countryIconMsid: '123' },
-  { currencyCode: 'USD', country: 'United States', countryIconMsid: '456' },
-  { currencyCode: 'EUR', country: 'European Union', countryIconMsid: '789' },
-  { currencyCode: 'GBP', country: 'United Kingdom', countryIconMsid: '101' },
+  {
+    currencyCode: 'INR',
+    country: 'India',
+    countryName: 'India',
+    countryIconMsid: '123',
+  },
+  {
+    currencyCode: 'USD',
+    country: 'United States',
+    countryName: 'United States',
+    countryIconMsid: '456',
+  },
+  {
+    currencyCode: 'EUR',
+    country: 'European Union',
+    countryName: 'European Union',
+    countryIconMsid: '789',
+  },
+  {
+    currencyCode: 'GBP',
+    country: 'United Kingdom',
+    countryName: 'United Kingdom',
+    countryIconMsid: '101',
+  },
 ];
 
 export const mockSearchResponse: SearchResponse[] = [

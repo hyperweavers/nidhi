@@ -1,5 +1,10 @@
-import { PostOfficeSavingsSchemes } from '../models/deposit';
-import { BanksInIndia, RbiPolicyRates, IbjaGoldRates } from '../models/common';
+import { BanksInIndia, IbjaGoldRates, RbiPolicyRates } from '../models/common';
+import {
+  CompoundingFrequency,
+  InterestPayoutFrequency,
+  PostOfficeSavingsSchemeId,
+  PostOfficeSavingsSchemes,
+} from '../models/deposit';
 
 export const mockGoldRateResponse = {
   today_22k: 'INR 7,250',
@@ -8,99 +13,159 @@ export const mockGoldRateResponse = {
   yesterday_24k: 'INR 7,860',
 };
 
+const now = Date.now();
+
 export const mockPostOfficeSavingsSchemes: PostOfficeSavingsSchemes = {
-  ppf: {
-    currentRate: 7.1,
-    minimumAmount: 500,
-    maximumAmount: 150000,
-    tenureYears: 15,
-    eligibleFor: ['All Indian Residents'],
-  },
-  sukhSamriddhi: {
-    currentRate: 8.0,
-    minimumAmount: 250,
-    maximumAmount: 150000,
-    tenureYears: 21,
-    eligibleFor: ['Girl Child'],
-  },
-  scss: {
-    currentRate: 7.4,
-    minimumAmount: 1000,
-    maximumAmount: 2000000,
-    tenureYears: 5,
-    eligibleFor: ['Senior Citizens'],
-  },
-  kisanVikasPatra: {
-    currentRate: 7.5,
-    minimumAmount: 1000,
-    maximumAmount: 0,
-    tenureMonths: 115,
-  },
-  td: {
-    currentRate: {
-      '1-year': 6.9,
-      '2-year': 7.0,
-      '3-year': 7.1,
-      '5-year': 7.5,
+  lastUpdated: now,
+  effective: { from: now, to: now + 86400000 },
+  schemes: [
+    {
+      id: PostOfficeSavingsSchemeId.PPF,
+      name: 'Public Provident Fund',
+      shortName: 'PPF',
+      interestRate: 7.1,
+      depositTenure: 15,
+      maturityTenure: 15,
+      compoundingFrequencyPerYear: CompoundingFrequency.Yearly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
     },
-    minimumAmount: 1000,
-  },
-  mis: {
-    currentRate: 7.4,
-    minimumAmount: 1000,
-    maximumAmount: 900000,
-    tenureYears: 5,
-  },
+    {
+      id: PostOfficeSavingsSchemeId.SSA,
+      name: 'Sukanya Samriddhi Account',
+      shortName: 'SSA',
+      interestRate: 8.0,
+      depositTenure: 21,
+      maturityTenure: 21,
+      compoundingFrequencyPerYear: CompoundingFrequency.Yearly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.SCSS,
+      name: 'Senior Citizen Savings Scheme',
+      shortName: 'SCSS',
+      interestRate: 7.4,
+      depositTenure: 5,
+      maturityTenure: 5,
+      compoundingFrequencyPerYear: CompoundingFrequency.Yearly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.KVP,
+      name: 'Kisan Vikas Patra',
+      shortName: 'KVP',
+      interestRate: 7.5,
+      depositTenure: 0,
+      maturityTenure: 115,
+      compoundingFrequencyPerYear: CompoundingFrequency.Yearly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: true,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.MIS,
+      name: 'Monthly Income Scheme',
+      shortName: 'MIS',
+      interestRate: 7.4,
+      depositTenure: 5,
+      maturityTenure: 5,
+      compoundingFrequencyPerYear: CompoundingFrequency.Yearly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Monthly,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.TD_1Y,
+      name: 'Time Deposit 1 Year',
+      shortName: 'TD-1Y',
+      interestRate: 6.9,
+      depositTenure: 1,
+      maturityTenure: 1,
+      compoundingFrequencyPerYear: CompoundingFrequency.Quarterly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.TD_2Y,
+      name: 'Time Deposit 2 Year',
+      shortName: 'TD-2Y',
+      interestRate: 7.0,
+      depositTenure: 2,
+      maturityTenure: 2,
+      compoundingFrequencyPerYear: CompoundingFrequency.Quarterly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.TD_3Y,
+      name: 'Time Deposit 3 Year',
+      shortName: 'TD-3Y',
+      interestRate: 7.1,
+      depositTenure: 3,
+      maturityTenure: 3,
+      compoundingFrequencyPerYear: CompoundingFrequency.Quarterly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+    {
+      id: PostOfficeSavingsSchemeId.TD_5Y,
+      name: 'Time Deposit 5 Year',
+      shortName: 'TD-5Y',
+      interestRate: 7.5,
+      depositTenure: 5,
+      maturityTenure: 5,
+      compoundingFrequencyPerYear: CompoundingFrequency.Quarterly,
+      interestPayoutFrequencyPerYear: InterestPayoutFrequency.Maturity,
+      fixedInterestRate: false,
+    },
+  ],
 };
 
 export const mockRbiPolicyRates: RbiPolicyRates = {
-  repoRate: 6.5,
-  reverseRepoRate: 3.35,
-  bankRate: 6.75,
-  msfRate: 6.75,
-  sdfRate: 6.25,
-  crr: 4.5,
-  slr: 18.0,
-  updatedAt: '2024-04-05',
+  lastUpdated: now,
+  rates: [
+    {
+      effectiveDate: now,
+      policyRepoRate: 6.5,
+      standingDepositFacilityRate: 6.25,
+      marginalStandingFacilityRate: 6.75,
+      bankRate: 6.75,
+      fixedReverseRepoRate: 3.35,
+    },
+  ],
 };
 
-export const mockBanksInIndia: BanksInIndia = [
-  {
-    name: 'State Bank of India',
-    logo: 'sbi-logo.png',
-    fdRates: {
-      '30-days': 3.5,
-      '90-days': 4.0,
-      '180-days': 4.5,
-      '1-year': 6.8,
-      '3-year': 7.0,
-      '5-year': 7.0,
-    },
+export const mockBanksInIndia: BanksInIndia = {
+  lastUpdated: now,
+  banks: {
+    type: 'public',
+    list: [
+      { name: 'State Bank of India', website: 'https://sbi.co.in' },
+      { name: 'HDFC Bank', website: 'https://hdfcbank.com' },
+    ],
   },
-  {
-    name: 'HDFC Bank',
-    logo: 'hdfc-logo.png',
-    fdRates: {
-      '30-days': 3.5,
-      '90-days': 4.0,
-      '180-days': 4.5,
-      '1-year': 7.0,
-      '3-year': 7.2,
-      '5-year': 7.2,
-    },
-  },
-];
+};
 
 export const mockIbjaGoldRates: IbjaGoldRates = {
-  '24K': {
-    '999': 7350,
-    '995': 7320,
-  },
-  '22K': {
-    '916': 6750,
-  },
-  '18K': {
-    '750': 5550,
-  },
-  updatedAt: '2024-01-15',
+  lastUpdated: now,
+  rates: [
+    {
+      date: now,
+      metal: 'Gold',
+      purity: 999,
+      rate: { forenoon: 7350, afternoon: 7320 },
+    },
+    {
+      date: now,
+      metal: 'Gold',
+      purity: 916,
+      rate: { forenoon: 6750, afternoon: 6720 },
+    },
+    {
+      date: now,
+      metal: 'Gold',
+      purity: 750,
+      rate: { forenoon: 5550, afternoon: 5520 },
+    },
+  ],
 };

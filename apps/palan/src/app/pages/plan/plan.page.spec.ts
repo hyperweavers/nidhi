@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
-import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 import { LOGGER } from '@nidhi/shared-logger';
+import userEvent from '@testing-library/user-event';
+import { of } from 'rxjs';
 
-import { PlanPage } from './plan.page';
-import { PlanService } from '../../services/core/plan.service';
-import { MarketService } from '../../services/core/market.service';
 import { CurrencyService } from '../../services/core/currency.service';
-import { Direction } from '../../models/market';
+import { MarketService } from '../../services/core/market.service';
+import { PlanService } from '../../services/core/plan.service';
+import { PlanPage } from './plan.page';
 
 const mockLogger = {
   captureException: jest.fn(),
@@ -25,7 +25,11 @@ describe('PlanPage', () => {
   let planService: jest.Mocked<PlanService>;
 
   const mockCurrencies = [
-    { code: 'USD', country: 'United States', icon: 'https://example.com/usd.cms' },
+    {
+      code: 'USD',
+      country: 'United States',
+      icon: 'https://example.com/usd.cms',
+    },
     { code: 'INR', country: 'India', icon: 'https://example.com/inr.cms' },
   ];
 
@@ -86,12 +90,16 @@ describe('PlanPage', () => {
     });
 
     it('should not show plan view when no plan exists', () => {
-      const planView = fixture.debugElement.query(By.css('[data-testid="plan-view"]'));
+      const planView = fixture.debugElement.query(
+        By.css('[data-testid="plan-view"]'),
+      );
       expect(component.showPlanView).toBe(false);
     });
 
     it('should render the save button saying Create', () => {
-      const submitButton = fixture.debugElement.query(By.css('button[type="submit"]'));
+      const submitButton = fixture.debugElement.query(
+        By.css('button[type="submit"]'),
+      );
       expect(submitButton.nativeElement.textContent.trim()).toMatch(/create/i);
     });
 
@@ -105,7 +113,9 @@ describe('PlanPage', () => {
     });
 
     it('should populate currency dropdowns from CurrencyService', () => {
-      const purchaseSelect = fixture.debugElement.query(By.css('#purchase-currency'));
+      const purchaseSelect = fixture.debugElement.query(
+        By.css('#purchase-currency'),
+      );
       const options = purchaseSelect.nativeElement.options;
       expect(options.length).toBe(3);
       expect(options[1].text).toContain('USD');
@@ -348,13 +358,19 @@ describe('PlanPage', () => {
   describe('stock search filtering', () => {
     it('should correctly apply the stock filter map function', () => {
       const stocks = [
-        { name: 'Valid Stock', scripCode: { isin: 'US123', ticker: 'VST', country: 'US' } },
+        {
+          name: 'Valid Stock',
+          scripCode: { isin: 'US123', ticker: 'VST', country: 'US' },
+        },
         { name: 'No ISIN', scripCode: { ticker: 'NIS', country: 'US' } },
         { name: 'No Ticker', scripCode: { isin: 'US456', country: 'US' } },
         { name: 'No Country', scripCode: { isin: 'US789', ticker: 'NCT' } },
       ];
       const filtered = stocks.filter(
-        (stock) => stock.scripCode.isin && stock.scripCode.ticker && stock.scripCode.country,
+        (stock) =>
+          stock.scripCode.isin &&
+          stock.scripCode.ticker &&
+          stock.scripCode.country,
       );
       expect(filtered.length).toBe(1);
       expect(filtered[0].name).toBe('Valid Stock');
@@ -375,6 +391,38 @@ describe('PlanPage', () => {
       component.lockInPeriodDays.set(0);
       await component.save();
       expect(planService.addOrUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('user interactions', () => {
+    it('should update name signal when typing in company name input', async () => {
+      fixture.detectChanges();
+      const nameInput = fixture.nativeElement.querySelector(
+        '#name',
+      ) as HTMLInputElement;
+      expect(nameInput).toBeTruthy();
+      const user = userEvent.setup();
+      await user.type(nameInput, 'Caterpillar');
+      fixture.detectChanges();
+      expect(component.name()).toBe('Caterpillar');
+    });
+
+    it('should update purchase currency when selecting from dropdown', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const currencySelect = fixture.nativeElement.querySelector(
+        '#purchase-currency',
+      ) as HTMLSelectElement;
+      expect(currencySelect).toBeTruthy();
+      const inrOption = Array.from(currencySelect.options).find(
+        (o) => o.textContent.trim() === 'India - INR',
+      );
+      expect(inrOption).toBeTruthy();
+      const user = userEvent.setup();
+      await user.selectOptions(currencySelect, inrOption!);
+      fixture.detectChanges();
+      expect(component.purchaseCurrency()).toEqual(mockCurrencies[1]);
     });
   });
 });

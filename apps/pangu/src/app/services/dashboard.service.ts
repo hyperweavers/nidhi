@@ -83,53 +83,57 @@ export class DashboardService {
 
         if (!symbols.length) return of([]);
 
-        return (period === Period.ONE_DAY
+        return (
+          period === Period.ONE_DAY
             ? this.marketService.getIntraDayPeerChart(symbols)
             : this.marketService.getHistoricPeerChart(symbols, period)
-          ).pipe(
-            map((peerChartData) => {
-              if (!peerChartData?.length) return [];
+        ).pipe(
+          map((peerChartData) => {
+            if (!peerChartData?.length) return [];
 
-              const dateSet = new Set<string>();
+            // Get all unique dates from the peer chart data
+            const dateSet = new Set<string>();
+            peerChartData.forEach((peer) => {
+              peer.data.forEach((point) => {
+                dateSet.add(String(point.time));
+              });
+            });
+
+            const dates = Array.from(dateSet)
+              .sort((a, b) => {
+                const dateA = new Date(a).getTime();
+                const dateB = new Date(b).getTime();
+                return dateA - dateB;
+              })
+              .map((dateStr) => new Date(dateStr).getTime());
+
+            // For each date, build price map and calculate portfolio performance
+            return dates.map((dateTimestamp) => {
+              const priceMap = new Map<string, number>();
+
+              // Build price map for this date from peer chart data
               peerChartData.forEach((peer) => {
-                peer.data.forEach((point) => {
-                  dateSet.add(String(point.time));
-                });
+                const dataPoint = peer.data.find(
+                  (point) => new Date(point.time).getTime() === dateTimestamp,
+                );
+                if (dataPoint && dataPoint.value !== undefined) {
+                  priceMap.set(peer.symbol, dataPoint.value);
+                }
               });
 
-              const dates = Array.from(dateSet)
-                .sort((a, b) => {
-                  const dateA = new Date(a).getTime();
-                  const dateB = new Date(b).getTime();
-                  return dateA - dateB;
-                })
-                .map((dateStr) => new Date(dateStr).getTime());
-
-              return dates.map((dateTimestamp) => {
-                const priceMap = new Map<string, number>();
-                peerChartData.forEach((peer) => {
-                  const dataPoint = peer.data.find(
-                    (point) =>
-                      new Date(point.time).getTime() === dateTimestamp,
-                  );
-                  if (dataPoint && dataPoint.value !== undefined) {
-                    priceMap.set(peer.symbol, dataPoint.value);
-                  }
-                });
-
-                return {
-                  time: new Date(dateTimestamp).toLocaleDateString('en-CA', {
-                    timeZone: 'Asia/Kolkata',
-                  }),
-                  value: this.calculatePortfolioChangeAtDate(
-                    holdings,
-                    dateTimestamp,
-                    priceMap,
-                  ),
-                };
-              });
-            }),
-          );
+              return {
+                time: new Date(dateTimestamp).toLocaleDateString('en-CA', {
+                  timeZone: 'Asia/Kolkata',
+                }),
+                value: this.calculatePortfolioChangeAtDate(
+                  holdings,
+                  dateTimestamp,
+                  priceMap,
+                ),
+              };
+            });
+          }),
+        );
       }),
     );
   }

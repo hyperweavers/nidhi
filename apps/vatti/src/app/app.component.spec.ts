@@ -1,9 +1,26 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { LOGGER } from '@nidhi/shared-logger';
+import { Platform } from '@angular/cdk/platform';
 import { provideHttpClient } from '@angular/common/http';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  NavigationStart,
+  Router,
+} from '@angular/router';
+import {
+  ServiceWorkerModule,
+  SwUpdate,
+  VersionReadyEvent,
+} from '@angular/service-worker';
+import { LOGGER } from '@nidhi/shared-logger';
 import { Subject } from 'rxjs';
+
+jest.mock('flowbite', () => ({ initFlowbite: jest.fn() }));
 
 import { AppComponent } from './app.component';
 import { SettingsService } from './services/core/settings.service';
@@ -20,10 +37,20 @@ describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let mockSettingsService: { resize$: Subject<void>; setTheme: jest.Mock };
   let mockRouter: MockRouter;
+  let mockSwUpdate: {
+    isEnabled: boolean;
+    versionUpdates: Subject<VersionReadyEvent>;
+  };
+  let mockPlatform: { IOS: boolean };
 
   beforeEach(async () => {
     mockRouter = new MockRouter();
     mockSettingsService = { resize$: new Subject<void>(), setTheme: jest.fn() };
+    mockSwUpdate = {
+      isEnabled: false,
+      versionUpdates: new Subject<VersionReadyEvent>(),
+    };
+    mockPlatform = { IOS: false };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -44,6 +71,8 @@ describe('AppComponent', () => {
           },
         },
         { provide: SettingsService, useValue: mockSettingsService },
+        { provide: SwUpdate, useValue: mockSwUpdate },
+        { provide: Platform, useValue: mockPlatform },
       ],
     }).compileComponents();
 
@@ -90,13 +119,84 @@ describe('AppComponent', () => {
       mockSettingsService.resize$.next();
       expect(component.sidebarOpen).toBe(false);
     });
+
+    it('should call initFlowbite on NavigationEnd', fakeAsync(() => {
+      const { initFlowbite } = require('flowbite');
+      fixture.detectChanges();
+      mockRouter.events.next(new NavigationEnd(1, '/test', '/test'));
+      tick(100);
+      expect(initFlowbite).toHaveBeenCalled();
+    }));
+
+    it('should not open sidebar on resize when already open at large width', () => {
+      fixture.detectChanges();
+      component.sidebarOpen = true;
+      Object.defineProperty(document.documentElement, 'clientWidth', {
+        value: 1200,
+        configurable: true,
+      });
+      mockSettingsService.resize$.next();
+      expect(component.sidebarOpen).toBe(true);
+    });
+
+    it('should show update modal when version update is ready', () => {
+      mockSwUpdate.isEnabled = true;
+      fixture.detectChanges();
+      mockSwUpdate.versionUpdates.next({
+        type: 'VERSION_READY',
+      } as VersionReadyEvent);
+      expect(component.showUpdateModal).toBe(true);
+    });
+
+    it('should show install modal on iOS when not in standalone', () => {
+      mockPlatform.IOS = true;
+      Object.defineProperty(window.navigator, 'standalone', {
+        value: false,
+        configurable: true,
+      });
+      fixture.detectChanges();
+      expect(component.showInstallModal).toBe(true);
+      expect(component.ios).toBe(true);
+    });
+
+    it('should not show install modal when iOS standalone', () => {
+      mockPlatform.IOS = true;
+      Object.defineProperty(window.navigator, 'standalone', {
+        value: true,
+        configurable: true,
+      });
+      fixture.detectChanges();
+      expect(component.showInstallModal).toBeUndefined();
+    });
+
+    it('should do nothing on other router events', fakeAsync(() => {
+      fixture.detectChanges();
+      component.sidebarOpen = true;
+      mockRouter.events.next('OTHER_EVENT');
+      tick(100);
+      expect(component.sidebarOpen).toBe(true);
+    }));
+
+    it('should add beforeinstallprompt listener when not iOS', () => {
+      const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+      fixture.detectChanges();
+      const listener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'beforeinstallprompt',
+      )?.[1] as (event: Event) => void;
+      expect(listener).toBeDefined();
+      const preventDefault = jest.fn();
+      listener({ preventDefault } as unknown as Event);
+      expect(component.showInstallModal).toBe(true);
+    });
   });
 
   describe('updateApp', () => {
     it('should set showUpdateModal to false', () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       component.showUpdateModal = true;
       component.updateApp();
       expect(component.showUpdateModal).toBe(false);
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -111,9 +211,10 @@ describe('AppComponent', () => {
   describe('installApp', () => {
     it('should call prompt and close modal', () => {
       const promptMock = jest.fn();
-      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent = {
-        prompt: promptMock,
-      };
+      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent =
+        {
+          prompt: promptMock,
+        };
       component.installApp();
       expect(promptMock).toHaveBeenCalled();
       expect(component.showInstallModal).toBe(false);
@@ -190,7 +291,9 @@ describe('AppComponent', () => {
         configurable: true,
       });
       const anchor = { href: '', click: jest.fn(), remove: jest.fn() };
-      jest.spyOn(document, 'createElement').mockReturnValue(anchor as unknown as HTMLElement);
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(anchor as unknown as HTMLElement);
       await component.share();
       expect(anchor.click).toHaveBeenCalled();
     });
@@ -207,7 +310,9 @@ describe('AppComponent', () => {
         configurable: true,
       });
       await component.share();
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('share failed'));
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('share failed'),
+      );
     });
   });
 

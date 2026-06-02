@@ -3,11 +3,11 @@ import { LOGGER } from '@nidhi/shared-logger';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
+import { Direction } from '../models/market';
+import { MarketService } from './core/market.service';
+import { PlanService } from './core/plan.service';
 import { DashboardService } from './dashboard.service';
 import { PortfolioService } from './portfolio.service';
-import { PlanService } from './core/plan.service';
-import { MarketService } from './core/market.service';
-import { Direction } from '../models/market';
 
 const mockLogger = {
   captureException: jest.fn(),
@@ -123,9 +123,15 @@ describe('DashboardService', () => {
         providers: [
           provideHttpClient(),
           { provide: LOGGER, useValue: mockLogger },
-          { provide: PortfolioService, useValue: { portfolio$: portfolio$2.asObservable() } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: portfolio$2.asObservable() },
+          },
           { provide: PlanService, useValue: { plan$: plan$2.asObservable() } },
-          { provide: MarketService, useValue: { getStock: jest.fn().mockReturnValue(of(stockNoIsin)) } },
+          {
+            provide: MarketService,
+            useValue: { getStock: jest.fn().mockReturnValue(of(stockNoIsin)) },
+          },
         ],
       });
       const svc = TestBed.inject(DashboardService);
@@ -150,9 +156,15 @@ describe('DashboardService', () => {
         providers: [
           provideHttpClient(),
           { provide: LOGGER, useValue: mockLogger },
-          { provide: PortfolioService, useValue: { portfolio$: portfolio$3.asObservable() } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: portfolio$3.asObservable() },
+          },
           { provide: PlanService, useValue: { plan$: plan$3.asObservable() } },
-          { provide: MarketService, useValue: { getStock: jest.fn().mockReturnValue(of(stockNoCodes)) } },
+          {
+            provide: MarketService,
+            useValue: { getStock: jest.fn().mockReturnValue(of(stockNoCodes)) },
+          },
         ],
       });
       const svc = TestBed.inject(DashboardService);
@@ -168,7 +180,9 @@ describe('DashboardService', () => {
       portfolio$.next(mockEmptyPortfolio);
 
       service.kpi$.subscribe((kpi) => {
-        const portfolioCards = kpi.cards.filter((c) => c.id.startsWith('portfolio'));
+        const portfolioCards = kpi.cards.filter((c) =>
+          c.id.startsWith('portfolio'),
+        );
         expect(portfolioCards.length).toBe(0);
         done();
       });
@@ -180,7 +194,9 @@ describe('DashboardService', () => {
       plan$.next(undefined);
 
       service.kpi$.subscribe((kpi) => {
-        const stockCards = kpi.cards.filter((c) => !c.id.startsWith('portfolio'));
+        const stockCards = kpi.cards.filter(
+          (c) => !c.id.startsWith('portfolio'),
+        );
         expect(stockCards.length).toBe(0);
         expect(kpi.cards.length).toBe(2);
         done();
@@ -193,7 +209,9 @@ describe('DashboardService', () => {
       });
 
       service.kpi$.subscribe((kpi) => {
-        const stockCards = kpi.cards.filter((c) => !c.id.startsWith('portfolio'));
+        const stockCards = kpi.cards.filter(
+          (c) => !c.id.startsWith('portfolio'),
+        );
         expect(stockCards.length).toBe(0);
         done();
       });
@@ -210,7 +228,10 @@ describe('DashboardService', () => {
         providers: [
           provideHttpClient(),
           { provide: LOGGER, useValue: mockLogger },
-          { provide: PortfolioService, useValue: { portfolio$: portfolio$4.asObservable() } },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: portfolio$4.asObservable() },
+          },
           { provide: PlanService, useValue: { plan$: plan$4.asObservable() } },
           { provide: MarketService, useValue: { getStock: jest.fn() } },
         ],
@@ -218,6 +239,44 @@ describe('DashboardService', () => {
       const svc = TestBed.inject(DashboardService);
       svc.kpi$.subscribe((kpi) => {
         expect(kpi.cards.length).toBe(0);
+        done();
+      });
+    });
+  });
+
+  describe('kpi$ stock without quote', () => {
+    it('should create stock card with undefined value and change when quote is missing', (done) => {
+      const stockNoQuote = {
+        ...mockStock,
+        quote: undefined,
+      };
+      const portfolio$5 = new BehaviorSubject(mockPortfolioWithHoldings);
+      const plan$5 = new BehaviorSubject({
+        stock: { vendorCode: { mc: { primary: 'AAPL:US' } } },
+      });
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideHttpClient(),
+          { provide: LOGGER, useValue: mockLogger },
+          {
+            provide: PortfolioService,
+            useValue: { portfolio$: portfolio$5.asObservable() },
+          },
+          { provide: PlanService, useValue: { plan$: plan$5.asObservable() } },
+          {
+            provide: MarketService,
+            useValue: { getStock: jest.fn().mockReturnValue(of(stockNoQuote)) },
+          },
+        ],
+      });
+      const svc = TestBed.inject(DashboardService);
+      svc.kpi$.subscribe((kpi) => {
+        const stockCard = kpi.cards.find((c) => c.id === 'US0378331005');
+        expect(stockCard).toBeDefined();
+        expect(stockCard?.value).toBeUndefined();
+        expect(stockCard?.change).toBeUndefined();
         done();
       });
     });

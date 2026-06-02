@@ -1,55 +1,53 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import userEvent from '@testing-library/user-event';
 import { of, Subject } from 'rxjs';
 
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { Direction, Status } from '../../models/market';
 import { Period } from '../../models/chart';
-import { ColorScheme } from '../../models/settings';
+import { Direction, Status } from '../../models/market';
 import { Plan } from '../../models/plan';
+import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { PlanService } from '../../services/core/plan.service';
 import { SettingsService } from '../../services/core/settings.service';
 import { StocksPage } from './stocks.page';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-var mockTimeScale: Record<string, jest.Mock>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-var mockAreaSeries: Record<string, jest.Mock>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-var mockChart: Record<string, jest.Mock>;
+let mockTimeScale: Record<string, jest.Mock>;
+let mockAreaSeries: Record<string, jest.Mock>;
+let mockChart: Record<string, jest.Mock>;
 
-jest.mock('lightweight-charts', () => {
-  const ts = { fitContent: jest.fn(), setVisibleRange: jest.fn(), setVisibleLogicalRange: jest.fn() };
-  const as = { setData: jest.fn(), applyOptions: jest.fn(), data: jest.fn().mockReturnValue([]) };
-  const c = {
-    addSeries: jest.fn().mockReturnValue(as),
-    applyOptions: jest.fn(),
-    timeScale: jest.fn().mockReturnValue(ts),
-    resize: jest.fn(),
-    subscribeCrosshairMove: jest.fn(),
-    unsubscribeCrosshairMove: jest.fn(),
-    clearCrosshairPosition: jest.fn(),
-  };
-  mockTimeScale = ts;
-  mockAreaSeries = as;
-  mockChart = c;
-  return {
-    createChart: jest.fn().mockReturnValue(c),
-    AreaSeries: 'AreaSeries',
-    LineType: { Curved: 'Curved' },
-  };
-});
+jest.mock('lightweight-charts', () => ({
+  createChart: jest.fn(),
+  AreaSeries: 'AreaSeries',
+  LineType: { Curved: 'Curved' },
+}));
+
+import { createChart } from 'lightweight-charts';
 
 describe('StocksPage', () => {
   let component: StocksPage;
   let fixture: ComponentFixture<StocksPage>;
   let marketStatus$: Subject<{ status: Status; lastUpdated: number }>;
   let resize$: Subject<null>;
-  let settings$: Subject<{ colorScheme: ColorScheme; refreshInterval: number; theme: string }>;
-  let mockMarketService: jest.Mocked<Pick<MarketService, 'marketStatus$' | 'getStock' | 'getIntraDayChart' | 'getHistoricalChart'>>;
+  let settings$: Subject<{
+    colorScheme: ColorScheme;
+    refreshInterval: number;
+    theme: string;
+  }>;
+  let mockMarketService: jest.Mocked<
+    Pick<
+      MarketService,
+      'marketStatus$' | 'getStock' | 'getIntraDayChart' | 'getHistoricalChart'
+    >
+  >;
   let mockSettingsService: any;
   let plan$: Subject<Plan | undefined>;
   let mockLogger: jest.Mocked<typeof LOGGER>;
@@ -60,14 +58,14 @@ describe('StocksPage', () => {
     vendorCode: { mc: { primary: 'TEST:US' } },
     details: { sector: 'Technology' },
     quote: {
-      price: 150.50,
-      change: { direction: Direction.UP, value: 2.50, percentage: 1.68 },
-      open: 148.00,
-      close: 148.00,
-      low: 147.50,
-      high: 151.00,
-      fiftyTwoWeekLow: 100.00,
-      fiftyTwoWeekHigh: 200.00,
+      price: 150.5,
+      change: { direction: Direction.UP, value: 2.5, percentage: 1.68 },
+      open: 148.0,
+      close: 148.0,
+      low: 147.5,
+      high: 151.0,
+      fiftyTwoWeekLow: 100.0,
+      fiftyTwoWeekHigh: 200.0,
     },
     metrics: { marketCap: 500, dividendYield: 1.5 },
     performance: {
@@ -89,7 +87,10 @@ describe('StocksPage', () => {
       providers: [
         { provide: MarketService, useValue: {} },
         { provide: SettingsService, useValue: {} },
-        { provide: PlanService, useValue: { plan$: new Subject<Plan | undefined>().asObservable() } },
+        {
+          provide: PlanService,
+          useValue: { plan$: new Subject<Plan | undefined>().asObservable() },
+        },
         { provide: LOGGER, useValue: {} },
       ],
     }).compileComponents();
@@ -97,9 +98,33 @@ describe('StocksPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockTimeScale = {
+      fitContent: jest.fn(),
+      setVisibleRange: jest.fn(),
+      setVisibleLogicalRange: jest.fn(),
+    };
+    mockAreaSeries = {
+      setData: jest.fn(),
+      applyOptions: jest.fn(),
+      data: jest.fn().mockReturnValue([]),
+    };
+    mockChart = {
+      addSeries: jest.fn().mockReturnValue(mockAreaSeries),
+      applyOptions: jest.fn(),
+      timeScale: jest.fn().mockReturnValue(mockTimeScale),
+      resize: jest.fn(),
+      subscribeCrosshairMove: jest.fn(),
+      unsubscribeCrosshairMove: jest.fn(),
+      clearCrosshairPosition: jest.fn(),
+    };
+    (createChart as jest.Mock).mockReturnValue(mockChart);
     marketStatus$ = new Subject();
     resize$ = new Subject<null>();
-    settings$ = new Subject<{ colorScheme: ColorScheme; refreshInterval: number; theme: string }>();
+    settings$ = new Subject<{
+      colorScheme: ColorScheme;
+      refreshInterval: number;
+      theme: string;
+    }>();
     plan$ = new Subject<Plan | undefined>();
 
     mockMarketService = {
@@ -122,8 +147,12 @@ describe('StocksPage', () => {
     } as any;
 
     TestBed.overrideProvider(MarketService, { useValue: mockMarketService });
-    TestBed.overrideProvider(SettingsService, { useValue: mockSettingsService });
-    TestBed.overrideProvider(PlanService, { useValue: { plan$: plan$.asObservable() } });
+    TestBed.overrideProvider(SettingsService, {
+      useValue: mockSettingsService,
+    });
+    TestBed.overrideProvider(PlanService, {
+      useValue: { plan$: plan$.asObservable() },
+    });
     TestBed.overrideProvider(LOGGER, { useValue: mockLogger });
   });
 
@@ -150,7 +179,9 @@ describe('StocksPage', () => {
 
     it('should show loading spinner while stock$ is loading', () => {
       createComponent('TEST:US');
-      expect(fixture.debugElement.query(By.css('[role="status"]'))).toBeTruthy();
+      expect(
+        fixture.debugElement.query(By.css('[role="status"]')),
+      ).toBeTruthy();
     });
   });
 
@@ -166,9 +197,20 @@ describe('StocksPage', () => {
 
   describe('chart initialization', () => {
     it('should initialize chart when intraday data arrives', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
       createComponent('TEST:US');
       tick(200);
 
@@ -187,17 +229,34 @@ describe('StocksPage', () => {
 
   describe('resize and colorScheme subscriptions', () => {
     it('should resize chart when resize$ emits after chart init', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
       createComponent('TEST:US');
       tick(200);
 
-      settings$.next({ colorScheme: ColorScheme.DARK, refreshInterval: 30000, theme: 'dark' as const });
+      settings$.next({
+        colorScheme: ColorScheme.DARK,
+        refreshInterval: 30000,
+        theme: 'dark' as const,
+      });
       tick();
 
       (component as any).chart = mockChart;
-      (component as any).chartRef = () => ({ nativeElement: { offsetWidth: 500, offsetHeight: 400 } });
+      (component as any).chartRef = () => ({
+        nativeElement: { offsetWidth: 500, offsetHeight: 400 },
+      });
 
       resize$.next(null);
       tick();
@@ -206,18 +265,35 @@ describe('StocksPage', () => {
     }));
 
     it('should apply color scheme on settings change after chart init', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
       createComponent('TEST:US');
       tick(200);
 
-      settings$.next({ colorScheme: ColorScheme.LIGHT, refreshInterval: 30000, theme: 'light' as const });
+      settings$.next({
+        colorScheme: ColorScheme.LIGHT,
+        refreshInterval: 30000,
+        theme: 'light' as const,
+      });
       tick();
 
       expect((component as any).colorScheme).toBe(ColorScheme.LIGHT);
       expect(mockChart.applyOptions).toHaveBeenCalledWith(
-        expect.objectContaining({ layout: expect.objectContaining({ textColor: '#111827' }) }),
+        expect.objectContaining({
+          layout: expect.objectContaining({ textColor: '#111827' }),
+        }),
       );
     }));
 
@@ -315,8 +391,22 @@ describe('StocksPage', () => {
     it('should build historic chart data map when historical data arrives', fakeAsync(() => {
       mockMarketService.getHistoricalChart = jest.fn().mockReturnValue(
         of([
-          { time: '2026-01-15', value: 155, open: 150, close: 155, high: 156, low: 149 },
-          { time: '2026-01-16', value: 158, open: 155, close: 158, high: 160, low: 154 },
+          {
+            time: '2026-01-15',
+            value: 155,
+            open: 150,
+            close: 155,
+            high: 156,
+            low: 149,
+          },
+          {
+            time: '2026-01-16',
+            value: 158,
+            open: 155,
+            close: 158,
+            high: 160,
+            low: 154,
+          },
         ]),
       );
       createComponent('TEST:US');
@@ -386,7 +476,9 @@ describe('StocksPage', () => {
 
     it('should resize chart on fullscreen change when chart exists', () => {
       (component as any).chart = mockChart;
-      (component as any).chartRef = () => ({ nativeElement: { offsetWidth: 500, offsetHeight: 400 } });
+      (component as any).chartRef = () => ({
+        nativeElement: { offsetWidth: 500, offsetHeight: 400 },
+      });
 
       component.onFullscreenChange();
 
@@ -398,7 +490,9 @@ describe('StocksPage', () => {
       const containerRef = { nativeElement: { requestFullscreen } };
       (component as any).chartContainerRef = () => containerRef;
 
-      (screen as any).orientation = { lock: jest.fn().mockRejectedValue(new Error('Orientation lock failed')) };
+      (screen as any).orientation = {
+        lock: jest.fn().mockRejectedValue(new Error('Orientation lock failed')),
+      };
 
       Object.defineProperty(document, 'fullscreenElement', {
         get: () => null,
@@ -483,14 +577,25 @@ describe('StocksPage', () => {
 
   describe('chart colors based on direction', () => {
     it('should apply red colors when direction is DOWN with intraday data', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
       const downStock = {
         ...mockStock,
         quote: {
           ...mockStock.quote,
-          change: { direction: Direction.DOWN, value: -2.50, percentage: -1.68 },
+          change: { direction: Direction.DOWN, value: -2.5, percentage: -1.68 },
         },
       };
       mockMarketService.getStock = jest.fn().mockReturnValue(of(downStock));
@@ -504,9 +609,20 @@ describe('StocksPage', () => {
     }));
 
     it('should apply blue colors when direction is undefined', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
       const noDirStock = {
         ...mockStock,
         quote: {
@@ -525,9 +641,20 @@ describe('StocksPage', () => {
     }));
 
     it('should apply lastPriceAnimation=1 when market is open with intraday', fakeAsync(() => {
-      mockMarketService.getIntraDayChart = jest.fn().mockReturnValue(
-        of([{ time: '2026-01-01', value: 150, open: 148, close: 150, high: 152, low: 147 }]),
-      );
+      mockMarketService.getIntraDayChart = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            {
+              time: '2026-01-01',
+              value: 150,
+              open: 148,
+              close: 150,
+              high: 152,
+              low: 147,
+            },
+          ]),
+        );
 
       createComponent('TEST:US');
 
@@ -562,6 +689,36 @@ describe('StocksPage', () => {
     it('should return undefined when plan is undefined', () => {
       plan$.next(undefined);
       expect(component.contributionCurrency()).toBeUndefined();
+    });
+  });
+
+  describe('user interactions', () => {
+    it('should change chart period when 1W button is clicked', async () => {
+      createComponent('TEST:US');
+      const spy = jest.spyOn(component, 'setChartTimeRange');
+      const weekBtn = fixture.debugElement
+        .queryAll(By.css('[role="group"] button'))
+        .find(
+          (b) => b.nativeElement.textContent.trim() === '1W',
+        )?.nativeElement;
+      expect(weekBtn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(weekBtn!);
+      expect(spy).toHaveBeenCalledWith(Period.ONE_WEEK);
+    });
+
+    it('should change chart period when 3M button is clicked', async () => {
+      createComponent('TEST:US');
+      const spy = jest.spyOn(component, 'setChartTimeRange');
+      const btn = fixture.debugElement
+        .queryAll(By.css('[role="group"] button'))
+        .find(
+          (b) => b.nativeElement.textContent.trim() === '3M',
+        )?.nativeElement;
+      expect(btn).toBeTruthy();
+      const user = userEvent.setup();
+      await user.click(btn!);
+      expect(spy).toHaveBeenCalledWith(Period.THREE_MONTHS);
     });
   });
 });

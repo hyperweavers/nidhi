@@ -16,6 +16,11 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { Flowbite } from '../../decorators/flowbite.decorator';
+import {
+  formatDoughnutLabel,
+  formatEmiTitle,
+  formatLineLabel,
+} from '../../helpers/chart.helper';
 import { ChartType } from '../../models/chart';
 import {
   Amortization,
@@ -135,8 +140,8 @@ export class LoanEmiCalculatorPage implements OnInit {
   };
 
   paymentsChartOptions: ChartConfiguration<ChartType.DOUGHNUT>['options'] =
-    ChartUtils.getDoughnutChartOptions(/* istanbul ignore next */ (context) => {
-      return this.decimalPipe.transform(context.parsed, '1.0-0') || '';
+    ChartUtils.getDoughnutChartOptions((context) => {
+      return formatDoughnutLabel(context, this.decimalPipe);
     });
 
   emiChartData: ChartData<ChartType.LINE> = {
@@ -160,16 +165,11 @@ export class LoanEmiCalculatorPage implements OnInit {
       'EMI',
       'Amount',
       false,
-      /* istanbul ignore next */ (context) => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.0-0') || ''}`
-          : '';
+      (context) => {
+        return formatLineLabel(context, this.decimalPipe);
       },
-      /* istanbul ignore next */ (tooltipItems) => {
-        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+      (tooltipItems) => {
+        return formatEmiTitle(tooltipItems);
       },
     );
 
@@ -189,16 +189,11 @@ export class LoanEmiCalculatorPage implements OnInit {
       'EMI',
       'Interest Rate',
       false,
-      /* istanbul ignore next */ (context) => {
-        const label = context.dataset.label || '';
-        const value = context.parsed.y;
-
-        return label && value
-          ? `${label}: ${this.decimalPipe.transform(value, '1.2-2') || ''}%`
-          : '';
+      (context) => {
+        return formatLineLabel(context, this.decimalPipe, '1.2-2', '%');
       },
-      /* istanbul ignore next */ (tooltipItems) => {
-        return tooltipItems[0]?.label ? `EMI: ${tooltipItems[0].label}` : '';
+      (tooltipItems) => {
+        return formatEmiTitle(tooltipItems);
       },
     );
 
@@ -295,21 +290,23 @@ export class LoanEmiCalculatorPage implements OnInit {
           .requestFullscreen()
           .then(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (screen.orientation as any)
-              .lock('landscape')
-              .catch(/* istanbul ignore next */ (error: Error) => {
+            (screen.orientation as any).lock('landscape').catch(
+              /* istanbul ignore next */ (error: Error) => {
                 this.logger.error(
                   `An error occurred while trying to lock screen orientation to landscape: ${error.message} (${error.name})`,
                 );
-              });
+              },
+            );
 
             this.cdr.markForCheck();
           })
-          .catch(/* istanbul ignore next */ (error: Error) => {
-            this.logger.error(
-              `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
-            );
-          });
+          .catch(
+            /* istanbul ignore next */ (error: Error) => {
+              this.logger.error(
+                `An error occurred while trying to switch into fullscreen mode: ${error.message} (${error.name})`,
+              );
+            },
+          );
       }
     }
   }

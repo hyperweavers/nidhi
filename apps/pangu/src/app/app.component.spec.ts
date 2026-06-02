@@ -1,14 +1,24 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { LOGGER } from '@nidhi/shared-logger';
 import { provideHttpClient } from '@angular/common/http';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  NavigationStart,
+  Router,
+} from '@angular/router';
+import { ServiceWorkerModule, SwUpdate } from '@angular/service-worker';
+import { LOGGER } from '@nidhi/shared-logger';
 import { Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
+import { MarketStatus, Status } from './models/market';
 import { MarketService } from './services/core/market.service';
 import { SettingsService } from './services/core/settings.service';
-import { MarketStatus, Status } from './models/market';
 
 const mockMarketStatus: MarketStatus = {
   lastUpdated: Date.now(),
@@ -28,7 +38,10 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let mockSettingsService: { resize$: Subject<void>; setTheme: jest.Mock };
-  let mockMarketService: { marketStatus$: Subject<MarketStatus>; refresh: jest.Mock };
+  let mockMarketService: {
+    marketStatus$: Subject<MarketStatus>;
+    refresh: jest.Mock;
+  };
   let mockRouter: MockRouter;
 
   beforeEach(async () => {
@@ -75,6 +88,13 @@ describe('AppComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should set refreshing to false on marketStatus emit', () => {
+    fixture.detectChanges();
+    component.refreshing = true;
+    mockMarketService.marketStatus$.next(mockMarketStatus);
+    expect(component.refreshing).toBe(false);
+  });
+
   describe('ngOnInit', () => {
     it('should close sidebar on NavigationStart', fakeAsync(() => {
       fixture.detectChanges();
@@ -82,6 +102,12 @@ describe('AppComponent', () => {
       mockRouter.events.next(new NavigationStart(1, '/test'));
       tick(100);
       expect(component.sidebarOpen).toBe(false);
+    }));
+
+    it('should init flowbite on NavigationEnd', fakeAsync(() => {
+      fixture.detectChanges();
+      mockRouter.events.next(new NavigationEnd(1, '/test', '/test'));
+      tick(100);
     }));
 
     it('should open sidebar on resize when clientWidth >= 1024 and closed', () => {
@@ -105,13 +131,29 @@ describe('AppComponent', () => {
       mockSettingsService.resize$.next();
       expect(component.sidebarOpen).toBe(false);
     });
+
+    it('should show update modal on VersionReadyEvent', () => {
+      const swUpdate = TestBed.inject(SwUpdate);
+      jest.spyOn(swUpdate, 'isEnabled', 'get').mockReturnValue(true);
+      const versionSubject = new Subject<{ type: string }>();
+      Object.defineProperty(swUpdate, 'versionUpdates', {
+        get: () => versionSubject,
+        configurable: true,
+      });
+
+      fixture.detectChanges();
+      versionSubject.next({ type: 'VERSION_READY' });
+      expect(component.showUpdateModal).toBe(true);
+    });
   });
 
   describe('updateApp', () => {
     it('should set showUpdateModal to false', () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       component.showUpdateModal = true;
       component.updateApp();
       expect(component.showUpdateModal).toBe(false);
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -126,9 +168,10 @@ describe('AppComponent', () => {
   describe('installApp', () => {
     it('should call prompt and close modal', () => {
       const promptMock = jest.fn();
-      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent = {
-        prompt: promptMock,
-      };
+      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent =
+        {
+          prompt: promptMock,
+        };
       component.installApp();
       expect(promptMock).toHaveBeenCalled();
       expect(component.showInstallModal).toBe(false);
@@ -214,7 +257,9 @@ describe('AppComponent', () => {
         configurable: true,
       });
       const anchor = { href: '', click: jest.fn(), remove: jest.fn() };
-      jest.spyOn(document, 'createElement').mockReturnValue(anchor as unknown as HTMLElement);
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(anchor as unknown as HTMLElement);
       await component.share();
       expect(anchor.click).toHaveBeenCalled();
     });
@@ -231,7 +276,46 @@ describe('AppComponent', () => {
         configurable: true,
       });
       await component.share();
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('share failed'));
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('share failed'),
+      );
+    });
+
+    it('should fallback to mailto when Web Share API not available (canShare returns false)', async () => {
+      Object.defineProperty(navigator, 'canShare', {
+        value: () => false,
+        configurable: true,
+      });
+      Object.defineProperty(navigator, 'share', {
+        value: jest.fn(),
+        configurable: true,
+      });
+      const anchor = { href: '', click: jest.fn(), remove: jest.fn() };
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(anchor as unknown as HTMLElement);
+      await component.share();
+      expect(anchor.click).toHaveBeenCalled();
+    });
+  });
+
+  describe('configureInstallModel', () => {
+    it('should listen for beforeinstallprompt event', () => {
+      let capturedCb: (e: object) => void = jest.fn();
+      const origAddEventListener = window.addEventListener.bind(window);
+      jest
+        .spyOn(window, 'addEventListener')
+        .mockImplementation((event: string, cb: any) => {
+          if (event === 'beforeinstallprompt') {
+            capturedCb = cb;
+          }
+          return origAddEventListener(event, cb);
+        });
+      component['configureInstallModel']();
+      const mockEvent = { preventDefault: jest.fn() };
+      capturedCb(mockEvent);
+      expect(component.showInstallModal).toBe(true);
+      expect(component['pwaInstallPromptEvent']).toBe(mockEvent);
     });
   });
 

@@ -1,16 +1,31 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { LOGGER } from '@nidhi/shared-logger';
 import { provideHttpClient } from '@angular/common/http';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  NavigationStart,
+  Router,
+} from '@angular/router';
+import {
+  ServiceWorkerModule,
+  SwUpdate,
+  VersionEvent,
+  VersionReadyEvent,
+} from '@angular/service-worker';
+import { LOGGER } from '@nidhi/shared-logger';
 import { Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
-import { MarketService } from './services/core/market.service';
-import { SettingsService } from './services/core/settings.service';
-import { PlanService } from './services/core/plan.service';
 import { Constants } from './constants';
 import { MarketStatus, Status } from './models/market';
+import { MarketService } from './services/core/market.service';
+import { PlanService } from './services/core/plan.service';
+import { SettingsService } from './services/core/settings.service';
 
 const mockMarketStatus: MarketStatus = {
   lastUpdated: Date.now(),
@@ -30,7 +45,10 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let mockSettingsService: { resize$: Subject<void>; setTheme: jest.Mock };
-  let mockMarketService: { marketStatus$: Subject<MarketStatus>; refresh: jest.Mock };
+  let mockMarketService: {
+    marketStatus$: Subject<MarketStatus>;
+    refresh: jest.Mock;
+  };
   let mockPlanService: { plan$: Subject<unknown> };
   let mockRouter: MockRouter;
 
@@ -133,13 +151,75 @@ describe('AppComponent', () => {
       mockSettingsService.resize$.next();
       expect(component.sidebarOpen).toBe(false);
     });
+
+    it('should show update modal on version ready event', () => {
+      const swUpdate = TestBed.inject(SwUpdate);
+      const versionUpdates$ = new Subject<VersionEvent>();
+      Object.defineProperty(swUpdate, 'isEnabled', {
+        value: true,
+        configurable: true,
+      });
+      Object.defineProperty(swUpdate, 'versionUpdates', {
+        value: versionUpdates$,
+        configurable: true,
+      });
+
+      fixture.detectChanges();
+
+      versionUpdates$.next({
+        type: 'VERSION_INSTALLING',
+      } as VersionEvent);
+      expect(component.showUpdateModal).toBeUndefined();
+
+      versionUpdates$.next({
+        type: 'VERSION_READY',
+        currentVersion: { hash: 'abc', appData: undefined },
+        latestVersion: { hash: 'def', appData: undefined },
+      } as VersionReadyEvent);
+      expect(component.showUpdateModal).toBe(true);
+    });
+
+    it('should init flowbite on NavigationEnd', fakeAsync(() => {
+      fixture.detectChanges();
+      mockRouter.events.next(new NavigationEnd(1, '/test', '/test'));
+      tick(100);
+      expect(component).toBeTruthy();
+    }));
+
+    it('should keep sidebar open on resize when width >= 1024 and already open', () => {
+      fixture.detectChanges();
+      component.sidebarOpen = true;
+      Object.defineProperty(document.documentElement, 'clientWidth', {
+        value: 1200,
+        configurable: true,
+      });
+      mockSettingsService.resize$.next();
+      expect(component.sidebarOpen).toBe(true);
+    });
+
+    it('should set refreshing to false on market status emission', () => {
+      component.refreshing = true;
+      fixture.detectChanges();
+      mockMarketService.marketStatus$.next(mockMarketStatus);
+      expect(component.refreshing).toBe(false);
+    });
+  });
+
+  describe('configureInstallModel', () => {
+    it('should show install modal on beforeinstallprompt event', () => {
+      fixture.detectChanges();
+      window.dispatchEvent(new Event('beforeinstallprompt'));
+      expect(component.showInstallModal).toBe(true);
+    });
   });
 
   describe('updateApp', () => {
     it('should set showUpdateModal to false', () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       component.showUpdateModal = true;
       component.updateApp();
       expect(component.showUpdateModal).toBe(false);
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -154,9 +234,10 @@ describe('AppComponent', () => {
   describe('installApp', () => {
     it('should call prompt and close modal', () => {
       const promptMock = jest.fn();
-      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent = {
-        prompt: promptMock,
-      };
+      (component as unknown as Record<string, unknown>).pwaInstallPromptEvent =
+        {
+          prompt: promptMock,
+        };
       component.installApp();
       expect(promptMock).toHaveBeenCalled();
       expect(component.showInstallModal).toBe(false);
@@ -242,7 +323,9 @@ describe('AppComponent', () => {
         configurable: true,
       });
       const anchor = { href: '', click: jest.fn(), remove: jest.fn() };
-      jest.spyOn(document, 'createElement').mockReturnValue(anchor as unknown as HTMLElement);
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(anchor as unknown as HTMLElement);
       await component.share();
       expect(anchor.click).toHaveBeenCalled();
     });
@@ -259,7 +342,9 @@ describe('AppComponent', () => {
         configurable: true,
       });
       await component.share();
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('share failed'));
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.stringContaining('share failed'),
+      );
     });
   });
 

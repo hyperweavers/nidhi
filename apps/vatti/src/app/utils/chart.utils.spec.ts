@@ -1,4 +1,3 @@
-import { ChartType } from '../models/chart';
 import { ChartUtils } from './chart.utils';
 
 describe('ChartUtils', () => {
@@ -93,9 +92,7 @@ describe('ChartUtils', () => {
 
     it('should set label callback undefined when not provided', () => {
       const options = ChartUtils.getDoughnutChartOptions();
-      expect(
-        (options.plugins!.tooltip as any).callbacks.label,
-      ).toBeUndefined();
+      expect((options.plugins!.tooltip as any).callbacks.label).toBeUndefined();
     });
 
     it('should use provided tooltipLabelCallback', () => {
@@ -111,9 +108,9 @@ describe('ChartUtils', () => {
           dataset: { backgroundColor: ['#111', '#222', '#333'] },
           dataIndex: 1,
         };
-        const result = (
-          options.plugins!.tooltip as any
-        ).callbacks.labelColor(context);
+        const result = (options.plugins!.tooltip as any).callbacks.labelColor(
+          context,
+        );
         expect(result).toEqual({
           borderColor: '#222',
           backgroundColor: '#222',
@@ -124,9 +121,9 @@ describe('ChartUtils', () => {
       it('should return defaultColor when backgroundColor is missing', () => {
         const options = ChartUtils.getDoughnutChartOptions();
         const context = { dataset: {} as any, dataIndex: 0 };
-        const result = (
-          options.plugins!.tooltip as any
-        ).callbacks.labelColor(context);
+        const result = (options.plugins!.tooltip as any).callbacks.labelColor(
+          context,
+        );
         expect(result.borderColor).toBe(ChartUtils.defaultColor);
         expect(result.backgroundColor).toBe(ChartUtils.defaultColor);
       });
@@ -187,12 +184,8 @@ describe('ChartUtils', () => {
 
     it('should leave tooltip callbacks undefined when not provided', () => {
       const options = ChartUtils.getLineChartOptions();
-      expect(
-        (options.plugins!.tooltip as any).callbacks.label,
-      ).toBeUndefined();
-      expect(
-        (options.plugins!.tooltip as any).callbacks.title,
-      ).toBeUndefined();
+      expect((options.plugins!.tooltip as any).callbacks.label).toBeUndefined();
+      expect((options.plugins!.tooltip as any).callbacks.title).toBeUndefined();
       expect(
         (options.plugins!.tooltip as any).callbacks.footer,
       ).toBeUndefined();
@@ -210,11 +203,7 @@ describe('ChartUtils', () => {
     });
 
     it('should set stacked when true', () => {
-      const options = ChartUtils.getBarChartOptions(
-        undefined,
-        undefined,
-        true,
-      );
+      const options = ChartUtils.getBarChartOptions(undefined, undefined, true);
       expect((options as any).scales.x.stacked).toBe(true);
       expect((options as any).scales.y.stacked).toBe(true);
     });
@@ -271,9 +260,9 @@ describe('ChartUtils', () => {
         const context = {
           dataset: { backgroundColor: 'rgb(255, 0, 0)' },
         };
-        const result = (
-          options.plugins!.tooltip as any
-        ).callbacks.labelColor(context);
+        const result = (options.plugins!.tooltip as any).callbacks.labelColor(
+          context,
+        );
         expect(result).toEqual({
           borderColor: 'rgb(255, 0, 0)',
           backgroundColor: 'rgb(255, 0, 0)',
@@ -284,9 +273,9 @@ describe('ChartUtils', () => {
       it('should return defaultColor when backgroundColor is missing', () => {
         const options = ChartUtils.getBarChartOptions();
         const context = { dataset: {} as any };
-        const result = (
-          options.plugins!.tooltip as any
-        ).callbacks.labelColor(context);
+        const result = (options.plugins!.tooltip as any).callbacks.labelColor(
+          context,
+        );
         expect(result.borderColor).toBe(ChartUtils.defaultColor);
         expect(result.backgroundColor).toBe(ChartUtils.defaultColor);
       });
@@ -363,9 +352,7 @@ describe('ChartUtils', () => {
 
   describe('increaseLegendSpacing plugin', () => {
     it('should have id increaseLegendSpacing', () => {
-      expect(ChartUtils.increaseLegendSpacing.id).toBe(
-        'increaseLegendSpacing',
-      );
+      expect(ChartUtils.increaseLegendSpacing.id).toBe('increaseLegendSpacing');
     });
 
     it('should increase legend height by 20 when legend.fit exists', () => {
@@ -397,6 +384,8 @@ describe('ChartUtils', () => {
       expect(legend.fit).toBeNull();
       expect(legend.height).toBe(10);
     });
+  });
+
   describe('legend onClick handlers', () => {
     it('should call doughnut legend onClick without error', () => {
       const options = ChartUtils.getDoughnutChartOptions();

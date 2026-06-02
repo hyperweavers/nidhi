@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { ExportPage } from './export.page';
 import { StorageService } from '../../services/core/storage.service';
+import { ExportPage } from './export.page';
 
 describe('ExportPage', () => {
   let component: ExportPage;
@@ -12,7 +12,12 @@ describe('ExportPage', () => {
 
   beforeEach(async () => {
     storageService = { exportDb: jest.fn() };
-    logger = { captureException: jest.fn(), error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+    logger = {
+      captureException: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ExportPage],
@@ -33,10 +38,12 @@ describe('ExportPage', () => {
 
   it('should export successfully and trigger download', async () => {
     const blob = new Blob(['data'], { type: 'application/json' });
-    storageService.exportDb.mockImplementation(async (callback: (p: { done: boolean }) => boolean) => {
-      callback({ done: true });
-      return blob;
-    });
+    storageService.exportDb.mockImplementation(
+      async (callback: (p: { done: boolean }) => boolean) => {
+        callback({ done: true });
+        return blob;
+      },
+    );
 
     const origCreate = URL.createObjectURL;
     const origRevoke = URL.revokeObjectURL;
@@ -64,7 +71,9 @@ describe('ExportPage', () => {
     await component.export();
 
     expect(logger.captureException).toHaveBeenCalledWith(error);
-    expect(component.statusMessage).toBe('Failed to export data. Please try again.');
+    expect(component.statusMessage).toBe(
+      'Failed to export data. Please try again.',
+    );
     expect(component.showExportProgress).toBe(false);
   });
 
@@ -73,6 +82,12 @@ describe('ExportPage', () => {
     expect(result).toBe(true);
     expect(component.statusMessage).toBe('Data exported successfully!');
     expect(component.showExportProgress).toBe(false);
+  });
+
+  it('should not update state on progress callback not done', () => {
+    const result = (component as any).progressCallback({ done: false });
+    expect(result).toBe(true);
+    expect(component.statusMessage).toBeUndefined();
   });
 
   it('should close status modal', () => {

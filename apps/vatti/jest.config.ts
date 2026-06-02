@@ -19,10 +19,10 @@ export default {
   coverageDirectory: '../../coverage/apps/vatti',
   coverageThreshold: {
     global: {
-      statements: 90,
-      branches: 80,
-      functions: 85,
-      lines: 90,
+      statements: 95,
+      branches: 90,
+      functions: 95,
+      lines: 95,
     },
   },
   reporters,
