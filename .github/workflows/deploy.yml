@@ -218,10 +218,13 @@ jobs:
 
       - name: Commit Version Bump
         if: steps.bump-version.outputs.version != ''
+        env:
+          BOT_TOKEN: ${{ secrets.GH_NIDHI_DEPLOYMENT_TOKEN }}
         run: |
           if ! git diff --quiet apps/${{ matrix.app }}/version; then
-            git config user.name "github-actions"
-            git config user.email "actions@github.com"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git remote set-url origin "https://x-access-token:${BOT_TOKEN}@github.com/${{ github.repository }}.git"
             git add apps/${{ matrix.app }}/version
             git commit -m "chore: bump ${{ matrix.app }} to ${{ steps.bump-version.outputs.version }} [skip ci]"
             git push
