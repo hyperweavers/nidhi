@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
 
       - name: Setup NX Cloud
         # Linux agents: https://github.com/nrwl/nx-cloud-workflows/blob/main/launch-templates/linux.yaml
