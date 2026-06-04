@@ -85,7 +85,6 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
         dividendYield: 0.35,
         marketCap: 15800000,
         faceValue: 10,
-        marketCapType: 'Large Cap',
         pb: 3.5,
         bookValue: 715,
       },
@@ -103,7 +102,11 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
         },
       },
     },
-    details: { sector: 'Oil & Gas', industry: 'Refineries' },
+    details: {
+      sector: { id: '1', name: 'Oil & Gas' },
+      industry: { id: 'ind-1', name: 'Refineries' },
+      marketCapType: 'Large Cap',
+    },
     ...overrides,
   };
 }

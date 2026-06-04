@@ -571,8 +571,18 @@ export class MarketService {
                 },
               },
               details: {
-                sector: companyDetails.sectorName,
-                industry: companyDetails.industryName,
+                sector: {
+                  id: String(companyDetails.sectorId),
+                  name: companyDetails.sectorName,
+                },
+                industry: {
+                  id: companyDetails.industryId,
+                  name: companyDetails.industryName,
+                },
+                marketCapType:
+                  companyDetails.nse?.marketCapType ||
+                  companyDetails.bse?.marketCapType ||
+                  '',
               },
               quote: {
                 nse: companyDetails.nse
@@ -621,7 +631,6 @@ export class MarketService {
               metrics: {
                 nse: companyDetails.nse
                   ? {
-                      marketCapType: companyDetails.nse.marketCapType,
                       marketCap: companyDetails.nse.marketCap,
                       faceValue: companyDetails.nse.faceValue,
                       pe: companyDetails.nse.pe,
@@ -634,7 +643,6 @@ export class MarketService {
                   : undefined,
                 bse: companyDetails.bse
                   ? {
-                      marketCapType: companyDetails.bse.marketCapType,
                       marketCap: companyDetails.bse.marketCap,
                       faceValue: companyDetails.bse.faceValue,
                       pe: companyDetails.bse.pe,

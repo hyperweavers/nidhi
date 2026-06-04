@@ -29,10 +29,13 @@ function storageHolding(overrides?: Partial<Holding>): Holding {
     name: 'Reliance Industries Ltd.',
     scripCode: { nse: 'RELIANCE', bse: 'REL', isin: 'INE002A01018' },
     vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-    details: { sector: 'Oil & Gas', industry: 'Refineries' },
+    details: {
+      sector: { id: '1', name: 'Oil & Gas' },
+      industry: { id: 'ind-1', name: 'Refineries' },
+      marketCapType: 'Large Cap',
+    },
     metrics: {
       nse: {
-        marketCapType: 'Large Cap',
         marketCap: 1_800_000_000_000,
         faceValue: 10,
         pe: 28.5,
@@ -644,7 +647,7 @@ describe('PortfolioService', () => {
       expect(marketService.getStock).toHaveBeenCalledWith('comp-tcs', true);
     });
 
-    it('updates Dexie via db.stocks.where().equals().modify when stock has isin/sector/marketCap', async () => {
+    it('updates Dexie via db.stocks.where().equals().modify when stock has marketCapType', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
         metrics: undefined as any,
@@ -654,10 +657,13 @@ describe('PortfolioService', () => {
         name: 'Reliance Industries Ltd.',
         scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        details: { sector: 'Oil & Gas', industry: 'Refineries' },
+        details: {
+          sector: { id: '1', name: 'Oil & Gas' },
+          industry: { id: 'ind-1', name: 'Refineries' },
+          marketCapType: 'Large Cap',
+        },
         metrics: {
           nse: {
-            marketCapType: 'Large Cap',
             marketCap: 1_800_000_000_000,
             faceValue: 10,
             pe: 28.5,
@@ -684,7 +690,6 @@ describe('PortfolioService', () => {
       const modifyMock = equalsMock.mock.results[0].value.modify;
       expect(modifyMock).toHaveBeenCalledWith({
         details: enrichedStock.details,
-        metrics: enrichedStock.metrics,
       });
     });
 
@@ -715,10 +720,13 @@ describe('PortfolioService', () => {
         name: 'Reliance Industries Ltd.',
         scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        details: { sector: 'Oil & Gas', industry: 'Refineries' },
+        details: {
+          sector: { id: '1', name: 'Oil & Gas' },
+          industry: { id: 'ind-1', name: 'Refineries' },
+          marketCapType: 'Large Cap',
+        },
         metrics: {
           nse: {
-            marketCapType: 'Large Cap',
             marketCap: 1_800_000_000_000,
             faceValue: 10,
             pe: 28.5,
@@ -773,10 +781,13 @@ describe('PortfolioService', () => {
         name: 'Reliance',
         scripCode: { nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        details: { sector: 'Oil & Gas', industry: 'Refineries' },
+        details: {
+          sector: { id: '1', name: 'Oil & Gas' },
+          industry: { id: 'ind-1', name: 'Refineries' },
+          marketCapType: 'Large Cap',
+        },
         metrics: {
           nse: {
-            marketCapType: 'Large Cap',
             marketCap: 1_800_000_000_000,
             faceValue: 10,
             pe: 28.5,
@@ -818,29 +829,16 @@ describe('PortfolioService', () => {
       expect(marketService.getStock).not.toHaveBeenCalled();
     });
 
-    it('includes holding with sector present but marketCap missing in missing filter', () => {
+    it('includes holding with no enrichment details in missing filter', () => {
       setup([storageHolding()], [marketStock()], (code: string) => of(null));
 
-      // Holding has sector but no marketCap → !sector is false, !marketCap is true → included
-      const holdingNoMarketCap = storageHolding({
-        id: 'no-mcap',
-        metrics: {
-          nse: {
-            marketCapType: 'Large Cap',
-            marketCap: 0,
-            faceValue: 10,
-            pe: 28.5,
-            pb: 3.2,
-            eps: 98,
-            vwap: 2775,
-            dividendYield: 0.5,
-            bookValue: 850,
-          },
-        },
+      const holdingNoDetails = storageHolding({
+        id: 'no-details',
+        details: {} as any,
       });
 
       (service as any).enriching = false;
-      (service as any).enrichMissingDetails([holdingNoMarketCap]);
+      (service as any).enrichMissingDetails([holdingNoDetails]);
 
       expect(marketService.getStock).toHaveBeenCalledTimes(1);
     });
@@ -868,66 +866,59 @@ describe('PortfolioService', () => {
       expect(db.stocks.where).not.toHaveBeenCalled();
     });
 
-    it('handles getStock returning stock with isin/sector but missing marketCap (no db update)', () => {
+    it('handles getStock returning stock with isin but all details blank (no db update)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
         metrics: undefined as any,
       });
 
-      const stockWithSectorNoMcap: Stock = {
+      const stockWithBlankDetails: Stock = {
         name: 'Reliance',
         scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        details: { sector: 'Oil & Gas', industry: 'Refineries' },
-        metrics: {
-          nse: {
-            marketCapType: 'Large Cap',
-            marketCap: 0,
-            faceValue: 10,
-            pe: 0,
-            pb: 0,
-            eps: 0,
-            vwap: 0,
-            dividendYield: 0,
-            bookValue: 0,
-          },
+        details: {
+          sector: { id: '', name: '' },
+          industry: { id: '', name: '' },
+          marketCapType: '',
         },
       };
 
       setup([holdingMissing], [marketStock()], (code: string) =>
-        of(stockWithSectorNoMcap),
+        of(stockWithBlankDetails),
       );
 
       (service as any).enriching = false;
       (service as any).enrichMissingDetails([holdingMissing]);
 
-      // isin truthy, sector truthy, marketCap is 0 (falsy) → short-circuit at line 225 → no db update
+      // isin truthy, but all details fields blank → guard fails → no db update
       expect(db.stocks.where).not.toHaveBeenCalled();
     });
 
-    it('handles getStock returning stock with null metrics.nse (covers optional chaining branch)', () => {
+    it('handles getStock returning stock with all details blank (covers optional chaining branch)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
         metrics: undefined as any,
       });
 
-      const stockWithNullNse: Stock = {
+      const stockWithBlankDetails: Stock = {
         name: 'Reliance',
         scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
         vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
-        details: { sector: 'Oil & Gas', industry: 'Refineries' },
-        metrics: { nse: undefined as any },
+        details: {
+          sector: { id: '', name: '' },
+          industry: { id: '', name: '' },
+          marketCapType: '',
+        },
       };
 
       setup([holdingMissing], [marketStock()], (code: string) =>
-        of(stockWithNullNse),
+        of(stockWithBlankDetails),
       );
 
       (service as any).enriching = false;
       (service as any).enrichMissingDetails([holdingMissing]);
 
-      // stock?.scripCode?.isin truthy, stock?.details?.sector truthy,
-      // stock?.metrics?.nse?.marketCap → nse is undefined → ?. returns undefined → falsy → no db update
+      // isin truthy, but all details fields blank → guard fails → no db update
       expect(db.stocks.where).not.toHaveBeenCalled();
     });
 
