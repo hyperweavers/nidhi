@@ -623,7 +623,7 @@
               Sector
             </div>
             <div class="flex">
-              {{ stock.details?.sector | valueOrPlaceholder }}
+              {{ stock.details?.sector?.name | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -632,7 +632,7 @@
               Industry
             </div>
             <div class="flex">
-              {{ stock.details?.industry | valueOrPlaceholder }}
+              {{ stock.details?.industry?.name | valueOrPlaceholder }}
             </div>
           </div>
 
@@ -641,8 +641,7 @@
               Market Cap Type
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.marketCapType |
-              valueOrPlaceholder }}
+              {{ stock.details?.marketCapType | valueOrPlaceholder }}
             </div>
           </div>
         </div>

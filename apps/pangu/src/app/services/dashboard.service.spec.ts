@@ -19,10 +19,13 @@ const mockPortfolio: Portfolio = {
       name: 'Reliance Industries Ltd.',
       scripCode: { nse: 'RELIANCE' },
       vendorCode: { etm: { primary: 'comp-123', chart: 'RELIANCE' } },
-      details: { sector: 'Oil & Gas', industry: 'Refineries' },
+      details: {
+        sector: { id: '1', name: 'Oil & Gas' },
+        industry: { id: 'ind-1', name: 'Refineries' },
+        marketCapType: 'Large Cap',
+      },
       metrics: {
         nse: {
-          marketCapType: 'Large Cap',
           marketCap: 1800000000000,
           faceValue: 10,
           pe: 28.5,
@@ -73,10 +76,13 @@ const mockPortfolio: Portfolio = {
       name: 'TCS Ltd.',
       scripCode: { nse: 'TCS' },
       vendorCode: { etm: { primary: 'comp-456', chart: 'TCS' } },
-      details: { sector: 'Technology', industry: 'IT Services' },
+      details: {
+        sector: { id: '2', name: 'Technology' },
+        industry: { id: 'ind-2', name: 'IT Services' },
+        marketCapType: 'Large Cap',
+      },
       metrics: {
         nse: {
-          marketCapType: 'Large Cap',
           marketCap: 1200000000000,
           faceValue: 1,
           pe: 35,
@@ -946,17 +952,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 600,
-          details: { sector: 'Technology' },
+          details: { sector: { id: '2', name: 'Technology' } },
         } as Holding,
         {
           name: 'H2',
           marketValue: 200,
-          details: { sector: 'Technology' },
+          details: { sector: { id: '2', name: 'Technology' } },
         } as Holding,
         {
           name: 'H3',
           marketValue: 200,
-          details: { sector: 'Oil & Gas' },
+          details: { sector: { id: '1', name: 'Oil & Gas' } },
         } as Holding,
       ];
 
@@ -971,7 +977,7 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 300,
-          details: { sector: 'Technology' },
+          details: { sector: { id: '2', name: 'Technology' } },
         } as Holding,
         { name: 'H2', marketValue: 200 } as Holding,
       ];
@@ -986,17 +992,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 400,
-          details: { sector: 'Technology' },
+          details: { sector: { id: '2', name: 'Technology' } },
         } as Holding,
         {
           name: 'H2',
           marketValue: 0,
-          details: { sector: 'Oil & Gas' },
+          details: { sector: { id: '1', name: 'Oil & Gas' } },
         } as Holding,
         {
           name: 'H3',
           marketValue: -100,
-          details: { sector: 'Energy' },
+          details: { sector: { id: '3', name: 'Energy' } },
         } as Holding,
       ];
 
@@ -1010,17 +1016,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 100,
-          details: { sector: 'Small' },
+          details: { sector: { id: '4', name: 'Small' } },
         } as Holding,
         {
           name: 'H2',
           marketValue: 500,
-          details: { sector: 'Large' },
+          details: { sector: { id: '5', name: 'Large' } },
         } as Holding,
         {
           name: 'H3',
           marketValue: 200,
-          details: { sector: 'Medium' },
+          details: { sector: { id: '6', name: 'Medium' } },
         } as Holding,
       ];
 
@@ -1035,17 +1041,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 600,
-          metrics: { nse: { marketCapType: 'Large Cap' } },
+          details: { marketCapType: 'Large Cap' },
         } as Holding,
         {
           name: 'H2',
           marketValue: 300,
-          metrics: { nse: { marketCapType: 'Mid Cap' } },
+          details: { marketCapType: 'Mid Cap' },
         } as Holding,
         {
           name: 'H3',
           marketValue: 100,
-          metrics: { nse: { marketCapType: 'Small Cap' } },
+          details: { marketCapType: 'Small Cap' },
         } as Holding,
       ];
 
@@ -1061,10 +1067,10 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 400,
-          metrics: { nse: { marketCapType: 'Large Cap' } },
+          details: { marketCapType: 'Large Cap' },
         } as Holding,
         { name: 'H2', marketValue: 200 } as Holding,
-        { name: 'H3', marketValue: 300, metrics: {} } as Holding,
+        { name: 'H3', marketValue: 300 } as Holding,
       ];
 
       const result = (service as any).calculateMarketCapWeight(holdings, 900);
@@ -1077,17 +1083,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 500,
-          metrics: { nse: { marketCapType: 'Large Cap' } },
+          details: { marketCapType: 'Large Cap' },
         } as Holding,
         {
           name: 'H2',
           marketValue: 0,
-          metrics: { nse: { marketCapType: 'Mid Cap' } },
+          details: { marketCapType: 'Mid Cap' },
         } as Holding,
         {
           name: 'H3',
           marketValue: -100,
-          metrics: { nse: { marketCapType: 'Small Cap' } },
+          details: { marketCapType: 'Small Cap' },
         } as Holding,
       ];
 
@@ -1101,17 +1107,17 @@ describe('DashboardService', () => {
         {
           name: 'H1',
           marketValue: 200,
-          metrics: { nse: { marketCapType: 'Small' } },
+          details: { marketCapType: 'Small' },
         } as Holding,
         {
           name: 'H2',
           marketValue: 500,
-          metrics: { nse: { marketCapType: 'Large' } },
+          details: { marketCapType: 'Large' },
         } as Holding,
         {
           name: 'H3',
           marketValue: 300,
-          metrics: { nse: { marketCapType: 'Medium' } },
+          details: { marketCapType: 'Medium' },
         } as Holding,
       ];
 
@@ -1119,12 +1125,12 @@ describe('DashboardService', () => {
       expect(result.marketCaps).toEqual(['Large', 'Medium', 'Small']);
     });
 
-    it('should handle holdings with undefined metrics.nse', () => {
+    it('should use Not Classified for holdings without marketCapType in details', () => {
       const holdings = [
         {
           name: 'H1',
           marketValue: 300,
-          metrics: { bse: { marketCapType: 'Large Cap' } },
+          details: { sector: { id: '7', name: 'Finance' } },
         } as unknown as Holding,
       ];
 

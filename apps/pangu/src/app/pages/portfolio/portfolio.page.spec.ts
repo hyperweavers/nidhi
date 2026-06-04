@@ -699,8 +699,12 @@ describe('PortfolioPage', () => {
           name: 'Reliance Industries',
           scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
           vendorCode: { etm: { primary: 'RELIANCE' } },
-          details: { sector: 'Oil & Gas', industry: 'Refinery' },
-          metrics: { nse: { marketCap: 1000000, marketCapType: 'Large' } },
+          details: {
+            sector: { id: '1', name: 'Oil & Gas' },
+            industry: { id: 'ind-1', name: 'Refinery' },
+            marketCapType: 'Large',
+          },
+          metrics: { nse: { marketCap: 1000000 } },
         }),
       );
       mockMarketService.searchSecondary = jest

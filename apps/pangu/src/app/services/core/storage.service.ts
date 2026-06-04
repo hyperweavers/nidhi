@@ -32,8 +32,11 @@ export class StorageService {
     if (stock?.id) {
       await db.stocks.update(stock.id, {
         transactions: [...stock.transactions, transaction],
-        ...(stock.details?.sector ? {} : { details: holding.details }),
-        ...(stock.metrics?.nse?.marketCap ? {} : { metrics: holding.metrics }),
+        ...(stock.details?.sector?.name ||
+        stock.details?.industry?.name ||
+        stock.details?.marketCapType
+          ? {}
+          : { details: holding.details }),
       });
     } else {
       holding = {

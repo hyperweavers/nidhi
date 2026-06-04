@@ -276,7 +276,7 @@ export class DashboardService {
       const mv = h.marketValue || 0;
       if (mv <= 0) continue;
 
-      const sector = h.details?.sector || 'Unknown';
+      const sector = h.details?.sector?.name || 'Unknown';
       sectorMap.set(sector, (sectorMap.get(sector) || 0) + mv);
     }
 
@@ -302,7 +302,7 @@ export class DashboardService {
       const mv = h.marketValue || 0;
       if (mv <= 0) continue;
 
-      const capType = h.metrics?.nse?.marketCapType || 'Not Classified';
+      const capType = h.details?.marketCapType || 'Not Classified';
       capMap.set(capType, (capMap.get(capType) || 0) + mv);
     }
 

@@ -79,10 +79,13 @@ describe('StorageService', () => {
       name: 'Test Stock',
       scripCode: { isin: 'TESTISIN001' },
       vendorCode: { etm: { primary: 'test', chart: '' }, mc: { primary: '' } },
-      details: { sector: 'Technology', industry: 'Software' },
+      details: {
+        sector: { id: '2', name: 'Technology' },
+        industry: { id: 'ind-2', name: 'Software' },
+        marketCapType: 'Large Cap',
+      },
       metrics: {
         nse: {
-          marketCapType: 'Large Cap',
           marketCap: 100000,
           faceValue: 10,
           pe: 20,
@@ -109,10 +112,13 @@ describe('StorageService', () => {
       scripCode: { isin: 'TESTISIN001' },
       vendorCode: { etm: { primary: 'test', chart: '' }, mc: { primary: '' } },
       transactions: [existingTx],
-      details: { sector: 'Technology', industry: 'Software' },
+      details: {
+        sector: { id: '2', name: 'Technology' },
+        industry: { id: 'ind-2', name: 'Software' },
+        marketCapType: 'Large Cap',
+      },
       metrics: {
         nse: {
-          marketCapType: 'Large Cap',
           marketCap: 100000,
           faceValue: 10,
           pe: 20,

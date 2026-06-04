@@ -20,8 +20,9 @@ export interface ScripCode {
 }
 
 export interface Details {
-  sector: string;
-  industry: string;
+  sector: { id: string; name: string };
+  industry: { id: string; name: string };
+  marketCapType: string;
 }
 
 export interface ExchangeQuote {
@@ -58,7 +59,6 @@ export interface ExchangeMetrics {
 }
 
 export interface Metrics {
-  marketCapType: string;
   marketCap: number;
   faceValue: number;
   pe: number;

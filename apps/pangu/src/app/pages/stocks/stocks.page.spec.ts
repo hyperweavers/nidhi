@@ -77,6 +77,11 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
         volume: 100000,
       },
     },
+    details: {
+      sector: { id: '', name: '' },
+      industry: { id: '', name: '' },
+      marketCapType: 'Large Cap',
+    },
     metrics: {
       nse: {
         eps: 85,
@@ -85,7 +90,6 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
         dividendYield: 0.35,
         marketCap: 15800000,
         faceValue: 10,
-        marketCapType: 'Large Cap',
         pb: 3.5,
         bookValue: 715,
       },
@@ -103,7 +107,10 @@ function createMockStock(overrides?: Partial<Stock>): Stock {
         },
       },
     },
-    details: { sector: 'Oil & Gas', industry: 'Refineries' },
+    details: {
+      sector: { id: '1', name: 'Oil & Gas' },
+      industry: { id: 'ind-1', name: 'Refineries' },
+    },
     ...overrides,
   };
 }

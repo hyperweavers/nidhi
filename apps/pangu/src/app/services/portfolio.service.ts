@@ -204,7 +204,9 @@ export class PortfolioService {
     const missing = holdings.filter(
       (h) =>
         h.vendorCode.etm.primary &&
-        (!h.details?.sector || !h.metrics?.nse?.marketCap),
+        !h.details?.sector?.name &&
+        !h.details?.industry?.name &&
+        !h.details?.marketCapType,
     );
 
     if (missing.length === 0) {
@@ -221,13 +223,14 @@ export class PortfolioService {
         tap((stock) => {
           if (
             stock?.scripCode?.isin &&
-            stock?.details?.sector &&
-            stock?.metrics?.nse?.marketCap
+            (stock?.details?.sector?.name ||
+              stock?.details?.industry?.name ||
+              stock?.details?.marketCapType)
           ) {
             db.stocks
               .where('scripCode.isin')
               .equals(stock.scripCode.isin)
-              .modify({ details: stock.details, metrics: stock.metrics })
+              .modify({ details: stock.details })
               .catch(() => {
                 /* empty - enrichment is best-effort */
               });

@@ -150,8 +150,8 @@ describe('MarketService', () => {
         .flush(mockCompanyDetails);
       tick();
       expect(result).toBeTruthy();
-      expect(result.details?.sector).toBe('Oil & Gas');
-      expect(result.metrics?.nse?.marketCapType).toBe('Large Cap');
+      expect(result.details?.sector?.name).toBe('Oil & Gas');
+      expect(result.details?.marketCapType).toBe('Large Cap');
     }));
   });
 
