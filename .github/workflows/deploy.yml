@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
@@ -72,7 +72,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint and Run Unit Tests
-        run: pnpm nx affected -t lint test --parallel
+        run: pnpm nx run-many -t lint test -p ${{ matrix.app }}
+
+      # Disabled e2e tests until available
+      # - name: Lint and Run Unit & E2E Tests
+      #   run: pnpm nx run-many -t lint test e2e-ci -p ${{ matrix.app }}
 
       - name: Upload coverage and test results to Codecov
         env:
@@ -166,10 +170,6 @@ jobs:
               fi
             fi
           done
-
-      # Disabled e2e tests until available
-      # - name: Lint and Run Unit & E2E Tests
-      #   run: pnpm nx affected --target=lint,test,e2e-ci --parallel
 
       - name: Bump Version
         id: bump-version

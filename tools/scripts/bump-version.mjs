@@ -38,15 +38,13 @@ try {
 }
 
 if (!log && lastVersionCommit) {
-  const appChanges = execSync(
-    `git diff-tree --no-commit-id -r --name-only "${lastVersionCommit}" -- "${projectDir}/" ':!${versionFile}'`,
-    { encoding: 'utf-8' },
-  ).trim();
-  if (appChanges) {
+  try {
     log = execSync(
       `git log --oneline -1 "${lastVersionCommit}" -- "${projectDir}/"`,
       { encoding: 'utf-8' },
     ).trim();
+  } catch {
+    // Shallow clone or git limitation — skip bump this round
   }
 }
 
