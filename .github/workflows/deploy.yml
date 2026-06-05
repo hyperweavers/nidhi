@@ -58,6 +58,8 @@ jobs:
         # Latest version v6 introduced a breaking change in credentials storage that
         # affects the deploy action. Until, deploy action fixes it, sticking with v5.
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
