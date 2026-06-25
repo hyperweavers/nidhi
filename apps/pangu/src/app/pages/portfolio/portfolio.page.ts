@@ -116,9 +116,15 @@ export class PortfolioPage implements AfterViewInit {
   public readonly quantity = signal(0);
   public readonly charges = signal(0);
   public readonly gross = computed(() => this.price() * this.quantity());
-  public readonly net = computed(() => this.gross() + this.charges());
+  public readonly net = computed(
+    () =>
+      this.gross() +
+      (this.transactionType() === TransactionType.SELL
+        ? -this.charges()
+        : this.charges()),
+  );
 
-  public transactionType?: TransactionType;
+  public transactionType = signal<TransactionType | undefined>(undefined);
   public showSearchResults?: boolean;
   public showStatusModal?: boolean;
   public showTransactionProgress?: boolean;
@@ -212,7 +218,7 @@ export class PortfolioPage implements AfterViewInit {
       filter((query) => query.length > 2 && query !== this.selectedStock?.name),
       switchMap((query) =>
         iif(
-          () => this.transactionType === TransactionType.BUY,
+          () => this.transactionType() === TransactionType.BUY,
           this.marketService.search(query),
           portfolioService.portfolio$.pipe(
             map((portfolio) =>
@@ -259,7 +265,7 @@ export class PortfolioPage implements AfterViewInit {
   public async addTransaction(): Promise<void> {
     if (
       this.selectedStock &&
-      this.transactionType &&
+      this.transactionType() &&
       this.date() &&
       this.price() > 0 &&
       this.quantity() > 0 &&
@@ -275,7 +281,7 @@ export class PortfolioPage implements AfterViewInit {
 
         const transaction = {
           id: uuid(),
-          type: this.transactionType,
+          type: this.transactionType() as TransactionType,
           date: date.getTime(),
           price: this.price(),
           quantity: this.quantity(),
@@ -300,7 +306,7 @@ export class PortfolioPage implements AfterViewInit {
   }
 
   public openAddTransactionDrawer(type: TransactionType): void {
-    this.transactionType = type;
+    this.transactionType.set(type);
   }
 
   public selectStock(stock: Stock | Holding): void {
@@ -404,7 +410,7 @@ export class PortfolioPage implements AfterViewInit {
     this.showStatusModal = false;
 
     if (!retainTransactionType) {
-      this.transactionType = undefined;
+      this.transactionType.set(undefined);
     }
   }
 

@@ -584,7 +584,7 @@
       id="drawer-label"
       class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
     >
-      {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}} Stock
+      {{ transactionType() === TransactionType.SELL ? 'Sell' : 'Buy'}} Stock
     </h5>
 
     <button
@@ -786,7 +786,7 @@
           type="submit"
           class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex w-full justify-center rounded-md px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
         >
-          {{ transactionType === TransactionType.SELL ? 'Sell' : 'Buy'}}
+          {{ transactionType() === TransactionType.SELL ? 'Sell' : 'Buy'}}
         </button>
         <button
           (click)="resetTransactionForm()"
