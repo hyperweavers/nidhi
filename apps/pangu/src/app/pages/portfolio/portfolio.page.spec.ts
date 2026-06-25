@@ -452,12 +452,12 @@ describe('PortfolioPage', () => {
 
     it('should open buy drawer', () => {
       component.openAddTransactionDrawer(TransactionType.BUY);
-      expect(component.transactionType).toBe(TransactionType.BUY);
+      expect(component.transactionType()).toBe(TransactionType.BUY);
     });
 
     it('should open sell drawer', () => {
       component.openAddTransactionDrawer(TransactionType.SELL);
-      expect(component.transactionType).toBe(TransactionType.SELL);
+      expect(component.transactionType()).toBe(TransactionType.SELL);
     });
 
     it('should reject transaction with missing fields', () => {
@@ -468,7 +468,7 @@ describe('PortfolioPage', () => {
     });
 
     it('should reject transaction with future date', fakeAsync(() => {
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = mockHolding;
       component.name.set('Test');
       const futureYear = new Date().getFullYear() + 5;
@@ -484,7 +484,7 @@ describe('PortfolioPage', () => {
     }));
 
     it('should submit transaction successfully', fakeAsync(() => {
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = mockHolding;
       component.name.set('Test');
       component.date.set('01/01/2020');
@@ -512,7 +512,7 @@ describe('PortfolioPage', () => {
     }));
 
     it('should reject if charges is invalid (negative)', () => {
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = mockHolding;
       component.date.set('01/01/2020');
       component.price.set(100);
@@ -526,7 +526,7 @@ describe('PortfolioPage', () => {
     });
 
     it('should accept transaction with zero charges', fakeAsync(() => {
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = mockHolding;
       component.name.set('Test');
       component.date.set('01/01/2020');
@@ -550,7 +550,7 @@ describe('PortfolioPage', () => {
 
     it('should reset transaction form', () => {
       (component as any).selectedStock = mockHolding;
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       component.name.set('Test');
       component.date.set('01/01/2020');
       component.price.set(100);
@@ -570,15 +570,15 @@ describe('PortfolioPage', () => {
       component.showStatusModal = true;
       component.closeStatusModal(false);
       expect(component.showStatusModal).toBe(false);
-      expect(component.transactionType).toBeUndefined();
+      expect(component.transactionType()).toBeUndefined();
     });
 
     it('should close status modal and retain transaction type', () => {
       component.showStatusModal = true;
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       component.closeStatusModal(true);
       expect(component.showStatusModal).toBe(false);
-      expect(component.transactionType).toBe(TransactionType.BUY);
+      expect(component.transactionType()).toBe(TransactionType.BUY);
     });
 
     it('should compute gross and net from signals', fakeAsync(() => {
@@ -590,10 +590,20 @@ describe('PortfolioPage', () => {
       expect(component.net()).toBe(1025);
     }));
 
+    it('should deduct charges for sell transactions', fakeAsync(() => {
+      component.transactionType.set(TransactionType.SELL);
+      component.price.set(200);
+      component.quantity.set(5);
+      component.charges.set(25);
+      tick();
+      expect(component.gross()).toBe(1000);
+      expect(component.net()).toBe(975);
+    }));
+
     it('should reset transaction form without datepicker', () => {
       (component as any).datepicker = undefined;
       (component as any).selectedStock = mockHolding;
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       component.name.set('Test');
       component.date.set('01/01/2020');
       component.price.set(100);
@@ -1469,7 +1479,7 @@ describe('PortfolioPage', () => {
   describe('stock search results', () => {
     it('should search via marketService for buy', fakeAsync(() => {
       createComponent();
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       component.name.set('REL');
 
       fixture.detectChanges();
@@ -1482,7 +1492,7 @@ describe('PortfolioPage', () => {
 
     it('should not search when query is too short', fakeAsync(() => {
       createComponent();
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       component.name.set('RE');
 
       fixture.detectChanges();
@@ -1495,7 +1505,7 @@ describe('PortfolioPage', () => {
 
     it('should not search when query equals selected stock name', fakeAsync(() => {
       createComponent();
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = { name: 'RELIANCE' };
       component.name.set('RELIANCE');
 
@@ -1513,7 +1523,7 @@ describe('PortfolioPage', () => {
         holdings: [mockHolding, mockSellHolding],
       });
       createComponent();
-      component.transactionType = TransactionType.SELL;
+      component.transactionType.set(TransactionType.SELL);
       component.name.set('tcs');
 
       fixture.detectChanges();
@@ -1526,7 +1536,7 @@ describe('PortfolioPage', () => {
 
     it('should clear selectedStock when query changes', fakeAsync(() => {
       createComponent();
-      component.transactionType = TransactionType.BUY;
+      component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = { name: 'OLD' };
       component.name.set('NEW');
 
@@ -1550,7 +1560,7 @@ describe('PortfolioPage', () => {
       const user = userEvent.setup();
       await user.click(sellBtn!);
       fixture.detectChanges();
-      expect(component.transactionType).toBe(TransactionType.SELL);
+      expect(component.transactionType()).toBe(TransactionType.SELL);
     });
 
     it('should open Buy drawer when Buy button is clicked', async () => {
@@ -1563,7 +1573,7 @@ describe('PortfolioPage', () => {
       const user = userEvent.setup();
       await user.click(buyBtn!);
       fixture.detectChanges();
-      expect(component.transactionType).toBe(TransactionType.BUY);
+      expect(component.transactionType()).toBe(TransactionType.BUY);
     });
   });
 });
