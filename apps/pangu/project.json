@@ -10,22 +10,33 @@
   "tags": [],
   "targets": {
     "build": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry", "^build"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry",
+        "^build"
+      ],
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/pangu",
         "index": "apps/pangu/src/index.html",
         "browser": "apps/pangu/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/pangu/tsconfig.app.json",
         "inlineStyleLanguage": "css",
         "assets": [
-          "apps/pangu/src/favicon.ico",
-          "apps/pangu/src/assets",
-          "apps/pangu/src/manifest.webmanifest"
+          {
+            "glob": "**/*",
+            "input": "apps/pangu/public"
+          }
         ],
-        "styles": ["apps/pangu/src/styles.css"],
+        "styles": [
+          "apps/pangu/src/styles.css"
+        ],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
         ]
@@ -64,8 +75,12 @@
     "prebuild-version": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/version.ts"],
-      "inputs": ["{projectRoot}/version"],
+      "outputs": [
+        "{projectRoot}/src/generated/version.ts"
+      ],
+      "inputs": [
+        "{projectRoot}/version"
+      ],
       "options": {
         "command": "node tools/scripts/generate-version.mjs {projectName}"
       }
@@ -73,14 +88,21 @@
     "prebuild-sentry": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/sentry-config.ts"],
-      "inputs": ["{workspaceRoot}/.env"],
+      "outputs": [
+        "{projectRoot}/src/generated/sentry-config.ts"
+      ],
+      "inputs": [
+        "{workspaceRoot}/.env"
+      ],
       "options": {
         "command": "node tools/scripts/generate-sentry-env.mjs {projectName}"
       }
     },
     "serve": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
       "executor": "@angular-devkit/build-angular:dev-server",
       "configurations": {
         "production": {
@@ -104,7 +126,10 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",
         "{workspaceRoot}/test-results/{projectRoot}"
