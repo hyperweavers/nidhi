@@ -630,7 +630,6 @@ describe('PortfolioPage', () => {
       component.selectStock(mockHolding);
       expect((component as any).selectedStock).toEqual(mockHolding);
       expect(component.name()).toBe('Reliance Industries');
-      expect(component.showSearchResults).toBe(false);
     });
 
     it('should show error when stock details cannot be fetched', fakeAsync(() => {
@@ -1503,7 +1502,7 @@ describe('PortfolioPage', () => {
       expect(mockMarketService.search).not.toHaveBeenCalled();
     }));
 
-    it('should not search when query equals selected stock name', fakeAsync(() => {
+    it('should search when query equals selected stock name', fakeAsync(() => {
       createComponent();
       component.transactionType.set(TransactionType.BUY);
       (component as any).selectedStock = { name: 'RELIANCE' };
@@ -1514,38 +1513,7 @@ describe('PortfolioPage', () => {
       tick(600);
       fixture.detectChanges();
 
-      expect(mockMarketService.search).not.toHaveBeenCalled();
-    }));
-
-    it('should search in portfolio holdings for sell transaction', fakeAsync(() => {
-      portfolioSubject.next({
-        ...mockPortfolio,
-        holdings: [mockHolding, mockSellHolding],
-      });
-      createComponent();
-      component.transactionType.set(TransactionType.SELL);
-      component.name.set('tcs');
-
-      fixture.detectChanges();
-      tick();
-      tick(600);
-      fixture.detectChanges();
-
-      expect(component.showSearchResults).toBe(true);
-    }));
-
-    it('should clear selectedStock when query changes', fakeAsync(() => {
-      createComponent();
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = { name: 'OLD' };
-      component.name.set('NEW');
-
-      fixture.detectChanges();
-      tick();
-      tick(600);
-      fixture.detectChanges();
-
-      expect((component as any).selectedStock).toBeUndefined();
+      expect(mockMarketService.search).toHaveBeenCalledWith('RELIANCE');
     }));
   });
 

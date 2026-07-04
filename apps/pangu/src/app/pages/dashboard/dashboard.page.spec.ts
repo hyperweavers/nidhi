@@ -500,6 +500,40 @@ describe('DashboardPage', () => {
       );
       expect(updateSpy).toHaveBeenCalled();
     });
+
+    it('should format tooltip labels for portfolio composition chart', () => {
+      const labelCallback = (component.portfolioCompositionChartOptions as any)
+        .plugins.tooltip.callbacks.label;
+
+      const stockResult = labelCallback({
+        parsed: 60,
+        label: 'Stock A',
+        datasetIndex: 0,
+      });
+      expect(stockResult).toContain('Stock A');
+      expect(stockResult).toContain('60');
+
+      const sectorResult = labelCallback({
+        parsed: 50,
+        label: 'Technology',
+        datasetIndex: 1,
+      });
+      expect(sectorResult).toContain('Technology');
+
+      const marketCapResult = labelCallback({
+        parsed: 30,
+        label: 'Large Cap',
+        datasetIndex: 2,
+      });
+      expect(marketCapResult).toContain('Large Cap');
+
+      const zeroResult = labelCallback({
+        parsed: 0,
+        label: 'Empty',
+        datasetIndex: 0,
+      });
+      expect(zeroResult).toBe('');
+    });
   });
 
   describe('Period switching', () => {

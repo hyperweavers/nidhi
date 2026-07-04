@@ -20,17 +20,15 @@ import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
-  filter,
-  iif,
   map,
   of,
   share,
   switchMap,
   take,
-  tap,
 } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { StockSearchComponent } from '../../components/stock-search/stock-search.component';
 import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
@@ -71,6 +69,7 @@ enum PortfolioSortOrder {
     CommonModule,
     FormsModule,
     RouterLink,
+    StockSearchComponent,
     DrawerClosedDirective,
     ValueOrPlaceholderPipe,
   ],
@@ -90,7 +89,6 @@ export class PortfolioPage implements AfterViewInit {
   );
 
   public portfolio$: Observable<Portfolio>;
-  public stockSearchResults$: Observable<Stock[]>;
 
   private portfolioSearchQuery$: Observable<string>;
 
@@ -125,7 +123,6 @@ export class PortfolioPage implements AfterViewInit {
   );
 
   public transactionType = signal<TransactionType | undefined>(undefined);
-  public showSearchResults?: boolean;
   public showStatusModal?: boolean;
   public showTransactionProgress?: boolean;
   public transactionFormError?: string;
@@ -204,38 +201,6 @@ export class PortfolioPage implements AfterViewInit {
     );
 
     this.restoreFromQueryParams();
-
-    this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500), // TODO: Review the time
-      distinctUntilChanged(),
-      tap((query) => {
-        this.showSearchResults = false;
-
-        if (query !== this.selectedStock?.name) {
-          this.selectedStock = undefined;
-        }
-      }),
-      filter((query) => query.length > 2 && query !== this.selectedStock?.name),
-      switchMap((query) =>
-        iif(
-          () => this.transactionType() === TransactionType.BUY,
-          this.marketService.search(query),
-          portfolioService.portfolio$.pipe(
-            map((portfolio) =>
-              portfolio.holdings.filter(
-                (holding) =>
-                  holding.quantity &&
-                  holding.quantity > 0 &&
-                  holding.name.toLowerCase().includes(query.toLowerCase()),
-              ),
-            ),
-          ),
-        ),
-      ),
-      tap(() => {
-        this.showSearchResults = true;
-      }),
-    );
   }
 
   public ngAfterViewInit(): void {
@@ -386,14 +351,10 @@ export class PortfolioPage implements AfterViewInit {
 
       this.name.set(stock.name);
     }
-
-    this.showSearchResults = false;
   }
 
   public resetTransactionForm(): void {
     this.selectedStock = undefined;
-
-    this.showSearchResults = false;
 
     this.name.set('');
     this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');

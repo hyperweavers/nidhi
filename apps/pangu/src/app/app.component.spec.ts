@@ -243,6 +243,30 @@ describe('AppComponent', () => {
     });
   });
 
+  describe('toggleMobileSearch', () => {
+    it('should toggle mobileSearchOpen from false to true', () => {
+      component.mobileSearchOpen.set(false);
+      component.toggleMobileSearch();
+      expect(component.mobileSearchOpen()).toBe(true);
+    });
+
+    it('should toggle mobileSearchOpen from true to false', () => {
+      component.mobileSearchOpen.set(true);
+      component.toggleMobileSearch();
+      expect(component.mobileSearchOpen()).toBe(false);
+    });
+  });
+
+  describe('closeMobileSearch', () => {
+    it('should set mobileSearchOpen to false and clear headerSearchQuery', () => {
+      component.mobileSearchOpen.set(true);
+      component.headerSearchQuery.set('test');
+      component.closeMobileSearch();
+      expect(component.mobileSearchOpen()).toBe(false);
+      expect(component.headerSearchQuery()).toBe('');
+    });
+  });
+
   describe('share', () => {
     beforeEach(() => {
       Object.defineProperty(document.documentElement, 'clientWidth', {
