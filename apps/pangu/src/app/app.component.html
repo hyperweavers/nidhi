@@ -168,7 +168,49 @@
       class="z-30 h-16 w-full border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
     >
       <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
+        <!-- Mobile Search Expanded State (outside hidden parent) -->
+        @if (mobileSearchOpen()) {
+          <div class="flex items-center lg:hidden">
+            <div class="flex-1">
+              <app-stock-search
+                mode="sitewide"
+                placeholder="Search stocks"
+                [query]="headerSearchQuery()"
+                (queryChange)="headerSearchQuery.set($event)"
+                (stockSelected)="closeMobileSearch()"
+              />
+            </div>
+            <button
+              (click)="closeMobileSearch()"
+              type="button"
+              class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              <svg
+                class="h-6 w-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+              <span class="sr-only">Close search</span>
+            </button>
+          </div>
+        }
+
+        <div
+          class="flex items-center justify-between"
+          [class.hidden]="mobileSearchOpen()"
+        >
           <div class="flex items-center justify-start">
             <button
               (click)="toggleSidebar()"
@@ -218,38 +260,17 @@
             </a>
           </div>
 
-          <!-- TODO: Enable when app-wide search functionality is implemented -->
-          <!-- <div class="hidden lg:block lg:pl-3.5">
-            <label for="topbar-search" class="sr-only">Search</label>
-            <div class="relative lg:w-96">
-              <div
-                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-              >
-                <svg
-                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  ></path>
-                </svg>
-              </div>
-              <input
-                type="text"
-                name="stock"
-                id="topbar-search"
-                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-md focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                placeholder="Search"
-              />
-            </div>
-          </div> -->
+          <!-- Desktop Search (centered, hidden on mobile) -->
+          <div class="mx-4 hidden max-w-md flex-1 justify-center lg:flex">
+            <app-stock-search
+              mode="sitewide"
+              placeholder="Search"
+              class="w-full"
+              [query]="headerSearchQuery()"
+              (queryChange)="headerSearchQuery.set($event)"
+              (stockSelected)="closeMobileSearch()"
+            />
+          </div>
 
           <div class="flex items-center">
             @if (marketStatus$ | async; as marketStatus) {
@@ -280,16 +301,15 @@
               </div>
             }
 
-            <!-- TODO: Enable when app-wide search functionality is implemented -->
-            <!-- <button
-              (click)="toggleSidebar()"
+            <button
+              (click)="toggleMobileSearch()"
               type="button"
-              class="p-2 text-gray-500 rounded-md lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              class="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 lg:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span class="sr-only">Search</span>
 
               <svg
-                class="w-6 h-6"
+                class="h-6 w-6"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -303,7 +323,7 @@
                   d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                 ></path>
               </svg>
-            </button> -->
+            </button>
 
             <button
               (click)="refreshData()"
@@ -386,45 +406,10 @@
       aria-label="Sidebar"
     >
       <div class="relative flex min-h-0 flex-1 flex-col pt-0">
-        <!-- <div class="flex flex-1 flex-col overflow-y-auto py-4"> -->
-        <!-- TODO: Replace when app-wide search functionality is implemented -->
         <div class="flex flex-1 flex-col overflow-y-auto py-2">
           <div
             class="flex-1 divide-y divide-gray-200 bg-white px-3 dark:divide-gray-700 dark:bg-gray-800"
           >
-            <!-- TODO: Enable when app-wide search functionality is implemented -->
-            <!-- FIXME: On mobile devices, tapping on the search field closes the side menu -->
-            <!-- <div class="pb-4 lg:hidden">
-              <label for="mobile-search" class="sr-only">Search</label>
-              <div class="relative">
-                <div
-                  class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-500"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="stock"
-                  id="mobile-search"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Search"
-                />
-              </div>
-            </div>
-
-            <ul class="space-y-2 py-2 lg:pt-0"> -->
-            <!-- TODO: Replace when app-wide search functionality is implemented -->
             <ul class="space-y-2 pb-2">
               <li>
                 <a

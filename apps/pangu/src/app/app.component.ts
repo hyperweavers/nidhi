@@ -7,6 +7,7 @@ import {
   DOCUMENT,
   OnInit,
   inject,
+  signal,
 } from '@angular/core';
 import {
   NavigationEnd,
@@ -26,6 +27,7 @@ import { Observable, delay, filter, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { APP_VERSION } from '../generated/version';
+import { StockSearchComponent } from './components/stock-search/stock-search.component';
 import { Constants } from './constants';
 import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
@@ -35,7 +37,7 @@ import { SettingsService } from './services/core/settings.service';
 @Flowbite()
 @UntilDestroy()
 @Component({
-  imports: [CommonModule, RouterModule, RouterLink],
+  imports: [CommonModule, RouterModule, RouterLink, StockSearchComponent],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -60,6 +62,8 @@ export class AppComponent implements OnInit {
   public showInstallModal?: boolean;
   public ios?: boolean;
   public refreshing?: boolean;
+  public mobileSearchOpen = signal(false);
+  public headerSearchQuery = signal('');
 
   public readonly appVersion = APP_VERSION;
   public readonly Routes = Constants.routes;
@@ -80,6 +84,7 @@ export class AppComponent implements OnInit {
       .subscribe((event) => {
         if (event instanceof NavigationStart) {
           this.sidebarOpen = false;
+          this.closeMobileSearch();
         } else if (event instanceof NavigationEnd) {
           initFlowbite();
         }
@@ -90,6 +95,7 @@ export class AppComponent implements OnInit {
         if (!this.sidebarOpen) {
           this.sidebarOpen = true;
         }
+        this.closeMobileSearch();
       } else {
         this.sidebarOpen = false;
       }
@@ -149,6 +155,15 @@ export class AppComponent implements OnInit {
     this.refreshing = true;
 
     this.marketService.refresh();
+  }
+
+  public toggleMobileSearch(): void {
+    this.mobileSearchOpen.update((v) => !v);
+  }
+
+  public closeMobileSearch(): void {
+    this.mobileSearchOpen.set(false);
+    this.headerSearchQuery.set('');
   }
 
   public async share(): Promise<void> {
