@@ -34,18 +34,6 @@ function storageHolding(overrides?: Partial<Holding>): Holding {
       industry: { id: 'ind-1', name: 'Refineries' },
       marketCapType: 'Large Cap',
     },
-    metrics: {
-      nse: {
-        marketCap: 1_800_000_000_000,
-        faceValue: 10,
-        pe: 28.5,
-        pb: 3.2,
-        eps: 98,
-        vwap: 2775,
-        dividendYield: 0.5,
-        bookValue: 850,
-      },
-    },
     transactions: [
       {
         id: 'tx1',
@@ -597,7 +585,7 @@ describe('PortfolioService', () => {
   });
 
   describe('enrichMissingDetails', () => {
-    it('is a no-op when no holdings need enrichment (all have sector/metrics)', async () => {
+    it('is a no-op when no holdings need enrichment (all have sector)', async () => {
       const sHolding = storageHolding();
       setup([sHolding], [marketStock()]);
 
@@ -614,7 +602,6 @@ describe('PortfolioService', () => {
 
       const holdingMissingDetails = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
       (service as any).enriching = true;
       (service as any).enrichMissingDetails([holdingMissingDetails]);
@@ -622,21 +609,19 @@ describe('PortfolioService', () => {
       expect(marketService.getStock).not.toHaveBeenCalled();
     });
 
-    it('calls getStock for each holding missing sector or metrics', () => {
+    it('calls getStock for each holding missing sector', () => {
       // Use holdings with all details so constructor enrichment is a no-op
       setup([storageHolding()], [marketStock()], (code: string) => of(null));
 
       const missing1 = storageHolding({
         id: 'stored-miss-1',
         details: undefined as any,
-        metrics: undefined as any,
       });
       const missing2 = storageHolding({
         id: 'stored-miss-2',
         name: 'TCS Ltd.',
         vendorCode: { etm: { primary: 'comp-tcs', chart: 'TCS' } },
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       (service as any).enriching = false;
@@ -650,7 +635,6 @@ describe('PortfolioService', () => {
     it('updates Dexie via db.stocks.where().equals().modify when stock has marketCapType', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const enrichedStock: Stock = {
@@ -661,18 +645,6 @@ describe('PortfolioService', () => {
           sector: { id: '1', name: 'Oil & Gas' },
           industry: { id: 'ind-1', name: 'Refineries' },
           marketCapType: 'Large Cap',
-        },
-        metrics: {
-          nse: {
-            marketCap: 1_800_000_000_000,
-            faceValue: 10,
-            pe: 28.5,
-            pb: 3.2,
-            eps: 98,
-            vwap: 2775,
-            dividendYield: 0.5,
-            bookValue: 850,
-          },
         },
       };
 
@@ -696,7 +668,6 @@ describe('PortfolioService', () => {
     it('handles getStock returning null gracefully (no db update)', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       setup([holdingMissing], [marketStock()], (code: string) => of(null));
@@ -713,7 +684,6 @@ describe('PortfolioService', () => {
     it('handles Dexie modify rejection without crashing', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const enrichedStock: Stock = {
@@ -724,18 +694,6 @@ describe('PortfolioService', () => {
           sector: { id: '1', name: 'Oil & Gas' },
           industry: { id: 'ind-1', name: 'Refineries' },
           marketCapType: 'Large Cap',
-        },
-        metrics: {
-          nse: {
-            marketCap: 1_800_000_000_000,
-            faceValue: 10,
-            pe: 28.5,
-            pb: 3.2,
-            eps: 98,
-            vwap: 2775,
-            dividendYield: 0.5,
-            bookValue: 850,
-          },
         },
       };
 
@@ -760,7 +718,6 @@ describe('PortfolioService', () => {
     it('sets enriching flag back to false after completion', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       setup([holdingMissing], [marketStock()], (code: string) => of(null));
@@ -774,7 +731,6 @@ describe('PortfolioService', () => {
     it('handles getStock returning stock without isin (no db update)', async () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const partialStock: Stock = {
@@ -785,18 +741,6 @@ describe('PortfolioService', () => {
           sector: { id: '1', name: 'Oil & Gas' },
           industry: { id: 'ind-1', name: 'Refineries' },
           marketCapType: 'Large Cap',
-        },
-        metrics: {
-          nse: {
-            marketCap: 1_800_000_000_000,
-            faceValue: 10,
-            pe: 28.5,
-            pb: 3.2,
-            eps: 98,
-            vwap: 2775,
-            dividendYield: 0.5,
-            bookValue: 850,
-          },
         },
       };
 
@@ -819,7 +763,6 @@ describe('PortfolioService', () => {
       const holdingNoPrimary = storageHolding({
         vendorCode: { etm: { primary: '', chart: '' } },
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       (service as any).enriching = false;
@@ -846,7 +789,6 @@ describe('PortfolioService', () => {
     it('handles getStock returning stock with isin but missing sector (no db update)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const stockWithIsinOnly: Stock = {
@@ -869,7 +811,6 @@ describe('PortfolioService', () => {
     it('handles getStock returning stock with isin but all details blank (no db update)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const stockWithBlankDetails: Stock = {
@@ -897,7 +838,6 @@ describe('PortfolioService', () => {
     it('handles getStock returning stock with all details blank (covers optional chaining branch)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       const stockWithBlankDetails: Stock = {
@@ -925,7 +865,6 @@ describe('PortfolioService', () => {
     it('handles getStock observable error gracefully (calls error callback)', () => {
       const holdingMissing = storageHolding({
         details: undefined as any,
-        metrics: undefined as any,
       });
 
       setup([holdingMissing], [marketStock()], (code: string) =>
