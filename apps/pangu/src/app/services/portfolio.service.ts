@@ -73,7 +73,6 @@ export class PortfolioService {
                   return {
                     ...marketStock,
                     details: storageStock?.details ?? marketStock.details,
-                    metrics: storageStock?.metrics ?? marketStock.metrics,
                     id: storageStock?.id || uuid(),
                     transactions: storageStock?.transactions || [],
                     quantity,

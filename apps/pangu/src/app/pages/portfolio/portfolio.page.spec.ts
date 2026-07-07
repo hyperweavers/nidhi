@@ -713,7 +713,6 @@ describe('PortfolioPage', () => {
             industry: { id: 'ind-1', name: 'Refinery' },
             marketCapType: 'Large',
           },
-          metrics: { nse: { marketCap: 1000000 } },
         }),
       );
       mockMarketService.searchSecondary = jest
