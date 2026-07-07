@@ -84,18 +84,6 @@ describe('StorageService', () => {
         industry: { id: 'ind-2', name: 'Software' },
         marketCapType: 'Large Cap',
       },
-      metrics: {
-        nse: {
-          marketCap: 100000,
-          faceValue: 10,
-          pe: 20,
-          pb: 3,
-          eps: 5,
-          vwap: 150,
-          dividendYield: 1,
-          bookValue: 50,
-        },
-      },
     };
 
     const existingTx = {
@@ -117,21 +105,9 @@ describe('StorageService', () => {
         industry: { id: 'ind-2', name: 'Software' },
         marketCapType: 'Large Cap',
       },
-      metrics: {
-        nse: {
-          marketCap: 100000,
-          faceValue: 10,
-          pe: 20,
-          pb: 3,
-          eps: 5,
-          vwap: 150,
-          dividendYield: 1,
-          bookValue: 50,
-        },
-      },
     };
 
-    it('should update existing stock with merged transactions and conditional details/metrics', async () => {
+    it('should update existing stock with merged transactions and conditional details', async () => {
       (db.stocks.get as jest.Mock).mockResolvedValue(existingHolding);
 
       await service.addOrUpdate(holding, transaction);
@@ -158,12 +134,11 @@ describe('StorageService', () => {
     });
 
     it('should NOT include details when existing stock already has sector', async () => {
-      const existingWithSectorNoMetrics = {
+      const existingWithSector = {
         ...existingHolding,
-        metrics: undefined,
       };
       (db.stocks.get as jest.Mock).mockResolvedValue(
-        existingWithSectorNoMetrics,
+        existingWithSector,
       );
 
       await service.addOrUpdate(holding, transaction);
