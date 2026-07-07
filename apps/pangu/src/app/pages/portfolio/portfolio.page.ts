@@ -336,7 +336,6 @@ export class PortfolioPage implements AfterViewInit {
                 mc: combinedStockDetails.vendorCode.mc,
               },
               details: combinedStockDetails.details,
-              metrics: combinedStockDetails.metrics,
             };
 
             this.name.set(stock.name);
