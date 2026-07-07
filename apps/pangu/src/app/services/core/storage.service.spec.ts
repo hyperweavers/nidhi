@@ -137,9 +137,7 @@ describe('StorageService', () => {
       const existingWithSector = {
         ...existingHolding,
       };
-      (db.stocks.get as jest.Mock).mockResolvedValue(
-        existingWithSector,
-      );
+      (db.stocks.get as jest.Mock).mockResolvedValue(existingWithSector);
 
       await service.addOrUpdate(holding, transaction);
 
