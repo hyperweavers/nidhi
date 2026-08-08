@@ -273,9 +273,9 @@ export class MarketService {
                   ? ([...new Set(t)].map((date, i) => {
                       // Multiply by 1000 to convert seconds to milliseconds
                       const time = new Date(date * 1000).toLocaleDateString(
-                        "en-CA",
+                        'en-CA',
                         {
-                          timeZone: "Asia/Kolkata",
+                          timeZone: 'Asia/Kolkata',
                         },
                       );
                       const previousDayClose = i > 0 ? c[i - 1] : undefined;
