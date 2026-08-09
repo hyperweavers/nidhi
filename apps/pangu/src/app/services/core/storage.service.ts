@@ -52,6 +52,41 @@ export class StorageService {
     await db.stocks.delete(id);
   }
 
+  public async updateTransaction(
+    holdingId: string,
+    transactionId: string,
+    updates: Partial<Transaction>,
+  ): Promise<void> {
+    const stock = await db.stocks.get(holdingId);
+
+    if (stock) {
+      await db.stocks.update(holdingId, {
+        transactions: stock.transactions.map((t) =>
+          t.id === transactionId ? { ...t, ...updates } : t,
+        ),
+      });
+    }
+  }
+
+  public async deleteTransaction(
+    holdingId: string,
+    transactionId: string,
+  ): Promise<void> {
+    const stock = await db.stocks.get(holdingId);
+
+    if (stock) {
+      const transactions = stock.transactions.filter(
+        (t) => t.id !== transactionId,
+      );
+
+      if (transactions.length === 0) {
+        await db.stocks.delete(holdingId);
+      } else {
+        await db.stocks.update(holdingId, { transactions });
+      }
+    }
+  }
+
   public async importDb(
     blob: Blob,
     progressCallback: (progress: Progress) => boolean,

@@ -400,18 +400,20 @@ export class MarketService {
     return query
       ? this.http.get<SearchResult[]>(Constants.api.STOCK_SEARCH + query).pipe(
           map((results) =>
-            results.map(
-              (result): Stock => ({
-                name: result.tagName,
-                vendorCode: {
-                  etm: {
-                    primary: result.tagId,
-                    chart: result.symbol,
+            results
+              .filter((r) => r.entityType === 'company')
+              .map(
+                (result): Stock => ({
+                  name: result.tagName,
+                  vendorCode: {
+                    etm: {
+                      primary: result.tagId,
+                      chart: result.symbol,
+                    },
                   },
-                },
-                scripCode: {},
-              }),
-            ),
+                  scripCode: {},
+                }),
+              ),
           ),
         )
       : of([]);

@@ -81,6 +81,19 @@ describe('ImportPage', () => {
     expect(component['importFile']).toBeNull();
   });
 
+  it('should handle import error when file input ref is unavailable', async () => {
+    (component as any).importFileInputRef = () => undefined;
+    component['importFile'] = new File(['data'], 'test.json');
+    storageService.importDb.mockRejectedValue(new Error('fail'));
+
+    await component.import();
+
+    expect(logger.captureException).toHaveBeenCalled();
+    expect(component.statusMessage).toBe(
+      'Failed to import data. Please try again.',
+    );
+  });
+
   it('should show message when no file is selected', async () => {
     component['importFile'] = null;
 
@@ -99,6 +112,17 @@ describe('ImportPage', () => {
     expect(component['importFile']).toBeNull();
     expect(component.statusMessage).toBe('Data imported successfully!');
     expect(component.showImportProgress).toBe(false);
+  });
+
+  it('should handle progress done when file input ref is unavailable', () => {
+    (component as any).importFileInputRef = () => undefined;
+    component['importFile'] = new File(['data'], 'test.json');
+
+    const result = (component as any).progressCallback({ done: true });
+
+    expect(result).toBe(true);
+    expect(component['importFile']).toBeNull();
+    expect(component.statusMessage).toBe('Data imported successfully!');
   });
 
   it('should not update state on progress callback not done', () => {

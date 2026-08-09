@@ -187,6 +187,110 @@ describe('StorageService', () => {
     });
   });
 
+  describe('updateTransaction', () => {
+    const existingTx = {
+      id: 'tx1',
+      type: TransactionType.BUY,
+      date: 1000,
+      quantity: 10,
+      price: 100,
+    };
+    const existingHolding = {
+      id: 'holding-id',
+      name: 'Test',
+      scripCode: { isin: 'TESTISIN001' },
+      vendorCode: { etm: { primary: 'test', chart: '' }, mc: { primary: '' } },
+      transactions: [existingTx],
+    };
+
+    it('should update the transaction when stock exists', async () => {
+      (db.stocks.get as jest.Mock).mockResolvedValue(existingHolding);
+
+      await service.updateTransaction('holding-id', 'tx1', { price: 150 });
+
+      expect(db.stocks.get).toHaveBeenCalledWith('holding-id');
+      expect(db.stocks.update).toHaveBeenCalledWith('holding-id', {
+        transactions: [{ ...existingTx, price: 150 }],
+      });
+    });
+
+    it('should do nothing when stock does not exist', async () => {
+      (db.stocks.get as jest.Mock).mockResolvedValue(undefined);
+
+      await service.updateTransaction('unknown-id', 'tx1', { price: 150 });
+
+      expect(db.stocks.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteTransaction', () => {
+    const tx1 = {
+      id: 'tx1',
+      type: TransactionType.BUY,
+      date: 1000,
+      quantity: 10,
+      price: 100,
+    };
+    const tx2 = {
+      id: 'tx2',
+      type: TransactionType.BUY,
+      date: 2000,
+      quantity: 5,
+      price: 200,
+    };
+
+    it('should update stock when remaining transactions exist', async () => {
+      const holding = {
+        id: 'holding-id',
+        name: 'Test',
+        scripCode: { isin: 'TESTISIN001' },
+        vendorCode: {
+          etm: { primary: 'test', chart: '' },
+          mc: { primary: '' },
+        },
+        transactions: [tx1, tx2],
+      };
+      (db.stocks.get as jest.Mock).mockResolvedValue(holding);
+
+      await service.deleteTransaction('holding-id', 'tx1');
+
+      expect(db.stocks.get).toHaveBeenCalledWith('holding-id');
+      expect(db.stocks.update).toHaveBeenCalledWith('holding-id', {
+        transactions: [tx2],
+      });
+      expect(db.stocks.delete).not.toHaveBeenCalled();
+    });
+
+    it('should delete stock when no transactions remain', async () => {
+      const holding = {
+        id: 'holding-id',
+        name: 'Test',
+        scripCode: { isin: 'TESTISIN001' },
+        vendorCode: {
+          etm: { primary: 'test', chart: '' },
+          mc: { primary: '' },
+        },
+        transactions: [tx1],
+      };
+      (db.stocks.get as jest.Mock).mockResolvedValue(holding);
+
+      await service.deleteTransaction('holding-id', 'tx1');
+
+      expect(db.stocks.get).toHaveBeenCalledWith('holding-id');
+      expect(db.stocks.delete).toHaveBeenCalledWith('holding-id');
+      expect(db.stocks.update).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when stock does not exist', async () => {
+      (db.stocks.get as jest.Mock).mockResolvedValue(undefined);
+
+      await service.deleteTransaction('unknown-id', 'tx1');
+
+      expect(db.stocks.delete).not.toHaveBeenCalled();
+      expect(db.stocks.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('delete', () => {
     it('should call db.stocks.delete with the given id', async () => {
       await service.delete('stock-id');
