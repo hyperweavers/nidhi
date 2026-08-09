@@ -11,6 +11,7 @@ export const Constants = {
     IMPORT: 'import',
     EXPORT: 'export',
     DELETE: 'delete',
+    TRANSACTIONS: 'transactions',
     ABOUT: 'about',
     PRIVACY: 'privacy',
     TERMS: 'terms',

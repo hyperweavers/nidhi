@@ -55,6 +55,13 @@ export const appRoutes: Route[] = [
       import('./pages/delete/delete.page').then((m) => m.DeletePage),
   },
   {
+    path: Constants.routes.TRANSACTIONS,
+    loadComponent: () =>
+      import('./pages/transactions/transactions.page').then(
+        (m) => m.TransactionsPage,
+      ),
+  },
+  {
     path: Constants.routes.ABOUT,
     loadComponent: () =>
       import('./pages/about/about.page').then((m) => m.AboutPage),
