@@ -14,6 +14,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { Direction } from '../../models/market';
 import {
   Holding,
+  Transaction,
   TransactionEditContext,
   TransactionType,
 } from '../../models/portfolio';
@@ -843,5 +844,81 @@ describe('TransactionsPage', () => {
       const spinner = fixture.nativeElement.querySelector('[role="status"]');
       expect(spinner.textContent).toContain('Loading');
     }));
+  });
+
+  describe('edge case coverage', () => {
+    beforeEach(fakeAsync(() => {
+      createComponent();
+      detectChangesAndTick();
+    }));
+
+    it('should handle holdings without a transactions array', fakeAsync(() => {
+      const noTransactionsHolding: Holding = {
+        ...mockHolding,
+        transactions: undefined as unknown as Transaction[],
+      };
+      const received: TransactionItem[][] = [];
+      const sub = component.transactions$.subscribe((items) =>
+        received.push(items),
+      );
+
+      stocksSubject.next([noTransactionsHolding]);
+      tick();
+      fixture.detectChanges();
+
+      expect(received[received.length - 1]).toEqual([]);
+      sub.unsubscribe();
+    }));
+
+    it('should default sort to no-op for unknown sort type', fakeAsync(() => {
+      stocksSubject.next([mockHolding, mockSellHolding]);
+      tick();
+      fixture.detectChanges();
+
+      const received: TransactionItem[][] = [];
+      const sub = component.transactions$.subscribe((items) =>
+        received.push(items),
+      );
+
+      component.sortTransactions(
+        'unknown' as TransactionSortType,
+        'asc' as any,
+      );
+      tick();
+      fixture.detectChanges();
+
+      expect(received[received.length - 1].length).toBe(2);
+      sub.unsubscribe();
+    }));
+  });
+
+  describe('query param sync with search', () => {
+    beforeEach(fakeAsync(() => {
+      createComponent();
+      detectChangesAndTick();
+    }));
+
+    it('should include search query param when search is set', () => {
+      component.searchQuery.set('reliance');
+      component.filterTransactions('buy' as any);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { filter: 'buy', search: 'reliance' },
+        }),
+      );
+    });
+  });
+
+  describe('formatDate edge cases', () => {
+    beforeEach(fakeAsync(() => {
+      createComponent();
+      detectChangesAndTick();
+    }));
+
+    it('should return empty string for a falsy epoch', () => {
+      expect(component.formatDate(0)).toBe('');
+    });
   });
 });

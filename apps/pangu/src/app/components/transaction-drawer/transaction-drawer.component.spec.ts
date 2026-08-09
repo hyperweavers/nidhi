@@ -15,6 +15,7 @@ import {
   TransactionEditContext,
   TransactionType,
 } from '../../models/portfolio';
+import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';
@@ -565,5 +566,171 @@ describe('TransactionDrawerComponent', () => {
         'One or more field(s) containing invalid value(s)!',
       );
     }));
+  });
+
+  describe('edge case coverage', () => {
+    it('should apply defaults for missing optional edit context fields', fakeAsync(() => {
+      fixture = TestBed.createComponent(TransactionDrawerComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput('mode', 'edit');
+      fixture.componentRef.setInput('editContext', {
+        transaction: {
+          id: 't1',
+          type: TransactionType.BUY,
+          date: 0,
+          price: 0,
+          quantity: 0,
+          charges: 0,
+        },
+        holdingId: 'h1',
+        holdingName: '',
+      } as TransactionEditContext);
+      fixture.detectChanges();
+
+      expect(component.name()).toBe('');
+      expect(component.price()).toBe(0);
+      expect(component.quantity()).toBe(0);
+      expect(component.charges()).toBe(0);
+    }));
+
+    it('should not search when the query is too short', fakeAsync(() => {
+      createComponent();
+      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      fixture.detectChanges();
+
+      const results: Stock[][] = [];
+      const sub = component.stockSearchResults$.subscribe((r) =>
+        results.push(r),
+      );
+
+      component.name.set('ab');
+      fixture.detectChanges();
+      tick(600);
+
+      expect(results.length).toBe(0);
+      sub.unsubscribe();
+    }));
+
+    it('should clear selected stock when query differs from selected stock name', fakeAsync(() => {
+      createComponent();
+      const sub = component.stockSearchResults$.subscribe();
+      component.selectedStock.set(mockHolding);
+      component.name.set('Other Company');
+      fixture.detectChanges();
+      tick(600);
+      expect(component.selectedStock()).toBeUndefined();
+      sub.unsubscribe();
+    }));
+
+    it('should enrich stock matching by nse when isin is missing from result', fakeAsync(() => {
+      const stockWithoutIsin: Holding = {
+        ...mockHolding,
+        scripCode: { ...mockHolding.scripCode, isin: '' },
+      };
+      const stockDetails = {
+        scripCode: { nse: 'RELIANCE', bse: '500325', isin: 'INE002A01018' },
+        vendorCode: { etm: { primary: 'RELIANCE' }, mc: { primary: '' } },
+        details: { sector: { name: 'Financial' } },
+        metrics: { nse: { pe: 25 } },
+      };
+      const secondaryResult = {
+        scripCode: { nse: 'RELIANCE' },
+        vendorCode: { mc: { primary: 'mc-nse' } },
+      };
+      mockMarketService.getStock.mockReturnValue(of(stockDetails));
+      mockMarketService.searchSecondary.mockReturnValue(of([secondaryResult]));
+
+      createComponent();
+      component.selectStock(stockWithoutIsin);
+      tick();
+
+      expect(component.selectedStock()?.vendorCode.mc.primary).toBe('mc-nse');
+    }));
+
+    it('should enrich stock matching by bse when isin and nse are missing from result', fakeAsync(() => {
+      const stockWithoutIsin: Holding = {
+        ...mockHolding,
+        scripCode: { ...mockHolding.scripCode, isin: '' },
+      };
+      const stockDetails = {
+        scripCode: { bse: '500325', isin: 'INE002A01018' },
+        vendorCode: { etm: { primary: 'RELIANCE' }, mc: { primary: '' } },
+        details: { sector: { name: 'Financial' } },
+        metrics: { nse: { pe: 25 } },
+      };
+      const secondaryResult = {
+        scripCode: { bse: '500325' },
+        vendorCode: { mc: { primary: 'mc-bse' } },
+      };
+      mockMarketService.getStock.mockReturnValue(of(stockDetails));
+      mockMarketService.searchSecondary.mockReturnValue(of([secondaryResult]));
+
+      createComponent();
+      component.selectStock(stockWithoutIsin);
+      tick();
+
+      expect(component.selectedStock()?.vendorCode.mc.primary).toBe('mc-bse');
+    }));
+
+    it('should set date from datepicker value on reset', () => {
+      createComponent();
+      (component as any).datepicker = {
+        getDate: jest.fn().mockReturnValue('15/06/2024'),
+        hide: jest.fn(),
+        setDate: jest.fn(),
+      };
+      component.date.set('01/01/2020');
+
+      component.resetForm();
+
+      expect(component.date()).toBe('15/06/2024');
+    });
+
+    it('should skip datepicker init when date input ref is missing', () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [TransactionDrawerComponent],
+        providers: [
+          provideRouter([]),
+          { provide: LOGGER, useFactory: loggerStub },
+          { provide: PortfolioService, useFactory: portfolioServiceStub },
+          { provide: MarketService, useFactory: marketServiceStub },
+          { provide: StorageService, useFactory: storageServiceStub },
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                queryParamMap: { get: jest.fn().mockReturnValue(null) },
+              },
+            },
+          },
+        ],
+      }).overrideComponent(TransactionDrawerComponent, {
+        set: { template: '<div></div>' },
+      });
+
+      fixture = TestBed.createComponent(TransactionDrawerComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect((component as any).datepicker).toBeUndefined();
+    });
+
+    it('should reset form when datepicker is not initialized', () => {
+      fixture = TestBed.createComponent(TransactionDrawerComponent);
+      component = fixture.componentInstance;
+      component.selectedStock.set(mockHolding);
+      component.name.set('Test');
+      component.date.set('01/01/2020');
+      component.price.set(100);
+      component.quantity.set(10);
+      component.charges.set(50);
+
+      component.resetForm();
+
+      expect(component.selectedStock()).toBeUndefined();
+      expect(component.name()).toBe('');
+      expect(component.date()).toBe('');
+    });
   });
 });

@@ -194,6 +194,27 @@ describe('StorageService', () => {
 
       expect(db.stocks.update).not.toHaveBeenCalled();
     });
+
+    it('should keep non-matching transactions unchanged when updating one', async () => {
+      const tx2 = {
+        id: 'tx2',
+        type: TransactionType.BUY,
+        date: 2000,
+        quantity: 5,
+        price: 200,
+      };
+      const holdingWithMultiple = {
+        ...existingHolding,
+        transactions: [existingTx, tx2],
+      };
+      (db.stocks.get as jest.Mock).mockResolvedValue(holdingWithMultiple);
+
+      await service.updateTransaction('holding-id', 'tx1', { price: 150 });
+
+      expect(db.stocks.update).toHaveBeenCalledWith('holding-id', {
+        transactions: [{ ...existingTx, price: 150 }, tx2],
+      });
+    });
   });
 
   describe('deleteTransaction', () => {
