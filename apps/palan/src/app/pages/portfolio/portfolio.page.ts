@@ -167,6 +167,10 @@ export class PortfolioPage implements OnInit {
     this.transactionType = type;
   }
 
+  public onSourceChange(value: string): void {
+    this.source.set(value as ContributionSource);
+  }
+
   public resetTransactionForm(): void {
     this.source.set(ContributionSource.EMPLOYEE);
     this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
