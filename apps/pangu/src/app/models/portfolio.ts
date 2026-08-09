@@ -35,3 +35,9 @@ export enum TransactionType {
   BUY = 'BUY',
   SELL = 'SELL',
 }
+
+export interface TransactionEditContext {
+  transaction: Transaction;
+  holdingId: string;
+  holdingName: string;
+}

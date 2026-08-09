@@ -190,15 +190,19 @@ describe('PortfolioPage', () => {
   });
 
   describe('portfolio rendering', () => {
-    it('should render holdings in a table', fakeAsync(() => {
+    it('should render holdings in virtual scroll viewport', fakeAsync(() => {
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
-      const table = fixture.nativeElement.querySelector('table');
-      expect(table).toBeTruthy();
-      const rows = table.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Reliance Industries');
+      const viewport = fixture.nativeElement.querySelector(
+        'cdk-virtual-scroll-viewport',
+      );
+      expect(viewport).toBeTruthy();
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Reliance Industries');
     }));
 
     it('should render summary cards', fakeAsync(() => {
@@ -310,6 +314,90 @@ describe('PortfolioPage', () => {
         }),
       );
     });
+
+    it('should distinguish overall gainers and losers in the filter pipeline', fakeAsync(() => {
+      const upHolding: Holding = {
+        ...mockHolding,
+        id: 'og1',
+        name: 'Overall Gainer',
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 10,
+          value: 300,
+        },
+      };
+      const downHolding: Holding = {
+        ...mockSellHolding,
+        id: 'ol1',
+        name: 'Overall Loser',
+        totalProfitLoss: {
+          direction: Direction.DOWN,
+          percentage: -8,
+          value: -200,
+        },
+      };
+
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [upHolding, downHolding],
+      });
+
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_gainers' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toContain('Overall Gainer');
+      expect(emitted?.holdings.some((h) => h.name === 'Overall Loser')).toBe(
+        false,
+      );
+
+      component.filterPortfolio('overall_losers' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toContain('Overall Loser');
+      expect(emitted?.holdings.some((h) => h.name === 'Overall Gainer')).toBe(
+        false,
+      );
+    }));
+
+    it('should sort portfolio results by name and profit metrics', fakeAsync(() => {
+      const alpha: Holding = {
+        ...mockHolding,
+        id: 'a1',
+        name: 'Alpha',
+      };
+      const beta: Holding = {
+        ...mockSellHolding,
+        id: 'b1',
+        name: 'Beta',
+      };
+
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [beta, alpha],
+      });
+
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('name' as any, 'asc' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toEqual(['Alpha', 'Beta']);
+
+      component.sortPortfolio('overall_profit_loss' as any, 'dsc' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings[0].name).toBe('Alpha');
+    }));
 
     it('should clear filters', () => {
       component.filterPortfolio('day_gainers' as any);
@@ -435,454 +523,22 @@ describe('PortfolioPage', () => {
         component.sortPortfolio('name' as any, 'asc' as any),
       ).not.toThrow();
     });
-
     it('should handle null dropdowns on clearFiltersAndSort when non-default', () => {
       (component as any).sortDropdown = undefined;
       (component as any).filterDropdown = undefined;
       component.sortPortfolio('name' as any, 'asc' as any);
       expect(() => component.clearFiltersAndSort()).not.toThrow();
     });
-  });
 
-  describe('add transaction', () => {
-    beforeEach(fakeAsync(() => {
-      createComponent();
-      renderWithPortfolio();
-    }));
-
-    it('should open buy drawer', () => {
-      component.openAddTransactionDrawer(TransactionType.BUY);
-      expect(component.transactionType()).toBe(TransactionType.BUY);
-    });
-
-    it('should open sell drawer', () => {
-      component.openAddTransactionDrawer(TransactionType.SELL);
-      expect(component.transactionType()).toBe(TransactionType.SELL);
-    });
-
-    it('should reject transaction with missing fields', () => {
-      component.addTransaction();
-      expect(component.transactionFormError).toBe(
-        'One or more field(s) containing invalid value(s)!',
-      );
-    });
-
-    it('should reject transaction with future date', fakeAsync(() => {
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = mockHolding;
-      component.name.set('Test');
-      const futureYear = new Date().getFullYear() + 5;
-      component.date.set(`01/01/${futureYear}`);
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(50);
-
-      component.addTransaction();
+    it('should sync empty query params when defaults are active', fakeAsync(() => {
+      component.filterPortfolio('none' as any);
+      component.sortPortfolio('daily_profit_loss' as any, 'dsc' as any);
+      component.portfolioSearchQuery.set('');
       tick();
 
-      expect(component.transactionFormError).toBe('Date is in future!');
-    }));
-
-    it('should submit transaction successfully', fakeAsync(() => {
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = mockHolding;
-      component.name.set('Test');
-      component.date.set('01/01/2020');
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(50);
-
-      component.addTransaction();
-      tick();
-
-      expect(mockStorageService.addOrUpdate).toHaveBeenCalledTimes(1);
-      expect(mockStorageService.addOrUpdate).toHaveBeenCalledWith(
-        mockHolding,
-        expect.objectContaining({
-          type: TransactionType.BUY,
-          price: 100,
-          quantity: 10,
-          charges: 50,
-        }),
-      );
-      expect(component.showStatusModal).toBe(true);
-      expect(component.showTransactionProgress).toBe(false);
-      expect(component.name()).toBe('');
-      expect(component.price()).toBe(0);
-    }));
-
-    it('should reject if charges is invalid (negative)', () => {
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = mockHolding;
-      component.date.set('01/01/2020');
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(-5);
-
-      component.addTransaction();
-      expect(component.transactionFormError).toBe(
-        'One or more field(s) containing invalid value(s)!',
-      );
-    });
-
-    it('should accept transaction with zero charges', fakeAsync(() => {
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = mockHolding;
-      component.name.set('Test');
-      component.date.set('01/01/2020');
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(0);
-
-      component.addTransaction();
-      tick();
-
-      expect(mockStorageService.addOrUpdate).toHaveBeenCalledTimes(1);
-      expect(component.showStatusModal).toBe(true);
-    }));
-  });
-
-  describe('transaction form', () => {
-    beforeEach(fakeAsync(() => {
-      createComponent();
-      renderWithPortfolio();
-    }));
-
-    it('should reset transaction form', () => {
-      (component as any).selectedStock = mockHolding;
-      component.transactionType.set(TransactionType.BUY);
-      component.name.set('Test');
-      component.date.set('01/01/2020');
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(50);
-
-      component.resetTransactionForm();
-
-      expect((component as any).selectedStock).toBeUndefined();
-      expect(component.name()).toBe('');
-      expect(component.price()).toBe(0);
-      expect(component.quantity()).toBe(0);
-      expect(component.charges()).toBe(0);
-    });
-
-    it('should close status modal', () => {
-      component.showStatusModal = true;
-      component.closeStatusModal(false);
-      expect(component.showStatusModal).toBe(false);
-      expect(component.transactionType()).toBeUndefined();
-    });
-
-    it('should close status modal and retain transaction type', () => {
-      component.showStatusModal = true;
-      component.transactionType.set(TransactionType.BUY);
-      component.closeStatusModal(true);
-      expect(component.showStatusModal).toBe(false);
-      expect(component.transactionType()).toBe(TransactionType.BUY);
-    });
-
-    it('should compute gross and net from signals', fakeAsync(() => {
-      component.price.set(200);
-      component.quantity.set(5);
-      component.charges.set(25);
-      tick();
-      expect(component.gross()).toBe(1000);
-      expect(component.net()).toBe(1025);
-    }));
-
-    it('should deduct charges for sell transactions', fakeAsync(() => {
-      component.transactionType.set(TransactionType.SELL);
-      component.price.set(200);
-      component.quantity.set(5);
-      component.charges.set(25);
-      tick();
-      expect(component.gross()).toBe(1000);
-      expect(component.net()).toBe(975);
-    }));
-
-    it('should reset transaction form without datepicker', () => {
-      (component as any).datepicker = undefined;
-      (component as any).selectedStock = mockHolding;
-      component.transactionType.set(TransactionType.BUY);
-      component.name.set('Test');
-      component.date.set('01/01/2020');
-      component.price.set(100);
-      component.quantity.set(10);
-      component.charges.set(50);
-
-      component.resetTransactionForm();
-
-      expect((component as any).selectedStock).toBeUndefined();
-      expect(component.name()).toBe('');
-      expect(component.price()).toBe(0);
-      expect(component.quantity()).toBe(0);
-      expect(component.charges()).toBe(0);
-    });
-  });
-
-  describe('select stock', () => {
-    beforeEach(fakeAsync(() => {
-      createComponent();
-      renderWithPortfolio();
-    }));
-
-    it('should select a stock that already has ISIN', () => {
-      component.selectStock(mockHolding);
-      expect((component as any).selectedStock).toEqual(mockHolding);
-      expect(component.name()).toBe('Reliance Industries');
-    });
-
-    it('should show error when stock details cannot be fetched', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect(mockMarketService.getStock).toHaveBeenCalledWith('RELIANCE', true);
-      expect(component.transactionFormError).toBe(
-        'Unable to get the details of the selected stock!',
-      );
-    }));
-
-    it('should call searchSecondary when stock has exchange codes', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-      mockMarketService.searchSecondary = jest.fn().mockReturnValue(of([]));
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect(mockMarketService.getStock).toHaveBeenCalled();
-      expect(mockMarketService.searchSecondary).toHaveBeenCalledWith(
-        'RELIANCE',
-      );
-    }));
-
-    it('should match stock from searchSecondary results', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      const secondaryResult = {
-        vendorCode: {
-          etm: { primary: '', chart: '' },
-          mc: { primary: 'mc-secondary' },
-        },
-        scripCode: { isin: 'INE002A01018', nse: 'RELIANCE', bse: '500325' },
-        name: 'Reliance',
-        quote: {
-          nse: {
-            price: 2600,
-            change: { direction: Direction.UP, percentage: 2, value: 50 },
-          },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          name: 'Reliance Industries',
-          scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-          details: {
-            sector: { id: '1', name: 'Oil & Gas' },
-            industry: { id: 'ind-1', name: 'Refinery' },
-            marketCapType: 'Large',
-          },
-        }),
-      );
-      mockMarketService.searchSecondary = jest
-        .fn()
-        .mockReturnValue(of([secondaryResult]));
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect((component as any).selectedStock?.vendorCode.mc?.primary).toBe(
-        'mc-secondary',
-      );
-      expect(component.name()).toBe('Reliance Industries');
-    }));
-
-    it('should call searchSecondary with bse when nse is not available', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          scripCode: { bse: '500325', isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-      mockMarketService.searchSecondary = jest.fn().mockReturnValue(of([]));
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect(mockMarketService.searchSecondary).toHaveBeenCalledWith('500325');
-    }));
-
-    it('should return stockDetails as-is when no searchSecondary match found', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          name: 'Reliance Industries',
-          scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-      mockMarketService.searchSecondary = jest.fn().mockReturnValue(
-        of([
-          {
-            scripCode: { nse: 'SOMETHING_ELSE', isin: 'OTHER_ISIN' },
-            vendorCode: { etm: { primary: '' }, mc: { primary: 'other' } },
-          },
-        ]),
-      );
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect((component as any).selectedStock).toBeTruthy();
-      expect((component as any).selectedStock?.vendorCode.mc).toBeUndefined();
-    }));
-
-    it('should return null when getStock returns stock without nse or bse', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          scripCode: { isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect(component.transactionFormError).toBe(
-        'Unable to get the details of the selected stock!',
-      );
-    }));
-
-    it('should match searchSecondary by nse code', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          scripCode: { nse: 'RELIANCE', isin: 'INE002A01018' },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-      mockMarketService.searchSecondary = jest.fn().mockReturnValue(
-        of([
-          {
-            scripCode: { nse: 'RELIANCE', isin: 'OTHER_ISIN' },
-            vendorCode: {
-              etm: { primary: '' },
-              mc: { primary: 'mc-nse-match' },
-            },
-          },
-        ]),
-      );
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect((component as any).selectedStock?.vendorCode.mc?.primary).toBe(
-        'mc-nse-match',
-      );
-    }));
-
-    it('should match searchSecondary by bse code when isin and nse do not match', fakeAsync(() => {
-      const stockNoIsin: Holding = {
-        ...mockHolding,
-        scripCode: { nse: 'RELIANCE', bse: '500325' },
-        vendorCode: {
-          etm: { primary: 'RELIANCE', chart: 'RELIANCE' },
-          mc: { primary: 'mc-rel' },
-        },
-      };
-
-      mockMarketService.getStock = jest.fn().mockReturnValue(
-        of({
-          scripCode: {
-            nse: 'RELIANCE',
-            isin: 'INE002A01018',
-            bse: '500325' as any,
-          },
-          vendorCode: { etm: { primary: 'RELIANCE' } },
-        }),
-      );
-      mockMarketService.searchSecondary = jest.fn().mockReturnValue(
-        of([
-          {
-            scripCode: { isin: 'DIFF_ISIN', nse: 'DIFF_NSE', bse: '500325' },
-            vendorCode: {
-              etm: { primary: '' },
-              mc: { primary: 'mc-bse-match' },
-            },
-          },
-        ]),
-      );
-
-      component.selectStock(stockNoIsin);
-      tick();
-
-      expect((component as any).selectedStock?.vendorCode.mc?.primary).toBe(
-        'mc-bse-match',
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: {} }),
       );
     }));
   });
@@ -895,14 +551,16 @@ describe('PortfolioPage', () => {
       });
       createComponent();
 
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+
       component.portfolioSearchQuery.set('tcs');
       tick();
 
       renderWithPortfolio();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('TCS');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
     }));
 
     it('should hide all rows when search does not match', fakeAsync(() => {
@@ -1002,6 +660,55 @@ describe('PortfolioPage', () => {
       ]);
       expect((component as any).portfolioFilter$.getValue()).toBe('none');
     }));
+
+    it('should restore search from query params', fakeAsync(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [PortfolioPage],
+        providers: [
+          provideRouter([]),
+          { provide: LOGGER, useFactory: loggerStub },
+          { provide: PortfolioService, useFactory: portfolioServiceStub },
+          { provide: MarketService, useFactory: marketServiceStub },
+          { provide: StorageService, useFactory: storageServiceStub },
+          { provide: Router, useFactory: routerStub },
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                queryParamMap: {
+                  get: jest.fn((key: string) => {
+                    if (key === 'search') return 'tcs';
+                    return null;
+                  }),
+                },
+              },
+            },
+          },
+        ],
+      }).compileComponents();
+
+      createComponent();
+      tick();
+
+      expect(component.portfolioSearchQuery()).toBe('tcs');
+    }));
+
+    it('should sync search query param', fakeAsync(() => {
+      createComponent();
+      renderWithPortfolio();
+
+      component.portfolioSearchQuery.set('reliance');
+      fixture.detectChanges();
+      tick(300);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: { search: 'reliance' },
+        }),
+      );
+    }));
   });
 
   describe('portfolio$ pipeline', () => {
@@ -1034,15 +741,17 @@ describe('PortfolioPage', () => {
       };
       portfolioSubject.next({ ...mockPortfolio, holdings: [gainer, loser] });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('day_gainers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Gainer');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Gainer');
     }));
 
     it('should filter holdings by day losers filter', fakeAsync(() => {
@@ -1074,15 +783,17 @@ describe('PortfolioPage', () => {
       };
       portfolioSubject.next({ ...mockPortfolio, holdings: [gainer, loser] });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('day_losers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Loser2');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Loser2');
     }));
 
     it('should filter holdings by overall gainers filter', fakeAsync(() => {
@@ -1115,15 +826,17 @@ describe('PortfolioPage', () => {
         holdings: [upHolding, downHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('overall_gainers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Overall Gainer');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Overall Gainer');
     }));
 
     it('should filter holdings by overall losers filter', fakeAsync(() => {
@@ -1156,15 +869,17 @@ describe('PortfolioPage', () => {
         holdings: [upHolding, downHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('overall_losers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Overall Loser2');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Overall Loser2');
     }));
 
     it('should filter out holdings with zero quantity', fakeAsync(() => {
@@ -1181,11 +896,13 @@ describe('PortfolioPage', () => {
         holdings: [mockHolding, zeroQtyHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Reliance');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
     }));
 
     it('should filter out holdings with null/undefined quantity', fakeAsync(() => {
@@ -1202,11 +919,13 @@ describe('PortfolioPage', () => {
         holdings: [mockHolding, nullQtyHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Reliance');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
     }));
 
     it('should sort by daily profit loss descending', fakeAsync(() => {
@@ -1241,6 +960,9 @@ describe('PortfolioPage', () => {
         holdings: [lowDaily, highDaily],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.sortPortfolio('daily_profit_loss' as any, 'dsc' as any);
@@ -1248,10 +970,9 @@ describe('PortfolioPage', () => {
       tick(300);
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(2);
-      expect(rows[0].textContent).toContain('High Daily');
-      expect(rows[1].textContent).toContain('Low Daily');
+      expect(emitted!.holdings.length).toBe(2);
+      expect(emitted!.holdings[0].name).toContain('High Daily');
+      expect(emitted!.holdings[1].name).toContain('Low Daily');
     }));
 
     it('should sort by overall profit loss ascending and descending', fakeAsync(() => {
@@ -1280,6 +1001,9 @@ describe('PortfolioPage', () => {
         holdings: [lowOverall, highOverall],
       });
       createComponent();
+
+      const emitted: Portfolio[] = [];
+      component.portfolio$.subscribe((p) => emitted.push(p));
       renderWithPortfolio();
 
       component.sortPortfolio('overall_profit_loss' as any, 'asc' as any);
@@ -1287,19 +1011,25 @@ describe('PortfolioPage', () => {
       tick(300);
       fixture.detectChanges();
 
-      let rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(2);
-      expect(rows[0].textContent).toContain('Low Overall');
-      expect(rows[1].textContent).toContain('High Overall');
+      expect(emitted[emitted.length - 1].holdings.length).toBe(2);
+      expect(emitted[emitted.length - 1].holdings[0].name).toContain(
+        'Low Overall',
+      );
+      expect(emitted[emitted.length - 1].holdings[1].name).toContain(
+        'High Overall',
+      );
 
       component.sortPortfolio('overall_profit_loss' as any, 'dsc' as any);
       tick();
       tick(300);
       fixture.detectChanges();
 
-      rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows[0].textContent).toContain('High Overall');
-      expect(rows[1].textContent).toContain('Low Overall');
+      expect(emitted[emitted.length - 1].holdings[0].name).toContain(
+        'High Overall',
+      );
+      expect(emitted[emitted.length - 1].holdings[1].name).toContain(
+        'Low Overall',
+      );
     }));
 
     it('should filter holdings with missing quote properties (no crash)', fakeAsync(() => {
@@ -1317,15 +1047,17 @@ describe('PortfolioPage', () => {
         holdings: [noQuoteHolding, mockHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('day_gainers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Reliance');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
     }));
 
     it('should filter day gainers when holding has no quote object', fakeAsync(() => {
@@ -1342,15 +1074,17 @@ describe('PortfolioPage', () => {
         holdings: [noQuote, mockHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('day_gainers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('Reliance');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
     }));
 
     it('should filter day losers when holding has quote but no nse', fakeAsync(() => {
@@ -1367,15 +1101,17 @@ describe('PortfolioPage', () => {
         holdings: [noNse, mockSellHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.filterPortfolio('day_losers' as any);
       tick();
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(1);
-      expect(rows[0].textContent).toContain('TCS');
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
     }));
 
     it('should sort by name ascending', fakeAsync(() => {
@@ -1390,6 +1126,9 @@ describe('PortfolioPage', () => {
         holdings: [bHolding, aHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.sortPortfolio('name' as any, 'asc' as any);
@@ -1397,10 +1136,9 @@ describe('PortfolioPage', () => {
       tick(300);
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(2);
-      expect(rows[0].textContent).toContain('A Infra');
-      expect(rows[1].textContent).toContain('B Corp');
+      expect(emitted!.holdings.length).toBe(2);
+      expect(emitted!.holdings[0].name).toContain('A Infra');
+      expect(emitted!.holdings[1].name).toContain('B Corp');
     }));
 
     it('should sort by name descending', fakeAsync(() => {
@@ -1415,6 +1153,9 @@ describe('PortfolioPage', () => {
         holdings: [aHolding, bHolding],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.sortPortfolio('name' as any, 'dsc' as any);
@@ -1422,10 +1163,9 @@ describe('PortfolioPage', () => {
       tick(300);
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(2);
-      expect(rows[0].textContent).toContain('B Corp');
-      expect(rows[1].textContent).toContain('A Infra');
+      expect(emitted!.holdings.length).toBe(2);
+      expect(emitted!.holdings[0].name).toContain('B Corp');
+      expect(emitted!.holdings[1].name).toContain('A Infra');
     }));
 
     it('should sort by daily profit loss ascending', fakeAsync(() => {
@@ -1460,6 +1200,9 @@ describe('PortfolioPage', () => {
         holdings: [highDaily, lowDaily],
       });
       createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
       renderWithPortfolio();
 
       component.sortPortfolio('daily_profit_loss' as any, 'asc' as any);
@@ -1467,53 +1210,406 @@ describe('PortfolioPage', () => {
       tick(300);
       fixture.detectChanges();
 
-      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-      expect(rows.length).toBe(2);
-      expect(rows[0].textContent).toContain('Low Daily');
-      expect(rows[1].textContent).toContain('High Daily');
+      expect(emitted!.holdings.length).toBe(2);
+      expect(emitted!.holdings[0].name).toContain('Low Daily');
+      expect(emitted!.holdings[1].name).toContain('High Daily');
+    }));
+
+    it('should filter day losers when holding has no quote object', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'nqdl',
+        name: 'No Quote Loser',
+        scripCode: { isin: 'INE001NQDL' },
+        vendorCode: { etm: { primary: 'NOQUOTELOSER' } },
+        quote: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noQuote, mockSellHolding],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('day_losers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+    }));
+
+    it('should filter overall gainers when holding has no total profit loss', fakeAsync(() => {
+      const noTotal: Holding = {
+        ...mockHolding,
+        id: 'notg',
+        name: 'No Total PL',
+        scripCode: { isin: 'INE001NOTG' },
+        vendorCode: { etm: { primary: 'NOTOTALPL' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noTotal, mockSellHolding],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_gainers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+    }));
+
+    it('should filter overall losers when holding has no total profit loss', fakeAsync(() => {
+      const noTotal: Holding = {
+        ...mockHolding,
+        id: 'notl',
+        name: 'No Total PL',
+        scripCode: { isin: 'INE001NOTL' },
+        vendorCode: { etm: { primary: 'NOTOTALPL' } },
+        totalProfitLoss: undefined as any,
+      };
+      const downOverall: Holding = {
+        ...mockHolding,
+        id: 'dwol',
+        name: 'Down Overall',
+        scripCode: { isin: 'INE001DWOL' },
+        vendorCode: { etm: { primary: 'DOWNOVERALL' } },
+        totalProfitLoss: {
+          direction: Direction.DOWN,
+          percentage: -10,
+          value: -100,
+        },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noTotal, downOverall],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_losers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Down Overall');
+    }));
+
+    it('should sort by daily profit loss ascending with missing quote chains', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'dqn',
+        name: 'No Quote',
+        scripCode: { isin: 'INE001DQN' },
+        vendorCode: { etm: { primary: 'DQN' } },
+        quote: undefined as any,
+      };
+      const partial: Holding = {
+        ...mockSellHolding,
+        id: 'dpc',
+        name: 'Partial',
+        scripCode: { isin: 'INE001DPC' },
+        vendorCode: { etm: { primary: 'DPC' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      const noQuote2: Holding = {
+        ...mockHolding,
+        id: 'dqn2',
+        name: 'No Quote 2',
+        scripCode: { isin: 'INE001DQN2' },
+        vendorCode: { etm: { primary: 'DQN2' } },
+        quote: undefined as any,
+      };
+      const partial2: Holding = {
+        ...mockSellHolding,
+        id: 'dpc2',
+        name: 'Partial 2',
+        scripCode: { isin: 'INE001DPC2' },
+        vendorCode: { etm: { primary: 'DPC2' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [
+          noQuote,
+          mockHolding,
+          partial,
+          mockSellHolding,
+          noQuote2,
+          partial2,
+        ],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('daily_profit_loss' as any, 'asc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+      expect(emitted!.holdings[1].name).toContain('No Quote');
+      expect(emitted!.holdings[2].name).toContain('Partial');
+      expect(emitted!.holdings[3].name).toContain('No Quote 2');
+      expect(emitted!.holdings[4].name).toContain('Partial 2');
+      expect(emitted!.holdings[5].name).toContain('Reliance');
+    }));
+
+    it('should sort by daily profit loss descending with missing quote chains', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'dqn3',
+        name: 'No Quote',
+        scripCode: { isin: 'INE001DQN3' },
+        vendorCode: { etm: { primary: 'DQN3' } },
+        quote: undefined as any,
+      };
+      const partial: Holding = {
+        ...mockSellHolding,
+        id: 'dpc3',
+        name: 'Partial',
+        scripCode: { isin: 'INE001DPC3' },
+        vendorCode: { etm: { primary: 'DPC3' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      const noQuote2: Holding = {
+        ...mockHolding,
+        id: 'dqn4',
+        name: 'No Quote 2',
+        scripCode: { isin: 'INE001DQN4' },
+        vendorCode: { etm: { primary: 'DQN4' } },
+        quote: undefined as any,
+      };
+      const partial2: Holding = {
+        ...mockSellHolding,
+        id: 'dpc4',
+        name: 'Partial 2',
+        scripCode: { isin: 'INE001DPC4' },
+        vendorCode: { etm: { primary: 'DPC4' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [
+          noQuote,
+          mockHolding,
+          partial,
+          mockSellHolding,
+          noQuote2,
+          partial2,
+        ],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('daily_profit_loss' as any, 'dsc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
+      expect(emitted!.holdings[1].name).toContain('No Quote');
+      expect(emitted!.holdings[2].name).toContain('Partial');
+      expect(emitted!.holdings[3].name).toContain('No Quote 2');
+      expect(emitted!.holdings[4].name).toContain('Partial 2');
+      expect(emitted!.holdings[5].name).toContain('TCS');
+    }));
+
+    it('should sort by overall profit loss ascending with missing total profit loss', fakeAsync(() => {
+      const missingA: Holding = {
+        ...mockHolding,
+        id: 'moa',
+        name: 'Missing A',
+        scripCode: { isin: 'INE001MOA' },
+        vendorCode: { etm: { primary: 'MISSA' } },
+        totalProfitLoss: undefined as any,
+      };
+      const high: Holding = {
+        ...mockHolding,
+        id: 'hio',
+        name: 'High Overall',
+        scripCode: { isin: 'INE001HIO' },
+        vendorCode: { etm: { primary: 'HIGHOVER' } },
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 20,
+          value: 200,
+        },
+      };
+      const missingB: Holding = {
+        ...mockHolding,
+        id: 'mob',
+        name: 'Missing B',
+        scripCode: { isin: 'INE001MOB' },
+        vendorCode: { etm: { primary: 'MISSB' } },
+        totalProfitLoss: undefined as any,
+      };
+      const low: Holding = {
+        ...mockSellHolding,
+        id: 'loa',
+        name: 'Low Overall',
+        scripCode: { isin: 'INE001LOA' },
+        vendorCode: { etm: { primary: 'LOWOVER' } },
+        totalProfitLoss: { direction: Direction.UP, percentage: 5, value: 50 },
+      };
+      const missingC: Holding = {
+        ...mockHolding,
+        id: 'moc',
+        name: 'Missing C',
+        scripCode: { isin: 'INE001MOC' },
+        vendorCode: { etm: { primary: 'MISSC' } },
+        totalProfitLoss: undefined as any,
+      };
+      const missingD: Holding = {
+        ...mockHolding,
+        id: 'mod',
+        name: 'Missing D',
+        scripCode: { isin: 'INE001MOD' },
+        vendorCode: { etm: { primary: 'MISSD' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [missingA, high, missingB, low, missingC, missingD],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('overall_profit_loss' as any, 'asc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('Missing A');
+      expect(emitted!.holdings[1].name).toContain('Missing B');
+      expect(emitted!.holdings[2].name).toContain('Missing C');
+      expect(emitted!.holdings[3].name).toContain('Missing D');
+      expect(emitted!.holdings[4].name).toContain('Low Overall');
+      expect(emitted!.holdings[5].name).toContain('High Overall');
+    }));
+
+    it('should sort by overall profit loss descending with missing total profit loss', fakeAsync(() => {
+      const missingA: Holding = {
+        ...mockHolding,
+        id: 'moe',
+        name: 'Missing A',
+        scripCode: { isin: 'INE001MOE' },
+        vendorCode: { etm: { primary: 'MISSE' } },
+        totalProfitLoss: undefined as any,
+      };
+      const high: Holding = {
+        ...mockHolding,
+        id: 'hio2',
+        name: 'High Overall',
+        scripCode: { isin: 'INE001HIO2' },
+        vendorCode: { etm: { primary: 'HIGHOVER2' } },
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 20,
+          value: 200,
+        },
+      };
+      const missingB: Holding = {
+        ...mockHolding,
+        id: 'mof',
+        name: 'Missing B',
+        scripCode: { isin: 'INE001MOF' },
+        vendorCode: { etm: { primary: 'MISSF' } },
+        totalProfitLoss: undefined as any,
+      };
+      const low: Holding = {
+        ...mockSellHolding,
+        id: 'lob',
+        name: 'Low Overall',
+        scripCode: { isin: 'INE001LOB' },
+        vendorCode: { etm: { primary: 'LOWOVER2' } },
+        totalProfitLoss: { direction: Direction.UP, percentage: 5, value: 50 },
+      };
+      const missingC: Holding = {
+        ...mockHolding,
+        id: 'mog',
+        name: 'Missing C',
+        scripCode: { isin: 'INE001MOG' },
+        vendorCode: { etm: { primary: 'MISSG' } },
+        totalProfitLoss: undefined as any,
+      };
+      const missingD: Holding = {
+        ...mockHolding,
+        id: 'moh',
+        name: 'Missing D',
+        scripCode: { isin: 'INE001MOH' },
+        vendorCode: { etm: { primary: 'MISSH' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [missingA, high, missingB, low, missingC, missingD],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('overall_profit_loss' as any, 'dsc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('High Overall');
+      expect(emitted!.holdings[1].name).toContain('Low Overall');
+      expect(emitted!.holdings[2].name).toContain('Missing A');
+      expect(emitted!.holdings[3].name).toContain('Missing B');
+      expect(emitted!.holdings[4].name).toContain('Missing C');
+      expect(emitted!.holdings[5].name).toContain('Missing D');
     }));
   });
 
-  describe('stock search results', () => {
-    it('should search via marketService for buy', fakeAsync(() => {
+  describe('transaction drawer', () => {
+    it('should open buy drawer', () => {
+      createComponent();
+      component.openAddTransactionDrawer(TransactionType.BUY);
+      expect(component.transactionType()).toBe(TransactionType.BUY);
+    });
+
+    it('should open sell drawer', () => {
+      createComponent();
+      component.openAddTransactionDrawer(TransactionType.SELL);
+      expect(component.transactionType()).toBe(TransactionType.SELL);
+    });
+
+    it('should handle drawer closed event', () => {
       createComponent();
       component.transactionType.set(TransactionType.BUY);
-      component.name.set('REL');
-
-      fixture.detectChanges();
-      tick();
-      tick(600);
-      fixture.detectChanges();
-
-      expect(mockMarketService.search).toHaveBeenCalledWith('REL');
-    }));
-
-    it('should not search when query is too short', fakeAsync(() => {
-      createComponent();
-      component.transactionType.set(TransactionType.BUY);
-      component.name.set('RE');
-
-      fixture.detectChanges();
-      tick();
-      tick(600);
-      fixture.detectChanges();
-
-      expect(mockMarketService.search).not.toHaveBeenCalled();
-    }));
-
-    it('should search when query equals selected stock name', fakeAsync(() => {
-      createComponent();
-      component.transactionType.set(TransactionType.BUY);
-      (component as any).selectedStock = { name: 'RELIANCE' };
-      component.name.set('RELIANCE');
-
-      fixture.detectChanges();
-      tick();
-      tick(600);
-      fixture.detectChanges();
-
-      expect(mockMarketService.search).toHaveBeenCalledWith('RELIANCE');
-    }));
+      component.onDrawerClosed();
+      expect(component.transactionType()).toBeUndefined();
+    });
   });
 
   describe('user interactions', () => {

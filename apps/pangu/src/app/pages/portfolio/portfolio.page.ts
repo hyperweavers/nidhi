@@ -1,14 +1,12 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
-  computed,
   inject,
   signal,
-  viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -21,27 +19,17 @@ import {
   debounceTime,
   distinctUntilChanged,
   map,
-  of,
   share,
-  switchMap,
-  take,
+  skip,
 } from 'rxjs';
-import { v4 as uuid } from 'uuid';
 
-import { StockSearchComponent } from '../../components/stock-search/stock-search.component';
+import { TransactionDrawerComponent } from '../../components/transaction-drawer/transaction-drawer.component';
 import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
-import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import { Direction } from '../../models/market';
-import { Holding, Portfolio, TransactionType } from '../../models/portfolio';
-import { Stock } from '../../models/stock';
+import { Portfolio, TransactionType } from '../../models/portfolio';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
-import { MarketService } from '../../services/core/market.service';
-import { StorageService } from '../../services/core/storage.service';
 import { PortfolioService } from '../../services/portfolio.service';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const Datepicker: any;
 
 enum PortfolioFilter {
   NONE = 'none',
@@ -69,9 +57,9 @@ enum PortfolioSortOrder {
     CommonModule,
     FormsModule,
     RouterLink,
-    StockSearchComponent,
-    DrawerClosedDirective,
+    ScrollingModule,
     ValueOrPlaceholderPipe,
+    TransactionDrawerComponent,
   ],
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.css',
@@ -79,14 +67,8 @@ enum PortfolioSortOrder {
 })
 export class PortfolioPage implements AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly storageService = inject(StorageService);
-  private readonly marketService = inject(MarketService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
-  private readonly transactionDateInputRef = viewChild<ElementRef>(
-    'transactionDateInput',
-  );
 
   public portfolio$: Observable<Portfolio>;
 
@@ -108,30 +90,10 @@ export class PortfolioPage implements AfterViewInit {
 
   public readonly portfolioSearchQuery = signal('');
 
-  public readonly name = signal('');
-  public readonly date = signal('');
-  public readonly price = signal(0);
-  public readonly quantity = signal(0);
-  public readonly charges = signal(0);
-  public readonly gross = computed(() => this.price() * this.quantity());
-  public readonly net = computed(
-    () =>
-      this.gross() +
-      (this.transactionType() === TransactionType.SELL
-        ? -this.charges()
-        : this.charges()),
-  );
-
   public transactionType = signal<TransactionType | undefined>(undefined);
-  public showStatusModal?: boolean;
-  public showTransactionProgress?: boolean;
-  public transactionFormError?: string;
 
-  private selectedStock?: Stock | Holding;
   private sortDropdown?: Dropdown;
   private filterDropdown?: Dropdown;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private datepicker?: any;
 
   constructor() {
     const portfolioService = inject(PortfolioService);
@@ -200,194 +162,57 @@ export class PortfolioPage implements AfterViewInit {
       share(),
     );
 
+    this.portfolioSearchQuery$
+      .pipe(skip(1))
+      .subscribe(() => this.syncQueryParams());
+
     this.restoreFromQueryParams();
   }
 
   public ngAfterViewInit(): void {
-    this.initDatePicker();
-
     setTimeout(
       () =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
-          'Dropdown',
-          'sortDropdown',
-        )),
+        (this.sortDropdown = (
+          window as unknown as {
+            FlowbiteInstances: {
+              getInstance: (type: string, id: string) => Dropdown;
+            };
+          }
+        ).FlowbiteInstances.getInstance('Dropdown', 'sortDropdown')),
       200,
     );
 
     setTimeout(
       () =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
-          'Dropdown',
-          'filterDropdown',
-        )),
+        (this.filterDropdown = (
+          window as unknown as {
+            FlowbiteInstances: {
+              getInstance: (type: string, id: string) => Dropdown;
+            };
+          }
+        ).FlowbiteInstances.getInstance('Dropdown', 'filterDropdown')),
       200,
     );
-  }
-
-  public async addTransaction(): Promise<void> {
-    if (
-      this.selectedStock &&
-      this.transactionType() &&
-      this.date() &&
-      this.price() > 0 &&
-      this.quantity() > 0 &&
-      (!this.charges() || this.charges() > 0)
-    ) {
-      const dateFragments = this.date().split('/');
-      const date = new Date(
-        `${dateFragments[2]}/${dateFragments[1]}/${dateFragments[0]}`,
-      );
-
-      if (date < new Date()) {
-        this.showTransactionProgress = true;
-
-        const transaction = {
-          id: uuid(),
-          type: this.transactionType() as TransactionType,
-          date: date.getTime(),
-          price: this.price(),
-          quantity: this.quantity(),
-          charges: this.charges(),
-        };
-
-        await this.storageService.addOrUpdate(this.selectedStock, transaction);
-
-        this.resetTransactionForm();
-
-        this.showTransactionProgress = false;
-        this.showStatusModal = true;
-      } else {
-        this.showTransactionFormError('Date is in future!');
-      }
-    } else {
-      this.showTransactionFormError(
-        'One or more field(s) containing invalid value(s)!',
-      );
-      // TODO: Catch storage exceptions in main pages (import, export, date, profile, ...)
-    }
   }
 
   public openAddTransactionDrawer(type: TransactionType): void {
     this.transactionType.set(type);
   }
 
-  public selectStock(stock: Stock | Holding): void {
-    if (!stock.scripCode.isin) {
-      this.marketService
-        .getStock(stock.vendorCode.etm.primary, true)
-        .pipe(
-          switchMap((stockDetails) => {
-            if (
-              stockDetails &&
-              (stockDetails.scripCode.nse || stockDetails.scripCode.bse)
-            ) {
-              return this.marketService
-                .searchSecondary(
-                  stockDetails.scripCode.nse ||
-                    stockDetails.scripCode.bse ||
-                    '',
-                )
-                .pipe(
-                  map((searchResults) => {
-                    if (searchResults.length > 0) {
-                      const stockDetailsSecondary = searchResults.find(
-                        (result) =>
-                          (result.scripCode.isin &&
-                            result.scripCode.isin ===
-                              stockDetails.scripCode.isin) ||
-                          (result.scripCode.nse &&
-                            result.scripCode.nse ===
-                              stockDetails.scripCode.nse) ||
-                          (result.scripCode.bse &&
-                            result.scripCode.bse ===
-                              stockDetails.scripCode.bse),
-                      );
-
-                      return stockDetailsSecondary
-                        ? {
-                            ...stockDetails,
-                            vendorCode: {
-                              ...stockDetails.vendorCode,
-                              mc: stockDetailsSecondary.vendorCode.mc,
-                            },
-                          }
-                        : stockDetails;
-                    } else {
-                      return stockDetails;
-                    }
-                  }),
-                );
-            } else {
-              return of(null);
-            }
-          }),
-          take(1),
-        )
-        .subscribe((combinedStockDetails) => {
-          if (combinedStockDetails) {
-            this.selectedStock = {
-              ...stock,
-              scripCode: combinedStockDetails.scripCode,
-              vendorCode: {
-                ...stock.vendorCode,
-                mc: combinedStockDetails.vendorCode.mc,
-              },
-              details: combinedStockDetails.details,
-            };
-
-            this.name.set(stock.name);
-          } else {
-            this.showTransactionFormError(
-              'Unable to get the details of the selected stock!',
-            );
-          }
-        });
-    } else {
-      this.selectedStock = stock;
-
-      this.name.set(stock.name);
-    }
-  }
-
-  public resetTransactionForm(): void {
-    this.selectedStock = undefined;
-
-    this.name.set('');
-    this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
-    this.price.set(0);
-    this.quantity.set(0);
-    this.charges.set(0);
-
-    this.resetDatepicker();
-
-    this.datepicker?.hide();
-  }
-
-  public closeStatusModal(retainTransactionType?: boolean): void {
-    this.showStatusModal = false;
-
-    if (!retainTransactionType) {
-      this.transactionType.set(undefined);
-    }
+  public onDrawerClosed(): void {
+    this.transactionType.set(undefined);
   }
 
   public filterPortfolio(filter: PortfolioFilter): void {
     this.portfolioFilter$.next(filter);
     this.syncQueryParams();
-    if (this.filterDropdown) {
-      this.filterDropdown.hide();
-    }
+    this.filterDropdown?.hide();
   }
 
   public clearPortfolioFilters(): void {
     this.portfolioFilter$.next(PortfolioFilter.NONE);
     this.syncQueryParams();
-    if (this.filterDropdown) {
-      this.filterDropdown.hide();
-    }
+    this.filterDropdown?.hide();
   }
 
   public sortPortfolio(
@@ -396,9 +221,7 @@ export class PortfolioPage implements AfterViewInit {
   ): void {
     this.portfolioSort$.next([type, order]);
     this.syncQueryParams();
-    if (this.sortDropdown) {
-      this.sortDropdown.hide();
-    }
+    this.sortDropdown?.hide();
   }
 
   public clearFiltersAndSort(): void {
@@ -422,12 +245,8 @@ export class PortfolioPage implements AfterViewInit {
         replaceUrl: true,
       });
 
-      if (this.sortDropdown) {
-        this.sortDropdown.hide();
-      }
-      if (this.filterDropdown) {
-        this.filterDropdown.hide();
-      }
+      this.sortDropdown?.hide();
+      this.filterDropdown?.hide();
     }
   }
 
@@ -450,11 +269,18 @@ export class PortfolioPage implements AfterViewInit {
     if (filter && Object.values(PortfolioFilter).includes(filter)) {
       this.portfolioFilter$.next(filter);
     }
+
+    const search = params.get('search');
+
+    if (search) {
+      this.portfolioSearchQuery.set(search);
+    }
   }
 
   private syncQueryParams(): void {
     const [sortType, sortOrder] = this.portfolioSort$.getValue();
     const filter = this.portfolioFilter$.getValue();
+    const search = this.portfolioSearchQuery();
     const queryParams: Record<string, string> = {};
 
     if (
@@ -469,51 +295,14 @@ export class PortfolioPage implements AfterViewInit {
       queryParams['filter'] = filter;
     }
 
+    if (search) {
+      queryParams['search'] = search;
+    }
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
       replaceUrl: true,
     });
-  }
-
-  private showTransactionFormError(message: string): void {
-    this.transactionFormError = message;
-
-    setTimeout(() => {
-      this.transactionFormError = '';
-
-      this.cdr.markForCheck();
-    }, 2000);
-  }
-
-  private resetDatepicker(): void {
-    this.datepicker?.setDate(Date.now(), { clear: true });
-  }
-
-  private initDatePicker(): void {
-    const transactionDateInputRef = this.transactionDateInputRef();
-    if (transactionDateInputRef) {
-      this.datepicker = new Datepicker(transactionDateInputRef.nativeElement, {
-        autohide: true,
-        format: 'dd/mm/yyyy',
-        todayBtn: true,
-        clearBtn: true,
-        todayBtnMode: 1,
-        todayHighlight: true,
-        maxDate: Date.now(),
-      });
-
-      transactionDateInputRef.nativeElement.addEventListener(
-        'changeDate',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => {
-          const value = e.target.value;
-
-          this.date.set(value);
-        },
-      );
-
-      this.resetDatepicker();
-    }
   }
 }

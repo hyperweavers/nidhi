@@ -1,55 +1,4 @@
-<div class="flex h-full flex-col pb-4">
-  @if (portfolio$ | async; as portfolio) { @if (portfolio.investment > 0 ||
-  portfolio.marketValue > 0) {
-  <!-- Summary -->
-  <dl
-    class="m-4 flex justify-between rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-  >
-    <div class="flex flex-col">
-      <div>
-        <dd class="mb-2 text-gray-500 dark:text-gray-400">Investment</dd>
-        <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.investment | valueOrPlaceholder }}
-        </dt>
-      </div>
-      <div class="mt-6">
-        <dd class="mb-2 text-gray-500 dark:text-gray-400">Market Value</dd>
-        <dt class="text-lg font-extrabold">
-          &#8377;{{ portfolio.marketValue | valueOrPlaceholder }}
-        </dt>
-      </div>
-    </div>
-    <div class="ms-6 flex flex-col">
-      <div>
-        <dd class="mb-2 text-gray-500 dark:text-gray-400">Day Profit/Loss</dd>
-        <dt
-          class="text-lg font-extrabold"
-          [ngClass]="portfolio.dayProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-        >
-          &#8377;{{ portfolio.dayProfitLoss.value | valueOrPlaceholder }}
-          <span class="text-sm font-normal"
-            >({{ portfolio.dayProfitLoss.percentage | valueOrPlaceholder
-            }}%)</span
-          >
-        </dt>
-      </div>
-      <div class="mt-6">
-        <dd class="mb-2 text-gray-500 dark:text-gray-400">Total Profit/Loss</dd>
-        <dt
-          class="text-lg font-extrabold"
-          [ngClass]="portfolio.totalProfitLoss.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-        >
-          &#8377;{{ portfolio.totalProfitLoss.value | valueOrPlaceholder }}
-          <span class="text-sm font-normal"
-            >({{ portfolio.totalProfitLoss.percentage | valueOrPlaceholder
-            }}%)</span
-          >
-        </dt>
-      </div>
-    </div>
-  </dl>
-  } }
-
+<div class="flex h-full flex-col py-4">
   <!-- Table Header -->
   <div
     class="flex flex-col items-center justify-between space-y-3 p-4 pt-2 md:flex-row md:space-y-0 md:space-x-4"
@@ -57,7 +6,7 @@
     <!-- Search -->
     <div class="w-full md:w-64 xl:w-96">
       <div class="flex items-center">
-        <label for="simple-search" class="sr-only">Search</label>
+        <label for="transactions-search" class="sr-only">Search</label>
         <div class="relative w-full">
           <div
             class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
@@ -77,10 +26,10 @@
             </svg>
           </div>
           <input
-            [(ngModel)]="portfolioSearchQuery"
+            [(ngModel)]="searchQuery"
             type="text"
             class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-            placeholder="Search"
+            placeholder="Search by stock name"
           />
         </div>
       </div>
@@ -93,8 +42,8 @@
         <!-- Sort -->
         <div class="flex w-full items-center md:w-auto">
           <button
-            id="sortDropdownButton"
-            data-dropdown-toggle="sortDropdown"
+            id="transactionsSortDropdownButton"
+            data-dropdown-toggle="transactionsSortDropdown"
             class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
             type="button"
           >
@@ -131,22 +80,21 @@
           </button>
 
           <div
-            id="sortDropdown"
+            id="transactionsSortDropdown"
             class="z-10 hidden w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
           >
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="sortDropdown"
+              aria-labelledby="transactionsSortDropdown"
             >
               <li
-                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.ASC)"
+                (click)="sortTransactions(TransactionSortType.NAME, TransactionSortOrder.ASC)"
+                (keydown.enter)="sortTransactions(TransactionSortType.NAME, TransactionSortOrder.ASC)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Company Name
-
                   <svg
                     class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -165,14 +113,13 @@
                 </div>
               </li>
               <li
-                (click)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.NAME, PortfolioSortOrder.DSC)"
+                (click)="sortTransactions(TransactionSortType.NAME, TransactionSortOrder.DSC)"
+                (keydown.enter)="sortTransactions(TransactionSortType.NAME, TransactionSortOrder.DSC)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
                   Company Name
-
                   <svg
                     class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -191,14 +138,13 @@
                 </div>
               </li>
               <li
-                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.ASC)"
+                (click)="sortTransactions(TransactionSortType.DATE, TransactionSortOrder.ASC)"
+                (keydown.enter)="sortTransactions(TransactionSortType.DATE, TransactionSortOrder.ASC)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
-                  Day Profit/Loss
-
+                  Date
                   <svg
                     class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -217,66 +163,13 @@
                 </div>
               </li>
               <li
-                (click)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.DAY_PROFIT_LOSS, PortfolioSortOrder.DSC)"
+                (click)="sortTransactions(TransactionSortType.DATE, TransactionSortOrder.DSC)"
+                (keydown.enter)="sortTransactions(TransactionSortType.DATE, TransactionSortOrder.DSC)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 <div class="flex">
-                  Day Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 19V5m0 14-4-4m4 4 4-4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.ASC)"
-                tabindex="0"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Overall Profit/Loss
-
-                  <svg
-                    class="h-5 w-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6v13m0-13 4 4m-4-4-4 4"
-                    />
-                  </svg>
-                </div>
-              </li>
-              <li
-                (click)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                (keydown.enter)="sortPortfolio(PortfolioSortType.OVERALL_PROFIT_LOSS, PortfolioSortOrder.DSC)"
-                tabindex="0"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                <div class="flex">
-                  Overall Profit/Loss
-
+                  Date
                   <svg
                     class="h-5 w-5 text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -301,8 +194,8 @@
         <!-- Filter -->
         <div class="flex w-full items-center md:w-auto">
           <button
-            id="filterDropdownButton"
-            data-dropdown-toggle="filterDropdown"
+            id="transactionsFilterDropdownButton"
+            data-dropdown-toggle="transactionsFilterDropdown"
             class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
             type="button"
           >
@@ -336,58 +229,42 @@
           </button>
 
           <div
-            id="filterDropdown"
+            id="transactionsFilterDropdown"
             class="z-10 hidden w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
           >
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
-              aria-labelledby="filterDropdownButton"
+              aria-labelledby="transactionsFilterDropdownButton"
             >
               <li
-                (click)="clearPortfolioFilters()"
-                (keydown.enter)="clearPortfolioFilters()"
+                (click)="clearFilter()"
+                (keydown.enter)="clearFilter()"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 All
               </li>
               <li
-                (click)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
-                (keydown.enter)="filterPortfolio(PortfolioFilter.DAY_GAINERS)"
+                (click)="filterTransactions(TransactionsFilter.BUY)"
+                (keydown.enter)="filterTransactions(TransactionsFilter.BUY)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
-                Day Gainers
+                Buy
               </li>
               <li
-                (click)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
-                (keydown.enter)="filterPortfolio(PortfolioFilter.DAY_LOSERS)"
+                (click)="filterTransactions(TransactionsFilter.SELL)"
+                (keydown.enter)="filterTransactions(TransactionsFilter.SELL)"
                 tabindex="0"
                 class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >
-                Day Losers
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
-                (keydown.enter)="filterPortfolio(PortfolioFilter.OVERALL_GAINERS)"
-                tabindex="0"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Overall Gainers
-              </li>
-              <li
-                (click)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
-                (keydown.enter)="filterPortfolio(PortfolioFilter.OVERALL_LOSERS)"
-                tabindex="0"
-                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Overall Losers
+                Sell
               </li>
             </ul>
           </div>
         </div>
 
-        <!-- Clear Filters & Sort -->
+        <!-- Clear -->
         <div class="flex items-center md:w-auto">
           <button
             (click)="clearFiltersAndSort()"
@@ -410,39 +287,11 @@
           </button>
         </div>
       </div>
-
-      <div class="flex space-x-3">
-        <!-- Buy Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.BUY)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden md:w-24"
-        >
-          Buy
-        </button>
-
-        <!-- Sell Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.SELL)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden md:w-24"
-        >
-          Sell
-        </button>
-      </div>
     </div>
   </div>
 
-  @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Virtual Scroll Table -->
+  @if (transactions$ | async; as transactions) { @if (transactions.length > 0) {
   <div
     class="mx-4 flex-1 overflow-hidden rounded-md border border-gray-200 shadow-sm dark:border-gray-700"
   >
@@ -451,72 +300,107 @@
       class="sticky top-0 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
     >
       <div class="flex-1 p-2 text-left sm:p-4">
-        <div class="whitespace-nowrap">Company (Qty)</div>
-        <div>Avg. Price (&#8377;)</div>
-        <div>Investment (&#8377;)</div>
+        <div class="whitespace-nowrap">Company</div>
+        <div>Date</div>
       </div>
       <div class="p-2 text-left sm:p-4">
-        <div>Day P/L (&#8377;)</div>
-        <div>Day P/L (%)</div>
-        <div>LTP (&#8377;)</div>
+        <div>Price (&#8377;)</div>
+        <div>Quantity</div>
       </div>
-      <div class="p-2 text-left sm:p-4">
-        <div>Total P/L (&#8377;)</div>
-        <div>Total P/L (%)</div>
-        <div>Cur. Val. (&#8377;)</div>
+      <div class="p-2 text-left leading-8 sm:p-4">
+        <div>Actions</div>
       </div>
     </div>
 
     <cdk-virtual-scroll-viewport
-      itemSize="80"
-      class="h-[calc(100%-80px)] max-h-[calc(100%-80px)] w-full max-w-full"
+      itemSize="72"
+      class="h-[calc(100%-64px)] max-h-[calc(100%-64px)] w-full max-w-full"
     >
       <!-- Data rows -->
       <ng-template
         cdkVirtualFor
-        let-holding
-        [cdkVirtualForOf]="portfolio.holdings"
+        let-item
+        [cdkVirtualForOf]="transactions"
         trackBy
       >
         <div
-          [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm.primary]"
-          class="flex cursor-pointer border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          class="flex border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
         >
           <div class="flex-1 p-2 sm:p-4">
             <div class="flex">
               <div class="truncate font-medium text-gray-900 dark:text-white">
-                {{ holding.name | valueOrPlaceholder }}
+                {{ item.stockName | valueOrPlaceholder }}
               </div>
-              <div class="ps-0.5">
-                ({{ holding.quantity | valueOrPlaceholder: '1.0-0' }})
-              </div>
+              <span
+                class="ms-2 rounded-sm px-2.5 py-0.5 text-xs font-medium"
+                [ngClass]="item.type === 'BUY' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'"
+                >{{ item.type }}</span
+              >
             </div>
-            <div>{{ holding.averagePrice | valueOrPlaceholder }}</div>
-            <div>{{ holding.investment | valueOrPlaceholder }}</div>
+            <div>{{ formatDate(item.date) | valueOrPlaceholder }}</div>
           </div>
-          <div
-            class="text-center sm:p-4"
-            [ngClass]="holding.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-          >
-            <div>
-              {{ (holding.quote?.nse?.change?.value! * holding.quantity!) |
-              valueOrPlaceholder }}
-            </div>
-            <div>
-              ({{ holding.quote?.nse?.change?.percentage | valueOrPlaceholder
-              }}%)
-            </div>
-            <div>{{ holding.quote?.nse?.price | valueOrPlaceholder }}</div>
+          <div class="text-center sm:p-4">
+            <div>{{ item.price | valueOrPlaceholder }}</div>
+            <div>{{ item.quantity | valueOrPlaceholder: '1.0-0' }}</div>
           </div>
-          <div
-            class="ps-2 text-center sm:p-4"
-            [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
-          >
-            <div>{{ holding.totalProfitLoss?.value | valueOrPlaceholder }}</div>
-            <div>
-              ({{ holding.totalProfitLoss?.percentage | valueOrPlaceholder }}%)
-            </div>
-            <div>{{ holding.marketValue | valueOrPlaceholder }}</div>
+          <div class="p-2 text-center sm:p-4">
+            <!-- Edit -->
+            <button
+              (click)="openEditDrawer(item)"
+              data-drawer-target="edit-transaction-drawer"
+              data-drawer-show="edit-transaction-drawer"
+              aria-controls="edit-transaction-drawer"
+              data-drawer-placement="right"
+              type="button"
+              class="inline-flex items-center rounded-md p-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+              title="Edit transaction"
+            >
+              <svg
+                class="h-4 w-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M11.32 6.176H5c-1.105 0-2 .949-2 2.118v10.588C3 20.052 3.895 21 5 21h11c1.105 0 2-.948 2-2.118v-7.75l-3.914 4.144A2.46 2.46 0 0 1 12.81 16l-2.681.568c-1.75.37-3.292-1.263-2.942-3.115l.536-2.839c.097-.512.335-.983.684-1.352l2.914-3.086Z"
+                  clip-rule="evenodd"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M19.846 4.318a2.148 2.148 0 0 0-.437-.692 2.014 2.014 0 0 0-.654-.463 1.92 1.92 0 0 0-1.544 0 2.014 2.014 0 0 0-.654.463l-.546.578 2.852 3.02.546-.579a2.14 2.14 0 0 0 .437-.692 2.244 2.244 0 0 0 0-1.635ZM17.45 8.721 14.597 5.7 9.82 10.76a.54.54 0 0 0-.137.27l-.536 2.84c-.07.37.239.696.588.622l2.682-.567a.492.492 0 0 0 .255-.145l4.778-5.06Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+
+              <span class="sr-only">Edit</span>
+            </button>
+            <!-- Delete -->
+            <button
+              (click)="openDeleteConfirmation(item.holdingId, item.transactionId)"
+              type="button"
+              class="inline-flex items-center rounded-md p-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-red-400"
+              title="Delete transaction"
+            >
+              <svg
+                class="h-4 w-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+
+              <span class="sr-only">Delete</span>
+            </button>
           </div>
         </div>
       </ng-template>
@@ -543,11 +427,7 @@
       />
     </svg>
 
-    <p>
-      @if (portfolio.investment > 0 || portfolio.marketValue > 0) { No matching
-      results found!<br />Please change your search term/filters. } @else { No
-      Holdings! }
-    </p>
+    <p>No transactions found!</p>
   </div>
   } } @else {
   <div class="flex flex-1 items-center justify-center" role="status">
@@ -571,12 +451,58 @@
   </div>
   }
 
-  <!-- Add Transaction Drawer -->
+  <!-- Delete Confirmation Modal -->
+  <div
+    tabindex="-1"
+    class="bg-opacity-50 dark:bg-opacity-80 fixed top-0 right-0 left-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-900 md:inset-0"
+    [class.hidden]="!showDeleteModal"
+  >
+    <div class="relative max-h-full w-full max-w-md p-4">
+      <div class="relative rounded-md bg-white shadow-sm dark:bg-gray-700">
+        <div class="p-4 text-center md:p-5">
+          <svg
+            class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+            Are you sure you want to delete this transaction?
+          </h3>
+          <button
+            (click)="confirmDelete()"
+            type="button"
+            class="inline-flex items-center rounded-md bg-red-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300 focus:outline-hidden dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+          >
+            Yes, I'm sure
+          </button>
+          <button
+            (click)="cancelDelete()"
+            type="button"
+            class="ms-3 rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+          >
+            No, cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Transaction Drawer -->
   <app-transaction-drawer
-    mode="add"
-    [transactionType]="transactionType()"
-    drawerId="add-transaction-drawer"
-    (saved)="onDrawerClosed()"
-    (closed)="onDrawerClosed()"
+    mode="edit"
+    [editContext]="editContext()"
+    drawerId="edit-transaction-drawer"
+    (saved)="onEditSaved()"
+    (closed)="onEditClosed()"
   />
 </div>

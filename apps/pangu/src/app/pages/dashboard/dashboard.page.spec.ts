@@ -676,6 +676,55 @@ describe('DashboardPage', () => {
     });
   });
 
+  describe('portfolioCompositionChartOptions tooltip label', () => {
+    let labelCallback: (context: {
+      parsed: number;
+      datasetIndex: number;
+      label: string;
+    }) => string;
+
+    beforeEach(() => {
+      labelCallback = (component.portfolioCompositionChartOptions as any)
+        .plugins.tooltip.callbacks.label;
+    });
+
+    it('should return empty string when parsed is 0', () => {
+      const result = labelCallback({
+        parsed: 0,
+        datasetIndex: 0,
+        label: 'Stock A',
+      });
+      expect(result).toBe('');
+    });
+
+    it('should return stock label for datasetIndex 0', () => {
+      const result = labelCallback({
+        parsed: 60,
+        datasetIndex: 0,
+        label: 'Stock A',
+      });
+      expect(result).toMatch(/^Stock: Stock A/);
+    });
+
+    it('should return sector label for datasetIndex 1', () => {
+      const result = labelCallback({
+        parsed: 50,
+        datasetIndex: 1,
+        label: 'Technology',
+      });
+      expect(result).toMatch(/^Sector: Technology/);
+    });
+
+    it('should return market cap label for other datasetIndex', () => {
+      const result = labelCallback({
+        parsed: 70,
+        datasetIndex: 2,
+        label: 'Large Cap',
+      });
+      expect(result).toMatch(/^Market Cap: Large Cap/);
+    });
+  });
+
   describe('HostListener', () => {
     it('should handle window fullscreenchange event', () => {
       const spy = jest.spyOn(component, 'onFullscreenChange');

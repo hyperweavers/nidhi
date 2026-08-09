@@ -93,6 +93,40 @@ describe('StockSearchComponent', () => {
     expect(component.showDropdown()).toBe(false);
   }));
 
+  it('should focus the input when autoFocus is enabled', async () => {
+    fixture.componentRef.setInput('autoFocus', true);
+    const input = fixture.nativeElement.querySelector(
+      'input',
+    ) as HTMLInputElement;
+    const focusSpy = jest.spyOn(input, 'focus');
+
+    fixture.detectChanges();
+    await Promise.resolve();
+
+    expect(focusSpy).toHaveBeenCalled();
+  });
+
+  it('should not throw when autoFocus is enabled but no input is rendered', async () => {
+    const searchInput = (component as any).searchInput;
+    (component as any).searchInput = jest.fn().mockReturnValue(undefined);
+    fixture.componentRef.setInput('autoFocus', true);
+
+    expect(() => {
+      fixture.detectChanges();
+    }).not.toThrow();
+
+    await Promise.resolve();
+    (component as any).searchInput = searchInput;
+  });
+
+  it('should clear results when query is shorter than the minimum length', () => {
+    component.query.set('REL');
+    fixture.detectChanges();
+
+    expect(component.results().length).toBe(0);
+    expect(component.showDropdown()).toBe(false);
+  });
+
   it('should navigate on navigateToStock', () => {
     const router = TestBed.inject(Router);
     const navigateSpy = jest.spyOn(router, 'navigate');
