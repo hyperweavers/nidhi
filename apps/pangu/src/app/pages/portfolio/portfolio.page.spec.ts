@@ -1214,6 +1214,381 @@ describe('PortfolioPage', () => {
       expect(emitted!.holdings[0].name).toContain('Low Daily');
       expect(emitted!.holdings[1].name).toContain('High Daily');
     }));
+
+    it('should filter day losers when holding has no quote object', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'nqdl',
+        name: 'No Quote Loser',
+        scripCode: { isin: 'INE001NQDL' },
+        vendorCode: { etm: { primary: 'NOQUOTELOSER' } },
+        quote: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noQuote, mockSellHolding],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('day_losers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+    }));
+
+    it('should filter overall gainers when holding has no total profit loss', fakeAsync(() => {
+      const noTotal: Holding = {
+        ...mockHolding,
+        id: 'notg',
+        name: 'No Total PL',
+        scripCode: { isin: 'INE001NOTG' },
+        vendorCode: { etm: { primary: 'NOTOTALPL' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noTotal, mockSellHolding],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_gainers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+    }));
+
+    it('should filter overall losers when holding has no total profit loss', fakeAsync(() => {
+      const noTotal: Holding = {
+        ...mockHolding,
+        id: 'notl',
+        name: 'No Total PL',
+        scripCode: { isin: 'INE001NOTL' },
+        vendorCode: { etm: { primary: 'NOTOTALPL' } },
+        totalProfitLoss: undefined as any,
+      };
+      const downOverall: Holding = {
+        ...mockHolding,
+        id: 'dwol',
+        name: 'Down Overall',
+        scripCode: { isin: 'INE001DWOL' },
+        vendorCode: { etm: { primary: 'DOWNOVERALL' } },
+        totalProfitLoss: {
+          direction: Direction.DOWN,
+          percentage: -10,
+          value: -100,
+        },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [noTotal, downOverall],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_losers' as any);
+      tick();
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(1);
+      expect(emitted!.holdings[0].name).toContain('Down Overall');
+    }));
+
+    it('should sort by daily profit loss ascending with missing quote chains', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'dqn',
+        name: 'No Quote',
+        scripCode: { isin: 'INE001DQN' },
+        vendorCode: { etm: { primary: 'DQN' } },
+        quote: undefined as any,
+      };
+      const partial: Holding = {
+        ...mockSellHolding,
+        id: 'dpc',
+        name: 'Partial',
+        scripCode: { isin: 'INE001DPC' },
+        vendorCode: { etm: { primary: 'DPC' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      const noQuote2: Holding = {
+        ...mockHolding,
+        id: 'dqn2',
+        name: 'No Quote 2',
+        scripCode: { isin: 'INE001DQN2' },
+        vendorCode: { etm: { primary: 'DQN2' } },
+        quote: undefined as any,
+      };
+      const partial2: Holding = {
+        ...mockSellHolding,
+        id: 'dpc2',
+        name: 'Partial 2',
+        scripCode: { isin: 'INE001DPC2' },
+        vendorCode: { etm: { primary: 'DPC2' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [
+          noQuote,
+          mockHolding,
+          partial,
+          mockSellHolding,
+          noQuote2,
+          partial2,
+        ],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('daily_profit_loss' as any, 'asc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('TCS');
+      expect(emitted!.holdings[1].name).toContain('No Quote');
+      expect(emitted!.holdings[2].name).toContain('Partial');
+      expect(emitted!.holdings[3].name).toContain('No Quote 2');
+      expect(emitted!.holdings[4].name).toContain('Partial 2');
+      expect(emitted!.holdings[5].name).toContain('Reliance');
+    }));
+
+    it('should sort by daily profit loss descending with missing quote chains', fakeAsync(() => {
+      const noQuote: Holding = {
+        ...mockHolding,
+        id: 'dqn3',
+        name: 'No Quote',
+        scripCode: { isin: 'INE001DQN3' },
+        vendorCode: { etm: { primary: 'DQN3' } },
+        quote: undefined as any,
+      };
+      const partial: Holding = {
+        ...mockSellHolding,
+        id: 'dpc3',
+        name: 'Partial',
+        scripCode: { isin: 'INE001DPC3' },
+        vendorCode: { etm: { primary: 'DPC3' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      const noQuote2: Holding = {
+        ...mockHolding,
+        id: 'dqn4',
+        name: 'No Quote 2',
+        scripCode: { isin: 'INE001DQN4' },
+        vendorCode: { etm: { primary: 'DQN4' } },
+        quote: undefined as any,
+      };
+      const partial2: Holding = {
+        ...mockSellHolding,
+        id: 'dpc4',
+        name: 'Partial 2',
+        scripCode: { isin: 'INE001DPC4' },
+        vendorCode: { etm: { primary: 'DPC4' } },
+        quote: { nse: { price: 100 } as any },
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [
+          noQuote,
+          mockHolding,
+          partial,
+          mockSellHolding,
+          noQuote2,
+          partial2,
+        ],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('daily_profit_loss' as any, 'dsc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('Reliance');
+      expect(emitted!.holdings[1].name).toContain('No Quote');
+      expect(emitted!.holdings[2].name).toContain('Partial');
+      expect(emitted!.holdings[3].name).toContain('No Quote 2');
+      expect(emitted!.holdings[4].name).toContain('Partial 2');
+      expect(emitted!.holdings[5].name).toContain('TCS');
+    }));
+
+    it('should sort by overall profit loss ascending with missing total profit loss', fakeAsync(() => {
+      const missingA: Holding = {
+        ...mockHolding,
+        id: 'moa',
+        name: 'Missing A',
+        scripCode: { isin: 'INE001MOA' },
+        vendorCode: { etm: { primary: 'MISSA' } },
+        totalProfitLoss: undefined as any,
+      };
+      const high: Holding = {
+        ...mockHolding,
+        id: 'hio',
+        name: 'High Overall',
+        scripCode: { isin: 'INE001HIO' },
+        vendorCode: { etm: { primary: 'HIGHOVER' } },
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 20,
+          value: 200,
+        },
+      };
+      const missingB: Holding = {
+        ...mockHolding,
+        id: 'mob',
+        name: 'Missing B',
+        scripCode: { isin: 'INE001MOB' },
+        vendorCode: { etm: { primary: 'MISSB' } },
+        totalProfitLoss: undefined as any,
+      };
+      const low: Holding = {
+        ...mockSellHolding,
+        id: 'loa',
+        name: 'Low Overall',
+        scripCode: { isin: 'INE001LOA' },
+        vendorCode: { etm: { primary: 'LOWOVER' } },
+        totalProfitLoss: { direction: Direction.UP, percentage: 5, value: 50 },
+      };
+      const missingC: Holding = {
+        ...mockHolding,
+        id: 'moc',
+        name: 'Missing C',
+        scripCode: { isin: 'INE001MOC' },
+        vendorCode: { etm: { primary: 'MISSC' } },
+        totalProfitLoss: undefined as any,
+      };
+      const missingD: Holding = {
+        ...mockHolding,
+        id: 'mod',
+        name: 'Missing D',
+        scripCode: { isin: 'INE001MOD' },
+        vendorCode: { etm: { primary: 'MISSD' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [missingA, high, missingB, low, missingC, missingD],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('overall_profit_loss' as any, 'asc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('Missing A');
+      expect(emitted!.holdings[1].name).toContain('Missing B');
+      expect(emitted!.holdings[2].name).toContain('Missing C');
+      expect(emitted!.holdings[3].name).toContain('Missing D');
+      expect(emitted!.holdings[4].name).toContain('Low Overall');
+      expect(emitted!.holdings[5].name).toContain('High Overall');
+    }));
+
+    it('should sort by overall profit loss descending with missing total profit loss', fakeAsync(() => {
+      const missingA: Holding = {
+        ...mockHolding,
+        id: 'moe',
+        name: 'Missing A',
+        scripCode: { isin: 'INE001MOE' },
+        vendorCode: { etm: { primary: 'MISSE' } },
+        totalProfitLoss: undefined as any,
+      };
+      const high: Holding = {
+        ...mockHolding,
+        id: 'hio2',
+        name: 'High Overall',
+        scripCode: { isin: 'INE001HIO2' },
+        vendorCode: { etm: { primary: 'HIGHOVER2' } },
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 20,
+          value: 200,
+        },
+      };
+      const missingB: Holding = {
+        ...mockHolding,
+        id: 'mof',
+        name: 'Missing B',
+        scripCode: { isin: 'INE001MOF' },
+        vendorCode: { etm: { primary: 'MISSF' } },
+        totalProfitLoss: undefined as any,
+      };
+      const low: Holding = {
+        ...mockSellHolding,
+        id: 'lob',
+        name: 'Low Overall',
+        scripCode: { isin: 'INE001LOB' },
+        vendorCode: { etm: { primary: 'LOWOVER2' } },
+        totalProfitLoss: { direction: Direction.UP, percentage: 5, value: 50 },
+      };
+      const missingC: Holding = {
+        ...mockHolding,
+        id: 'mog',
+        name: 'Missing C',
+        scripCode: { isin: 'INE001MOG' },
+        vendorCode: { etm: { primary: 'MISSG' } },
+        totalProfitLoss: undefined as any,
+      };
+      const missingD: Holding = {
+        ...mockHolding,
+        id: 'moh',
+        name: 'Missing D',
+        scripCode: { isin: 'INE001MOH' },
+        vendorCode: { etm: { primary: 'MISSH' } },
+        totalProfitLoss: undefined as any,
+      };
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [missingA, high, missingB, low, missingC, missingD],
+      });
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('overall_profit_loss' as any, 'dsc' as any);
+      tick();
+      tick(300);
+      fixture.detectChanges();
+
+      expect(emitted!.holdings.length).toBe(6);
+      expect(emitted!.holdings[0].name).toContain('High Overall');
+      expect(emitted!.holdings[1].name).toContain('Low Overall');
+      expect(emitted!.holdings[2].name).toContain('Missing A');
+      expect(emitted!.holdings[3].name).toContain('Missing B');
+      expect(emitted!.holdings[4].name).toContain('Missing C');
+      expect(emitted!.holdings[5].name).toContain('Missing D');
+    }));
   });
 
   describe('transaction drawer', () => {
