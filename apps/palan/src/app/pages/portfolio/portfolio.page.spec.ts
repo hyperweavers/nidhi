@@ -147,6 +147,21 @@ describe('PortfolioPage', () => {
     expect(component.transactionType).toBe(TransactionType.SELL);
   });
 
+  it('should update the source selection immediately when choosing the non-default option', () => {
+    component.openAddTransactionDrawer(TransactionType.BUY);
+    fixture.detectChanges();
+
+    const select = fixture.debugElement.query(By.css('#source'))
+      .nativeElement as HTMLSelectElement;
+
+    select.value = ContributionSource.EMPLOYER;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(component.source()).toBe(ContributionSource.EMPLOYER);
+    expect(select.value).toBe(ContributionSource.EMPLOYER);
+  });
+
   it('should show form validation error when addTransaction fails validation', () => {
     component.addTransaction();
     expect(component.transactionFormError).toBe(
