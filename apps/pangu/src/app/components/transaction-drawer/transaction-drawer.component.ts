@@ -142,14 +142,15 @@ export class TransactionDrawerComponent implements AfterViewInit {
     );
 
     effect(() => {
-      if (this.editContext()) {
-        this.name.set(this.editContext()?.holdingName || '');
-        this.price.set(this.editContext()?.transaction.price || 0);
-        this.quantity.set(this.editContext()?.transaction.quantity || 0);
-        this.charges.set(this.editContext()?.transaction.charges || 0);
+      const context = this.editContext();
+      if (context) {
+        this.name.set(context.holdingName || '');
+        this.price.set(context.transaction.price || 0);
+        this.quantity.set(context.transaction.quantity || 0);
+        this.charges.set(context.transaction.charges || 0);
 
         this.datepicker?.setDate(
-          new Date(this.editContext()?.transaction.date || Date.now()),
+          new Date(context.transaction.date || Date.now()),
           { clear: true },
         );
       }

@@ -296,14 +296,18 @@ describe('TransactionDrawerComponent', () => {
 
     it('should keep selected stock when query matches the chosen name', fakeAsync(() => {
       createComponent();
+      const sub = component.stockSearchResults$.subscribe();
       component.selectedStock.set(mockHolding);
       component.name.set('Reliance Industries');
-
+      fixture.detectChanges();
       component.name.set('Reliance Industries');
+      fixture.detectChanges();
+
       tick(600);
 
       expect(component.selectedStock()).toEqual(mockHolding);
       expect(component.name()).toBe('Reliance Industries');
+      sub.unsubscribe();
     }));
 
     it('should enrich stock when ISIN is missing and getStock returns null', fakeAsync(() => {
