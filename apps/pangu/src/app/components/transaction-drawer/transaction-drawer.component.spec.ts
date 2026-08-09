@@ -293,6 +293,18 @@ describe('TransactionDrawerComponent', () => {
       expect(component.showSearchResults).toBe(false);
     });
 
+    it('should keep selected stock when query matches the chosen name', fakeAsync(() => {
+      createComponent();
+      component.selectedStock.set(mockHolding);
+      component.name.set('Reliance Industries');
+
+      component.name.set('Reliance Industries');
+      tick(600);
+
+      expect(component.selectedStock()).toEqual(mockHolding);
+      expect(component.name()).toBe('Reliance Industries');
+    }));
+
     it('should enrich stock when ISIN is missing and getStock returns null', fakeAsync(() => {
       const stockWithoutIsin: Holding = {
         ...mockHolding,
@@ -513,6 +525,45 @@ describe('TransactionDrawerComponent', () => {
       tick();
       expect(component.gross()).toBe(1000);
       expect(component.net()).toBe(975);
+    }));
+
+    it('should deduct charges for sell transactions from edit context', fakeAsync(() => {
+      createComponent();
+      fixture.componentRef.setInput('editContext', {
+        transaction: {
+          ...mockHolding.transactions[0],
+          type: TransactionType.SELL,
+        },
+        holdingId: 'h1',
+        holdingName: 'Reliance Industries',
+      } as TransactionEditContext);
+      fixture.detectChanges();
+      component.price.set(200);
+      component.quantity.set(5);
+      component.charges.set(25);
+      tick();
+      expect(component.net()).toBe(975);
+    }));
+  });
+
+  describe('validation edge cases', () => {
+    it('should reject a save when charges are negative', fakeAsync(() => {
+      createComponent();
+      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      fixture.detectChanges();
+      component.selectedStock.set(mockHolding);
+      component.name.set('Reliance Industries');
+      component.date.set('01/01/2020');
+      component.price.set(100);
+      component.quantity.set(10);
+      component.charges.set(-5);
+
+      component.save();
+      tick();
+
+      expect(component.transactionFormError).toBe(
+        'One or more field(s) containing invalid value(s)!',
+      );
     }));
   });
 });

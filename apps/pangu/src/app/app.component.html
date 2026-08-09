@@ -178,6 +178,7 @@
                 [query]="headerSearchQuery()"
                 (queryChange)="headerSearchQuery.set($event)"
                 (stockSelected)="closeMobileSearch()"
+                [autoFocus]="mobileSearchOpen()"
               />
             </div>
             <button

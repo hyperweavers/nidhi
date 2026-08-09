@@ -315,6 +315,90 @@ describe('PortfolioPage', () => {
       );
     });
 
+    it('should distinguish overall gainers and losers in the filter pipeline', fakeAsync(() => {
+      const upHolding: Holding = {
+        ...mockHolding,
+        id: 'og1',
+        name: 'Overall Gainer',
+        totalProfitLoss: {
+          direction: Direction.UP,
+          percentage: 10,
+          value: 300,
+        },
+      };
+      const downHolding: Holding = {
+        ...mockSellHolding,
+        id: 'ol1',
+        name: 'Overall Loser',
+        totalProfitLoss: {
+          direction: Direction.DOWN,
+          percentage: -8,
+          value: -200,
+        },
+      };
+
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [upHolding, downHolding],
+      });
+
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.filterPortfolio('overall_gainers' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toContain('Overall Gainer');
+      expect(emitted?.holdings.some((h) => h.name === 'Overall Loser')).toBe(
+        false,
+      );
+
+      component.filterPortfolio('overall_losers' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toContain('Overall Loser');
+      expect(emitted?.holdings.some((h) => h.name === 'Overall Gainer')).toBe(
+        false,
+      );
+    }));
+
+    it('should sort portfolio results by name and profit metrics', fakeAsync(() => {
+      const alpha: Holding = {
+        ...mockHolding,
+        id: 'a1',
+        name: 'Alpha',
+      };
+      const beta: Holding = {
+        ...mockSellHolding,
+        id: 'b1',
+        name: 'Beta',
+      };
+
+      portfolioSubject.next({
+        ...mockPortfolio,
+        holdings: [beta, alpha],
+      });
+
+      createComponent();
+
+      let emitted: Portfolio | undefined;
+      component.portfolio$.subscribe((p) => (emitted = p));
+      renderWithPortfolio();
+
+      component.sortPortfolio('name' as any, 'asc' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings.map((h) => h.name)).toEqual(['Alpha', 'Beta']);
+
+      component.sortPortfolio('overall_profit_loss' as any, 'dsc' as any);
+      tick();
+      fixture.detectChanges();
+      expect(emitted?.holdings[0].name).toBe('Alpha');
+    }));
+
     it('should clear filters', () => {
       component.filterPortfolio('day_gainers' as any);
       component.clearPortfolioFilters();
@@ -445,6 +529,18 @@ describe('PortfolioPage', () => {
       component.sortPortfolio('name' as any, 'asc' as any);
       expect(() => component.clearFiltersAndSort()).not.toThrow();
     });
+
+    it('should sync empty query params when defaults are active', fakeAsync(() => {
+      component.filterPortfolio('none' as any);
+      component.sortPortfolio('daily_profit_loss' as any, 'dsc' as any);
+      component.portfolioSearchQuery.set('');
+      tick();
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: {} }),
+      );
+    }));
   });
 
   describe('search query', () => {

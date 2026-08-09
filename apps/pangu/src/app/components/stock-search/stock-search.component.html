@@ -20,6 +20,7 @@
       </svg>
     </div>
     <input
+      #searchInput
       [ngModel]="query()"
       (ngModelChange)="onInput($event)"
       (focus)="showDropdown.set(results().length > 0)"

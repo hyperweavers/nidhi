@@ -3,23 +3,25 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
+  ElementRef,
   inject,
   input,
   model,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import {
   BehaviorSubject,
-  Subject,
   debounceTime,
   distinctUntilChanged,
   filter,
   iif,
   map,
+  Subject,
   switchMap,
   tap,
 } from 'rxjs';
@@ -42,8 +44,12 @@ export class StockSearchComponent {
   private readonly portfolioService = inject(PortfolioService);
   private readonly router = inject(Router);
 
+  private readonly searchInput =
+    viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
   public readonly mode = input<'sitewide' | 'buy' | 'sell'>('sitewide');
   public readonly placeholder = input('Search stocks');
+  public readonly autoFocus = input(false);
   public readonly query = model('');
   public readonly stockSelected = output<Stock>();
 
@@ -61,6 +67,14 @@ export class StockSearchComponent {
       } else {
         this.results.set([]);
         this.showDropdown.set(false);
+      }
+    });
+
+    effect(() => {
+      if (this.autoFocus()) {
+        queueMicrotask(() => {
+          this.searchInput()?.nativeElement?.focus();
+        });
       }
     });
 
