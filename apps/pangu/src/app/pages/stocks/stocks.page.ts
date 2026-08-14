@@ -109,7 +109,7 @@ export class StocksPage implements OnDestroy {
             (portfolio) =>
               !!id &&
               portfolio.holdings.some(
-                (h) => h.vendorCode.etm.primary === id && h.quantity > 0,
+                (h) => h.vendorCode.etm.primary === id && (h.quantity || 0) > 0,
               ),
           ),
         ),
