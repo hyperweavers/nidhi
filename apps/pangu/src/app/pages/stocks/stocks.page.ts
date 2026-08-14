@@ -108,7 +108,9 @@ export class StocksPage implements OnDestroy {
           map(
             (portfolio) =>
               !!id &&
-              portfolio.holdings.some((h) => h.vendorCode.etm.primary === id),
+              portfolio.holdings.some(
+                (h) => h.vendorCode.etm.primary === id && (h.quantity || 0) > 0,
+              ),
           ),
         ),
       ),
