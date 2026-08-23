@@ -9,6 +9,7 @@ import {
   OnDestroy,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -33,19 +34,26 @@ import {
   tap,
 } from 'rxjs';
 
+import { ToastService } from '@nidhi/shared-toast';
+import {
+  SelectWatchListComponent,
+  WatchListSelectionMode,
+} from '../../components/select-watch-list/select-watch-list.component';
 import { ChartCategory, ChartData, Period } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
+import { WatchList } from '../../models/watch-list';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
+import { WatchListService } from '../../services/watch-list.service';
 import { ChartUtils } from '../../utils/chart.utils';
 
 @UntilDestroy()
 @Component({
   selector: 'app-stocks',
-  imports: [CommonModule, ValueOrPlaceholderPipe],
+  imports: [CommonModule, ValueOrPlaceholderPipe, SelectWatchListComponent],
   templateUrl: './stocks.page.html',
   styleUrl: './stocks.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +62,8 @@ export class StocksPage implements OnDestroy {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly logger = inject(LOGGER);
+  private readonly watchListService = inject(WatchListService);
+  private readonly toastService = inject(ToastService);
 
   private readonly chartContainerRef = viewChild<ElementRef>('chartContainer');
   private readonly chartRef = viewChild<ElementRef>('chart');
@@ -71,9 +81,14 @@ export class StocksPage implements OnDestroy {
   public isChartInFullscreen = false;
   public isChartNoData = false;
 
+  public readonly showAddToListDrawer = signal(false);
+  public readonly currentStock = signal<Stock | null | undefined>(undefined);
+  public readonly selectWatchListRef = viewChild(SelectWatchListComponent);
+
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = Period;
+  public readonly WatchListSelectionMode = WatchListSelectionMode;
 
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
 
@@ -127,6 +142,7 @@ export class StocksPage implements OnDestroy {
     this.stock$ = toObservable(this.id).pipe(
       switchMap((id) => marketService.getStock(id, true)),
       tap((stock) => {
+        this.currentStock.set(stock);
         if (stock && !stock.scripCode.nse) {
           this.activeExchange = ExchangeName.BSE;
         }
@@ -164,6 +180,7 @@ export class StocksPage implements OnDestroy {
 
           this.showIntraDayChart$
             .pipe(
+              untilDestroyed(this),
               distinctUntilChanged(),
               tap(() => {
                 if (this.chart) {
@@ -379,6 +396,32 @@ export class StocksPage implements OnDestroy {
           });
       }
     }
+  }
+
+  public openAddToListDrawer(): void {
+    this.showAddToListDrawer.set(true);
+  }
+
+  public closeAddToListDrawer(): void {
+    this.showAddToListDrawer.set(false);
+  }
+
+  public confirmAddToList(): void {
+    this.selectWatchListRef()?.confirmSelection();
+  }
+
+  public async onAddToListSelected(lists: unknown): Promise<void> {
+    const selected = lists as WatchList[];
+    const stock = this.currentStock();
+    if (!stock || !selected?.length) return;
+
+    await this.watchListService.addStockToMultipleLists(
+      selected.map((l) => l.id),
+      stock.scripCode,
+      stock.vendorCode,
+    );
+    this.toastService.show(`Added to ${selected.length} watch list(s)!`);
+    this.closeAddToListDrawer();
   }
 
   public ngOnDestroy(): void {

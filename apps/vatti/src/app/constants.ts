@@ -23,6 +23,13 @@ export const Constants = {
     BANKS_IN_INDIA_JSON_BLOB: '019c8a2f-13b9-7310-a6d1-5fb8d868a430',
     IBJA_GOLD_RATES_JSON_BLOB: '019c8a2f-67df-74e6-a49b-7ff723d4df3c',
   },
+  configs: {
+    defaults: {
+      HTTP_REQUEST_TIMEOUT: 10_000, // milliseconds
+      TOAST_DISMISS_TIMEOUT: 3_000, // milliseconds
+      WINDOW_RESIZE_DEBOUNCE_TIME: 500, // milliseconds
+    },
+  },
   settings: {
     THEME: 'theme',
     COLOR_SCHEME: 'color_scheme',

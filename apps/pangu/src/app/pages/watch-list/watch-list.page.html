@@ -1,0 +1,902 @@
+<div class="flex h-full flex-col pb-4">
+  @if (loading()) {
+  <div class="flex flex-1 items-center justify-center" role="status">
+    <svg
+      aria-hidden="true"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+      viewBox="0 0 100 101"
+      fill="none"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    </svg>
+    <span class="sr-only">Loading...</span>
+  </div>
+  } @else {
+  <!-- Header Row 1 -->
+  <div class="flex flex-row space-x-3 p-4 pb-2">
+    <div class="flex-1">
+      <app-select-watch-list
+        [mode]="WatchListSelectionMode.SINGLE"
+        [placeholderText]="'Select a watch list...'"
+        [showAsDropdown]="true"
+        [selectedListId]="watchList()?.id"
+        (selected)="onHeaderWatchListSelected($event)"
+      />
+    </div>
+
+    <div class="flex space-x-2">
+      <button
+        (click)="openStockSearchDrawer()"
+        data-drawer-target="add-stock-drawer"
+        data-drawer-show="add-stock-drawer"
+        aria-controls="add-stock-drawer"
+        data-drawer-placement="right"
+        type="button"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex items-center justify-center rounded-md px-2 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
+        class="hover:text-primary-700 flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 17l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v5" />
+          <path d="M16 19h6" />
+          <path d="M19 16v6" />
+        </svg>
+      </button>
+
+      <button
+        (click)="toggleEditMode()"
+        type="button"
+        class="hover:text-primary-700 flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+        [ngClass]="editMode() ? 'bg-primary-700 text-white dark:text-white dark:bg-primary-600 border-primary-700 dark:border-primary-600 hover:border-gray-200 dark:hover:border-gray-700' : ''"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 17l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v4" />
+          <path
+            d="M18.42 15.61a2.1 2.1 0 1 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z"
+          />
+        </svg>
+      </button>
+
+      <button
+        (click)="navigateToWatchLists()"
+        type="button"
+        class="hover:text-primary-700 flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M12 6a4 4 0 0 1 4 4v11a1 1 0 0 1 -1.514 .857l-4.486 -2.691l-4.486 2.691a1 1 0 0 1 -1.508 -.743l-.006 -.114v-11a4 4 0 0 1 4 -4h4z"
+          />
+          <path
+            d="M16 2a4 4 0 0 1 4 4v11a1 1 0 0 1 -2 0v-11a2 2 0 0 0 -2 -2h-5a1 1 0 0 1 0 -2h5z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Header Row 2: Search, Sort, Filter -->
+  <div
+    class="flex flex-col items-center justify-between space-y-3 p-4 pt-2 md:flex-row md:space-y-0 md:space-x-4"
+  >
+    <div class="w-full md:w-64 xl:w-96">
+      <div class="flex items-center">
+        <label for="stock-search" class="sr-only">Search</label>
+        <div class="relative w-full">
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <svg
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            #stockNameSearchInput
+            [(ngModel)]="searchQuery"
+            type="text"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="Search by stock name..."
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="flex w-full shrink-0 flex-col items-stretch justify-end space-y-3 md:w-auto md:flex-row md:items-center md:space-y-0 md:space-x-3"
+    >
+      <div class="flex space-x-3">
+        <!-- Sort -->
+        <div class="flex w-full items-center md:w-auto">
+          <button
+            id="sortDropdownButton"
+            data-dropdown-toggle="sortDropdown"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            type="button"
+          >
+            <svg
+              class="mr-2 h-4 w-4 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 4v16M7 4l3 3M7 4 4 7m9-3h6l-6 6h6m-6.5 10 3.5-7 3.5 7M14 18h4"
+              />
+            </svg>
+            Sort
+            <svg
+              class="-mr-1 ml-1.5 h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              />
+            </svg>
+          </button>
+
+          <div
+            id="sortDropdown"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="py-1 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="sortDropdown"
+            >
+              <li
+                (click)="sort(WatchListSortType.NAME, WatchListSortOrder.ASC)"
+                (keydown.enter)="sort(WatchListSortType.NAME, WatchListSortOrder.ASC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Name
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.NAME, WatchListSortOrder.DSC)"
+                (keydown.enter)="sort(WatchListSortType.NAME, WatchListSortOrder.DSC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Name
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.CHANGE_PERCENTAGE, WatchListSortOrder.ASC)"
+                (keydown.enter)="sort(WatchListSortType.CHANGE_PERCENTAGE, WatchListSortOrder.ASC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Change %
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.CHANGE_PERCENTAGE, WatchListSortOrder.DSC)"
+                (keydown.enter)="sort(WatchListSortType.CHANGE_PERCENTAGE, WatchListSortOrder.DSC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Change %
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.CHANGE_VALUE, WatchListSortOrder.ASC)"
+                (keydown.enter)="sort(WatchListSortType.CHANGE_VALUE, WatchListSortOrder.ASC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Change &#8377;
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.CHANGE_VALUE, WatchListSortOrder.DSC)"
+                (keydown.enter)="sort(WatchListSortType.CHANGE_VALUE, WatchListSortOrder.DSC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Change &#8377;
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.PRICE, WatchListSortOrder.ASC)"
+                (keydown.enter)="sort(WatchListSortType.PRICE, WatchListSortOrder.ASC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Price
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.PRICE, WatchListSortOrder.DSC)"
+                (keydown.enter)="sort(WatchListSortType.PRICE, WatchListSortOrder.DSC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Price
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.VOLUME, WatchListSortOrder.ASC)"
+                (keydown.enter)="sort(WatchListSortType.VOLUME, WatchListSortOrder.ASC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Volume
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v13m0-13 4 4m-4-4-4 4"
+                    />
+                  </svg>
+                </div>
+              </li>
+              <li
+                (click)="sort(WatchListSortType.VOLUME, WatchListSortOrder.DSC)"
+                (keydown.enter)="sort(WatchListSortType.VOLUME, WatchListSortOrder.DSC)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <div class="flex">
+                  Volume
+                  <svg
+                    class="h-5 w-5 text-gray-800 dark:text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 19V5m0 14-4-4m4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="flex w-full items-center md:w-auto">
+          <button
+            id="filterDropdownButton"
+            data-dropdown-toggle="filterDropdown"
+            class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            type="button"
+          >
+            <svg
+              class="mr-2 h-4 w-4 text-gray-400"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Filter
+            <svg
+              class="-mr-1 ml-1.5 h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              />
+            </svg>
+          </button>
+
+          <div
+            id="filterDropdown"
+            class="z-10 hidden w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="py-1 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="filterDropdownButton"
+            >
+              <li
+                (click)="setFilter(WatchListFilter.NONE)"
+                (keydown.enter)="setFilter(WatchListFilter.NONE)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                All
+              </li>
+              <li
+                (click)="setFilter(WatchListFilter.GAINERS)"
+                (keydown.enter)="setFilter(WatchListFilter.GAINERS)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Gainers
+              </li>
+              <li
+                (click)="setFilter(WatchListFilter.LOSERS)"
+                (keydown.enter)="setFilter(WatchListFilter.LOSERS)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                Losers
+              </li>
+              <li
+                (click)="setFilter(WatchListFilter.NSE)"
+                (keydown.enter)="setFilter(WatchListFilter.NSE)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                NSE
+              </li>
+              <li
+                (click)="setFilter(WatchListFilter.BSE)"
+                (keydown.enter)="setFilter(WatchListFilter.BSE)"
+                tabindex="0"
+                class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                BSE
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Clear -->
+        <div class="flex items-center md:w-auto">
+          <button
+            (click)="clearFiltersAndSort()"
+            class="hover:text-primary-700 flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+            type="button"
+            title="Clear Filters & Sort"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (stocks().length > 0) {
+  <div class="relative overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+        @if (editMode()) {
+        <col width="0%" />
+        }
+      </colgroup>
+
+      <thead
+        class="bg-gray-50 text-center text-xs whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="p-2 text-left sm:p-4">
+            <div>Company</div>
+            <div>Exchange</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Price (&#8377;)</div>
+            <div>Volume</div>
+          </th>
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Change (%)</div>
+            <div>Change (&#8377;)</div>
+          </th>
+          @if (editMode()) {
+          <th scope="col" class="p-2 sm:p-4">
+            <div>Actions</div>
+          </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (stock of filteredStocks(); track stock?.vendorCode?.etm?.primary
+        || $index) {
+        <tr
+          [routerLink]="editMode() ? null : ['/' + Routes.STOCKS, stock?.vendorCode?.etm?.primary]"
+          class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
+          [class.!cursor-default]="editMode()"
+        >
+          <th scope="row" class="max-w-px p-2 font-normal sm:p-4">
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ stock?.liveData?.name || stock?.vendorCode?.etm?.primary || ''
+              }}
+            </div>
+            <div class="text-xs text-gray-500 uppercase dark:text-gray-400">
+              {{ getExchange(stock) }}
+            </div>
+          </th>
+          <td class="p-2 text-center sm:p-4">
+            <div>
+              &#8377;{{ stock?.liveData?.quote?.nse?.price | valueOrPlaceholder
+              }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              {{ stock?.liveData?.quote?.nse?.volume | valueOrPlaceholder:
+              '1.0-0' }}
+            </div>
+          </td>
+          <td
+            class="p-2 text-center sm:p-4"
+            [ngClass]="stock?.liveData?.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
+          >
+            <div>
+              {{ stock?.liveData?.quote?.nse?.change?.percentage |
+              valueOrPlaceholder }}%
+            </div>
+            <div>
+              &#8377;{{ stock?.liveData?.quote?.nse?.change?.value |
+              valueOrPlaceholder }}
+            </div>
+          </td>
+          @if (editMode()) {
+          <td class="p-2 text-center sm:p-4">
+            <div class="flex justify-center space-x-2">
+              <button
+                (click)="openMoveModal(stock); $event.stopPropagation()"
+                title="Move"
+                type="button"
+                class="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12.089 3.634a2 2 0 0 0 -1.089 1.78l-.001 2.586h-6.999a2 2 0 0 0 -2 2v4l.005 .15a2 2 0 0 0 1.995 1.85l6.999 -.001l.001 2.587a2 2 0 0 0 3.414 1.414l6.586 -6.586a2 2 0 0 0 0 -2.828l-6.586 -6.586a2 2 0 0 0 -2.18 -.434l-.145 .068z"
+                  />
+                </svg>
+              </button>
+              <button
+                (click)="openDeleteConfirm(stock); $event.stopPropagation()"
+                title="Delete"
+                type="button"
+                class="rounded-md p-1.5 text-red-500 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900 dark:hover:text-red-400"
+              >
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } @else {
+  <div
+    class="flex flex-1 flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400"
+    role="status"
+  >
+    <svg class="mx-auto mb-4 h-12 w-12" viewBox="0 0 20 20" fill="none">
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+    <p>No stocks in this watch list.<br />Click "Add Stock" to add some!</p>
+  </div>
+  } }
+
+  <!-- Add Stock Drawer -->
+  <div
+    id="add-stock-drawer"
+    class="fixed top-0 right-0 z-50 h-full w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform dark:bg-gray-800"
+    tabindex="-1"
+    aria-labelledby="drawer-label"
+    aria-hidden="true"
+  >
+    <h5
+      id="drawer-label"
+      class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+    >
+      Add Stock
+    </h5>
+
+    <button
+      (click)="closeStockSearchDrawer()"
+      type="button"
+      data-drawer-dismiss="add-stock-drawer"
+      aria-controls="add-stock-drawer"
+      class="absolute top-2.5 right-2.5 inline-flex items-center rounded-md bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    >
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span class="sr-only">Close</span>
+    </button>
+
+    <div class="space-y-4">
+      <div class="relative" #stockSearchBox>
+        <label
+          for="stock-search-drawer"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Company</label
+        >
+        <input
+          id="stock-search-drawer"
+          [(ngModel)]="stockSearchQuery"
+          type="text"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="Type company name/symbol..."
+        />
+
+        @if ( stockSearchResults().length > 0 && showStockSearchResults() ) {
+        <div
+          class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+        >
+          @for (stock of stockSearchResults(); track
+          stock.vendorCode?.etm?.primary) {
+          <label
+            class="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <input
+              type="checkbox"
+              [checked]="isDrawerStockSelected(stock)"
+              (change)="toggleDrawerStock(stock)"
+              class="focus:ring-primary-500 text-primary-600 h-4 w-4 rounded border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-700"
+            />
+            <div
+              class="flex-1 truncate font-medium text-gray-900 dark:text-white"
+            >
+              {{ stock.name }}
+            </div>
+            @if (stock.quote?.nse?.price) {
+            <div class="text-right text-xs leading-tight">
+              <div class="text-gray-900 dark:text-white">
+                &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+              </div>
+              @if (stock.quote?.nse?.change) {
+              <div
+                [ngClass]="
+                  stock.quote?.nse?.change?.direction === Direction.UP
+                    ? 'text-green-500 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-500'
+                "
+              >
+                {{ stock.quote?.nse?.change?.percentage | valueOrPlaceholder }}%
+              </div>
+              }
+            </div>
+            }
+          </label>
+          }
+        </div>
+        }
+      </div>
+
+      @if (selectedDrawerStocks().length > 0) {
+      <div>
+        <h4 class="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Selected ({{ selectedDrawerStocks().length }})
+        </h4>
+        <div
+          class="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700"
+        >
+          @for (stock of selectedDrawerStocks(); track
+          stock.vendorCode?.etm?.primary) {
+          <div
+            class="flex items-center border-b border-gray-200 px-3 py-2 last:border-b-0 dark:border-gray-700"
+          >
+            <span class="flex-1 text-sm text-gray-900 dark:text-white"
+              >{{ stock.name }}</span
+            >
+            <button
+              (click)="removeDrawerStock(stock)"
+              type="button"
+              class="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400"
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <div class="flex space-x-3">
+        <button
+          (click)="addSelectedFromDrawer()"
+          [disabled]="selectedDrawerStocks().length === 0"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white focus:ring-4 focus:outline-hidden disabled:opacity-50"
+        >
+          Add Selected
+        </button>
+        <button
+          (click)="closeStockSearchDrawer()"
+          type="button"
+          class="focus:ring-primary-300 inline-flex flex-1 justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:outline-hidden dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Move Modal -->
+  @if (showMoveModal()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/80"
+  >
+    <div
+      class="mx-4 w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-gray-800"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        Move Stock
+      </h3>
+      <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+        Select the target watch list:
+      </p>
+
+      <div class="mb-4">
+        <app-select-watch-list
+          [mode]="WatchListSelectionMode.SINGLE"
+          [excludeListId]="id()"
+          [stockIsin]="moveStockTarget()?.scripCode?.isin"
+          [placeholderText]="'Filter watch lists...'"
+          [inline]="true"
+          [selectedListId]="selectedMoveList()"
+          (selected)="onMoveListSelected($event)"
+        />
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <button
+          (click)="closeMoveModal()"
+          type="button"
+          class="rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="confirmMove()"
+          [disabled]="!selectedMoveList()"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          Move
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Delete Confirmation -->
+  @if (showDeleteConfirm()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/80"
+  >
+    <div
+      class="mx-4 w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-gray-800"
+    >
+      <div class="text-center">
+        <svg
+          class="mx-auto mb-4 h-12 w-12 text-gray-400"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+          Are you sure you want to remove this stock from the watch list?
+        </h3>
+        <button
+          (click)="confirmDelete()"
+          type="button"
+          class="inline-flex items-center rounded-md bg-red-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-hidden"
+        >
+          Yes, remove it
+        </button>
+        <button
+          (click)="closeDeleteConfirm()"
+          type="button"
+          class="ms-3 rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

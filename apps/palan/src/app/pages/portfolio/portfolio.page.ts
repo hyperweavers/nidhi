@@ -55,10 +55,10 @@ export class PortfolioPage implements OnInit {
   private plan: Signal<Plan | undefined>;
 
   public purchaseCurrency: Signal<Currency | undefined> = computed(
-    () => this.plan()?.currencies.purchase,
+    () => this.plan()?.currencies?.purchase,
   );
   public contributionCurrency: Signal<Currency | undefined> = computed(
-    () => this.plan()?.currencies.contribution,
+    () => this.plan()?.currencies?.contribution,
   );
 
   public readonly Routes = Constants.routes;

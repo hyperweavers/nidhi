@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { liveQuery, Observable } from 'dexie';
+import { liveQuery } from 'dexie';
 import {
   exportDB,
   importInto,
   ExportProgress as Progress,
 } from 'dexie-export-import';
+import { from, Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { db } from '../../db/app.db';
@@ -18,7 +19,7 @@ export class StorageService {
   public stocks$: Observable<Holding[]>;
 
   constructor() {
-    this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
+    this.stocks$ = from(liveQuery<Holding[]>(() => db.stocks.toArray()));
   }
 
   public async addOrUpdate(
@@ -31,7 +32,7 @@ export class StorageService {
 
     if (stock?.id) {
       await db.stocks.update(stock.id, {
-        transactions: [...stock.transactions, transaction],
+        transactions: [...(stock.transactions ?? []), transaction],
         ...(stock.details?.sector?.name ||
         stock.details?.industry?.name ||
         stock.details?.marketCapType

@@ -22,6 +22,7 @@ import {
   VersionReadyEvent,
 } from '@angular/service-worker';
 import { LOGGER } from '@nidhi/shared-logger';
+import { ToastComponent } from '@nidhi/shared-toast';
 import { initFlowbite } from 'flowbite';
 import { delay, filter, Observable, tap } from 'rxjs';
 
@@ -39,7 +40,7 @@ import { SettingsService } from './services/core/settings.service';
 @Flowbite()
 @UntilDestroy()
 @Component({
-  imports: [CommonModule, RouterModule, RouterLink],
+  imports: [CommonModule, RouterModule, RouterLink, ToastComponent],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

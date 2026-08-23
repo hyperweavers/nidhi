@@ -23,7 +23,8 @@
         "assets": [
           "apps/pangu/src/favicon.ico",
           "apps/pangu/src/assets",
-          "apps/pangu/src/manifest.webmanifest"
+          "apps/pangu/src/manifest.webmanifest",
+          "apps/pangu/src/mockServiceWorker.js"
         ],
         "styles": ["apps/pangu/src/styles.css"],
         "scripts": [
@@ -57,6 +58,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "with-mocks": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/pangu/src/environments/mocks.ts",
+              "with": "apps/pangu/src/environments/mocks-on.ts"
+            }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -88,6 +100,9 @@
         },
         "development": {
           "buildTarget": "pangu:build:development"
+        },
+        "with-mocks": {
+          "buildTarget": "pangu:build:with-mocks"
         }
       },
       "defaultConfiguration": "development",
@@ -97,6 +112,13 @@
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
         "buildTarget": "pangu:build"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["prebuild-version", "prebuild-sentry"],
+      "options": {
+        "command": "tsc --noEmit -p apps/pangu/tsconfig.app.json"
       }
     },
     "lint": {

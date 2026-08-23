@@ -142,6 +142,7 @@ describe('PortfolioPage', () => {
       search: jest.fn().mockReturnValue(of([])),
       getStock: jest.fn().mockReturnValue(of(null)),
       searchSecondary: jest.fn().mockReturnValue(of([])),
+      refresh: jest.fn(),
     } as unknown as jest.Mocked<Partial<MarketService>>;
 
     mockStorageService = {
@@ -1502,6 +1503,54 @@ describe('PortfolioPage', () => {
 
       expect(mockMarketService.search).not.toHaveBeenCalled();
     }));
+
+    it('closes search results when clicking outside the search box', fakeAsync(() => {
+      createComponent();
+      component.transactionType.set(TransactionType.BUY);
+      component.name.set('REL');
+
+      fixture.detectChanges();
+      tick();
+      tick(600);
+      fixture.detectChanges();
+
+      expect(component.showSearchResults).toBe(true);
+
+      component.onDocumentClick({
+        target: document.body,
+      } as unknown as MouseEvent);
+
+      expect(component.showSearchResults).toBe(false);
+    }));
+
+    it('keeps search results open when clicking inside the search box', fakeAsync(() => {
+      createComponent();
+      component.transactionType.set(TransactionType.BUY);
+      component.name.set('REL');
+
+      fixture.detectChanges();
+      tick();
+      tick(600);
+      fixture.detectChanges();
+
+      const companyInput = document.getElementById('name');
+
+      component.onDocumentClick({
+        target: companyInput,
+      } as unknown as MouseEvent);
+
+      expect(component.showSearchResults).toBe(true);
+    }));
+
+    it('ignores document clicks when search results are hidden', () => {
+      createComponent();
+
+      component.onDocumentClick({
+        target: document.body,
+      } as unknown as MouseEvent);
+
+      expect(component.showSearchResults).toBeFalsy();
+    });
 
     it('should not search when query equals selected stock name', fakeAsync(() => {
       createComponent();

@@ -14,10 +14,10 @@ Every component, directive, and pipe is standalone. Import dependencies directly
 ```typescript
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [AsyncPipe, DatePipe, NgFor, NgIf, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `...`,
+  templateUrl: `...`,
+  styleUrl: `...`,
 })
 export class DashboardPage {}
 ```
@@ -31,7 +31,7 @@ import { inject } from '@angular/core';
 
 export class DashboardPage {
   private readonly marketService = inject(MarketService);
-  readonly logger = inject(LOGGER);
+  public readonly logger = inject(LOGGER);
 }
 ```
 
@@ -45,7 +45,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 export class FeatureComponent {
   private readonly destroy$ = inject(UntilDestroy); // injected reference
 
-  ngOnInit() {
+  public ngOnInit(): void {
     this.marketService.prices$.pipe(untilDestroyed(this)).subscribe(prices => {
       this.prices.set(prices);
     });
@@ -59,13 +59,13 @@ export class FeatureComponent {
 
 ```typescript
 private readonly pricesSubject = new BehaviorSubject<Price[]>([]);
-readonly prices$ = this.pricesSubject.asObservable();
+public readonly prices$ = this.pricesSubject.asObservable();
 ```
 
 **Component consumes as signal:**
 
 ```typescript
-readonly prices = toSignal(this.marketService.prices$, { initialValue: [] });
+public readonly prices = toSignal(this.marketService.prices$, { initialValue: [] });
 ```
 
 **Template uses signal:**
@@ -139,7 +139,7 @@ const chart = createChart(this.chartContainer.nativeElement, {
 { path: 'stocks/:id', loadComponent: () => import('./pages/stocks/stocks.page').then(m => m.StocksPage) }
 
 // In component:
-readonly stockId = input.required<string>(); // bound automatically from route param
+public readonly stockId = input.required<string>(); // bound automatically from route param
 ```
 
 ## Sentry + Logger

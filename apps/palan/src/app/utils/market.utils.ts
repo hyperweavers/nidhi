@@ -73,11 +73,12 @@ export class MarketUtils {
 
     if (codeString) {
       const codes = codeString.split(',');
-      const isGlobal = MarketUtils.GLOBAL_SYMBOL_REGEXP.test(codes[1].trim());
-      const globalCodes = isGlobal ? codes[1].trim().split(':') : ['', ''];
+      const vendorCode = codes[1]?.trim() ?? '';
+      const isGlobal = MarketUtils.GLOBAL_SYMBOL_REGEXP.test(vendorCode);
+      const globalCodes = isGlobal ? vendorCode.split(':') : ['', ''];
 
       return {
-        isin: codes[0].trim(),
+        isin: codes[0]?.trim() ?? '',
         ticker: globalCodes[0] || '',
         country: globalCodes[1] || '',
       };

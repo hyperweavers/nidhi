@@ -18,8 +18,6 @@
               class="h-6 w-6 text-gray-800 dark:text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -317,8 +315,6 @@
                 [class.animate-spin]="refreshing"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -458,8 +454,6 @@
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -485,8 +479,6 @@
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -512,8 +504,6 @@
                     class="h-6 w-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
@@ -527,6 +517,30 @@
                   <span class="ml-3">Indices</span>
                 </a>
               </li> -->
+
+              <li>
+                <a
+                  (click)="navigateToWatchList()"
+                  (keydown.enter)="navigateToWatchList()"
+                  tabindex="0"
+                  routerLinkActive="bg-gray-100 dark:bg-gray-700"
+                  class="group flex w-full cursor-pointer items-center rounded-md p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <svg
+                    class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z"
+                    />
+                  </svg>
+
+                  <span class="ml-3">Watch List</span>
+                </a>
+              </li>
             </ul>
 
             <div class="space-y-2 py-2">
@@ -562,8 +576,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -588,8 +600,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -614,8 +624,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -640,8 +648,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -662,8 +668,6 @@
                   class="h-5 w-5 text-gray-800 dark:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -706,8 +710,6 @@
                   class="h-5 w-5 text-gray-800 dark:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -747,8 +749,6 @@
                   class="h-5 w-5 text-gray-800 dark:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -771,8 +771,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -789,8 +787,6 @@
                   class="h-5 w-5 text-gray-800 dark:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -815,8 +811,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -882,8 +876,6 @@
                   class="h-6 w-6 shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -924,8 +916,75 @@
       class="relative w-full overflow-y-auto bg-gray-50 text-gray-900 lg:pl-64 dark:bg-gray-900 dark:text-white"
     >
       <router-outlet />
+      <lib-toast />
     </main>
   </div>
+
+  <!-- Global FAB -->
+  @if (showFabMenu()) {
+    <div
+      class="fixed inset-0 z-20"
+      (click)="closeFabMenu()"
+      (keydown.enter)="closeFabMenu()"
+      (keydown.escape)="closeFabMenu()"
+      tabindex="0"
+    ></div>
+  }
+  <div class="fixed right-6 bottom-6 z-30 flex flex-col items-center">
+    @if (showFabMenu()) {
+      <div
+        class="mb-3"
+        (click)="closeFabMenu()"
+        (keydown.enter)="closeFabMenu()"
+        tabindex="0"
+      >
+        <button
+          (click)="openWizard(); $event.stopPropagation()"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg focus:ring-4 focus:outline-hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4.5 w-4.5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z"
+            />
+          </svg>
+        </button>
+      </div>
+    }
+    <button
+      (click)="toggleFabMenu()"
+      type="button"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg focus:ring-4 focus:outline-hidden"
+    >
+      <svg
+        class="h-6 w-6 transition-all duration-100 ease-in-out"
+        [class.rotate-45]="showFabMenu()"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4v16m8-8H4"
+        />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Global Wizard -->
+  @if (showWizard()) {
+    <app-create-watch-list-wizard
+      (closed)="closeWizard()"
+      (created)="onWizardCreated($event)"
+    />
+  }
 
   <!-- Footer -->
   <footer class="lg:pl-64">
@@ -935,8 +994,6 @@
         class="inline-block h-4 w-4 text-red-600"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
         fill="currentColor"
         viewBox="0 0 24 24"
       >

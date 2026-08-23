@@ -35,6 +35,18 @@ export const appRoutes: Route[] = [
       import('./pages/indices/indices.page').then((m) => m.IndicesPage),
   },
   {
+    path: Constants.routes.WATCH_LIST,
+    loadComponent: () =>
+      import('./pages/watch-lists/watch-lists.page').then(
+        (m) => m.WatchListsPage,
+      ),
+  },
+  {
+    path: `${Constants.routes.WATCH_LIST}/:id`,
+    loadComponent: () =>
+      import('./pages/watch-list/watch-list.page').then((m) => m.WatchListPage),
+  },
+  {
     path: Constants.routes.SETTINGS,
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),

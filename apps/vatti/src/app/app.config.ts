@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   isDevMode,
@@ -21,9 +21,12 @@ import {
 } from 'chart.js';
 import { provideCharts } from 'ng2-charts';
 
+import { HTTP_REQUEST_TIMEOUT, timeoutInterceptor } from '@nidhi/shared-http';
 import { ConsoleLogger, LOGGER } from '@nidhi/shared-logger';
 import { provideSentry, SentryLogger } from '@nidhi/shared-sentry';
+import { TOAST_DISMISS_TIMEOUT } from '@nidhi/shared-toast';
 import { appRoutes } from './app.routes';
+import { Constants } from './constants';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,7 +36,15 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([timeoutInterceptor])),
+    {
+      provide: HTTP_REQUEST_TIMEOUT,
+      useValue: Constants.configs.defaults.HTTP_REQUEST_TIMEOUT,
+    },
+    {
+      provide: TOAST_DISMISS_TIMEOUT,
+      useValue: Constants.configs.defaults.TOAST_DISMISS_TIMEOUT,
+    },
     provideCharts({
       registerables: [
         BarController,

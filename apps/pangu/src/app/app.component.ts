@@ -7,6 +7,7 @@ import {
   DOCUMENT,
   OnInit,
   inject,
+  signal,
 } from '@angular/core';
 import {
   NavigationEnd,
@@ -25,17 +26,26 @@ import { initFlowbite } from 'flowbite';
 import { Observable, delay, filter, tap } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { ToastComponent } from '@nidhi/shared-toast';
 import { APP_VERSION } from '../generated/version';
+import { CreateWatchListWizardComponent } from './components/create-watch-list-wizard/create-watch-list-wizard.component';
 import { Constants } from './constants';
 import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
 import { MarketService } from './services/core/market.service';
 import { SettingsService } from './services/core/settings.service';
+import { WatchListService } from './services/watch-list.service';
 
 @Flowbite()
 @UntilDestroy()
 @Component({
-  imports: [CommonModule, RouterModule, RouterLink],
+  imports: [
+    CommonModule,
+    RouterModule,
+    RouterLink,
+    ToastComponent,
+    CreateWatchListWizardComponent,
+  ],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -49,6 +59,7 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly marketService = inject(MarketService);
   private readonly settingsService = inject(SettingsService);
+  private readonly watchListService = inject(WatchListService);
   private readonly logger = inject(LOGGER);
 
   private readonly MEDIA_SIZE_LARGE = 1024;
@@ -60,10 +71,13 @@ export class AppComponent implements OnInit {
   public showInstallModal?: boolean;
   public ios?: boolean;
   public refreshing?: boolean;
+  public readonly showFabMenu = signal(false);
+  public readonly showWizard = signal(false);
 
   public readonly appVersion = APP_VERSION;
   public readonly Routes = Constants.routes;
   public readonly Status = Status;
+  public defaultWatchListId?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
@@ -114,6 +128,13 @@ export class AppComponent implements OnInit {
     }
 
     this.configureInstallModel();
+
+    this.watchListService
+      .ensureDefaultWatchList()
+      .then((id) => {
+        this.defaultWatchListId = id;
+      })
+      .catch((error) => this.logger.captureException(error));
   }
 
   public updateApp(): void {
@@ -143,6 +164,40 @@ export class AppComponent implements OnInit {
     }
 
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  public toggleFabMenu(): void {
+    this.showFabMenu.update((v) => !v);
+  }
+
+  public closeFabMenu(): void {
+    this.showFabMenu.set(false);
+  }
+
+  public openWizard(): void {
+    this.showFabMenu.set(false);
+    this.showWizard.set(true);
+  }
+
+  public closeWizard(): void {
+    this.showWizard.set(false);
+  }
+
+  public onWizardCreated(id: string): void {
+    this.showWizard.set(false);
+    this.router.navigate(['/', Constants.routes.WATCH_LIST, id]);
+  }
+
+  public navigateToWatchList(): void {
+    if (this.defaultWatchListId) {
+      this.router.navigate([
+        '/',
+        Constants.routes.WATCH_LIST,
+        this.defaultWatchListId,
+      ]);
+    } else {
+      this.router.navigate(['/', Constants.routes.WATCH_LIST]);
+    }
   }
 
   public refreshData(): void {

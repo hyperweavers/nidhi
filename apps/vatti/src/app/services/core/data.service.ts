@@ -8,7 +8,6 @@ import {
   map,
   of,
   shareReplay,
-  timeout,
 } from 'rxjs';
 
 import { Constants } from '../../constants';
@@ -26,8 +25,6 @@ export class DataService {
   private readonly http = inject(HttpClient);
   private readonly logger = inject(LOGGER);
 
-  private readonly HTTP_REQUEST_TIMEOUT_MS = 5_000; // 5 Seconds
-
   goldRate$: Observable<number>;
   postOfficeSavingsSchemes$: Observable<PostOfficeSavingsSchemes | null>;
   rbiPolicyRates$: Observable<RbiPolicyRates | null>;
@@ -42,7 +39,6 @@ export class DataService {
         },
       })
       .pipe(
-        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           this.logger.error(error);
 
@@ -67,7 +63,6 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.POST_OFFICE_SAVINGS_SCHEMES}`,
       )
       .pipe(
-        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           this.logger.error(error);
 
@@ -82,7 +77,6 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.RBI_POLICY_RATES}`,
       )
       .pipe(
-        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           this.logger.error(error);
 
@@ -97,7 +91,6 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.BANKS_IN_INDIA_JSON_BLOB}`,
       )
       .pipe(
-        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           this.logger.error(error);
 
@@ -112,7 +105,6 @@ export class DataService {
         `${Constants.api.JSON_BLOB_STORAGE}/${Constants.jsonBlobs.IBJA_GOLD_RATES_JSON_BLOB}`,
       )
       .pipe(
-        timeout(this.HTTP_REQUEST_TIMEOUT_MS),
         catchError((error) => {
           this.logger.error(error);
 

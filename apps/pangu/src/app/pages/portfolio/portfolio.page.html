@@ -498,8 +498,8 @@
             [ngClass]="holding.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
-              {{ (holding.quote?.nse?.change?.value! * holding.quantity!) |
-              valueOrPlaceholder }}
+              {{ ((holding.quote?.nse?.change?.value ?? 0) * (holding.quantity
+              ?? 0)) | valueOrPlaceholder }}
             </div>
             <div>
               ({{ holding.quote?.nse?.change?.percentage | valueOrPlaceholder
@@ -611,7 +611,7 @@
     </button>
 
     <div class="space-y-4">
-      <div class="relative">
+      <div class="relative" #stockSearchBox>
         <label
           for="name"
           class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -629,19 +629,42 @@
 
         <!-- Search Results Dropdown -->
         <div
-          class="absolute z-10 mt-px w-full divide-y divide-gray-100 rounded-md bg-white shadow-sm dark:bg-gray-700"
+          class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
         >
           @if (stockSearchResults$ | async; as stocks) { @if (showSearchResults
           && stocks.length > 0 ) {
-          <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+          <ul
+            class="divide-y divide-gray-100 text-sm text-gray-700 dark:divide-gray-600 dark:text-gray-200"
+          >
             @for (stock of stocks; track stock.vendorCode.etm.primary) {
             <li
               (click)="selectStock(stock)"
               (keydown.enter)="selectStock(stock)"
               tabindex="0"
-              class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              class="flex cursor-pointer items-center justify-between gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >
-              {{ stock.name | valueOrPlaceholder }}
+              <span class="flex-1 truncate">
+                {{ stock.name | valueOrPlaceholder }}
+              </span>
+              @if (stock.quote?.nse?.price) {
+              <span class="text-right text-xs leading-tight">
+                <span class="block text-gray-900 dark:text-white">
+                  &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+                </span>
+                @if (stock.quote?.nse?.change) {
+                <span
+                  [ngClass]="
+                    stock.quote?.nse?.change?.direction === Direction.UP
+                      ? 'text-green-500 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-500'
+                  "
+                >
+                  {{ stock.quote?.nse?.change?.percentage | valueOrPlaceholder
+                  }}%
+                </span>
+                }
+              </span>
+              }
             </li>
             }
           </ul>

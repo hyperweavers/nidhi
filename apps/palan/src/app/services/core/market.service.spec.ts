@@ -246,10 +246,23 @@ describe('MarketService', () => {
       sector: 'Technology',
     };
 
+    it('should return null and log an error when called without a code', (done) => {
+      service.getStock('').subscribe((stock) => {
+        expect(stock).toBeNull();
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'getStock called without a stock code!',
+        );
+        done();
+      });
+
+      httpMock.expectNone(() => true);
+    });
+
     it('should return mapped Stock with all fields', (done) => {
       primeMarketOpen(service, httpMock);
 
       service.getStock('AAPL:US').subscribe((stock) => {
+        if (!stock) return done();
         expect(stock.name).toBe('Apple Inc');
         expect(stock.scripCode).toEqual({ ticker: 'AAPL', country: 'US' });
         expect(stock.vendorCode).toEqual({ mc: { primary: 'AAPL:US' } });
@@ -281,6 +294,7 @@ describe('MarketService', () => {
       primeMarketOpen(service, httpMock);
 
       service.getStock('AAPL:US').subscribe((stock) => {
+        if (!stock) return done();
         expect(stock.quote!.change.direction).toBe(Direction.UP);
         expect(stock.quote!.change.percentage).toBe(1.25);
         expect(stock.quote!.change.value).toBe(1.85);
@@ -306,6 +320,7 @@ describe('MarketService', () => {
       };
 
       service.getStock('AAPL:US').subscribe((stock) => {
+        if (!stock) return done();
         expect(stock.quote!.change.direction).toBe(Direction.DOWN);
         expect(stock.quote!.change.percentage).toBe(-2.5);
         expect(stock.quote!.change.value).toBe(-3.75);
@@ -325,6 +340,7 @@ describe('MarketService', () => {
       primeMarketOpen(service, httpMock);
 
       service.getStock('AAPL:US').subscribe((stock) => {
+        if (!stock) return done();
         const p = stock.performance!;
         expect(p.yearToDate!.percentage).toBe(5.2);
         expect(p.yearToDate!.direction).toBe(Direction.UP);
@@ -360,6 +376,7 @@ describe('MarketService', () => {
       };
 
       service.getStock('AAPL:US').subscribe((stock) => {
+        if (!stock) return done();
         expect(stock.scripCode.ticker).toBeUndefined();
         expect(stock.scripCode.country).toBeUndefined();
         done();

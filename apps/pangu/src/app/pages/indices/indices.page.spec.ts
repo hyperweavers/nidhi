@@ -255,6 +255,41 @@ describe('IndicesPage', () => {
     }));
   });
 
+  describe('edge cases', () => {
+    it('should handle null index gracefully (covers !index at line 140)', fakeAsync(async () => {
+      await createFixture({ index: null });
+      tick(150);
+      fixture.detectChanges();
+      expect(component).toBeTruthy();
+    }));
+
+    it('should use default blue color when index quote lacks change direction (covers ternaries lines 202-216)', fakeAsync(async () => {
+      const indexNoChange: Index = {
+        ...createMockIndex(),
+        quote: {
+          lastUpdated: Date.now(),
+          value: 22000,
+          change: { direction: null as any, percentage: 0, value: 0 },
+          open: 21900,
+          close: 21890,
+          low: 21850,
+          high: 22050,
+          fiftyTwoWeekLow: 18000,
+          fiftyTwoWeekHigh: 23000,
+          advance: { percentage: 60, value: 30 },
+          decline: { percentage: 40, value: 20 },
+        },
+      };
+      await createFixture({ index: indexNoChange });
+      tick(150);
+      fixture.detectChanges();
+      const series = getMw().createChart().addSeries();
+      expect(series.applyOptions).toHaveBeenLastCalledWith(
+        expect.objectContaining({ lineColor: '#2962FF' }),
+      );
+    }));
+  });
+
   describe('index data display', () => {
     beforeEach(fakeAsync(async () => {
       await createFixture();
@@ -704,6 +739,25 @@ describe('IndicesPage', () => {
       (component as any)['chartContainerRef'] = () => undefined;
       component.toggleFullscreen();
       expect(loggerMock.error).not.toHaveBeenCalled();
+    });
+
+    it('should log error when screen orientation lock fails', async () => {
+      const el = document.createElement('div');
+      el.requestFullscreen = jest.fn().mockResolvedValue(undefined);
+      Object.defineProperty(component, 'chartContainerRef', {
+        writable: true,
+        value: () => ({ nativeElement: el }),
+      });
+      const origLock = (screen.orientation as any).lock;
+      (screen.orientation as any).lock = jest
+        .fn()
+        .mockRejectedValue(new Error('orientation error'));
+      component.toggleFullscreen();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(loggerMock.error).toHaveBeenCalledWith(
+        expect.stringContaining('orientation'),
+      );
+      (screen.orientation as any).lock = origLock;
     });
   });
 

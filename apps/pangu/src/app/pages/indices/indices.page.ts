@@ -161,6 +161,7 @@ export class IndicesPage implements OnDestroy {
 
           this.showIntraDayChart$
             .pipe(
+              untilDestroyed(this),
               distinctUntilChanged(),
               tap(() => {
                 if (this.chart) {

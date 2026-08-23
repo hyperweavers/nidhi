@@ -144,6 +144,16 @@ describe('MarketUtils', () => {
       });
     });
 
+    it('should handle span text without a vendor code segment', () => {
+      const html = '<span>IN1234567890</span>';
+      const result = MarketUtils.extractScripCodesFromMcSearchResult(html);
+      expect(result).toEqual({
+        isin: 'IN1234567890',
+        ticker: '',
+        country: '',
+      });
+    });
+
     it('should return null when no span element is found', () => {
       const html = '<div>no span here</div>';
       const result = MarketUtils.extractScripCodesFromMcSearchResult(html);

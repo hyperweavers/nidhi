@@ -9,8 +9,8 @@ export class MarketUtils {
     return value >= 0 ? Direction.UP : Direction.DOWN;
   }
 
-  public static stringToNumber(value: string): number {
-    return Number(value.replace(/,/g, ''));
+  public static stringToNumber(value?: string | null): number {
+    return Number((value ?? '').replace(/,/g, ''));
   }
 
   public static dateStringToEpoch(date: string): number {

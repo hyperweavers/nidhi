@@ -13,6 +13,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { Dropdown } from 'flowbite';
 import {
   BehaviorSubject,
@@ -65,6 +66,7 @@ enum PortfolioSortOrder {
 }
 
 @Flowbite()
+@UntilDestroy()
 @Component({
   selector: 'app-portfolio',
   imports: [
@@ -77,6 +79,7 @@ enum PortfolioSortOrder {
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:click)': 'onDocumentClick($event)' },
 })
 export class PortfolioPage implements AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
@@ -88,6 +91,8 @@ export class PortfolioPage implements AfterViewInit {
   private readonly transactionDateInputRef = viewChild<ElementRef>(
     'transactionDateInput',
   );
+
+  private readonly stockSearchBox = viewChild<ElementRef>('stockSearchBox');
 
   public portfolio$: Observable<Portfolio>;
   public stockSearchResults$: Observable<Stock[]>;
@@ -140,7 +145,7 @@ export class PortfolioPage implements AfterViewInit {
     const portfolioService = inject(PortfolioService);
 
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
-      debounceTime(200),
+      debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
       distinctUntilChanged(),
     );
 
@@ -206,7 +211,7 @@ export class PortfolioPage implements AfterViewInit {
     this.restoreFromQueryParams();
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500), // TODO: Review the time
+      debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
       distinctUntilChanged(),
       tap((query) => {
         this.showSearchResults = false;
@@ -215,7 +220,11 @@ export class PortfolioPage implements AfterViewInit {
           this.selectedStock = undefined;
         }
       }),
-      filter((query) => query.length > 2 && query !== this.selectedStock?.name),
+      filter(
+        (query) =>
+          query.length >= Constants.configs.defaults.MIN_SEARCH_CHARS &&
+          query !== this.selectedStock?.name,
+      ),
       switchMap((query) =>
         iif(
           () => this.transactionType() === TransactionType.BUY,
@@ -239,26 +248,9 @@ export class PortfolioPage implements AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
-    this.initDatePicker();
-
     setTimeout(
-      () =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.sortDropdown = (window as any).FlowbiteInstances.getInstance(
-          'Dropdown',
-          'sortDropdown',
-        )),
-      200,
-    );
-
-    setTimeout(
-      () =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.filterDropdown = (window as any).FlowbiteInstances.getInstance(
-          'Dropdown',
-          'filterDropdown',
-        )),
-      200,
+      () => this.initFlowbiteInstances(),
+      Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
     );
   }
 
@@ -289,6 +281,8 @@ export class PortfolioPage implements AfterViewInit {
         };
 
         await this.storageService.addOrUpdate(this.selectedStock, transaction);
+
+        this.marketService.refresh();
 
         this.resetTransactionForm();
 
@@ -360,6 +354,7 @@ export class PortfolioPage implements AfterViewInit {
             }
           }),
           take(1),
+          untilDestroyed(this),
         )
         .subscribe((combinedStockDetails) => {
           if (combinedStockDetails) {
@@ -390,11 +385,22 @@ export class PortfolioPage implements AfterViewInit {
     this.showSearchResults = false;
   }
 
+  public onDocumentClick(event: MouseEvent): void {
+    if (!this.showSearchResults) return;
+
+    const box = this.stockSearchBox()?.nativeElement as HTMLElement | undefined;
+
+    if (box && !box.contains(event.target as Node)) {
+      this.showSearchResults = false;
+
+      this.cdr.markForCheck();
+    }
+  }
+
   public resetTransactionForm(): void {
     this.selectedStock = undefined;
 
     this.showSearchResults = false;
-
     this.name.set('');
     this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
     this.price.set(0);
@@ -555,5 +561,21 @@ export class PortfolioPage implements AfterViewInit {
 
       this.resetDatepicker();
     }
+  }
+
+  private initFlowbiteInstances(): void {
+    const sortEl = document.getElementById('sortDropdown');
+    const sortBtn = document.getElementById('sortDropdownButton');
+    if (sortBtn && sortEl) {
+      this.sortDropdown = new Dropdown(sortEl, sortBtn);
+    }
+
+    const filterEl = document.getElementById('filterDropdown');
+    const filterBtn = document.getElementById('filterDropdownButton');
+    if (filterBtn && filterEl) {
+      this.filterDropdown = new Dropdown(filterEl, filterBtn);
+    }
+
+    this.initDatePicker();
   }
 }

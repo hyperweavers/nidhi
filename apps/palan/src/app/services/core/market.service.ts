@@ -122,7 +122,13 @@ export class MarketService {
       : of([]);
   }
 
-  public getStock(code: string): Observable<Stock> {
+  public getStock(code: string): Observable<Stock | null> {
+    if (!code) {
+      this.logger.error('getStock called without a stock code!');
+
+      return of(null);
+    }
+
     return this.poll$.pipe(
       switchMap(() =>
         this.http.get<StockResponse>(Constants.api.STOCK_QUOTE + code).pipe(
@@ -131,7 +137,7 @@ export class MarketService {
               name: data.name,
               scripCode: {
                 ticker: data.ticker || undefined,
-                country: data.symbol.split(':')[1] || undefined,
+                country: data.symbol?.split(':')?.[1] || undefined,
               },
               vendorCode: {
                 mc: {
