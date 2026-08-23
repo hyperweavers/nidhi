@@ -1,0 +1,235 @@
+<!-- Backdrop -->
+<div
+  class="fixed inset-0 z-40 bg-gray-900/50 dark:bg-gray-900/80"
+  (click)="cancel()"
+  (keydown.escape)="cancel()"
+  tabindex="0"
+></div>
+
+<!-- Modal/Bottom Sheet -->
+<div
+  class="fixed z-50 overflow-y-auto bg-white dark:bg-gray-800"
+  [ngClass]="{
+    'inset-x-0 top-[10vh] bottom-0 rounded-t-xl': true,
+    'lg:inset-auto lg:top-1/2 lg:left-1/2 lg:w-full lg:max-w-lg lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-xl lg:shadow-xl': true,
+  }"
+>
+  <div
+    class="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700"
+  >
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+      {{ step() === 1 ? 'Create Watch List' : 'Add Stocks' }}
+    </h3>
+    <button
+      (click)="cancel()"
+      type="button"
+      class="inline-flex items-center rounded-md p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    >
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
+  </div>
+
+  <div class="p-4">
+    @if (step() === 1) {
+      <!-- Step 1: Name -->
+      <div class="space-y-4">
+        <div>
+          <label
+            for="list-name"
+            class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >
+            List Name
+          </label>
+          <input
+            id="list-name"
+            [(ngModel)]="listName"
+            type="text"
+            class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="Enter watch list name..."
+          />
+        </div>
+
+        @if (error()) {
+          <p class="text-sm text-red-600 dark:text-red-500">
+            {{ error() }}
+          </p>
+        }
+
+        <div class="flex space-x-3">
+          <button
+            (click)="addAndExit()"
+            type="button"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 justify-center overflow-hidden rounded-md px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white focus:ring-4 focus:outline-hidden"
+          >
+            Add & Exit
+          </button>
+          <button
+            (click)="goToStep2()"
+            type="button"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
+          >
+            Next
+          </button>
+          <button
+            (click)="cancel()"
+            type="button"
+            class="focus:ring-primary-300 inline-flex flex-1 justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:outline-hidden dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    } @else {
+      <!-- Step 2: Add Stocks -->
+      <div class="space-y-4">
+        <div class="relative">
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <svg
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            [(ngModel)]="stockSearchQuery"
+            type="text"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="Search stocks..."
+          />
+        </div>
+
+        <!-- Search Results -->
+        @if (stockSearchResults().length > 0) {
+          <div
+            class="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700"
+          >
+            @for (
+              stock of stockSearchResults();
+              track stock.vendorCode.etm.primary
+            ) {
+              <label
+                class="flex cursor-pointer items-center border-b border-gray-200 px-3 py-2 last:border-b-0 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isStockSelected(stock)"
+                  (change)="toggleStock(stock)"
+                  class="focus:ring-primary-500 text-primary-600 h-4 w-4 rounded border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-700"
+                />
+                <div class="ml-3 flex-1 text-sm">
+                  <div class="font-medium text-gray-900 dark:text-white">
+                    {{ stock.name }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    @if (stock.scripCode.nse) {
+                      NSE: {{ stock.scripCode.nse }}
+                    }
+                    @if (stock.scripCode.bse) {
+                      | BSE: {{ stock.scripCode.bse }}
+                    }
+                    @if (stock.scripCode.isin) {
+                      | ISIN: {{ stock.scripCode.isin }}
+                    }
+                  </div>
+                </div>
+                <div class="text-right text-sm">
+                  @if (stock.quote?.nse?.price) {
+                    <div class="text-gray-900 dark:text-white">
+                      &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+                    </div>
+                    <div
+                      class="text-xs"
+                      [ngClass]="
+                        stock.quote?.nse?.change?.direction === Direction.UP
+                          ? 'text-green-500'
+                          : 'text-red-600'
+                      "
+                    >
+                      {{
+                        stock.quote?.nse?.change?.percentage
+                          | valueOrPlaceholder
+                      }}%
+                    </div>
+                  }
+                </div>
+              </label>
+            }
+          </div>
+        }
+
+        <!-- Selected Stocks -->
+        @if (selectedStocks().length > 0) {
+          <div>
+            <h4 class="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Selected Stocks ({{ selectedStocks().length }})
+            </h4>
+            <div
+              class="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700"
+            >
+              @for (
+                stock of selectedStocks();
+                track stock.vendorCode.etm.primary
+              ) {
+                <div
+                  class="flex items-center border-b border-gray-200 px-3 py-2 last:border-b-0 dark:border-gray-700"
+                >
+                  <span class="flex-1 text-sm text-gray-900 dark:text-white">
+                    {{ stock.name }}
+                  </span>
+                  <button
+                    (click)="removeStock(stock)"
+                    type="button"
+                    class="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400"
+                  >
+                    <svg
+                      class="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="flex space-x-3">
+          <button
+            (click)="backToStep1()"
+            type="button"
+            class="focus:ring-primary-300 inline-flex flex-1 justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:outline-hidden dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+          >
+            Back
+          </button>
+          <button
+            (click)="finish()"
+            type="button"
+            class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

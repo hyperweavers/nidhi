@@ -1,10 +1,11 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { liveQuery, Observable } from 'dexie';
+import { liveQuery } from 'dexie';
 import {
   exportDB,
   importInto,
   ExportProgress as Progress,
 } from 'dexie-export-import';
+import { from, Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -24,37 +25,42 @@ export class StorageService {
   constructor() {
     const planService = inject(PlanService);
 
-    this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
+    this.stocks$ = from(liveQuery<Holding[]>(() => db.stocks.toArray()));
 
     this.plan = toSignal<Plan | undefined>(planService.plan$);
   }
 
   public async addOrUpdate(transaction: Transaction): Promise<void> {
     const plan = this.plan();
+    const isin = plan?.stock?.scripCode?.isin;
 
-    if (plan) {
-      const stock = await db.stocks.get({
-        'scripCode.isin': plan.stock.scripCode.isin,
-      });
-
-      if (stock?.id) {
-        await db.stocks.update(stock.id, {
-          transactions: [...stock.transactions, transaction],
-        });
-      } else {
-        const id = uuid();
-
-        await db.stocks.add(
-          {
-            ...plan.stock,
-            id,
-            transactions: [transaction],
-          },
-          id,
-        );
-      }
-    } else {
+    if (!plan) {
       throw new Error('No plan defined!');
+    }
+
+    if (!isin) {
+      throw new Error('Plan stock has no ISIN!');
+    }
+
+    const stock = await db.stocks.get({
+      'scripCode.isin': isin,
+    });
+
+    if (stock?.id) {
+      await db.stocks.update(stock.id, {
+        transactions: [...(stock.transactions ?? []), transaction],
+      });
+    } else {
+      const id = uuid();
+
+      await db.stocks.add(
+        {
+          ...plan.stock,
+          id,
+          transactions: [transaction],
+        },
+        id,
+      );
     }
   }
 
@@ -94,6 +100,6 @@ export class StorageService {
   }
 
   private reconnectLiveQuery(): void {
-    this.stocks$ = liveQuery<Holding[]>(() => db.stocks.toArray());
+    this.stocks$ = from(liveQuery<Holding[]>(() => db.stocks.toArray()));
   }
 }

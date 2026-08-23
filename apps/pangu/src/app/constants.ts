@@ -7,6 +7,7 @@ export const Constants = {
     PORTFOLIO: 'portfolio',
     STOCKS: 'stocks',
     INDICES: 'indices',
+    WATCH_LIST: 'watch-list',
     SETTINGS: 'settings',
     IMPORT: 'import',
     EXPORT: 'export',
@@ -51,5 +52,16 @@ export const Constants = {
   },
   placeholders: {
     NO_VALUE: '--',
+  },
+  configs: {
+    defaults: {
+      WATCH_LIST_NAME: 'My Watch List',
+      TOAST_DISMISS_TIMEOUT: 3_000, // milliseconds
+      SEARCH_DEBOUNCE_TIME: 300, // milliseconds
+      MIN_SEARCH_CHARS: 3,
+      FLOWBITE_INITIALIZATION_DELAY: 200, // milliseconds
+      HTTP_REQUEST_TIMEOUT: 10_000, // milliseconds
+      WINDOW_RESIZE_DEBOUNCE_TIME: 500, // milliseconds
+    },
   },
 };

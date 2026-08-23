@@ -32,6 +32,7 @@ module.exports = [
       ],
       '@stylistic/no-extra-semi': 'error',
       'no-extra-semi': 'off',
+      'no-console': 'error',
     },
   },
   {

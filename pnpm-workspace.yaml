@@ -22,3 +22,5 @@ overrides:
 shamefullyHoist: false
 strictPeerDependencies: false
 autoInstallPeers: true
+patchedDependencies:
+  flowbite@4.0.2: patches/flowbite@4.0.2.patch

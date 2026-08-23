@@ -1,0 +1,30 @@
+<div class="fixed right-4 bottom-4 z-50 flex flex-col space-y-2">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="flex w-80 items-center rounded-md px-4 py-3 text-sm text-white shadow-lg"
+      [ngClass]="{
+        'bg-green-600': toast.type === ToastType.SUCCESS,
+        'bg-red-600': toast.type === ToastType.ERROR,
+        'bg-blue-600': toast.type === ToastType.INFO,
+      }"
+      role="alert"
+    >
+      <span class="flex-1">{{ toast.message }}</span>
+      <button
+        (click)="toastService.dismiss(toast.id)"
+        class="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-md hover:bg-white/20"
+        type="button"
+      >
+        <svg class="h-3 w-3" fill="none" viewBox="0 0 14 14">
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+    </div>
+  }
+</div>

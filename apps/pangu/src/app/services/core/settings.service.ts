@@ -41,7 +41,9 @@ export class SettingsService {
 
     this.settings$ = this.settingsSubject$.asObservable();
 
-    this.resize$ = fromEvent(window, 'resize').pipe(debounceTime(500));
+    this.resize$ = fromEvent(window, 'resize').pipe(
+      debounceTime(Constants.configs.defaults.WINDOW_RESIZE_DEBOUNCE_TIME),
+    );
 
     window
       .matchMedia('(prefers-color-scheme: dark)')

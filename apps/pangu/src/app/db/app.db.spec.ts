@@ -1,4 +1,4 @@
-jest.mock('dexie', () => {
+﻿jest.mock('dexie', () => {
   const mockTable = {
     toArray: jest.fn(),
     bulkPut: jest.fn(),
@@ -199,6 +199,41 @@ describe('AppDB', () => {
     expect(s.vendorCode.mc.primary).toBe('3003mc');
   });
 
+  it('should handle secondary fetch with matching result by nseid', async () => {
+    db.stocks.toArray.mockResolvedValue([
+      { id: '1', scripCode: {}, vendorCode: { etm: { primary: 'ABC' } } },
+    ]);
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            nseScripCode: 'INFY',
+            bseScripCode: '500075',
+            isinCode: 'INE009A01021',
+            companyId: '4004',
+            nse: { symbol: 'INFY' },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            result: [
+              { id: 'mc-diff', isinid: 'DIFFERENT_ISIN' },
+              { id: 'mc-match', nseid: 'INFY' },
+            ],
+          }),
+      });
+
+    await readyHandler();
+
+    expect(db.stocks.bulkPut).toHaveBeenCalled();
+    const s = db.stocks.bulkPut.mock.calls[0][0][0];
+    expect(s.vendorCode.mc.primary).toBe('mc-match');
+  });
+
   it('should handle secondary fetch with empty result', async () => {
     db.stocks.toArray.mockResolvedValue([
       { id: '1', scripCode: {}, vendorCode: { etm: { primary: 'ABC' } } },
@@ -272,5 +307,65 @@ describe('AppDB', () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
     await readyHandler();
     expect(db.stocks.bulkPut).toHaveBeenCalled();
+  });
+
+  it('should default isin to empty string when isinCode is null', async () => {
+    db.stocks.toArray.mockResolvedValue([
+      { id: '1', scripCode: {}, vendorCode: { etm: { primary: 'ABC' } } },
+    ]);
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            nseScripCode: 'SOMESTOCK',
+            bseScripCode: '999999',
+            isinCode: null,
+            companyId: '5005',
+            nse: { symbol: 'SOMESTOCK' },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ result: [] }),
+      });
+
+    await readyHandler();
+
+    expect(db.stocks.bulkPut).toHaveBeenCalled();
+    const s = db.stocks.bulkPut.mock.calls[0][0][0];
+    expect(s.scripCode.isin).toBe('');
+    expect(s.scripCode.nse).toBe('SOMESTOCK');
+    expect(s.scripCode.bse).toBe('999999');
+  });
+
+  it('should default isin to empty string when isinCode is empty', async () => {
+    db.stocks.toArray.mockResolvedValue([
+      { id: '1', scripCode: {}, vendorCode: { etm: { primary: 'ABC' } } },
+    ]);
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            nseScripCode: 'ANOTHER',
+            bseScripCode: '111111',
+            isinCode: '',
+            companyId: '6006',
+            nse: { symbol: 'ANOTHER' },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ result: [] }),
+      });
+
+    await readyHandler();
+
+    expect(db.stocks.bulkPut).toHaveBeenCalled();
+    const s = db.stocks.bulkPut.mock.calls[0][0][0];
+    expect(s.scripCode.isin).toBe('');
   });
 });

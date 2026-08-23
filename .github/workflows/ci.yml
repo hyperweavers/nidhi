@@ -52,7 +52,7 @@ jobs:
         run: pnpm nx-cloud record -- nx format:check
 
       - name: Lint and Run Unit Tests
-        run: pnpm nx affected -t lint test --parallel
+        run: pnpm nx affected -t lint typecheck test --parallel
 
       - name: Build
         run: pnpm nx affected -t build --configuration=production --parallel

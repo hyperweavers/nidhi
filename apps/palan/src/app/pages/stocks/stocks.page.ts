@@ -69,7 +69,7 @@ export class StocksPage implements OnDestroy {
 
   private plan: Signal<Plan | undefined>;
   public contributionCurrency: Signal<Currency | undefined> = computed(
-    () => this.plan()?.currencies.purchase,
+    () => this.plan()?.currencies?.purchase,
   );
 
   public chartCrosshairData?: ChartData;
@@ -161,6 +161,7 @@ export class StocksPage implements OnDestroy {
 
           this.showIntraDayChart$
             .pipe(
+              untilDestroyed(this),
               distinctUntilChanged(),
               tap(() => {
                 if (this.chart) {

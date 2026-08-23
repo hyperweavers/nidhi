@@ -85,16 +85,16 @@ export class MarketService {
           this.http.get<IndexQuotes>(Constants.api.MARKET_STATUS).pipe(
             map(
               ({ marketStatusDto }): MarketStatus => ({
-                lastUpdated: marketStatusDto.currentTime,
+                lastUpdated: marketStatusDto?.currentTime ?? '',
                 status:
-                  marketStatusDto.currentMarketStatus === VendorStatus.LIVE
+                  marketStatusDto?.currentMarketStatus === VendorStatus.LIVE
                     ? Status.OPEN
                     : Status.CLOSED,
                 startTime: MarketUtils.dateStringToEpoch(
-                  marketStatusDto.tradingStartTime,
+                  marketStatusDto?.tradingStartTime ?? '',
                 ),
                 endTime: MarketUtils.dateStringToEpoch(
-                  marketStatusDto.tradingEndTime,
+                  marketStatusDto?.tradingEndTime ?? '',
                 ),
               }),
             ),
@@ -125,6 +125,12 @@ export class MarketService {
   }
 
   public getStock(code: string, complete?: boolean): Observable<Stock | null> {
+    if (!code) {
+      this.logger.error('getStock called without a stock code!');
+
+      return of(null);
+    }
+
     return complete
       ? this.getStockDetails(code)
       : this.getStocks([code]).pipe(
@@ -145,8 +151,16 @@ export class MarketService {
   }
 
   public getStocks(codes: string[]): Observable<Stock[]> {
+    const validCodes = codes.filter(Boolean);
+
+    if (validCodes.length === 0) {
+      this.logger.error('getStocks called without any stock codes!');
+
+      return of([]);
+    }
+
     const query: DashboardQuery = {
-      companies: [...codes.map((id) => ({ id }))],
+      companies: [...validCodes.map((id) => ({ id }))],
     };
 
     return this.poll$.pipe(
@@ -305,7 +319,7 @@ export class MarketService {
             map(({ noData, dates, o, c, h, l, v }): ChartData[] => {
               return noData
                 ? []
-                : ([...new Set(dates)].map((date, i) => {
+                : ([...new Set(dates ?? [])].map((date, i) => {
                     const time = new Date(date).toLocaleDateString('en-CA', {
                       timeZone: 'Asia/Kolkata',
                     });
@@ -364,7 +378,7 @@ export class MarketService {
         ? symbol
         : [...INDICES.nse, ...INDICES.bse].find(
             (index) => index.etm.id === symbol,
-          )?.mc.symbol || '';
+          )?.mc?.symbol || '';
 
     if (symbol) {
       const url =
@@ -412,6 +426,20 @@ export class MarketService {
                     },
                   },
                   scripCode: {},
+                  quote: {
+                    nse: {
+                      price: MarketUtils.stringToNumber(stock.lastTradedPrice),
+                      change: {
+                        direction: MarketUtils.getDirection(
+                          MarketUtils.stringToNumber(stock.percentChange),
+                        ),
+                        percentage: MarketUtils.stringToNumber(
+                          stock.percentChange,
+                        ),
+                        value: MarketUtils.stringToNumber(stock.NetChange),
+                      },
+                    },
+                  },
                 }),
               ),
           ),
@@ -426,28 +454,29 @@ export class MarketService {
             Constants.api.STOCK_SEARCH_SECONDARY + query,
           )
           .pipe(
-            map(({ result }) =>
-              result.map(
-                (searchResult): Stock => ({
-                  name: searchResult.fullnm || searchResult.name,
-                  vendorCode: {
-                    etm: {
-                      primary: '',
+            map(
+              ({ result }): Stock[] =>
+                result?.map(
+                  (searchResult): Stock => ({
+                    name: searchResult.fullnm || searchResult.name,
+                    vendorCode: {
+                      etm: {
+                        primary: '',
+                      },
+                      mc: {
+                        primary: searchResult.id,
+                      },
                     },
-                    mc: {
-                      primary: searchResult.id,
+                    scripCode: {
+                      isin: searchResult.isinid || undefined,
+                      nse: searchResult.nseid || undefined,
+                      bse:
+                        parseInt(searchResult.bseid) !== 0
+                          ? searchResult.bseid
+                          : undefined,
                     },
-                  },
-                  scripCode: {
-                    isin: searchResult.isinid || undefined,
-                    nse: searchResult.nseid || undefined,
-                    bse:
-                      parseInt(searchResult.bseid) !== 0
-                        ? searchResult.bseid
-                        : undefined,
-                  },
-                }),
-              ),
+                  }),
+                ) ?? [],
             ),
           )
       : of([]);
@@ -477,12 +506,12 @@ export class MarketService {
           )
           .pipe(
             map(({ results }): PeerChartData[] => {
-              return results?.length > 0
+              return results && results.length > 0
                 ? results.map(
                     ({ companydata, quoteData }): PeerChartData => ({
-                      symbol: companydata.scripcode,
+                      symbol: companydata?.scripcode ?? '',
                       data:
-                        quoteData.map(
+                        quoteData?.map(
                           (quoteData): ChartData => ({
                             time: new Date(quoteData.Date).toLocaleDateString(
                               'en-CA',
@@ -492,7 +521,7 @@ export class MarketService {
                             ),
                             value: quoteData.Close || quoteData.close || 0,
                           }),
-                        ) || [],
+                        ) ?? [],
                     }),
                   )
                 : [];
@@ -519,12 +548,12 @@ export class MarketService {
         )
         .pipe(
           map(({ results }): PeerChartData[] => {
-            return results.length > 0
+            return results && results.length > 0
               ? results.map(
                   ({ companydata, quoteData }): PeerChartData => ({
-                    symbol: companydata.scripcode,
+                    symbol: companydata?.scripcode ?? '',
                     data:
-                      quoteData.map(
+                      quoteData?.map(
                         (quoteData): ChartData => ({
                           time: new Date(quoteData.Date).toLocaleDateString(
                             'en-CA',
@@ -534,7 +563,7 @@ export class MarketService {
                           ),
                           value: quoteData.Close || quoteData.close || 0,
                         }),
-                      ) || [],
+                      ) ?? [],
                   }),
                 )
               : [];
@@ -808,10 +837,10 @@ export class MarketService {
                       percentage: indexDetails.percentChange,
                       value: indexDetails.netChange,
                     },
-                    open: indexDetails.keyMetrics.openPrice,
-                    close: indexDetails.keyMetrics.previousClose,
-                    low: indexDetails.keyMetrics.lowPrice,
-                    high: indexDetails.keyMetrics.highPrice,
+                    open: indexDetails.keyMetrics?.openPrice ?? 0,
+                    close: indexDetails.keyMetrics?.previousClose ?? 0,
+                    low: indexDetails.keyMetrics?.lowPrice ?? 0,
+                    high: indexDetails.keyMetrics?.highPrice ?? 0,
                     fiftyTwoWeekLow: indexDetails.fiftyTwoWeekLow,
                     fiftyTwoWeekHigh: indexDetails.fiftyTwoWeekHigh,
                     advance: {
@@ -824,10 +853,10 @@ export class MarketService {
                     },
                   },
                   metrics: {
-                    marketCap: indexDetails.keyMetrics.marketCap,
-                    pe: indexDetails.keyMetrics.peRatio,
-                    pb: indexDetails.keyMetrics.pbRatio,
-                    dividendYield: indexDetails.keyMetrics.dividendYield,
+                    marketCap: indexDetails.keyMetrics?.marketCap ?? 0,
+                    pe: indexDetails.keyMetrics?.peRatio ?? 0,
+                    pb: indexDetails.keyMetrics?.pbRatio ?? 0,
+                    dividendYield: indexDetails.keyMetrics?.dividendYield ?? 0,
                   },
                   performance: {
                     weekly: {
@@ -883,9 +912,11 @@ export class MarketService {
                 `exchange=${ExchangeNameToCodeMap[exchange] || ''}&indexid=${code}&sortby=netChange`,
             )
             .pipe(
-              map(({ searchresult }): Stock[] =>
-                searchresult[0] && searchresult[0].companies?.length > 0
-                  ? searchresult[0].companies.map((company): Stock => {
+              map(({ searchresult }): Stock[] => {
+                const companies = searchresult?.[0]?.companies;
+
+                return companies && companies.length > 0
+                  ? companies.map((company): Stock => {
                       const quote: Quote = {
                         price: company.current,
                         change: {
@@ -928,8 +959,8 @@ export class MarketService {
 
                       return stock;
                     })
-                  : [],
-              ),
+                  : [];
+              }),
             ),
         }).pipe(
           map(({ index, constituents }) => ({

@@ -1,3 +1,4 @@
+﻿import { DecimalPipe } from '@angular/common';
 import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -66,6 +67,19 @@ describe('ValueOrPlaceholderPipe', () => {
 
     it('should return "false" for false', () => {
       expect(pipe.transform(false)).toBe('false');
+    });
+  });
+
+  describe('null formatted value fallback', () => {
+    it('should return placeholder when DecimalPipe.transform returns null', () => {
+      const spy = jest
+        .spyOn(DecimalPipe.prototype, 'transform')
+        .mockReturnValue(null);
+      try {
+        expect(pipe.transform(1234.56)).toBe(Constants.placeholders.NO_VALUE);
+      } finally {
+        spy.mockRestore();
+      }
     });
   });
 });

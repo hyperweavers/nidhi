@@ -25,6 +25,11 @@ describe('MarketUtils', () => {
       expect(MarketUtils.stringToNumber('1234')).toBe(1234);
     });
 
+    it('should return 0 for null or undefined input', () => {
+      expect(MarketUtils.stringToNumber(undefined)).toBe(0);
+      expect(MarketUtils.stringToNumber(null)).toBe(0);
+    });
+
     it('should remove commas and parse', () => {
       expect(MarketUtils.stringToNumber('1,234.56')).toBe(1234.56);
     });

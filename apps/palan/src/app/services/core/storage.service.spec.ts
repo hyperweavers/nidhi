@@ -142,6 +142,43 @@ describe('StorageService', () => {
       expect(db.stocks.update).not.toHaveBeenCalled();
       expect(db.stocks.add).not.toHaveBeenCalled();
     });
+
+    it('should throw error when plan stock has no ISIN', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          StorageService,
+          {
+            provide: PlanService,
+            useValue: {
+              plan$: of({
+                ...mockPlan,
+                stock: { ...mockPlan.stock, scripCode: {} },
+              }),
+            },
+          },
+        ],
+      });
+      service = TestBed.inject(StorageService);
+
+      await expect(service.addOrUpdate(mockTransaction)).rejects.toThrow(
+        'Plan stock has no ISIN!',
+      );
+      expect(db.stocks.get).not.toHaveBeenCalled();
+    });
+
+    it('should treat missing transactions on existing stock as empty list', async () => {
+      (db.stocks.get as jest.Mock).mockResolvedValue({
+        id: 'stock-1',
+        transactions: undefined,
+      });
+
+      await service.addOrUpdate(mockTransaction);
+
+      expect(db.stocks.update).toHaveBeenCalledWith('stock-1', {
+        transactions: [mockTransaction],
+      });
+    });
   });
 
   describe('delete', () => {

@@ -68,6 +68,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "with-mocks": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/vatti/src/environments/mocks.ts",
+              "with": "apps/vatti/src/environments/mocks-on.ts"
+            }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -113,6 +124,9 @@
         },
         "development": {
           "buildTarget": "vatti:build:development"
+        },
+        "with-mocks": {
+          "buildTarget": "vatti:build:with-mocks"
         }
       },
       "defaultConfiguration": "development",
@@ -122,6 +136,16 @@
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
         "buildTarget": "vatti:build"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "options": {
+        "command": "tsc --noEmit -p apps/vatti/tsconfig.app.json"
       }
     },
     "lint": {

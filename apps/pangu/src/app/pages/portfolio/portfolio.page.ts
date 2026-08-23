@@ -179,7 +179,7 @@ export class PortfolioPage implements AfterViewInit {
             };
           }
         ).FlowbiteInstances.getInstance('Dropdown', 'sortDropdown')),
-      200,
+      Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
     );
 
     setTimeout(
@@ -191,7 +191,7 @@ export class PortfolioPage implements AfterViewInit {
             };
           }
         ).FlowbiteInstances.getInstance('Dropdown', 'filterDropdown')),
-      200,
+      Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
     );
   }
 

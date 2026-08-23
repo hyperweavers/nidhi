@@ -2,6 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Provider } from '@angular/core';
 import { LOGGER } from '@nidhi/shared-logger';
+import { setupServer } from 'msw/node';
+import { errorHandlers, handlers } from './handlers';
 
 export const mockLogger = {
   captureException: jest.fn(),
@@ -22,6 +24,18 @@ export const commonTestProviders: Provider[] = [
   provideHttpClientTesting(),
   loggerProvider,
 ];
+
+export const server = setupServer(...handlers);
+
+export function setupTestServer(): void {
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+}
+
+export function useErrorHandlers(): void {
+  server.use(...errorHandlers);
+}
 
 export function resetMockLogger(): void {
   jest.clearAllMocks();

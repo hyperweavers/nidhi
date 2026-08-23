@@ -98,6 +98,7 @@ describe('TransactionDrawerComponent', () => {
       search: jest.fn().mockReturnValue(of([])),
       getStock: jest.fn().mockReturnValue(of(null)),
       searchSecondary: jest.fn().mockReturnValue(of([])),
+      refresh: jest.fn(),
     } as unknown as jest.Mocked<Partial<MarketService>>;
 
     mockStorageService = {
@@ -204,6 +205,7 @@ describe('TransactionDrawerComponent', () => {
       );
       expect(component.showStatusModal).toBe(true);
       expect(component.showTransactionProgress).toBe(false);
+      expect(mockMarketService.refresh).toHaveBeenCalledTimes(1);
     }));
 
     it('should call updateTransaction on save in edit mode', fakeAsync(() => {

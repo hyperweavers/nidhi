@@ -16,6 +16,8 @@ Thank you for taking the time to submit this pull request!
 
 - [ ] shared-logger
 - [ ] shared-sentry
+- [ ] shared-toast
+- [ ] shared-http
 
 ## Change Type
 

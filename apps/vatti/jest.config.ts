@@ -15,8 +15,10 @@ if (process.env['CI']) {
 export default {
   displayName: 'vatti',
   preset: '../../jest.preset.js',
+  setupFiles: ['<rootDir>/../../tools/test/setup/jsdom-polyfills.cjs'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/apps/vatti',
+  coveragePathIgnorePatterns: ['<rootDir>/src/app/mocks/'],
   coverageThreshold: {
     global: {
       statements: 95,
@@ -34,9 +36,19 @@ export default {
         stringifyContentPathRegex: '\\.(html|svg)$',
       },
     ],
+    // Override @nx/jest/preset's default ts-jest transform to also use jest-preset-angular,
+    // preventing TsJestTransformer from polluting the shared _cachedConfigSets static
+    // with a plain ConfigSet (which lacks processWithEsbuild).
+    '^.+\\.(ts|js|mts|mjs|cts|cjs|html)$': [
+      'jest-preset-angular',
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\\.(html|svg)$',
+      },
+    ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(msw|@mswjs)/|.*\\.mjs$)',
+    'node_modules/(?!(?:.pnpm/)?(?:[^/]+/node_modules/)?(msw|@mswjs|until-async)/|.*\\.mjs$)',
   ],
   snapshotSerializers: [
     'jest-preset-angular/build/serializers/no-ng-attributes',

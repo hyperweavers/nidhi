@@ -26,6 +26,7 @@ import {
   tap,
 } from 'rxjs';
 
+import { Constants } from '../../constants';
 import { Holding } from '../../models/portfolio';
 import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
@@ -38,6 +39,7 @@ import { PortfolioService } from '../../services/portfolio.service';
   templateUrl: './stock-search.component.html',
   styleUrl: './stock-search.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:click)': 'onDocumentClick($event)' },
 })
 export class StockSearchComponent {
   private readonly marketService = inject(MarketService);
@@ -46,6 +48,8 @@ export class StockSearchComponent {
 
   private readonly searchInput =
     viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  private readonly searchBox = viewChild<ElementRef>('searchBox');
 
   public readonly mode = input<'sitewide' | 'buy' | 'sell'>('sitewide');
   public readonly placeholder = input('Search stocks');
@@ -62,7 +66,7 @@ export class StockSearchComponent {
   constructor() {
     effect(() => {
       const q = this.query();
-      if (q.length >= 3) {
+      if (q.length >= Constants.configs.defaults.MIN_SEARCH_CHARS) {
         this.searchSubject.next(q);
       } else {
         this.results.set([]);
@@ -80,9 +84,9 @@ export class StockSearchComponent {
 
     this.searchSubject
       .pipe(
-        debounceTime(300),
+        debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
         distinctUntilChanged(),
-        filter((q) => q.length >= 2),
+        filter((q) => q.length >= Constants.configs.defaults.MIN_SEARCH_CHARS),
         switchMap((query) =>
           iif(
             () => this.mode() === 'sell',
@@ -120,6 +124,16 @@ export class StockSearchComponent {
 
   onInput(value: string): void {
     this.query.set(value);
+  }
+
+  public onDocumentClick(event: MouseEvent): void {
+    if (!this.showDropdown()) return;
+
+    const box = this.searchBox()?.nativeElement as HTMLElement | undefined;
+
+    if (box && !box.contains(event.target as Node)) {
+      this.showDropdown.set(false);
+    }
   }
 
   selectStock(stock: Stock | Holding): void {

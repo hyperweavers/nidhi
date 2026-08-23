@@ -299,6 +299,8 @@ export class TransactionDrawerComponent implements AfterViewInit {
 
         await this.storageService.addOrUpdate(stock, transaction);
 
+        this.marketService.refresh();
+
         this.resetForm();
 
         this.showTransactionProgress = false;

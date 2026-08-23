@@ -93,6 +93,40 @@ describe('StockSearchComponent', () => {
     expect(component.showDropdown()).toBe(false);
   }));
 
+  describe('document click', () => {
+    it('closes the dropdown when clicking outside the search box', () => {
+      component.showDropdown.set(true);
+
+      component.onDocumentClick({
+        target: document.body,
+      } as unknown as MouseEvent);
+
+      expect(component.showDropdown()).toBe(false);
+    });
+
+    it('keeps the dropdown open when clicking inside the search box', () => {
+      component.showDropdown.set(true);
+
+      const companyInput = fixture.nativeElement.querySelector('input');
+
+      component.onDocumentClick({
+        target: companyInput,
+      } as unknown as MouseEvent);
+
+      expect(component.showDropdown()).toBe(true);
+    });
+
+    it('ignores document clicks when the dropdown is hidden', () => {
+      expect(component.showDropdown()).toBe(false);
+
+      component.onDocumentClick({
+        target: document.body,
+      } as unknown as MouseEvent);
+
+      expect(component.showDropdown()).toBe(false);
+    });
+  });
+
   it('should focus the input when autoFocus is enabled', async () => {
     fixture.componentRef.setInput('autoFocus', true);
     const input = fixture.nativeElement.querySelector(

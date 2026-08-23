@@ -154,5 +154,51 @@ describe('CurrencyService', () => {
 
       httpMock.expectOne(Constants.api.FOREX).flush(forexWithUnknown);
     });
+
+    it('should tolerate ragged rate rows with missing cells', (done) => {
+      const raggedForex = {
+        success: 1,
+        data: {
+          headers: ['Rupee', 'USD'],
+          flags: ['in', 'us'],
+          data: [[1, 0.012], [83.5]],
+        },
+      };
+
+      service
+        .getForexRates()
+        .pipe(take(1))
+        .subscribe((matrix) => {
+          expect(matrix['INR']['USD']).toBe(0.012);
+          expect(matrix['USD']['INR']).toBe(83.5);
+          expect(matrix['USD']['USD']).toBeUndefined();
+          done();
+        });
+
+      httpMock.expectOne(Constants.api.FOREX).flush(raggedForex);
+    });
+
+    it('should tolerate response rows missing entirely', (done) => {
+      const shortForex = {
+        success: 1,
+        data: {
+          headers: ['Rupee', 'USD'],
+          flags: ['in', 'us'],
+          data: [[1, 0.012]],
+        },
+      };
+
+      service
+        .getForexRates()
+        .pipe(take(1))
+        .subscribe((matrix) => {
+          expect(matrix['INR']['USD']).toBe(0.012);
+          expect(matrix['USD']['INR']).toBeUndefined();
+          expect(matrix['USD']['USD']).toBeUndefined();
+          done();
+        });
+
+      httpMock.expectOne(Constants.api.FOREX).flush(shortForex);
+    });
   });
 });

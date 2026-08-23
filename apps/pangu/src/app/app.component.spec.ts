@@ -16,6 +16,7 @@ import { LOGGER } from '@nidhi/shared-logger';
 import { Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
+import { Constants } from './constants';
 import { MarketStatus, Status } from './models/market';
 import { MarketService } from './services/core/market.service';
 import { SettingsService } from './services/core/settings.service';
@@ -406,4 +407,72 @@ describe('AppComponent', () => {
       expect(component.appVersion).toBeDefined();
     });
   });
+
+  describe('fab and wizard', () => {
+    it('should toggle fab menu', () => {
+      component.toggleFabMenu();
+      expect(component.showFabMenu()).toBe(true);
+      component.toggleFabMenu();
+      expect(component.showFabMenu()).toBe(false);
+    });
+
+    it('should close fab menu', () => {
+      component.showFabMenu.set(true);
+      component.closeFabMenu();
+      expect(component.showFabMenu()).toBe(false);
+    });
+
+    it('should open wizard and close fab', () => {
+      component.showFabMenu.set(true);
+      component.openWizard();
+      expect(component.showFabMenu()).toBe(false);
+      expect(component.showWizard()).toBe(true);
+    });
+
+    it('should close wizard', () => {
+      component.showWizard.set(true);
+      component.closeWizard();
+      expect(component.showWizard()).toBe(false);
+    });
+
+    it('should navigate on wizard created', () => {
+      component.onWizardCreated('new-list-id');
+      expect(component.showWizard()).toBe(false);
+      expect(mockRouter.navigate).toHaveBeenCalledWith([
+        '/',
+        Constants.routes.WATCH_LIST,
+        'new-list-id',
+      ]);
+    });
+  });
+
+  describe('navigateToWatchList', () => {
+    it('should navigate to default list when defaultWatchListId is set', () => {
+      component.defaultWatchListId = 'default-1';
+      component.navigateToWatchList();
+      expect(mockRouter.navigate).toHaveBeenCalledWith([
+        '/',
+        Constants.routes.WATCH_LIST,
+        'default-1',
+      ]);
+    });
+
+    it('should navigate to watch lists page when no default id', () => {
+      component.defaultWatchListId = undefined;
+      component.navigateToWatchList();
+      expect(mockRouter.navigate).toHaveBeenCalledWith([
+        '/',
+        Constants.routes.WATCH_LIST,
+      ]);
+    });
+  });
+
+  it('should handle ensureDefaultWatchList catch', fakeAsync(() => {
+    jest
+      .spyOn(component['watchListService'], 'ensureDefaultWatchList')
+      .mockRejectedValue(new Error('fail'));
+    component.ngOnInit();
+    tick();
+    expect(component.defaultWatchListId).toBeUndefined();
+  }));
 });

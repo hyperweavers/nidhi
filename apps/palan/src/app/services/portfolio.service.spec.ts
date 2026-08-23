@@ -197,6 +197,32 @@ describe('PortfolioService', () => {
       expect(portfolio.investment).toBe(0);
       expect(portfolio.marketValue).toBe(0);
     });
+
+    it('should return empty portfolio without calling getStock when stock has no vendor code', async () => {
+      const getStock = jest.fn();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          PortfolioService,
+          {
+            provide: StorageService,
+            useValue: {
+              stocks$: of([{ ...mockStorageStocks[0], vendorCode: {} }]),
+            },
+          },
+          { provide: MarketService, useValue: { getStock } },
+        ],
+      });
+      const noCodeService = TestBed.inject(PortfolioService);
+      const portfolio = await firstValueFrom(
+        noCodeService.portfolio$.pipe(timeout(3000)),
+      );
+
+      expect(getStock).not.toHaveBeenCalled();
+      expect(portfolio.holdings).toEqual([]);
+      expect(portfolio.investment).toBe(0);
+      expect(portfolio.totalProfitLoss.value).toBe(0);
+    });
   });
 
   describe('holding computations with only EMPLOYEE transactions', () => {

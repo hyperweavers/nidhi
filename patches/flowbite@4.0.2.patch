@@ -1,0 +1,28 @@
+diff --git a/plugin.js b/plugin.js
+index 32f9064215cd58184a210fd3ec00ea3ecd6669e4..d20141420f52a7ceb85ffa87afa1765d1c0d2fc3 100644
+--- a/plugin.js
++++ b/plugin.js
+@@ -422,10 +422,7 @@ module.exports = plugin.withOptions(function (options = {}) {
+                     'padding-left': spacing[8],
+                     'padding-right': spacing[4],
+                     'margin-inline-start': '-1rem',
+-                    'margin-inline-end': '1rem',
+-                    '&:hover': {
+-                        background: 'var(--color-neutral-quaternary)',
+-                    },
++                    'margin-inline-end': '1rem'
+                 },
+                 [[`:is([dir=rtl]) input[type=file]::file-selector-button`]]: {
+                     paddingRight: spacing[8],
+@@ -433,10 +430,7 @@ module.exports = plugin.withOptions(function (options = {}) {
+                 },
+                 [[`.dark input[type=file]::file-selector-button`]]: {
+                     color: 'var(--color-body)',
+-                    background: 'var(--color-neutral-quaternary)',
+-                    '&:hover': {
+-                        background: 'var(--color-neutral-quaternary)',
+-                    },
++                    background: 'var(--color-neutral-quaternary)'
+                 },
+                 [[`input[type="range"]::-webkit-slider-thumb`]]: {
+                     height: spacing[5],

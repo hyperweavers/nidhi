@@ -36,6 +36,16 @@ coverage:
         threshold: 2%
         flags:
           - shared-sentry
+      shared-toast:
+        target: auto
+        threshold: 2%
+        flags:
+          - shared-toast
+      shared-http:
+        target: auto
+        threshold: 2%
+        flags:
+          - shared-http
     patch:
       default:
         target: auto
@@ -61,6 +71,14 @@ flags:
   shared-sentry:
     paths:
       - libs/shared/sentry
+    carryforward: true
+  shared-toast:
+    paths:
+      - libs/shared/toast
+    carryforward: true
+  shared-http:
+    paths:
+      - libs/shared/http
     carryforward: true
 
 bundle_analysis:

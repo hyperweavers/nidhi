@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+// Wrapping console is this class's sole purpose; it is the fallback logger
+// used before/without Sentry.
 import { Injectable } from '@angular/core';
 import { LoggerAdapter } from './logger-adapter';
 
