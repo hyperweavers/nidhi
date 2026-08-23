@@ -23,6 +23,7 @@ import {
   skip,
 } from 'rxjs';
 
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TransactionDrawerComponent } from '../../components/transaction-drawer/transaction-drawer.component';
 import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
@@ -51,6 +52,7 @@ enum PortfolioSortOrder {
 }
 
 @Flowbite()
+@UntilDestroy()
 @Component({
   selector: 'app-portfolio',
   imports: [
@@ -99,7 +101,7 @@ export class PortfolioPage implements AfterViewInit {
     const portfolioService = inject(PortfolioService);
 
     this.portfolioSearchQuery$ = toObservable(this.portfolioSearchQuery).pipe(
-      debounceTime(200),
+      debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
       distinctUntilChanged(),
     );
 
@@ -163,7 +165,7 @@ export class PortfolioPage implements AfterViewInit {
     );
 
     this.portfolioSearchQuery$
-      .pipe(skip(1))
+      .pipe(skip(1), untilDestroyed(this))
       .subscribe(() => this.syncQueryParams());
 
     this.restoreFromQueryParams();
@@ -171,26 +173,7 @@ export class PortfolioPage implements AfterViewInit {
 
   public ngAfterViewInit(): void {
     setTimeout(
-      () =>
-        (this.sortDropdown = (
-          window as unknown as {
-            FlowbiteInstances: {
-              getInstance: (type: string, id: string) => Dropdown;
-            };
-          }
-        ).FlowbiteInstances.getInstance('Dropdown', 'sortDropdown')),
-      Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
-    );
-
-    setTimeout(
-      () =>
-        (this.filterDropdown = (
-          window as unknown as {
-            FlowbiteInstances: {
-              getInstance: (type: string, id: string) => Dropdown;
-            };
-          }
-        ).FlowbiteInstances.getInstance('Dropdown', 'filterDropdown')),
+      () => this.initFlowbiteInstances(),
       Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
     );
   }
@@ -304,5 +287,19 @@ export class PortfolioPage implements AfterViewInit {
       queryParams,
       replaceUrl: true,
     });
+  }
+
+  private initFlowbiteInstances(): void {
+    const sortEl = document.getElementById('sortDropdown');
+    const sortBtn = document.getElementById('sortDropdownButton');
+    if (sortBtn && sortEl) {
+      this.sortDropdown = new Dropdown(sortEl, sortBtn);
+    }
+
+    const filterEl = document.getElementById('filterDropdown');
+    const filterBtn = document.getElementById('filterDropdownButton');
+    if (filterBtn && filterEl) {
+      this.filterDropdown = new Dropdown(filterEl, filterBtn);
+    }
   }
 }

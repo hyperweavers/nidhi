@@ -58,6 +58,19 @@ export class WatchListService {
     return id;
   }
 
+  public async watchListNameExists(name: string): Promise<boolean> {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return false;
+    }
+
+    const existing = await db.watchLists
+      .where('name')
+      .equalsIgnoreCase(trimmed)
+      .first();
+    return Boolean(existing);
+  }
+
   public async createWatchList(name: string): Promise<string> {
     const trimmed = name.trim();
     if (!trimmed) {

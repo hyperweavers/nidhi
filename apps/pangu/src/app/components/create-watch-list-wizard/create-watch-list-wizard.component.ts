@@ -117,6 +117,14 @@ export class CreateWatchListWizardComponent {
       return;
     }
 
+    if (await this.watchListService.watchListNameExists(this.listName)) {
+      this.error.set('A watch list with this name already exists!');
+
+      this.cdr.markForCheck();
+
+      return;
+    }
+
     this.step.set(2);
     this.cdr.markForCheck();
   }

@@ -44,6 +44,7 @@ describe('CreateWatchListWizardComponent', () => {
       getWatchList$: jest.fn(),
       getWatchListStocks$: jest.fn(),
       ensureDefaultWatchList: jest.fn(),
+      watchListNameExists: jest.fn().mockResolvedValue(false),
       createWatchList: jest.fn().mockResolvedValue('new-list-id'),
       renameWatchList: jest.fn(),
       deleteWatchList: jest.fn(),
@@ -175,6 +176,48 @@ describe('CreateWatchListWizardComponent', () => {
     await component.goToStep2();
     expect(component.error()).toBe('Name is required!');
     expect(component.step()).toBe(1);
+    expect(watchListService.watchListNameExists).not.toHaveBeenCalled();
+  }));
+
+  it('should prevent going to step 2 when watch list name already exists', fakeAsync(async () => {
+    watchListService.watchListNameExists.mockResolvedValue(true);
+    component.listName = 'My List';
+    await component.goToStep2();
+    expect(component.step()).toBe(1);
+    expect(component.error()).toBe(
+      'A watch list with this name already exists!',
+    );
+    expect(watchListService.watchListNameExists).toHaveBeenCalledWith(
+      'My List',
+    );
+  }));
+
+  it('should show duplicate name error in template and stay on step 1', fakeAsync(async () => {
+    watchListService.watchListNameExists.mockResolvedValue(true);
+    component.listName = 'My List';
+    fixture.detectChanges();
+    const nextButton = fixture.debugElement
+      .queryAll(By.css('button'))
+      .find((b) => b.nativeElement.textContent.trim() === 'Next');
+    nextButton?.nativeElement.click();
+    await Promise.resolve();
+    fixture.detectChanges();
+    expect(component.step()).toBe(1);
+    const errorParagraph = fixture.debugElement.query(By.css('p'));
+    expect(errorParagraph?.nativeElement.textContent).toContain(
+      'A watch list with this name already exists!',
+    );
+  }));
+
+  it('should allow going to step 2 when name does not exist', fakeAsync(async () => {
+    watchListService.watchListNameExists.mockResolvedValue(false);
+    component.listName = 'Unique List';
+    await component.goToStep2();
+    expect(watchListService.watchListNameExists).toHaveBeenCalledWith(
+      'Unique List',
+    );
+    expect(component.error()).toBe('');
+    expect(component.step()).toBe(2);
   }));
 
   it('should go back to step 1 from step 2', () => {

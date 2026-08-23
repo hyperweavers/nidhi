@@ -172,6 +172,7 @@ export class StocksPage implements OnDestroy {
       switchMap((id) => marketService.getStock(id, true)),
       tap((stock) => {
         this.currentStock.set(stock);
+
         if (stock) {
           if (stock.scripCode.nse) {
             this.activeExchange = ExchangeName.NSE;

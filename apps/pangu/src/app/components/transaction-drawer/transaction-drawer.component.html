@@ -1,6 +1,8 @@
 <div
   (appDrawerClosed)="resetForm()"
   [id]="drawerId()"
+  [attr.data-drawer-target]="drawerId()"
+  data-drawer-placement="right"
   class="fixed top-0 right-0 z-50 h-full w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform dark:bg-gray-800"
   tabindex="-1"
   aria-labelledby="drawer-label"
@@ -208,10 +210,10 @@
       />
     </div>
 
-    @if (transactionFormError) {
+    @if (transactionFormError()) {
       <div>
         <p class="mt-4 text-sm text-red-600 dark:text-red-500">
-          {{ transactionFormError }}
+          {{ transactionFormError() }}
         </p>
       </div>
     }
@@ -247,7 +249,7 @@
 <div
   tabindex="-1"
   class="bg-opacity-50 dark:bg-opacity-80 fixed top-0 right-0 left-0 z-50 flex h-full max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-900 md:inset-0"
-  [class.hidden]="!showTransactionProgress"
+  [class.hidden]="!showTransactionProgress()"
 >
   <div role="status">
     <svg
@@ -275,7 +277,7 @@
 <div
   tabindex="-1"
   class="bg-opacity-50 dark:bg-opacity-80 fixed top-0 right-0 left-0 z-50 flex h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-gray-900 md:inset-0"
-  [class.hidden]="!showStatusModal"
+  [class.hidden]="!showStatusModal()"
 >
   <div class="relative max-h-full w-full max-w-md p-4">
     <div class="relative rounded-md bg-white shadow-sm dark:bg-gray-700">

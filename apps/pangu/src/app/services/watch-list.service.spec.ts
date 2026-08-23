@@ -231,6 +231,33 @@ describe('WatchListService', () => {
     });
   });
 
+  describe('watchListNameExists', () => {
+    it('should return true when name exists', async () => {
+      db.watchLists.where.mockReturnValue({
+        equalsIgnoreCase: jest.fn().mockReturnValue({
+          first: jest
+            .fn()
+            .mockResolvedValue({ id: 'existing', name: 'My List' }),
+        }),
+      });
+      await expect(service.watchListNameExists('My List')).resolves.toBe(true);
+    });
+
+    it('should return false when name does not exist', async () => {
+      db.watchLists.where.mockReturnValue({
+        equalsIgnoreCase: jest
+          .fn()
+          .mockReturnValue({ first: jest.fn().mockResolvedValue(null) }),
+      });
+      await expect(service.watchListNameExists('My List')).resolves.toBe(false);
+    });
+
+    it('should return false for empty name without querying db', async () => {
+      await expect(service.watchListNameExists('   ')).resolves.toBe(false);
+      expect(db.watchLists.where).not.toHaveBeenCalled();
+    });
+  });
+
   describe('createWatchList', () => {
     it('should create a new watch list', async () => {
       db.watchLists.where.mockReturnValue({

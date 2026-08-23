@@ -34,9 +34,11 @@
 
   @if (showDropdown() && results().length > 0) {
     <div
-      class="absolute z-50 mt-1 max-h-80 w-full divide-y divide-gray-100 overflow-y-auto rounded-md bg-white shadow-sm dark:bg-gray-700"
+      class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
     >
-      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
+      <ul
+        class="divide-y divide-gray-100 text-sm text-gray-700 dark:divide-gray-600 dark:text-gray-200"
+      >
         @for (stock of results(); track stock.vendorCode.etm.primary) {
           <li
             (mousedown)="
@@ -44,9 +46,31 @@
                 ? navigateToStock(stock)
                 : selectStock(stock)
             "
-            class="block cursor-pointer px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            class="flex cursor-pointer items-center justify-between gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
           >
-            {{ stock.name }}
+            <span class="flex-1 truncate">
+              {{ stock.name | valueOrPlaceholder }}
+            </span>
+            @if (stock.quote?.nse?.price) {
+              <span class="text-right text-xs leading-tight">
+                <span class="block text-gray-900 dark:text-white">
+                  &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+                </span>
+                @if (stock.quote?.nse?.change) {
+                  <span
+                    [ngClass]="
+                      stock.quote?.nse?.change?.direction === Direction.UP
+                        ? 'text-green-500 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-500'
+                    "
+                  >
+                    {{
+                      stock.quote?.nse?.change?.percentage | valueOrPlaceholder
+                    }}%
+                  </span>
+                }
+              </span>
+            }
           </li>
         }
       </ul>

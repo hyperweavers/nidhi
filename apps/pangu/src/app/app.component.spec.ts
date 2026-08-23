@@ -96,6 +96,28 @@ describe('AppComponent', () => {
     expect(component.refreshing).toBe(false);
   });
 
+  describe('portfolio submenu', () => {
+    it('should render flowbite collapse toggle and submenu', () => {
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+      const toggle = el.querySelector(
+        '[data-collapse-toggle="dropdown-portfolio"]',
+      );
+      expect(toggle).toBeTruthy();
+      expect(el.querySelector('#dropdown-portfolio')).toBeTruthy();
+    });
+
+    it('should link Holdings and Transactions inside submenu', () => {
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+      const labels = Array.from(
+        el.querySelectorAll('#dropdown-portfolio a'),
+      ).map((a) => a.textContent?.trim());
+      expect(labels).toContain('Holdings');
+      expect(labels).toContain('Transactions');
+    });
+  });
+
   describe('ngOnInit', () => {
     it('should close sidebar on NavigationStart', fakeAsync(() => {
       fixture.detectChanges();

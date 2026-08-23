@@ -1,4 +1,4 @@
-import {
+﻿import {
   ComponentFixture,
   fakeAsync,
   TestBed,
@@ -203,8 +203,8 @@ describe('TransactionDrawerComponent', () => {
           charges: 50,
         }),
       );
-      expect(component.showStatusModal).toBe(true);
-      expect(component.showTransactionProgress).toBe(false);
+      expect(component.showStatusModal()).toBe(true);
+      expect(component.showTransactionProgress()).toBe(false);
       expect(mockMarketService.refresh).toHaveBeenCalledTimes(1);
     }));
 
@@ -237,14 +237,14 @@ describe('TransactionDrawerComponent', () => {
           charges: 25,
         }),
       );
-      expect(component.showStatusModal).toBe(true);
+      expect(component.showStatusModal()).toBe(true);
     }));
 
     it('should reject transaction with missing fields', fakeAsync(() => {
       createComponent();
       component.save();
       tick();
-      expect(component.transactionFormError).toBe(
+      expect(component.transactionFormError()).toBe(
         'One or more field(s) containing invalid value(s)!',
       );
     }));
@@ -264,7 +264,7 @@ describe('TransactionDrawerComponent', () => {
       component.save();
       tick();
 
-      expect(component.transactionFormError).toBe('Date is in future!');
+      expect(component.transactionFormError()).toBe('Date is in future!');
     }));
 
     it('should submit transaction successfully', fakeAsync(() => {
@@ -282,8 +282,8 @@ describe('TransactionDrawerComponent', () => {
       tick();
 
       expect(mockStorageService.addOrUpdate).toHaveBeenCalledTimes(1);
-      expect(component.showStatusModal).toBe(true);
-      expect(component.showTransactionProgress).toBe(false);
+      expect(component.showStatusModal()).toBe(true);
+      expect(component.showTransactionProgress()).toBe(false);
     }));
   });
 
@@ -293,7 +293,7 @@ describe('TransactionDrawerComponent', () => {
       component.selectStock(mockHolding);
       expect(component.selectedStock()).toEqual(mockHolding);
       expect(component.name()).toBe('Reliance Industries');
-      expect(component.showSearchResults).toBe(false);
+      expect(component.showSearchResults()).toBe(false);
     });
 
     it('should keep selected stock when query matches the chosen name', fakeAsync(() => {
@@ -325,7 +325,7 @@ describe('TransactionDrawerComponent', () => {
 
       expect(mockMarketService.getStock).toHaveBeenCalledWith('RELIANCE', true);
       expect(component.selectedStock()).toBeUndefined();
-      expect(component.transactionFormError).toBe(
+      expect(component.transactionFormError()).toBe(
         'Unable to get the details of the selected stock!',
       );
     }));
@@ -454,7 +454,7 @@ describe('TransactionDrawerComponent', () => {
       component.save();
       tick();
 
-      expect(component.transactionFormError).toBe('Date is in future!');
+      expect(component.transactionFormError()).toBe('Date is in future!');
     }));
 
     it('should show error when update has missing fields', fakeAsync(() => {
@@ -471,7 +471,7 @@ describe('TransactionDrawerComponent', () => {
       component.save();
       tick();
 
-      expect(component.transactionFormError).toBe(
+      expect(component.transactionFormError()).toBe(
         'One or more field(s) containing invalid value(s)!',
       );
     }));
@@ -505,9 +505,9 @@ describe('TransactionDrawerComponent', () => {
   describe('closeStatusModal', () => {
     it('should close status modal', () => {
       createComponent();
-      component.showStatusModal = true;
+      component.showStatusModal.set(true);
       component.closeStatusModal();
-      expect(component.showStatusModal).toBe(false);
+      expect(component.showStatusModal()).toBe(false);
     });
   });
 
@@ -568,7 +568,7 @@ describe('TransactionDrawerComponent', () => {
       component.save();
       tick();
 
-      expect(component.transactionFormError).toBe(
+      expect(component.transactionFormError()).toBe(
         'One or more field(s) containing invalid value(s)!',
       );
     }));

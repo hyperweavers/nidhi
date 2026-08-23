@@ -27,15 +27,17 @@ import {
 } from 'rxjs';
 
 import { Constants } from '../../constants';
+import { Direction } from '../../models/market';
 import { Holding } from '../../models/portfolio';
 import { Stock } from '../../models/stock';
+import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
 import { PortfolioService } from '../../services/portfolio.service';
 
 @UntilDestroy()
 @Component({
   selector: 'app-stock-search',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ValueOrPlaceholderPipe],
   templateUrl: './stock-search.component.html',
   styleUrl: './stock-search.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +64,8 @@ export class StockSearchComponent {
 
   private readonly searchSubject = new BehaviorSubject<string>('');
   private readonly clear$ = new Subject<void>();
+
+  public readonly Direction = Direction;
 
   constructor() {
     effect(() => {

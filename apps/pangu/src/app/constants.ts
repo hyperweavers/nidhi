@@ -60,6 +60,7 @@ export const Constants = {
       SEARCH_DEBOUNCE_TIME: 300, // milliseconds
       MIN_SEARCH_CHARS: 3,
       FLOWBITE_INITIALIZATION_DELAY: 200, // milliseconds
+      FORM_ERROR_CLEAR_DELAY: 2_000, // milliseconds
       HTTP_REQUEST_TIMEOUT: 10_000, // milliseconds
       WINDOW_RESIZE_DEBOUNCE_TIME: 500, // milliseconds
     },

@@ -444,8 +444,8 @@ describe('TransactionsPage', () => {
 
     it('should open delete confirmation', () => {
       component.openDeleteConfirmation('h1', 't1');
-      expect(component.showDeleteModal).toBe(true);
-      expect(component.deleteTarget).toEqual({
+      expect(component.showDeleteModal()).toBe(true);
+      expect(component.deleteTarget()).toEqual({
         holdingId: 'h1',
         transactionId: 't1',
       });
@@ -460,15 +460,15 @@ describe('TransactionsPage', () => {
         'h1',
         't1',
       );
-      expect(component.showDeleteModal).toBe(false);
-      expect(component.deleteTarget).toBeUndefined();
+      expect(component.showDeleteModal()).toBe(false);
+      expect(component.deleteTarget()).toBeUndefined();
     }));
 
     it('should cancel delete', () => {
       component.openDeleteConfirmation('h1', 't1');
       component.cancelDelete();
-      expect(component.showDeleteModal).toBe(false);
-      expect(component.deleteTarget).toBeUndefined();
+      expect(component.showDeleteModal()).toBe(false);
+      expect(component.deleteTarget()).toBeUndefined();
     });
 
     it('should not call deleteTransaction when deleteTarget is null', fakeAsync(() => {

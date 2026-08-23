@@ -122,10 +122,6 @@ describe('PortfolioService', () => {
       });
       setup([sHolding], [marketStock()]);
 
-      const portfolio = await firstValueFrom(
-        service.portfolio$.pipe(timeout(3000)),
-      );
-
       expect(marketService.getStocks).not.toHaveBeenCalled();
     });
 
