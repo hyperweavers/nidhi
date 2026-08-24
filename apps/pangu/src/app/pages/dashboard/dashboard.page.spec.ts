@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { Directive, Input } from '@angular/core';
 import {
   ComponentFixture,
@@ -6,10 +6,12 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import userEvent from '@testing-library/user-event';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
+import { provideRouter } from '@angular/router';
 import { LOGGER } from '@nidhi/shared-logger';
 import { ChartData, Period } from '../../models/chart';
 import { Kpi, KpiCard } from '../../models/kpi';
@@ -131,6 +133,7 @@ describe('DashboardPage', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
       providers: [
+        provideRouter([]),
         { provide: DashboardService, useValue: dashboardServiceSpy },
         { provide: MarketService, useValue: marketServiceSpy },
         {
@@ -156,6 +159,7 @@ describe('DashboardPage', () => {
       set: {
         imports: [
           CommonModule,
+          FormsModule,
           MockRouterLink,
           ValueOrPlaceholderPipe,
           MockBaseChartDirective,
@@ -652,6 +656,16 @@ describe('DashboardPage', () => {
         expect.stringContaining('orientation'),
       );
     });
+
+    it('should not call requestFullscreen when chartContainerRef is undefined', () => {
+      Object.defineProperty(
+        component,
+        'portfolioPerformanceChartContainerRef',
+        { writable: true, value: () => undefined },
+      );
+      component.toggleFullscreen();
+      expect(document.exitFullscreen).not.toHaveBeenCalled();
+    });
   });
 
   describe('Market status', () => {
@@ -758,6 +772,67 @@ describe('DashboardPage', () => {
       await user.click(btn!);
       fixture.detectChanges();
       expect(component.activeChartPeriod()).toBe(Period.THREE_MONTHS);
+    });
+  });
+
+  describe('chart tooltip', () => {
+    it('should return formatted tooltip for stock dataset', () => {
+      const options = component.portfolioCompositionChartOptions as any;
+      const cb = options.plugins.tooltip.callbacks.label;
+      const result = cb({
+        parsed: 60,
+        label: 'Stock A',
+        datasetIndex: 0,
+      } as any);
+      expect(result).toContain('Stock A');
+      expect(result).toContain('60');
+    });
+
+    it('should return formatted tooltip for sector dataset', () => {
+      const options = component.portfolioCompositionChartOptions as any;
+      const cb = options.plugins.tooltip.callbacks.label;
+      const result = cb({ parsed: 40, label: 'Tech', datasetIndex: 1 } as any);
+      expect(result).toContain('Tech');
+    });
+
+    it('should return formatted tooltip for market cap dataset', () => {
+      const options = component.portfolioCompositionChartOptions as any;
+      const cb = options.plugins.tooltip.callbacks.label;
+      const result = cb({
+        parsed: 30,
+        label: 'Large Cap',
+        datasetIndex: 2,
+      } as any);
+      expect(result).toContain('Large Cap');
+    });
+
+    it('should return empty string when parsed is 0', () => {
+      const options = component.portfolioCompositionChartOptions as any;
+      const cb = options.plugins.tooltip.callbacks.label;
+      const result = cb({
+        parsed: 0,
+        label: 'Stock A',
+        datasetIndex: 0,
+      } as any);
+      expect(result).toBe('');
+    });
+
+    it('should return empty label when DecimalPipe returns null', () => {
+      const spy = jest
+        .spyOn(DecimalPipe.prototype, 'transform')
+        .mockReturnValue(null);
+      try {
+        const options = component.portfolioCompositionChartOptions as any;
+        const cb = options.plugins.tooltip.callbacks.label;
+        const result = cb({
+          parsed: 60,
+          label: 'Stock A',
+          datasetIndex: 0,
+        } as any);
+        expect(result).toBe('Stock: Stock A — ');
+      } finally {
+        spy.mockRestore();
+      }
     });
   });
 });

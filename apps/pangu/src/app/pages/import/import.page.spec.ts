@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { LOGGER } from '@nidhi/shared-logger';
 
 import { StorageService } from '../../services/core/storage.service';
@@ -139,5 +140,16 @@ describe('ImportPage', () => {
     component.showStatusModal = true;
     component.closeStatusModal();
     expect(component.showStatusModal).toBe(false);
+  });
+
+  it('should have importFileInputRef populated after detectChanges', () => {
+    const ref = (component as any).importFileInputRef();
+    expect(ref).toBeTruthy();
+  });
+
+  it('should clear file input on progress done', () => {
+    (component as any).progressCallback({ done: true });
+    const inputEl = fixture.debugElement.query(By.css('#file'));
+    expect(inputEl?.nativeElement.value).toBe('');
   });
 });

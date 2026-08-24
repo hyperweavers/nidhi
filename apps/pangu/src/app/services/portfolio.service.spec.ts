@@ -115,6 +115,16 @@ describe('PortfolioService', () => {
       expect(portfolio.holdings[0].name).toBe('Reliance Industries Ltd.');
     });
 
+    it('tolerates a storage holding without vendorCode or transactions', async () => {
+      const sHolding = storageHolding({
+        vendorCode: {} as any,
+        transactions: undefined as any,
+      });
+      setup([sHolding], [marketStock()]);
+
+      expect(marketService.getStocks).not.toHaveBeenCalled();
+    });
+
     it('calculates quantity correctly with BUY and SELL transactions', async () => {
       const sHolding = storageHolding({
         transactions: [
@@ -585,6 +595,60 @@ describe('PortfolioService', () => {
   });
 
   describe('enrichMissingDetails', () => {
+    it('excludes holding with empty industry name from missing filter', () => {
+      setup([storageHolding()], [marketStock()], (code: string) => of(null));
+
+      const holdingEmptyInd = storageHolding({
+        id: 'empty-ind',
+        details: {
+          sector: { id: '1', name: '' },
+          industry: { id: 'ind-1', name: '' },
+          marketCapType: '',
+        } as any,
+      });
+
+      (service as any).enriching = false;
+      (service as any).enrichMissingDetails([holdingEmptyInd]);
+
+      expect(marketService.getStock).toHaveBeenCalledTimes(1);
+    });
+
+    it('excludes holding with empty sector name from missing filter', () => {
+      setup([storageHolding()], [marketStock()], (code: string) => of(null));
+
+      const holdingEmptySector = storageHolding({
+        id: 'empty-sector',
+        details: {
+          sector: { id: '1', name: '' },
+          industry: undefined,
+          marketCapType: undefined,
+        } as any,
+      });
+
+      (service as any).enriching = false;
+      (service as any).enrichMissingDetails([holdingEmptySector]);
+
+      expect(marketService.getStock).toHaveBeenCalledTimes(1);
+    });
+
+    it('excludes holding with empty marketCapType from missing filter', () => {
+      setup([storageHolding()], [marketStock()], (code: string) => of(null));
+
+      const holdingEmptyMkt = storageHolding({
+        id: 'empty-mkt',
+        details: {
+          sector: undefined,
+          industry: undefined,
+          marketCapType: '',
+        } as any,
+      });
+
+      (service as any).enriching = false;
+      (service as any).enrichMissingDetails([holdingEmptyMkt]);
+
+      expect(marketService.getStock).toHaveBeenCalledTimes(1);
+    });
+
     it('is a no-op when no holdings need enrichment (all have sector)', async () => {
       const sHolding = storageHolding();
       setup([sHolding], [marketStock()]);
@@ -630,6 +694,84 @@ describe('PortfolioService', () => {
       expect(marketService.getStock).toHaveBeenCalledTimes(2);
       expect(marketService.getStock).toHaveBeenCalledWith('comp-rel', true);
       expect(marketService.getStock).toHaveBeenCalledWith('comp-tcs', true);
+    });
+
+    it('updates Dexie when stock has only industry name (exercises second || branch)', async () => {
+      const holdingMissing = storageHolding({
+        details: undefined as any,
+        metrics: undefined as any,
+      });
+
+      const enrichedStock: Stock = {
+        name: 'Reliance',
+        scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
+        vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
+        details: {
+          sector: { id: '', name: '' },
+          industry: { id: 'ind-1', name: 'Refineries' },
+          marketCapType: '',
+        } as any,
+        metrics: {
+          nse: {
+            marketCap: 1_800_000_000_000,
+            faceValue: 10,
+            pe: 28.5,
+            pb: 3.2,
+            eps: 98,
+            vwap: 2775,
+            dividendYield: 0.5,
+            bookValue: 850,
+          },
+        },
+      };
+
+      setup([holdingMissing], [marketStock()], (code: string) =>
+        of(enrichedStock),
+      );
+
+      (service as any).enriching = false;
+      (service as any).enrichMissingDetails([holdingMissing]);
+
+      expect(db.stocks.where).toHaveBeenCalledWith('scripCode.isin');
+    });
+
+    it('updates Dexie when stock has only marketCapType (exercises third || branch)', async () => {
+      const holdingMissing = storageHolding({
+        details: undefined as any,
+        metrics: undefined as any,
+      });
+
+      const enrichedStock: Stock = {
+        name: 'Reliance',
+        scripCode: { isin: 'INE002A01018', nse: 'RELIANCE' },
+        vendorCode: { etm: { primary: 'comp-rel', chart: 'RELIANCE' } },
+        details: {
+          sector: undefined,
+          industry: undefined,
+          marketCapType: 'Large Cap',
+        } as any,
+        metrics: {
+          nse: {
+            marketCap: 1_800_000_000_000,
+            faceValue: 10,
+            pe: 28.5,
+            pb: 3.2,
+            eps: 98,
+            vwap: 2775,
+            dividendYield: 0.5,
+            bookValue: 850,
+          },
+        },
+      };
+
+      setup([holdingMissing], [marketStock()], (code: string) =>
+        of(enrichedStock),
+      );
+
+      (service as any).enriching = false;
+      (service as any).enrichMissingDetails([holdingMissing]);
+
+      expect(db.stocks.where).toHaveBeenCalledWith('scripCode.isin');
     });
 
     it('updates Dexie via db.stocks.where().equals().modify when stock has marketCapType', async () => {

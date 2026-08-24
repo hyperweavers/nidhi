@@ -1,0 +1,263 @@
+@if (mode() === WatchListSelectionMode.SINGLE) {
+  @if (showAsDropdown() && selectedListId()) {
+    <!-- Dropdown mode: button with name + arrow -->
+    @if (!showTypeahead()) {
+      <button
+        (click)="openTypeahead()"
+        (keydown.enter)="openTypeahead()"
+        type="button"
+        class="flex w-full items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+      >
+        <span class="truncate font-medium">{{ selectedListName() }}</span>
+        <svg
+          class="ml-2 h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            clip-rule="evenodd"
+            fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+          />
+        </svg>
+      </button>
+    } @else {
+      <!-- Typeahead inside dropdown -->
+      <div class="relative w-full">
+        <div class="relative">
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <svg
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            #searchInput
+            [(ngModel)]="searchQuery"
+            (focus)="showDropdown.set(true)"
+            (blur)="onBlur()"
+            (keydown.escape)="closeTypeahead()"
+            type="text"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="{{ placeholderText() }}"
+          />
+        </div>
+
+        @if (showDropdown() && filteredLists().length > 0) {
+          <div
+            class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="divide-y divide-gray-100 text-sm text-gray-700 dark:divide-gray-600 dark:text-gray-200"
+            >
+              @for (list of filteredLists(); track list.id) {
+                <li
+                  (mousedown)="selectList(list)"
+                  (keydown.enter)="selectList(list)"
+                  tabindex="0"
+                  [ngClass]="{
+                    'bg-primary-50 dark:bg-primary-900/40':
+                      selectedListId() === list.id,
+                  }"
+                  class="flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <span class="flex-1 truncate">{{ list.name }}</span>
+                  @if (list.isDefault) {
+                    <span
+                      class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 rounded px-2 py-0.5 text-xs"
+                      >Default</span
+                    >
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (showDropdown() && searchQuery() && filteredLists().length === 0) {
+          <div
+            class="absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white p-4 text-center text-sm text-gray-500 shadow-lg dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400"
+          >
+            No matching watch lists
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    <!-- Original typeahead mode -->
+    <div class="relative w-full">
+      <div class="relative">
+        <div
+          class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+        >
+          <svg
+            class="h-5 w-5 text-gray-500 dark:text-gray-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <input
+          #searchInput
+          [(ngModel)]="searchQuery"
+          (focus)="showDropdown.set(true)"
+          (blur)="onBlur()"
+          type="text"
+          class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="{{ placeholderText() }}"
+        />
+      </div>
+
+      @if (inline()) {
+        @if (filteredLists().length > 0) {
+          <div
+            class="mt-2 max-h-60 divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200 dark:divide-gray-600 dark:border-gray-600"
+          >
+            @for (list of filteredLists(); track list.id) {
+              <button
+                type="button"
+                (click)="selectList(list)"
+                [ngClass]="{
+                  'bg-primary-50 dark:bg-primary-900/40':
+                    selectedListId() === list.id,
+                }"
+                class="flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                <span class="flex-1 truncate text-gray-900 dark:text-white">
+                  {{ list.name }}
+                </span>
+                @if (list.isDefault) {
+                  <span
+                    class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 rounded px-2 py-0.5 text-xs"
+                    >Default</span
+                  >
+                }
+              </button>
+            }
+          </div>
+        } @else if (!loading()) {
+          <p class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            No matching watch lists
+          </p>
+        }
+      } @else {
+        @if (showDropdown() && filteredLists().length > 0) {
+          <div
+            class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+          >
+            <ul
+              class="divide-y divide-gray-100 text-sm text-gray-700 dark:divide-gray-600 dark:text-gray-200"
+            >
+              @for (list of filteredLists(); track list.id) {
+                <li
+                  (mousedown)="selectList(list)"
+                  (keydown.enter)="selectList(list)"
+                  tabindex="0"
+                  [ngClass]="{
+                    'bg-primary-50 dark:bg-primary-900/40':
+                      selectedListId() === list.id,
+                  }"
+                  class="flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <span class="flex-1 truncate">{{ list.name }}</span>
+                  @if (list.isDefault) {
+                    <span
+                      class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 rounded px-2 py-0.5 text-xs"
+                      >Default</span
+                    >
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (showDropdown() && searchQuery() && filteredLists().length === 0) {
+          <div
+            class="absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white p-4 text-center text-sm text-gray-500 shadow-lg dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400"
+          >
+            No matching watch lists
+          </div>
+        }
+      }
+    </div>
+  }
+} @else {
+  <!-- Multi-select checkbox list -->
+  <div class="space-y-3">
+    <div class="relative">
+      <div
+        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+      >
+        <svg
+          class="h-5 w-5 text-gray-500 dark:text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+      <input
+        [(ngModel)]="searchQuery"
+        type="text"
+        class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        placeholder="Search watch lists..."
+      />
+    </div>
+
+    @if (filteredLists().length > 0) {
+      <div
+        class="mt-2 max-h-60 divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200 dark:divide-gray-600 dark:border-gray-600"
+      >
+        @for (list of filteredLists(); track list.id) {
+          <label
+            class="flex cursor-pointer items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+          >
+            <input
+              type="checkbox"
+              [checked]="selectedIds().has(list.id)"
+              (change)="toggleList(list.id)"
+              class="focus:ring-primary-500 text-primary-600 h-4 w-4 rounded border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+            />
+            <span
+              class="ml-3 flex-1 truncate text-sm text-gray-900 dark:text-white"
+            >
+              {{ list.name }}
+            </span>
+            @if (list.isDefault) {
+              <span
+                class="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300 rounded px-2 py-0.5 text-xs"
+              >
+                Default
+              </span>
+            }
+          </label>
+        }
+      </div>
+    }
+
+    @if (filteredLists().length === 0 && !loading()) {
+      <p class="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+        No matching watch lists
+      </p>
+    }
+  </div>
+}

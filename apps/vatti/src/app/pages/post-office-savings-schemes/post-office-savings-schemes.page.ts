@@ -195,7 +195,7 @@ export class PostOfficeSavingsSchemesPage {
       .pipe(untilDestroyed(this))
       .subscribe((postOfficeSavingsSchemes) => {
         if (postOfficeSavingsSchemes) {
-          this.schemes = postOfficeSavingsSchemes.schemes;
+          this.schemes = postOfficeSavingsSchemes.schemes ?? [];
           this.error = false;
 
           this.calculateMaturityAmount();

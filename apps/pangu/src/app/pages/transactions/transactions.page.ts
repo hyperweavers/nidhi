@@ -100,8 +100,10 @@ export class TransactionsPage implements AfterViewInit {
     undefined,
   );
 
-  public showDeleteModal?: boolean;
-  public deleteTarget?: { holdingId: string; transactionId: string };
+  public readonly showDeleteModal = signal(false);
+  public readonly deleteTarget = signal<
+    { holdingId: string; transactionId: string } | undefined
+  >(undefined);
 
   private sortDropdown?: Dropdown;
   private filterDropdown?: Dropdown;
@@ -279,15 +281,17 @@ export class TransactionsPage implements AfterViewInit {
     holdingId: string,
     transactionId: string,
   ): void {
-    this.deleteTarget = { holdingId, transactionId };
-    this.showDeleteModal = true;
+    this.deleteTarget.set({ holdingId, transactionId });
+    this.showDeleteModal.set(true);
   }
 
   public async confirmDelete(): Promise<void> {
-    if (this.deleteTarget) {
+    const target = this.deleteTarget();
+
+    if (target) {
       await this.storageService.deleteTransaction(
-        this.deleteTarget.holdingId,
-        this.deleteTarget.transactionId,
+        target.holdingId,
+        target.transactionId,
       );
 
       this.cancelDelete();
@@ -295,8 +299,8 @@ export class TransactionsPage implements AfterViewInit {
   }
 
   public cancelDelete(): void {
-    this.showDeleteModal = false;
-    this.deleteTarget = undefined;
+    this.showDeleteModal.set(false);
+    this.deleteTarget.set(undefined);
   }
 
   public formatDate(epoch: number): string {

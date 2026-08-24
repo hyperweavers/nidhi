@@ -153,9 +153,60 @@ describe('MarketService', () => {
       expect(result.details?.sector?.name).toBe('Oil & Gas');
       expect(result.details?.marketCapType).toBe('Large Cap');
     }));
+
+    it('should return null without an HTTP call when code is empty', fakeAsync(() => {
+      let result: any;
+      service
+        .getStock('')
+        .pipe(take(1))
+        .subscribe((s) => {
+          result = s;
+        });
+      tick();
+
+      expect(result).toBeNull();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'getStock called without a stock code!',
+      );
+      httpMock.expectNone(Constants.api.DASHBOARD);
+    }));
   });
 
   describe('getStocks', () => {
+    it('should return empty array without an HTTP call when all codes are empty', fakeAsync(() => {
+      let result: any;
+      service
+        .getStocks(['', ''])
+        .pipe(take(1))
+        .subscribe((s) => {
+          result = s;
+        });
+      tick();
+
+      expect(result).toEqual([]);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'getStocks called without any stock codes!',
+      );
+      httpMock.expectNone(Constants.api.DASHBOARD);
+    }));
+
+    it('should filter out empty codes before querying', fakeAsync(() => {
+      let result: any;
+      service
+        .getStocks(['', 'comp-123'])
+        .pipe(take(1))
+        .subscribe((s) => {
+          result = s;
+        });
+      tick();
+      httpMock.expectOne(Constants.api.MARKET_STATUS).flush(mockIndexQuotes);
+      tick();
+      const req = httpMock.expectOne(Constants.api.DASHBOARD);
+      expect(req.request.body.companies).toEqual([{ id: 'comp-123' }]);
+      req.flush(mockDashboard);
+      tick();
+      expect(result.length).toBe(1);
+    }));
     it('should return mapped stocks for given codes', fakeAsync(() => {
       let result: any;
       service
@@ -562,6 +613,21 @@ describe('MarketService', () => {
       expect(result).toEqual([]);
     });
 
+    it('should return empty array when response has no result key', fakeAsync(() => {
+      let result: any;
+      service
+        .searchSecondary('500325')
+        .pipe(take(1))
+        .subscribe((s) => {
+          result = s;
+        });
+      httpMock
+        .expectOne(Constants.api.STOCK_SEARCH_SECONDARY + '500325')
+        .flush({});
+      tick();
+      expect(result).toEqual([]);
+    }));
+
     it('should handle bseid being "0" and set bse to undefined', fakeAsync(() => {
       let result: any;
       const mockWithZeroBse = {
@@ -681,6 +747,20 @@ describe('MarketService', () => {
       tick();
       expect(result).toEqual([]);
     }));
+
+    it('should return empty array when period cannot be mapped to frequency', () => {
+      let result: any;
+      service
+        .getHistoricPeerChart(['RELIANCE'], '2W' as Period)
+        .pipe(take(1))
+        .subscribe((s) => {
+          result = s;
+        });
+      expect(result).toEqual([]);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Unable to map period with frequency: 2W',
+      );
+    });
   });
 
   describe('getIntraDayPeerChart', () => {
@@ -861,6 +941,22 @@ describe('MarketService', () => {
       });
       tick();
       expect(status.status).toBe(Status.CLOSED);
+    }));
+
+    it('should trigger market status refresh when refresh() is called', fakeAsync(() => {
+      let callCount = 0;
+      service.marketStatus$.subscribe(() => {
+        callCount++;
+      });
+      tick();
+      httpMock.expectOne(Constants.api.MARKET_STATUS).flush(mockIndexQuotes);
+      tick();
+      const before = callCount;
+      service.refresh();
+      tick();
+      httpMock.expectOne(Constants.api.MARKET_STATUS).flush(mockIndexQuotes);
+      tick();
+      expect(callCount).toBeGreaterThan(before);
     }));
   });
 });

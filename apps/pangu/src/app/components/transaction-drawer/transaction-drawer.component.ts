@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   computed,
@@ -31,6 +30,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import { StockSearchComponent } from '../../components/stock-search/stock-search.component';
+import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
 import { DrawerClosedDirective } from '../../directives/drawer-closed/drawer-closed.directive';
 import {
@@ -59,7 +59,6 @@ declare const Datepicker: any;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransactionDrawerComponent implements AfterViewInit {
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly storageService = inject(StorageService);
   private readonly marketService = inject(MarketService);
   private readonly portfolioService = inject(PortfolioService);
@@ -91,10 +90,10 @@ export class TransactionDrawerComponent implements AfterViewInit {
         : this.charges()),
   );
 
-  public showSearchResults?: boolean;
-  public showTransactionProgress?: boolean;
-  public showStatusModal?: boolean;
-  public transactionFormError?: string;
+  public showSearchResults = signal(false);
+  public showTransactionProgress = signal(false);
+  public showStatusModal = signal(false);
+  public transactionFormError = signal('');
 
   public stockSearchResults$: Observable<Stock[]>;
 
@@ -107,17 +106,19 @@ export class TransactionDrawerComponent implements AfterViewInit {
 
   constructor() {
     this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500),
+      debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
       distinctUntilChanged(),
       tap((query) => {
-        this.showSearchResults = false;
+        this.showSearchResults.set(false);
 
         if (query !== this.selectedStock()?.name) {
           this.selectedStock.set(undefined);
         }
       }),
       filter(
-        (query) => query.length > 2 && query !== this.selectedStock()?.name,
+        (query) =>
+          query.length >= Constants.configs.defaults.MIN_SEARCH_CHARS &&
+          query !== this.selectedStock()?.name,
       ),
       switchMap((query) =>
         iif(
@@ -136,7 +137,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
         ),
       ),
       tap(() => {
-        this.showSearchResults = true;
+        this.showSearchResults.set(true);
       }),
       share(),
     );
@@ -247,13 +248,13 @@ export class TransactionDrawerComponent implements AfterViewInit {
       this.name.set(stock.name);
     }
 
-    this.showSearchResults = false;
+    this.showSearchResults.set(false);
   }
 
   public resetForm(): void {
     this.selectedStock.set(undefined);
 
-    this.showSearchResults = false;
+    this.showSearchResults.set(false);
 
     this.name.set('');
     this.date.set(this.datepicker?.getDate('dd/mm/yyyy') || '');
@@ -267,7 +268,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
   }
 
   public closeStatusModal(): void {
-    this.showStatusModal = false;
+    this.showStatusModal.set(false);
   }
 
   private async addTransaction(): Promise<void> {
@@ -286,7 +287,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
       );
 
       if (date < new Date()) {
-        this.showTransactionProgress = true;
+        this.showTransactionProgress.set(true);
 
         const transaction = {
           id: uuid(),
@@ -299,10 +300,12 @@ export class TransactionDrawerComponent implements AfterViewInit {
 
         await this.storageService.addOrUpdate(stock, transaction);
 
+        this.marketService.refresh();
+
         this.resetForm();
 
-        this.showTransactionProgress = false;
-        this.showStatusModal = true;
+        this.showTransactionProgress.set(false);
+        this.showStatusModal.set(true);
       } else {
         this.showTransactionFormError('Date is in future!');
       }
@@ -329,7 +332,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
       );
 
       if (date < new Date()) {
-        this.showTransactionProgress = true;
+        this.showTransactionProgress.set(true);
 
         await this.storageService.updateTransaction(
           ctx.holdingId,
@@ -342,8 +345,8 @@ export class TransactionDrawerComponent implements AfterViewInit {
           },
         );
 
-        this.showTransactionProgress = false;
-        this.showStatusModal = true;
+        this.showTransactionProgress.set(false);
+        this.showStatusModal.set(true);
       } else {
         this.showTransactionFormError('Date is in future!');
       }
@@ -355,13 +358,11 @@ export class TransactionDrawerComponent implements AfterViewInit {
   }
 
   private showTransactionFormError(message: string): void {
-    this.transactionFormError = message;
+    this.transactionFormError.set(message);
 
     setTimeout(() => {
-      this.transactionFormError = '';
-
-      this.cdr.markForCheck();
-    }, 2000);
+      this.transactionFormError.set('');
+    }, Constants.configs.defaults.FORM_ERROR_CLEAR_DELAY);
   }
 
   private resetDatepicker(): void {

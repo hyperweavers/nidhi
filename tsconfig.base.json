@@ -15,7 +15,9 @@
     "baseUrl": ".",
     "paths": {
       "@nidhi/shared-logger": ["libs/shared/logger/src/index.ts"],
-      "@nidhi/shared-sentry": ["libs/shared/sentry/src/index.ts"]
+      "@nidhi/shared-sentry": ["libs/shared/sentry/src/index.ts"],
+      "@nidhi/shared-toast": ["./libs/shared/toast/src/index.ts"],
+      "@nidhi/shared-http": ["./libs/shared/http/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

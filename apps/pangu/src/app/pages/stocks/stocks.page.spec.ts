@@ -9,12 +9,14 @@ import userEvent from '@testing-library/user-event';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 
 import { LOGGER } from '@nidhi/shared-logger';
+import { ToastService } from '@nidhi/shared-toast';
 import { ChartData, Period } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
+import { WatchListService } from '../../services/watch-list.service';
 import { StocksPage } from './stocks.page';
 
 jest.mock('lightweight-charts', () => {
@@ -195,12 +197,22 @@ describe('StocksPage', () => {
       info: jest.fn(),
     };
 
+    watchListServiceMock = {
+      addStockToMultipleLists: jest.fn().mockResolvedValue(undefined),
+    };
+
+    toastServiceMock = {
+      show: jest.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [StocksPage],
       providers: [
         { provide: MarketService, useValue: {} },
         { provide: SettingsService, useValue: {} },
         { provide: LOGGER, useValue: loggerMock },
+        { provide: WatchListService, useValue: watchListServiceMock },
+        { provide: ToastService, useValue: toastServiceMock },
       ],
     }).compileComponents();
 
@@ -210,6 +222,9 @@ describe('StocksPage', () => {
     fixture.componentRef.setInput('id', '1');
     fixture.detectChanges();
   }
+
+  let watchListServiceMock: any;
+  let toastServiceMock: any;
 
   function createDirectComponent() {
     fixture = TestBed.createComponent(StocksPage);
@@ -258,7 +273,9 @@ describe('StocksPage', () => {
     });
 
     it('should render change indicator with direction', () => {
-      const changeEl = fixture.debugElement.query(By.css('.flex.items-center'));
+      const changeEl = fixture.debugElement.query(
+        By.css('.text-green-500, .text-red-600, .text-red-500'),
+      );
       expect(changeEl.nativeElement.textContent).toContain('37.5');
       expect(changeEl.nativeElement.textContent).toContain('1.5');
     });
@@ -295,7 +312,7 @@ describe('StocksPage', () => {
 
     it('should render NSE button as active by default', () => {
       const buttons = fixture.debugElement.queryAll(
-        By.css('[role="group"]:first-child button'),
+        By.css('[role="group"] button'),
       );
       const nseBtn = buttons.find(
         (b) => b.nativeElement.textContent.trim() === 'NSE',
@@ -654,6 +671,22 @@ describe('StocksPage', () => {
       component.toggleFullscreen();
       expect(loggerMock.error).not.toHaveBeenCalled();
     });
+
+    it('should log error when screen orientation lock fails', async () => {
+      const el = document.createElement('div');
+      el.requestFullscreen = jest.fn().mockResolvedValue(undefined);
+      (component as any)['chartContainerRef'] = () => ({ nativeElement: el });
+      const origLock = (screen.orientation as any).lock;
+      (screen.orientation as any).lock = jest
+        .fn()
+        .mockRejectedValue(new Error('orientation error'));
+      component.toggleFullscreen();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(loggerMock.error).toHaveBeenCalledWith(
+        expect.stringContaining('orientation'),
+      );
+      (screen.orientation as any).lock = origLock;
+    });
   });
 
   describe('crosshair data', () => {
@@ -880,5 +913,61 @@ describe('StocksPage', () => {
       fixture.detectChanges();
       expect(component.activeChartTimeRange).toBe(Period.ONE_WEEK);
     });
+  });
+
+  describe('add to list drawer', () => {
+    beforeEach(fakeAsync(async () => {
+      await createFixture();
+      tick(150);
+      fixture.detectChanges();
+    }));
+
+    it('should open add to list drawer', () => {
+      component.openAddToListDrawer();
+      expect(component.showAddToListDrawer()).toBe(true);
+    });
+
+    it('should close add to list drawer', () => {
+      component.showAddToListDrawer.set(true);
+      component.closeAddToListDrawer();
+      expect(component.showAddToListDrawer()).toBe(false);
+    });
+
+    it('should call confirmSelection when selectWatchListRef is available', () => {
+      const mockRef = { confirmSelection: jest.fn() };
+      (component as any)['_selectWatchListRef'] = mockRef;
+      const originalFn = component['selectWatchListRef'];
+      component['selectWatchListRef'] = () => mockRef;
+      component.confirmAddToList();
+      expect(mockRef.confirmSelection).toHaveBeenCalled();
+      component['selectWatchListRef'] = originalFn;
+    });
+
+    it('should add stock to multiple lists on selection', fakeAsync(async () => {
+      component.currentStock.set(createMockStock());
+      const selected = [{ id: 'wl-1', name: 'Test', isDefault: false }];
+      await component.onAddToListSelected(selected);
+      expect(watchListServiceMock.addStockToMultipleLists).toHaveBeenCalledWith(
+        ['wl-1'],
+        { nse: 'RELIANCE', bse: '500325', isin: 'INE002A01018' },
+        { etm: { primary: '1', chart: 'RELIANCE' } },
+      );
+      expect(toastServiceMock.show).toHaveBeenCalledWith(
+        'Added to 1 watch list(s)!',
+      );
+      expect(component.showAddToListDrawer()).toBe(false);
+    }));
+
+    it('should not add stock when no stock or no selection', fakeAsync(async () => {
+      await component.onAddToListSelected([]);
+      expect(
+        watchListServiceMock.addStockToMultipleLists,
+      ).not.toHaveBeenCalled();
+      component.currentStock.set(createMockStock());
+      await component.onAddToListSelected([]);
+      expect(
+        watchListServiceMock.addStockToMultipleLists,
+      ).not.toHaveBeenCalled();
+    }));
   });
 });

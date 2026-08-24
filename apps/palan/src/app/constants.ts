@@ -24,7 +24,7 @@ export const Constants = {
       'https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&type=1&format=json&query=',
     STOCK_QUOTE: 'https://priceapi.moneycontrol.com/pricefeed/usMarket/stock/',
     STOCK_HISTORIC_CHART:
-      'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/history?resolution=1D&', // symbol=CAT%3AUS&from=1724630400&to=1754870400&countback=300&currencyCode=USD&resolution=1D
+      'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/history?resolution=1D&',
     STOCK_INTRA_DAY_CHART:
       'https://priceapi.moneycontrol.com/globaltechCharts/usMarket/stock/intra?duration=1D&firstCall=true&symbol=',
     FOREX:
@@ -46,5 +46,13 @@ export const Constants = {
       suffix: '.cms',
     },
     allowed: ['USD', 'INR'],
+  },
+  configs: {
+    defaults: {
+      SEARCH_DEBOUNCE_TIME: 300, // milliseconds
+      MIN_SEARCH_CHARS: 3,
+      HTTP_REQUEST_TIMEOUT: 10_000, // milliseconds
+      TOAST_DISMISS_TIMEOUT: 3_000, // milliseconds
+    },
   },
 };

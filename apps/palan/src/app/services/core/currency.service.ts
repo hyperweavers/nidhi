@@ -60,7 +60,7 @@ export class CurrencyService {
               const toCode = currencyCodeMap[toCurrency];
               if (!toCode) return;
 
-              matrix[fromCode][toCode] = rates[i][j];
+              matrix[fromCode][toCode] = rates[i]?.[j];
             });
           });
         }

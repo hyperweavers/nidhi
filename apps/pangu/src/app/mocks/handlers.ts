@@ -24,57 +24,57 @@ export const handlers = [
     return HttpResponse.json(mockDashboard);
   }),
 
-  http.get(Constants.api.STOCK_QUOTE + ':code', async ({ params }) => {
+  http.get(Constants.api.STOCK_QUOTE.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockCompanyDetails);
   }),
 
-  http.get(Constants.api.STOCK_HISTORIC_CHART, async () => {
+  http.get(Constants.api.STOCK_HISTORIC_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockHistory);
   }),
 
-  http.get(Constants.api.STOCK_INTRA_DAY_CHART + ':symbol', async () => {
+  http.get(Constants.api.STOCK_INTRA_DAY_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIntraDay);
   }),
 
-  http.get(Constants.api.STOCK_SEARCH + ':query', async () => {
+  http.get(Constants.api.STOCK_SEARCH.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockSearchResults);
   }),
 
-  http.get(Constants.api.STOCK_SEARCH_SECONDARY + ':query', async () => {
+  http.get(Constants.api.STOCK_SEARCH_SECONDARY.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockSearchSecondary);
   }),
 
-  http.get(Constants.api.INDEX_QUOTE + ':code', async () => {
+  http.get(Constants.api.INDEX_QUOTE.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIndexDetails);
   }),
 
-  http.get(Constants.api.INDEX_CONSTITUENTS, async () => {
+  http.get(Constants.api.INDEX_CONSTITUENTS.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIndexConstituents);
   }),
 
-  http.get(Constants.api.STOCK_HISTORIC_PEER_CHART, async () => {
+  http.get(Constants.api.STOCK_HISTORIC_PEER_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockStockPeerChart);
   }),
 
-  http.get(Constants.api.STOCK_INTRA_DAY_PEER_CHART + ':symbols', async () => {
+  http.get(Constants.api.STOCK_INTRA_DAY_PEER_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockStockPeerChart);
   }),
 
-  http.get(Constants.api.INDEX_HISTORIC_CHART, async () => {
+  http.get(Constants.api.INDEX_HISTORIC_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockHistory);
   }),
 
-  http.get(Constants.api.INDEX_INTRA_DAY_CHART + ':symbol', async () => {
+  http.get(Constants.api.INDEX_INTRA_DAY_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIntraDay);
   }),
@@ -112,19 +112,19 @@ export const errorHandlers = [
     );
   }),
 
-  http.get(Constants.api.STOCK_QUOTE + ':code', async () => {
+  http.get(Constants.api.STOCK_QUOTE.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json({ message: 'Not Found' }, { status: 404 });
   }),
 ];
 
 export const noDataHandlers = [
-  http.get(Constants.api.STOCK_HISTORIC_CHART, async () => {
+  http.get(Constants.api.STOCK_HISTORIC_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json({ ...mockHistory, noData: true, dates: [] });
   }),
 
-  http.get(Constants.api.STOCK_INTRA_DAY_CHART + ':symbol', async () => {
+  http.get(Constants.api.STOCK_INTRA_DAY_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json({ s: 'no_data', data: [] });
   }),

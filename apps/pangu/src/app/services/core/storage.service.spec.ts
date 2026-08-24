@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
 import { db } from '../../db/app.db';
@@ -133,6 +133,19 @@ describe('StorageService', () => {
       expect(db.stocks.update).not.toHaveBeenCalled();
     });
 
+    it('should treat missing transactions on existing stock as empty list', async () => {
+      (db.stocks.get as jest.Mock).mockResolvedValue({
+        ...existingHolding,
+        transactions: undefined,
+      });
+
+      await service.addOrUpdate(holding, transaction);
+
+      expect(db.stocks.update).toHaveBeenCalledWith('existing-id', {
+        transactions: [transaction],
+      });
+    });
+
     it('should NOT include details when existing stock already has sector', async () => {
       const existingWithSector = {
         ...existingHolding,
@@ -156,6 +169,44 @@ describe('StorageService', () => {
       expect(db.stocks.update).toHaveBeenCalledWith(
         'existing-id',
         expect.objectContaining({ details: holding.details }),
+      );
+    });
+
+    it('should NOT include details when existing stock has industry but no sector', async () => {
+      const existingIndustryOnly = {
+        ...existingHolding,
+        details: {
+          sector: { id: '2', name: '' },
+          industry: { id: 'ind-2', name: 'Software' },
+          marketCapType: 'Large Cap',
+        },
+      };
+      (db.stocks.get as jest.Mock).mockResolvedValue(existingIndustryOnly);
+
+      await service.addOrUpdate(holding, transaction);
+
+      expect(db.stocks.update).toHaveBeenCalledWith(
+        'existing-id',
+        expect.not.objectContaining({ details: expect.anything() }),
+      );
+    });
+
+    it('should NOT include details when existing stock has marketCapType but no sector or industry', async () => {
+      const existingMarketCapOnly = {
+        ...existingHolding,
+        details: {
+          sector: { id: '2', name: '' },
+          industry: { id: 'ind-2', name: '' },
+          marketCapType: 'Large Cap',
+        },
+      };
+      (db.stocks.get as jest.Mock).mockResolvedValue(existingMarketCapOnly);
+
+      await service.addOrUpdate(holding, transaction);
+
+      expect(db.stocks.update).toHaveBeenCalledWith(
+        'existing-id',
+        expect.not.objectContaining({ details: expect.anything() }),
       );
     });
   });

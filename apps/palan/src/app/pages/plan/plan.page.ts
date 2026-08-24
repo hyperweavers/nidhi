@@ -77,7 +77,7 @@ export class PlanPage {
     const currencyService = inject(CurrencyService);
 
     this.stockSearchResults$ = toObservable(this.name).pipe(
-      debounceTime(500),
+      debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
       distinctUntilChanged(),
       tap((query) => {
         this.showSearchResults = false;
@@ -86,7 +86,11 @@ export class PlanPage {
           this.selectedStock = undefined;
         }
       }),
-      filter((query) => query.length > 2 && query !== this.selectedStock?.name),
+      filter(
+        (query) =>
+          query.length >= Constants.configs.defaults.MIN_SEARCH_CHARS &&
+          query !== this.selectedStock?.name,
+      ),
       switchMap((query) =>
         marketService
           .search(query)

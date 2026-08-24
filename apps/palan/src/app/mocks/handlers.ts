@@ -12,7 +12,7 @@ import {
 } from './data';
 
 export const handlers = [
-  http.get(Constants.api.MARKET_STATUS + ':symbol', async ({ params }) => {
+  http.get(Constants.api.MARKET_STATUS + ':symbol', async () => {
     await delay(50);
     return HttpResponse.json(mockMarketStatusResponse);
   }),
@@ -22,17 +22,17 @@ export const handlers = [
     return HttpResponse.json(mockStockResponse);
   }),
 
-  http.get(Constants.api.STOCK_SEARCH + ':query', async () => {
+  http.get(Constants.api.STOCK_SEARCH.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockSearchResponse);
   }),
 
-  http.get(Constants.api.STOCK_HISTORIC_CHART, async () => {
+  http.get(Constants.api.STOCK_HISTORIC_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockHistoricChartResponse);
   }),
 
-  http.get(Constants.api.STOCK_INTRA_DAY_CHART + ':symbol', async () => {
+  http.get(Constants.api.STOCK_INTRA_DAY_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIntraDayChartResponse);
   }),
@@ -94,7 +94,7 @@ export const failedForexHandlers = [
 ];
 
 export const noDataHandlers = [
-  http.get(Constants.api.STOCK_HISTORIC_CHART, async () => {
+  http.get(Constants.api.STOCK_HISTORIC_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json({
       s: 'no_data',
@@ -106,7 +106,7 @@ export const noDataHandlers = [
     });
   }),
 
-  http.get(Constants.api.STOCK_INTRA_DAY_CHART + ':symbol', async () => {
+  http.get(Constants.api.STOCK_INTRA_DAY_CHART.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json({
       s: 'no_data',

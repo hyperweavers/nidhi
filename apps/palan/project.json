@@ -58,6 +58,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "with-mocks": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/palan/src/environments/mocks.ts",
+              "with": "apps/palan/src/environments/mocks-on.ts"
+            }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -92,6 +103,9 @@
         },
         "development": {
           "buildTarget": "palan:build:development"
+        },
+        "with-mocks": {
+          "buildTarget": "palan:build:with-mocks"
         }
       },
       "defaultConfiguration": "development",
@@ -101,6 +115,16 @@
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
         "buildTarget": "palan:build"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "options": {
+        "command": "tsc --noEmit -p apps/palan/tsconfig.app.json"
       }
     },
     "lint": {

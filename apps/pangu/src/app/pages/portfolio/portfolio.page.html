@@ -499,8 +499,8 @@
             [ngClass]="holding.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
-              {{ (holding.quote?.nse?.change?.value! * holding.quantity!) |
-              valueOrPlaceholder }}
+              {{ ((holding.quote?.nse?.change?.value ?? 0) * (holding.quantity
+              ?? 0)) | valueOrPlaceholder }}
             </div>
             <div>
               ({{ holding.quote?.nse?.change?.percentage | valueOrPlaceholder
