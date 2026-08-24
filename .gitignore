@@ -56,3 +56,9 @@ apps/*/src/generated/
 .claude/worktrees
 .claude/settings.local.json
 .nx/cache *
+
+# CI artifacts
+/test-results/
+/codecov
+/codecov.SHA256SUM
+/codecov.SHA256SUM.sig
