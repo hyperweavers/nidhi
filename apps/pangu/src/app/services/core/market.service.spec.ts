@@ -959,4 +959,97 @@ describe('MarketService', () => {
       expect(callCount).toBeGreaterThan(before);
     }));
   });
+
+  describe('getIpoFinancials', () => {
+    const flushFinancials = () => {
+      const reqs = httpMock.match((req) =>
+        req.url.includes('etservicestockapps'),
+      );
+      expect(reqs.length).toBe(4);
+      reqs.forEach((req) => req.flush({}));
+      return reqs;
+    };
+
+    it('should pass the type param for standalone', () => {
+      service.getIpoFinancials('2231724', 'standalone').subscribe();
+      const reqs = flushFinancials();
+      for (const req of reqs) {
+        expect(req.request.urlWithParams).toContain('type=standalone');
+      }
+    });
+
+    it('should omit the type param for consolidated', () => {
+      service.getIpoFinancials('2231724', 'consolidated').subscribe();
+      const reqs = flushFinancials();
+      for (const req of reqs) {
+        expect(req.request.urlWithParams).not.toContain('type=');
+      }
+    });
+  });
+
+  describe('IPO endpoints', () => {
+    it('should fetch the IPO calendar for a key', () => {
+      service.getIpoCalendar('SEP_2026').subscribe();
+      const req = httpMock.expectOne(`${Constants.api.IPO_CALENDAR}SEP_2026`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ calendarList: [] });
+    });
+
+    it('should fetch IPO details for a company', () => {
+      service.getIpoDetails('2269154').subscribe();
+      const req = httpMock.expectOne(`${Constants.api.IPO_DETAILS}2269154`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true });
+    });
+
+    it('should fetch IPO links for a company', () => {
+      service.getIpoDetailsOnly('2269154').subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_DETAILS_ONLY}2269154`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({});
+    });
+
+    it('should fetch the listed IPO overview', () => {
+      service.getIpoListedOverview().subscribe();
+      const req = httpMock.expectOne(Constants.api.IPO_LISTED);
+      expect(req.request.method).toBe('GET');
+      req.flush({ results: [] });
+    });
+
+    it('should fetch an open IPO overview page', () => {
+      service.getIpoOverviewOpen(2).subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_OVERVIEW}?section=open&pageSize=5&pageNo=2`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({});
+    });
+
+    it('should fetch the upcoming IPO overview', () => {
+      service.getIpoOverviewUpcoming().subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_OVERVIEW}?section=upcoming&pageSize=1000`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ upcomingIpoList: [] });
+    });
+
+    it('should fetch the listing-soon IPO overview', () => {
+      service.getIpoOverviewListing().subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_OVERVIEW}?section=listing&pageSize=1000`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ listingSoonIpoList: [] });
+    });
+
+    it('should fetch the IPO stock quote', () => {
+      service.getIpoStockQuote('2269154').subscribe();
+      const req = httpMock.expectOne(`${Constants.api.STOCK_QUOTE}2269154`);
+      expect(req.request.method).toBe('GET');
+      req.flush(null);
+    });
+  });
 });

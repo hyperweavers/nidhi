@@ -45,6 +45,7 @@ import {
   Period,
 } from '../../models/chart';
 import { Index } from '../../models/index';
+import { FinancialType } from '../../models/ipo';
 import {
   Direction,
   ExchangeName,
@@ -53,6 +54,19 @@ import {
   Status,
 } from '../../models/market';
 import { Quote, Stock } from '../../models/stock';
+import {
+  BsResponse,
+  CfResponse,
+  IpoCalendarResponse,
+  IpoDetailsResponse,
+  IpoLinksResponse,
+  ListedIposOverviewResponse,
+  ListingSoonIpoResponse,
+  OpenIpoOverviewResponse,
+  PnlResponse,
+  QuarterlyResponse,
+  UpcomingIpoOverviewResponse,
+} from '../../models/vendor/etm';
 import { ChartUtils } from '../../utils/chart.utils';
 import { MarketUtils } from '../../utils/market.utils';
 import { SettingsService } from './settings.service';
@@ -974,5 +988,85 @@ export class MarketService {
 
   private getDashboard(query: DashboardQuery): Observable<Dashboard> {
     return this.http.post<Dashboard>(Constants.api.DASHBOARD, query);
+  }
+
+  // === IPO raw HTTP methods ===
+
+  public getIpoCalendar(calendarKey: string): Observable<IpoCalendarResponse> {
+    return this.http.get<IpoCalendarResponse>(
+      `${Constants.api.IPO_CALENDAR}${calendarKey}`,
+    );
+  }
+
+  public getIpoDetails(companyId: string): Observable<IpoDetailsResponse> {
+    return this.http.get<IpoDetailsResponse>(
+      `${Constants.api.IPO_DETAILS}${companyId}`,
+    );
+  }
+
+  public getIpoDetailsOnly(companyId: string): Observable<IpoLinksResponse> {
+    return this.http.get<IpoLinksResponse>(
+      `${Constants.api.IPO_DETAILS_ONLY}${companyId}`,
+    );
+  }
+
+  public getIpoListedOverview(): Observable<ListedIposOverviewResponse> {
+    return this.http.get<ListedIposOverviewResponse>(Constants.api.IPO_LISTED);
+  }
+
+  public getIpoOverviewOpen(pageNo = 1): Observable<OpenIpoOverviewResponse> {
+    return this.http.get<OpenIpoOverviewResponse>(
+      `${Constants.api.IPO_OVERVIEW}?section=open&pageSize=5&pageNo=${pageNo}`,
+    );
+  }
+
+  public getIpoOverviewUpcoming(): Observable<UpcomingIpoOverviewResponse> {
+    return this.http.get<UpcomingIpoOverviewResponse>(
+      `${Constants.api.IPO_OVERVIEW}?section=upcoming&pageSize=1000`,
+    );
+  }
+
+  public getIpoOverviewListing(): Observable<ListingSoonIpoResponse> {
+    return this.http.get<ListingSoonIpoResponse>(
+      `${Constants.api.IPO_OVERVIEW}?section=listing&pageSize=1000`,
+    );
+  }
+
+  public getIpoStockQuote(
+    companyId: string,
+  ): Observable<CompanyDetails | null> {
+    return this.http.get<CompanyDetails | null>(
+      `${Constants.api.STOCK_QUOTE}${companyId}`,
+    );
+  }
+
+  public getIpoFinancials(
+    companyId: string,
+    type = 'standalone',
+  ): Observable<{
+    pnl: PnlResponse;
+    quarterly: QuarterlyResponse;
+    bs: BsResponse;
+    cf: CfResponse;
+  }> {
+    const typeParam =
+      type && type !== FinancialType.CONSOLIDATED ? `&type=${type}` : '';
+    const base = Constants.api.IPO_FINANCIALS;
+    const params = `?currencyformat=crores&year=0&noofyears=0&companyid=${companyId}${typeParam}`;
+
+    return forkJoin({
+      pnl: this.http.get<PnlResponse>(
+        `${base}/GetProfitAndLossStatementInCurrencyFormat.json${params}`,
+      ),
+      quarterly: this.http.get<QuarterlyResponse>(
+        `${base}/GetQuarterlyResultsInCurrencyFormat.json?currencyformat=crores&companyid=${companyId}${typeParam}`,
+      ),
+      bs: this.http.get<BsResponse>(
+        `${base}/GetBalanceSheetInCurrencyFormat.json${params}`,
+      ),
+      cf: this.http.get<CfResponse>(
+        `${base}/GetCompanyCashFlowInCurrencyFormat.json?currencyformat=crores&noofyears=0&companyid=${companyId}${typeParam}`,
+      ),
+    });
   }
 }

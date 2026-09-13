@@ -7,6 +7,7 @@ export const Constants = {
     PORTFOLIO: 'portfolio',
     STOCKS: 'stocks',
     INDICES: 'indices',
+    IPO: 'ipo',
     WATCH_LIST: 'watch-list',
     SETTINGS: 'settings',
     IMPORT: 'import',
@@ -40,6 +41,14 @@ export const Constants = {
       'https://etapi.indiatimes.com/charts/mrkts/history?resolution=1D&countback=0&',
     INDEX_INTRA_DAY_CHART:
       'https://priceapi.moneycontrol.com/techCharts/intra?resolution=1&symbol=',
+    IPO_CALENDAR: 'https://etapi.indiatimes.com/ipo/calendar?calendarKey=',
+    IPO_DETAILS: 'https://etapi.indiatimes.com/ipo/ipo-details?companyid=',
+    IPO_DETAILS_ONLY:
+      'https://etapi.indiatimes.com/ipo/ipo-details-only?companyid=',
+    IPO_LISTED:
+      'https://etapi.indiatimes.com/ipo/listed-ipos?tabType=all&pageSize=1000',
+    IPO_OVERVIEW: 'https://etapi.indiatimes.com/ipo/ipo-overview',
+    IPO_FINANCIALS: 'https://etmarketsapis.indiatimes.com/etservicestockapps',
     STOCK_INTRA_DAY_PEER_CHART:
       'https://etapi.indiatimes.com/charts/peercharts?datatype=intraday&scripcodetype=company&exchangeid=50&scripcode=',
     STOCK_HISTORIC_PEER_CHART:

@@ -137,6 +137,7 @@ export interface CompanyDetails {
   listingFlag: boolean;
   nifty100: boolean;
   failoverStatus: boolean;
+  url?: string | null;
 }
 
 export interface ExchangeData {
@@ -500,3 +501,373 @@ export const PeriodFrequencyQueryParamMap: Record<
   [PeriodQueryParam.ONE_YEAR]: FrequencyQueryParam.WEEK,
   [PeriodQueryParam.FIVE_YEAR]: FrequencyQueryParam.MONTH,
 };
+
+// === IPO Calendar API ===
+export interface IpoCalendarItem {
+  id: string;
+  companyId: number;
+  companyName: string;
+  ipoType: 'mainboard' | 'sme';
+  openDate: number;
+  closeDate: number;
+  listingDate: number;
+  issueSize: number;
+  dayWiseSubscriptions: unknown[];
+  objectsOfIssue: unknown[];
+  seoName: string;
+  lotSize?: number;
+  priceBand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  issuePriceBand?: string;
+}
+
+export interface IpoCalendarDate {
+  date: number;
+  displayIpoList: IpoCalendarItem[];
+  remainingCount: number;
+  openIpoList: IpoCalendarItem[];
+  closeIpoList: IpoCalendarItem[];
+  listedIpoList: IpoCalendarItem[];
+}
+
+export interface IpoCalendarResponse {
+  calendarKey: string;
+  calendarKeyNext: string;
+  calendarKeyPrev: string;
+  displayName: string;
+  calendarList: IpoCalendarDate[];
+}
+
+// === IPO Details API ===
+export interface IpoLeadManager {
+  id: string;
+  managerId: number;
+  name: string;
+  createdAt: number;
+}
+
+export interface IpoTimelineEntry {
+  date: number;
+  status: boolean;
+  message: string;
+}
+
+export interface IpoDayWiseSub {
+  day: string;
+  date: string;
+  dateLong: number;
+  qibExAnchor: number;
+  nii: number;
+  retail: number;
+  total: number;
+}
+
+export interface IpoSubscription {
+  totalSubsTimes: number;
+  qualifiedInst: number;
+  reatilIndv: number;
+  nonInst: number;
+  marketMaker: number | null;
+  employees: number | null;
+  shareholders: number | null;
+  policyholders: number | null;
+  others: number | null;
+  date: number;
+  dayWiseSubs: IpoDayWiseSub[];
+}
+
+export interface IpoReservation {
+  investorCatg: string;
+  shares: string;
+  percentChange: number | null;
+}
+
+export interface IpoObjectOfIssue {
+  description: string;
+  amount?: number;
+  percentChange?: number;
+}
+
+export interface IpoDetails {
+  companyid: string;
+  companyname: string;
+  companyseoname: string;
+  issueSize: number;
+  priceRangeMin: number | null;
+  priceRangeMax: number | null;
+  lotSize: number;
+  minInvestment: number;
+  issuePrice: number | null;
+  faceValue: string;
+  opendate: number;
+  closedate: number;
+  listingdate: number;
+  exchangeNames: string;
+  ipoType: string;
+  issueType: string;
+  ipoStatus: string;
+  retailSharesOfferedReservation: string;
+  totalSharesOffered: string;
+  saleType: string;
+  issuePriceBand: string;
+  freshIssue: string;
+  offerForSale: string | null;
+  allotmentPrice: number | null;
+  objectsOfIssue: IpoObjectOfIssue[];
+  leadManagers: IpoLeadManager[];
+  managingDirector: string | null;
+  promotersCompany: string | null;
+  legalAdvisor: string | null;
+}
+
+export interface IpoDetailsResponse {
+  success: boolean;
+  message: string;
+  ipoDetails: IpoDetails;
+  timeline: IpoTimelineEntry[];
+  subscription: IpoSubscription;
+  reservation: IpoReservation[];
+  objectsOfIssue: IpoObjectOfIssue[];
+}
+
+// === IPO RHP/DRHP API ===
+export interface IpoLinksResponse {
+  prospectusLink: string | null;
+  rhpUrl: string | null;
+  drhpLink: string | null;
+  ipoType: string;
+  saleType: {
+    label: string;
+    value: string;
+    rows: { label: string; value: string }[];
+  };
+  issueType: {
+    label: string;
+    value: string;
+    rows: { label: string; value: string }[];
+  };
+  footerNote: string;
+}
+
+// === IPO Overview API (tab tables) ===
+export interface IpoOverviewPageSummary {
+  pageno: number;
+  pagesize: number;
+  totalrecords: number;
+  totalpages: number;
+}
+
+export interface OpenIpoOverviewItem {
+  companyName: string;
+  companyKey: string;
+  ipoType: string;
+  exchangeNames: string;
+  openDate: number;
+  closeDate: number;
+  issueSize: string;
+  priceLabel: string;
+  priceRange: string;
+  lotSize: string;
+  minInvestment: string;
+  subscription: string;
+  rhpLink: string;
+  openingToday: boolean;
+  closingToday: boolean;
+  saleType: string;
+  companyID: number;
+  companySeoName: string;
+}
+
+export interface OpenIpoOverviewResponse {
+  openIpoList: OpenIpoOverviewItem[];
+  openIpoPageSummary: IpoOverviewPageSummary;
+}
+
+export interface UpcomingIpoOverviewItem {
+  companyName: string;
+  companyKey: string;
+  ipoType: string;
+  openDate: number;
+  priceLabel: string;
+  issuePrice: string;
+  lotSize: number;
+  issueSize: string;
+  rhpLink: string;
+  companyID: number;
+  companySeoName: string;
+  saleType: string;
+  minInvestment: string;
+}
+
+export interface UpcomingIpoOverviewResponse {
+  upcomingIpoList: UpcomingIpoOverviewItem[];
+  upcomingIpoPageSummary: IpoOverviewPageSummary;
+}
+
+export interface ListingSoonIpoItem {
+  companyName: string;
+  companyKey: string;
+  ipoType: string;
+  priceLabel: string;
+  qibSubscription: string;
+  niiSubscription: string;
+  retailSubscription: string;
+  totalSubscription: string;
+  listingDate: number;
+  rhpLink: string;
+  prospectusLink: string;
+  issueSize: string;
+  saleType: string;
+  companyID: number;
+  companySeoName: string;
+  minInvestment: string;
+  openDate: number;
+  lotSize: number;
+  priceRange: string;
+}
+
+export interface ListingSoonIpoResponse {
+  listingSoonIpoList: ListingSoonIpoItem[];
+  listingSoonIpoPageSummary: IpoOverviewPageSummary;
+}
+
+// === IPO Listed API ===
+export interface ListedIpoOverviewItem {
+  companyID: number;
+  companyName: string;
+  companySeoName: string;
+  companyType: string;
+  companyShortName: string;
+  listingDate: number;
+  issuePrice: string;
+  listingPrice?: string;
+  ltp?: string;
+  returnFromIssue?: string;
+  returnFromIssueTrend?: string;
+  issueSize: string;
+  ipoType?: string;
+  listingGain?: string;
+  listingGainTrend?: string;
+  rhpLink: string;
+  lotSize: number;
+  totalSubscription: string;
+}
+
+export interface ListedIposOverviewResponse {
+  results: ListedIpoOverviewItem[];
+  pageSummary: IpoOverviewPageSummary;
+}
+
+// === IPO Financial APIs ===
+export interface PnlYear {
+  year: number;
+  absolute: {
+    sales: number;
+    totalincome: number;
+    operatingprofit: number;
+    profitbeforetax: number;
+    netprofit: number;
+    ebit: number;
+    ebitda: number;
+    eps: number;
+    depreciation: number;
+    interestname: number;
+    resultyear: number;
+    resultmonth: string;
+    months: number;
+  };
+}
+
+export interface PnlResponse {
+  datainfo: {
+    profitandlossinfo: {
+      profitandlossdetails: PnlYear[];
+      companyfinancialratio: unknown[];
+    };
+  };
+}
+
+export interface BsYear {
+  year: number;
+  grossblock: number;
+  netblock: number;
+  investments: number;
+  inventory: number;
+  sundrydebtor: number;
+  cashandbank: number;
+  totalassets: number;
+  sharecapital: number;
+  reservesandsurplus: number;
+  networth: number;
+  securedloans: number;
+  unsecuredloans: number;
+  totalliabilities: number;
+  currentassetsloansandadvances: number;
+  currentliabilitiesandprovisions: number;
+  months: number;
+}
+
+export interface BsResponse {
+  datainfo: {
+    balancesheetinfo: {
+      companyBalanceSheetList: BsYear[];
+    };
+  };
+}
+
+export interface CfYear {
+  resultyear: number;
+  resultmonth: string;
+  profitbeforetax: number;
+  netcashflowoperatingActivity: number;
+  netcashusedininvestingactivity: number;
+  netcashusedinfinanceactivity: number;
+  netincdecincashandequivlnt: number;
+  cashandequivalntbeginofyear: number;
+  cashandequivalntendofyear: number;
+  months: number;
+}
+
+export interface CfResponse {
+  datainfo: {
+    cashFlowList: {
+      companyfinancialcashflowlist: CfYear[];
+    };
+  };
+}
+
+export interface QuarterlyRow {
+  year: number;
+  resultYear?: number;
+  month?: string;
+  quarter?: number;
+  salesturnover?: number;
+  operatingprofit?: number;
+  ebitda?: number;
+  reportedprofitaftertax?: number;
+  eps?: number;
+  depreciation?: number;
+  interest?: number;
+  absolute?: {
+    sales: number;
+    totalincome: number;
+    operatingprofit: number;
+    profitbeforetax: number;
+    netprofit: number;
+    ebit: number;
+    ebitda: number;
+    eps: number;
+    resultyear: number;
+    resultmonth: string;
+    months: number;
+  };
+}
+
+export interface QuarterlyResponse {
+  datainfo: {
+    quarterlyresultsinfo: {
+      companyQuarterlyResultslist: QuarterlyRow[];
+    };
+  };
+}
