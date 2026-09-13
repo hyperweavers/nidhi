@@ -985,6 +985,14 @@ describe('MarketService', () => {
         expect(req.request.urlWithParams).not.toContain('type=');
       }
     });
+
+    it('should omit the type param for falsy type', () => {
+      service.getIpoFinancials('2231724', '' as unknown as string).subscribe();
+      const reqs = flushFinancials();
+      for (const req of reqs) {
+        expect(req.request.urlWithParams).not.toContain('type=');
+      }
+    });
   });
 
   describe('IPO endpoints', () => {

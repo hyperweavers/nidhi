@@ -1000,3 +1000,238 @@ describe('IpoPage query param restoration', () => {
     expect(component['activeTab']()).toBe(IpoTab.OPEN);
   });
 });
+
+describe('IpoPage fallback branches', () => {
+  let component: IpoPage;
+  let fixture: ComponentFixture<IpoPage>;
+
+  const ipoServiceMock = {
+    getCalendar: jest.fn().mockReturnValue(of({ calendarList: [] })),
+    getDetails: jest.fn().mockReturnValue(of({ ipoDetails: null })),
+    getOpenOverviewAll: jest.fn().mockReturnValue(of([])),
+    getUpcomingOverview: jest.fn().mockReturnValue(of([])),
+    getListingSoon: jest.fn().mockReturnValue(of([])),
+    getListedOverview: jest.fn().mockReturnValue(of([])),
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [IpoPage],
+      providers: [
+        provideRouter([]),
+        { provide: IpoService, useValue: ipoServiceMock },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(IpoPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should step months without year wrap', () => {
+    component['currentMonth'].set(5);
+    component['currentYear'].set(2026);
+    component.prevMonth();
+    expect(component['currentMonth']()).toBe(4);
+    expect(component['currentYear']()).toBe(2026);
+    component['currentMonth'].set(5);
+    component.nextMonth();
+    expect(component['currentMonth']()).toBe(6);
+    expect(component['currentYear']()).toBe(2026);
+  });
+
+  it('should handle undefined ipoType in calendar and rows', () => {
+    const item = {
+      id: '1',
+      companyId: 1,
+      companyName: 'No Type Co',
+      // ipoType intentionally missing
+      openDate: null,
+      closeDate: null,
+      listingDate: null,
+      issueSize: 0,
+      dayWiseSubscriptions: [],
+      objectsOfIssue: [],
+      seoName: 'no-type',
+    } as unknown as IpoCalendarItem;
+    component['calendarView'].set([
+      {
+        day: {
+          date: new Date(Date.UTC(2026, 7, 15)),
+          dayNumber: 15,
+          isCurrentMonth: true,
+          ipos: null,
+        },
+        entries: [{ item, state: 'opening', color: 'bg-green-500' }],
+        union: [{ item, state: 'opening', color: 'bg-green-500' }],
+        dots: [],
+        more: 0,
+      },
+    ]);
+    component['onTypeFilterChange']('sme');
+    expect(component['filteredCalendarView']()[0].entries).toHaveLength(0);
+    // rows
+    component['openIpos'].set([item as unknown as OpenIpoOverviewItem]);
+    component['typeFilter'].set('all');
+    expect(component['filteredOpen']()).toHaveLength(1);
+    component['typeFilter'].set('sme');
+    expect(component['filteredOpen']()).toHaveLength(0);
+  });
+
+  it('should sort with null dates falling back to 0', () => {
+    ipoServiceMock.getOpenOverviewAll.mockReturnValueOnce(
+      of([
+        { companyName: 'A', openDate: null },
+        { companyName: 'B', openDate: 100 },
+      ] as OpenIpoOverviewItem[]),
+    );
+    component['loadOverviewTables']();
+    expect(component['openIpos']().length).toBe(2);
+  });
+
+  it('should return empty groups for null day and handle undefined lists', () => {
+    expect(component['modalGroups'](null)).toEqual([]);
+    const day = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        displayIpoList: undefined as unknown as IpoCalendarItem[],
+        remainingCount: 0,
+        openIpoList: undefined as unknown as IpoCalendarItem[],
+        closeIpoList: undefined as unknown as IpoCalendarItem[],
+        listedIpoList: undefined as unknown as IpoCalendarItem[],
+      },
+    } as unknown as IpoCalendarDay;
+    expect(component['modalGroups'](day)).toEqual([]);
+  });
+
+  it('should dedupe duplicate companyIds in modalGroups', () => {
+    const item = {
+      id: '1',
+      companyId: 1,
+      companyName: 'Dup',
+      ipoType: 'mainboard',
+      openDate: 0,
+      closeDate: 0,
+      listingDate: 0,
+      issueSize: 0,
+      dayWiseSubscriptions: [],
+      objectsOfIssue: [],
+      seoName: 'dup',
+    } as IpoCalendarItem;
+    const day = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        displayIpoList: [item, item],
+        remainingCount: 0,
+        openIpoList: [item],
+        closeIpoList: [],
+        listedIpoList: [],
+      },
+    } as IpoCalendarDay;
+    const groups = component['modalGroups'](day);
+    const total = groups.reduce((s, g) => s + g.items.length, 0);
+    expect(total).toBe(1);
+  });
+
+  it('should return null for non-finite lot count', () => {
+    expect(component['parseLotCount']('9'.repeat(400))).toBeNull();
+  });
+
+  it('should handle ipoType nullish in label and badge', () => {
+    expect(component['ipoTypeLabel'](null as unknown as string)).toBe(
+      'Mainboard',
+    );
+    expect(component['ipoTypeLabel'](undefined)).toBe('Mainboard');
+    expect(component['ipoTypeBadgeClass'](null as unknown as string)).toContain(
+      'bg-pink-100',
+    );
+    expect(component['ipoTypeBadgeClass'](undefined)).toContain('bg-pink-100');
+  });
+
+  it('should build calendar with 35 cells for February', () => {
+    component['currentMonth'].set(1);
+    component['currentYear'].set(2026);
+    ipoServiceMock.getCalendar.mockReturnValueOnce(of({ calendarList: [] }));
+    component['loadCalendar']();
+    expect(component['calendarDays']()).toHaveLength(35);
+  });
+
+  it('should handle calendarList undefined', () => {
+    component['currentMonth'].set(7);
+    component['currentYear'].set(2026);
+    ipoServiceMock.getCalendar.mockReturnValueOnce(of({} as never));
+    component['loadCalendar']();
+    expect(component['calendarView']().length).toBeGreaterThan(0);
+  });
+
+  it('should sort upcoming/closed/listed with null dates via fallbacks', () => {
+    ipoServiceMock.getUpcomingOverview.mockReturnValueOnce(
+      of([
+        { companyName: 'A', openDate: null as unknown as number },
+        { companyName: 'B', openDate: 100 },
+      ] as UpcomingIpoOverviewItem[]),
+    );
+    ipoServiceMock.getListingSoon.mockReturnValueOnce(
+      of([
+        { companyName: 'A', listingDate: null as unknown as number },
+        { companyName: 'B', listingDate: 100 },
+      ] as ListingSoonIpoItem[]),
+    );
+    ipoServiceMock.getListedOverview.mockReturnValueOnce(
+      of([
+        { companyName: 'A', listingDate: null as unknown as number },
+        { companyName: 'B', listingDate: 100 },
+      ] as ListedIpoOverviewItem[]),
+    );
+    component['loadOverviewTables']();
+    expect(component['upcomingIpos']().length).toBe(2);
+    expect(component['closedIpos']().length).toBe(2);
+    expect(component['listedIpos']().length).toBe(2);
+  });
+
+  it('should handle missing display lists and duplicate union', () => {
+    const day: IpoCalendarDay = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        // displayIpoList missing
+        remainingCount: 0,
+        openIpoList: undefined as unknown as IpoCalendarItem[],
+        closeIpoList: undefined as unknown as IpoCalendarItem[],
+        listedIpoList: undefined as unknown as IpoCalendarItem[],
+      } as unknown as IpoCalendarDay['ipos'],
+    } as IpoCalendarDay;
+    expect(component['modalGroups'](day)).toEqual([]);
+    // filteredCalendarView with empty entries
+    component['calendarView'].set([
+      {
+        day,
+        entries: [],
+        union: [],
+        dots: [],
+        more: 0,
+      },
+    ]);
+    expect(component['filteredCalendarView']()[0].dots).toEqual([]);
+  });
+
+  it('should parse max price from various formats', () => {
+    expect(component['parseMaxPrice']('₹40 – ₹43')).toBe(43);
+    expect(component['parseMaxPrice']('₹140')).toBe(140);
+    expect(component['parseMaxPrice']('100-200')).toBe(200);
+    expect(component['parseMaxPrice']('')).toBeNull();
+    expect(component['parseMaxPrice'](null as unknown as string)).toBeNull();
+  });
+
+  it('should handle truly absent companyId in ngOnInit path', () => {
+    expect(component['formatDate'](null as unknown as number)).toBe('--');
+    expect(component['formatDate'](0)).toBe('--');
+  });
+});

@@ -17,6 +17,15 @@
         "tsConfig": "libs/shared/sentry/tsconfig.spec.json"
       }
     },
+    "test:patch": {
+      "executor": "nx:run-commands",
+      "inputs": ["{projectRoot}/src/**/*", "{workspaceRoot}/coverage/{projectRoot}/lcov.info"],
+      "cache": false,
+      "options": {
+        "command": "pnpm nx run shared-sentry:test --coverage --coverageReporters=lcov && node tools/scripts/check-patch-coverage.mjs {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

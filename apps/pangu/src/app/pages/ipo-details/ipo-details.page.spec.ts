@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { Constants } from '../../constants';
@@ -614,5 +614,88 @@ describe('IpoDetailsPage', () => {
 
   it('should expose chart colors', () => {
     expect(component['getChartColors']().length).toBeGreaterThan(0);
+  });
+
+  it('should not load details when route has no id', async () => {
+    const emptyRoute = {
+      snapshot: { paramMap: { get: () => null } },
+    } as unknown as ActivatedRoute;
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [IpoDetailsPage],
+      providers: [
+        provideRouter([]),
+        { provide: IpoService, useValue: ipoServiceMock },
+        { provide: ActivatedRoute, useValue: emptyRoute },
+      ],
+    }).compileComponents();
+    const f = TestBed.createComponent(IpoDetailsPage);
+    const c = f.componentInstance;
+    f.detectChanges();
+    expect(c['loading']()).toBe(true);
+  });
+
+  it('should read quarterly values via absolute fallback and handle missing absolute', () => {
+    expect(
+      component['getQuarterlyValue'](
+        { absolute: { sales: 10 } } as unknown as QuarterlyRow,
+        'sales',
+      ),
+    ).toBe(10);
+    expect(
+      component['getQuarterlyValue'](
+        { absolute: null } as unknown as QuarterlyRow,
+        'sales',
+      ),
+    ).toBe(0);
+  });
+
+  it('should label charts when quarterly absolute is missing', () => {
+    component['quarterlyData'].set([{ year: 2026 } as unknown as QuarterlyRow]);
+    component['onFinancialTabChange'](FinancialTab.QUARTERLY);
+    expect(component['getChartLabels']()).toEqual(['2026']);
+  });
+
+  it('should handle empty subscription and investor label fallbacks', () => {
+    component['subscription'].set(null as never);
+    expect(component['getSubscriptionPercent']('qib', '100')).toBe('--');
+    expect(
+      component['getReservationShortLabel']({
+        investorCatg: '' as unknown as string,
+        shares: '1',
+        percentChange: null,
+      }),
+    ).toBe('');
+    expect(component['parseShareCount'](null as unknown as string)).toBeNull();
+    expect(component['parseShareCount']('not-a-number')).toBeNull();
+  });
+
+  it('should handle financial value fallbacks to zero', () => {
+    expect(
+      component['getPnlValue']({ absolute: {} } as unknown as PnlYear, 'eps'),
+    ).toBe(0);
+    expect(component['getBsValue']({} as BsYear, 'networth')).toBe(0);
+    expect(
+      component['getCfValue']({} as CfYear, 'netcashflowoperatingActivity'),
+    ).toBe(0);
+    expect(
+      component['getQuarterlyValue'](
+        { absolute: {} } as unknown as QuarterlyRow,
+        'salesturnover',
+      ),
+    ).toBe(0);
+  });
+
+  it('should handle missing chart label parts', () => {
+    component['quarterlyData'].set([
+      { year: undefined, resultYear: undefined } as unknown as QuarterlyRow,
+    ]);
+    component['onFinancialTabChange'](FinancialTab.QUARTERLY);
+    expect(component['getChartLabels']()[0]).toBe('');
+    component['pnlData'].set([
+      { year: 2026, absolute: {} } as unknown as PnlYear,
+    ]);
+    component['onFinancialTabChange'](FinancialTab.PNL);
+    expect(component['getChartValues']()[0]).toBe(0);
   });
 });

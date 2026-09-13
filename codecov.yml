@@ -48,7 +48,7 @@ coverage:
           - shared-http
     patch:
       default:
-        target: auto
+        target: 95%
         threshold: 2%
 
 flags:
