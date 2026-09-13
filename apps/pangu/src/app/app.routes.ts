@@ -47,6 +47,17 @@ export const appRoutes: Route[] = [
       import('./pages/watch-list/watch-list.page').then((m) => m.WatchListPage),
   },
   {
+    path: Constants.routes.IPO,
+    loadComponent: () => import('./pages/ipo/ipo.page').then((m) => m.IpoPage),
+  },
+  {
+    path: `${Constants.routes.IPO}/:id`,
+    loadComponent: () =>
+      import('./pages/ipo-details/ipo-details.page').then(
+        (m) => m.IpoDetailsPage,
+      ),
+  },
+  {
     path: Constants.routes.SETTINGS,
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),

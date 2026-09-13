@@ -57,6 +57,8 @@ apps/*/src/generated/
 .claude/settings.local.json
 .nx/cache *
 
+.playwright-mcp/
+
 # CI artifacts
 /test-results/
 /codecov

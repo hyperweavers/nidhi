@@ -46,6 +46,18 @@ pnpm msw init apps/<app>/public --save   # pangu, palan, vatti
 - `NX_CACHE_DIRECTORY` environment variable must be set to `<workspace_path>\.nx\cache` for Nx commands if the workspace is a worktree.
 - Test: `pnpm nx test <app>` (with `$env:NX_CACHE_DIRECTORY` set)
 - Coverage: `pnpm nx run <app>:test --coverage --coverageReporters=text`
+- Patch coverage (mirrors Codecov `patch` gate in `codecov.yml`): `pnpm nx run <project>:test:patch`
+  (runs tests with `lcov`, then `tools/scripts/check-patch-coverage.mjs` checks only
+  changed lines vs `origin/main`; threshold read from `codecov.yml`, override via `PATCH_COVERAGE_THRESHOLD`)
+
+## Quality gates (run all before finishing a task)
+
+- [ ] `pnpm nx format:check --projects=<project>`
+- [ ] `pnpm nx lint <project>`
+- [ ] `pnpm nx typecheck <project>` (apps only)
+- [ ] `pnpm nx build <project>`
+- [ ] `pnpm nx run <project>:test --coverage` (global thresholds in `<project>/jest.config.ts`)
+- [ ] `pnpm nx run <project>:test:patch` (changed-lines coverage ≥ `codecov.yml` patch target)
 
 ## Temporary files
 

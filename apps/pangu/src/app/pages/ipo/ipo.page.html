@@ -1,0 +1,942 @@
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <!-- Header + Global type filter -->
+  <div class="mb-6 flex items-center justify-between gap-2">
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
+      IPO Calendar
+    </h1>
+    <div
+      class="inline-flex h-8 shrink-0 rounded-md shadow-xs"
+      role="group"
+      aria-label="Filter by IPO type"
+    >
+      <button
+        (click)="onTypeFilterChange('all')"
+        type="button"
+        [attr.aria-pressed]="typeFilter() === 'all'"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center rounded-s-md border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:w-28 dark:border-gray-700"
+        [ngClass]="typeFilter() === 'all' ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        All
+      </button>
+      <button
+        (click)="onTypeFilterChange('mainboard')"
+        type="button"
+        [attr.aria-pressed]="typeFilter() === 'mainboard'"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center border-t border-b border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:w-28 dark:border-gray-700"
+        [ngClass]="typeFilter() === 'mainboard' ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        Mainboard
+      </button>
+      <button
+        (click)="onTypeFilterChange('sme')"
+        type="button"
+        [attr.aria-pressed]="typeFilter() === 'sme'"
+        class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center rounded-e-md border border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:w-28 dark:border-gray-700"
+        [ngClass]="typeFilter() === 'sme' ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+      >
+        SME
+      </button>
+    </div>
+  </div>
+
+  <!-- Month Navigation + Calendar state filter -->
+  <div
+    class="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:gap-6"
+  >
+    <div
+      class="flex w-full items-center justify-center gap-2 sm:w-auto sm:justify-start"
+    >
+      <button
+        (click)="prevMonth()"
+        aria-label="Previous month"
+        class="rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      >
+        <svg
+          class="h-5 w-5"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
+
+      <span
+        class="truncate px-2 text-center text-sm font-semibold text-gray-900 dark:text-white"
+      >
+        {{ getMonthLabel() }}
+      </span>
+
+      <button
+        (click)="nextMonth()"
+        aria-label="Next month"
+        class="rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      >
+        <svg
+          class="h-5 w-5"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10.271 5.575C8.967 4.501 7 5.43 7 7.12v9.762c0 1.69 1.967 2.618 3.271 1.544l5.927-4.881a2 2 0 0 0 0-3.088l-5.927-4.88Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div
+      class="flex h-8 w-full shrink-0 rounded-md shadow-xs sm:ml-auto sm:w-auto sm:max-w-xs"
+      role="group"
+      aria-label="Calendar event filter"
+    >
+      <button
+        (click)="toggleCalStateFilter('opening')"
+        type="button"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-s-md border border-r-0 px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-green-500 sm:px-4"
+        [ngClass]="isCalStateActive('opening') ? 'border-green-500 bg-green-500 text-white dark:border-green-600 dark:bg-green-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
+      >
+        <span class="whitespace-nowrap">Opening</span>
+      </button>
+
+      <button
+        (click)="toggleCalStateFilter('closing')"
+        type="button"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center border border-r-0 px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-amber-500 sm:px-4"
+        [ngClass]="isCalStateActive('closing') ? 'border-amber-500 bg-amber-500 text-white dark:border-amber-600 dark:bg-amber-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
+      >
+        <span class="whitespace-nowrap">Closing</span>
+      </button>
+
+      <button
+        (click)="toggleCalStateFilter('listing')"
+        type="button"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-e-md border px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-blue-500 sm:px-4"
+        [ngClass]="isCalStateActive('listing') ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-600 dark:bg-blue-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
+      >
+        <span class="whitespace-nowrap">Listing</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+  <div class="flex items-center justify-center py-12">
+    <div
+      class="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+    ></div>
+  </div>
+  } @else {
+  <!-- Calendar Grid -->
+  <div
+    class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+  >
+    <div
+      class="mb-3 grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400"
+    >
+      @for (day of ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; track day)
+      {
+      <div class="py-2">{{ day }}</div>
+      }
+    </div>
+
+    <div class="grid grid-cols-7 gap-1 max-sm:auto-rows-fr">
+      @for (view of filteredCalendarView(); track $index) {
+      <div
+        (click)="openDayModal(view.day)"
+        (keydown.enter)="openDayModal(view.day)"
+        tabindex="0"
+        class="rounded border p-1 sm:min-h-[100px]"
+        [class.cursor-pointer]="view.entries.length > 0"
+        [ngClass]="{
+              'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800': isToday(view.day),
+              'border-gray-100 dark:border-gray-700': !isToday(view.day) && view.day.isCurrentMonth,
+              'border-gray-50 dark:border-gray-800': !isToday(view.day) && !view.day.isCurrentMonth,
+              'hover:bg-gray-50 dark:hover:bg-gray-700/50': view.entries.length && !isToday(view.day),
+              'hover:bg-primary-100 dark:hover:bg-primary-900/30': view.entries.length && isToday(view.day)
+            }"
+      >
+        <div
+          class="mb-1 text-xs font-medium"
+          [ngClass]="isToday(view.day)
+                ? 'text-primary-700 dark:text-primary-300 font-semibold'
+                : view.day.isCurrentMonth
+                  ? 'text-gray-700 dark:text-gray-300'
+                  : 'text-gray-400 dark:text-gray-600'"
+        >
+          {{ view.day.dayNumber }}
+        </div>
+
+        <!-- Desktop: one line per item, truncate, tooltip, indicator before name -->
+        <div class="hidden space-y-1 sm:block">
+          @for (entry of view.entries; track entry.item.companyId) {
+          <div
+            class="flex cursor-pointer items-center gap-1.5 truncate rounded px-1 py-0.5 text-[11px] leading-tight"
+            [attr.title]="entry.item.companyName"
+          >
+            <span
+              class="h-2 w-2 shrink-0 rounded-full"
+              [ngClass]="entry.color"
+            ></span>
+            <span class="truncate font-medium text-gray-700 dark:text-gray-300"
+              >{{ entry.item.companyName }}</span
+            >
+          </div>
+          }
+        </div>
+
+        <!-- Mobile: one dot per state, single line -->
+        <div
+          class="flex min-h-[8px] flex-nowrap items-center justify-start gap-0.5 overflow-hidden sm:hidden"
+        >
+          @for (dot of view.dots; track dot) {
+          <span
+            class="h-2 w-2 shrink-0 rounded-full border border-white shadow-sm dark:border-gray-800"
+            [ngClass]="dot"
+          ></span>
+          }
+        </div>
+
+        @if (view.more > 0) {
+        <div
+          class="mt-1 hidden text-[10px] leading-none font-medium text-gray-500 sm:block dark:text-gray-400"
+        >
+          +{{ view.more }} more
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Day Modal -->
+  @if (showDayModal() && selectedDay(); as sDay) {
+  <div
+    class="fixed inset-0 z-40 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+    (click)="closeDayModal()"
+    (keydown.escape)="closeDayModal()"
+    tabindex="0"
+  >
+    <div
+      class="flex max-h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-t-lg bg-white shadow-xl sm:rounded-lg dark:bg-gray-800"
+      (click)="$event.stopPropagation()"
+      (keydown.enter)="$event.stopPropagation()"
+      tabindex="0"
+    >
+      <div
+        class="shrink-0 border-b border-gray-200 px-4 py-3 dark:border-gray-700"
+      >
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+            IPO Calendar
+          </h3>
+          <button
+            (click)="closeDayModal()"
+            class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            aria-label="Close"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        class="flex shrink-0 items-center justify-center gap-2 border-b border-gray-200 px-4 py-2 dark:border-gray-700"
+      >
+        <button
+          (click)="stepModalDay(-1)"
+          aria-label="Previous day"
+          class="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          <svg
+            class="h-4 w-4"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+        <span class="text-sm font-medium text-gray-900 dark:text-white">
+          {{ formatModalDate(sDay.date) }}
+        </span>
+        <button
+          (click)="stepModalDay(1)"
+          aria-label="Next day"
+          class="rounded-lg border border-gray-300 bg-white p-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          <svg
+            class="h-4 w-4"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10.271 5.575C8.967 4.501 7 5.43 7 7.12v9.762c0 1.69 1.967 2.618 3.271 1.544l5.927-4.881a2 2 0 0 0 0-3.088l-5.927-4.88Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain p-4"
+      >
+        @if (modalGroups(sDay); as groups) { @if (groups.length === 0) {
+        <p class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          No IPOs on this date
+        </p>
+        } @else {
+        <div class="space-y-4">
+          @for (group of groups; track group.key) {
+          <div>
+            <div
+              class="w-full rounded px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase"
+              [ngClass]="getDayIpoStateColor(group.key)"
+            >
+              {{ group.label }}
+            </div>
+            <div>
+              @for (ipo of group.items; track ipo.companyId) {
+              <div
+                (click)="navigateToDetail(ipo.companyId); closeDayModal()"
+                (keydown.enter)="navigateToDetail(ipo.companyId); closeDayModal()"
+                tabindex="0"
+                role="link"
+                class="cursor-pointer truncate rounded px-1 py-1 text-sm text-gray-900 hover:bg-gray-100 hover:text-blue-600 dark:text-white dark:hover:bg-gray-700 dark:hover:text-blue-400"
+                [attr.title]="ipo.companyName"
+              >
+                {{ ipo.companyName }}
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+        } }
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- IPO Summary -->
+  <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+    IPO Summary
+  </h2>
+
+  <!-- Tabs (Desktop) -->
+  <ul
+    class="mb-4 hidden flex-wrap border-b border-gray-200 sm:flex dark:border-gray-700"
+  >
+    <li class="me-2">
+      <p
+        (click)="onTabChange(IpoTab.OPEN)"
+        (keydown.enter)="onTabChange(IpoTab.OPEN)"
+        tabindex="0"
+        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+        [ngClass]="activeTab() === IpoTab.OPEN
+            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        Open ({{ openIpos().length }})
+      </p>
+    </li>
+
+    <li class="me-2">
+      <p
+        (click)="onTabChange(IpoTab.UPCOMING)"
+        (keydown.enter)="onTabChange(IpoTab.UPCOMING)"
+        tabindex="0"
+        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+        [ngClass]="activeTab() === IpoTab.UPCOMING
+            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        Upcoming ({{ upcomingIpos().length }})
+      </p>
+    </li>
+
+    <li class="me-2">
+      <p
+        (click)="onTabChange(IpoTab.CLOSED)"
+        (keydown.enter)="onTabChange(IpoTab.CLOSED)"
+        tabindex="0"
+        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+        [ngClass]="activeTab() === IpoTab.CLOSED
+            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        Closed ({{ closedIpos().length }})
+      </p>
+    </li>
+
+    <li class="me-2">
+      <p
+        (click)="onTabChange(IpoTab.LISTED)"
+        (keydown.enter)="onTabChange(IpoTab.LISTED)"
+        tabindex="0"
+        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+        [ngClass]="activeTab() === IpoTab.LISTED
+            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+      >
+        Listed ({{ listedIpos().length }})
+      </p>
+    </li>
+  </ul>
+
+  <!-- Tabs (Mobile) -->
+  <div class="mb-4 sm:hidden">
+    <select
+      [ngModel]="activeTab()"
+      (ngModelChange)="onTabChange($event)"
+      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+    >
+      <option [value]="IpoTab.OPEN">Open ({{ openIpos().length }})</option>
+      <option [value]="IpoTab.UPCOMING">
+        Upcoming ({{ upcomingIpos().length }})
+      </option>
+      <option [value]="IpoTab.CLOSED">
+        Closed ({{ closedIpos().length }})
+      </option>
+      <option [value]="IpoTab.LISTED">
+        Listed ({{ listedIpos().length }})
+      </option>
+    </select>
+  </div>
+
+  <!-- Row details loading indicator (non-blocking) -->
+  @if (tabRowsLoading()) {
+  <div
+    class="mb-4 flex items-center gap-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400"
+    role="status"
+  >
+    <div
+      class="border-primary-500 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+    ></div>
+    <span>Loading IPO details…</span>
+  </div>
+  }
+
+  <!-- Search -->
+  @if (hasActiveTabItems()) {
+  <div class="mb-4 sm:mx-auto sm:max-w-md">
+    <div class="relative min-w-0 flex-1">
+      <div
+        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+      >
+        <svg
+          class="h-4 w-4 text-gray-500 dark:text-gray-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 20 20"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+          />
+        </svg>
+      </div>
+      <input
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        type="search"
+        placeholder="Search by company name..."
+        class="block h-[38px] w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+      />
+      @if (searchQuery()) {
+      <button
+        (click)="onSearchChange('')"
+        aria-label="Clear search"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+      >
+        <svg
+          class="h-2.5 w-2.5"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- Tab Content: Open -->
+  @if (activeTab() === IpoTab.OPEN) {
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+    @if (filteredOpen().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg
+        class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
+        }}
+      </p>
+    </div>
+    } @else {
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+      <thead
+        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Company</div>
+            <div class="whitespace-nowrap">Type</div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Price Band</div>
+            <div class="whitespace-nowrap">Lot Size</div>
+            <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Open Date</div>
+            <div class="whitespace-nowrap">Close Date</div>
+            <div class="whitespace-nowrap">Subscription</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ipo of filteredOpen(); track ipo.companyID) {
+        <tr
+          (click)="navigateToDetail(ipo.companyID)"
+          (keydown.enter)="navigateToDetail(ipo.companyID)"
+          tabindex="0"
+          class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+        >
+          <th
+            scope="row"
+            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
+          >
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ ipo.companyName }}
+            </div>
+            <div class="mt-1">
+              <span
+                class="rounded-md px-2 py-0.5 text-[10px] leading-none uppercase"
+                [ngClass]="ipoTypeBadgeClass(ipo.ipoType)"
+                >{{ ipoTypeLabel(ipo.ipoType) }}</span
+              >
+            </div>
+          </th>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ ipo.priceRange | valueOrPlaceholder }}</div>
+            <div>{{ formatLotSize(ipo.lotSize) }}</div>
+            <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
+          </td>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ formatDate(ipo.openDate) }}</div>
+            <div>{{ formatDate(ipo.closeDate) }}</div>
+            <div>{{ ipo.subscription | valueOrPlaceholder }}</div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+  @if (filteredOpen().length > 0) {
+  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+    <sup>*</sup> Based on the maximum price
+  </p>
+  } }
+
+  <!-- Tab Content: Upcoming -->
+  @if (activeTab() === IpoTab.UPCOMING) {
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+    @if (filteredUpcoming().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg
+        class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
+        }}
+      </p>
+    </div>
+    } @else {
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+      <thead
+        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Company</div>
+            <div class="whitespace-nowrap">Type</div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Issue Price</div>
+            <div class="whitespace-nowrap">Lot Size</div>
+            <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Open Date</div>
+            <div class="whitespace-nowrap">Issue Size</div>
+            <div class="whitespace-nowrap">RHP</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ipo of filteredUpcoming(); track ipo.companyID) {
+        <tr
+          (click)="navigateToDetail(ipo.companyID)"
+          (keydown.enter)="navigateToDetail(ipo.companyID)"
+          tabindex="0"
+          class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+        >
+          <th
+            scope="row"
+            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
+          >
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ ipo.companyName }}
+            </div>
+            <div class="mt-1">
+              <span
+                class="rounded-md px-2 py-0.5 text-[10px] leading-none uppercase"
+                [ngClass]="ipoTypeBadgeClass(ipo.ipoType)"
+                >{{ ipoTypeLabel(ipo.ipoType) }}</span
+              >
+            </div>
+          </th>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ ipo.issuePrice | valueOrPlaceholder }}</div>
+            <div>{{ formatLotSize(ipo.lotSize) }}</div>
+            <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
+          </td>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ formatDate(ipo.openDate) }}</div>
+            <div>{{ ipo.issueSize | valueOrPlaceholder }}</div>
+            <div>
+              @if (ipo.rhpLink) {
+              <a
+                [href]="ipo.rhpLink"
+                target="_blank"
+                rel="noopener"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="$event.stopPropagation()"
+                class="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                >RHP<sup
+                  ><svg
+                    class="ml-1 inline h-3 w-3"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                    /></svg></sup
+              ></a>
+              } @else {
+              <span>{{ '--' }}</span>
+              }
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+  @if (filteredUpcoming().length > 0) {
+  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+    <sup>*</sup> Based on the maximum price
+  </p>
+  } }
+
+  <!-- Tab Content: Closed -->
+  @if (activeTab() === IpoTab.CLOSED) {
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+    @if (filteredClosed().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg
+        class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
+        }}
+      </p>
+    </div>
+    } @else {
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+      <thead
+        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Company</div>
+            <div class="whitespace-nowrap">Type</div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Price Band</div>
+            <div class="whitespace-nowrap">Lot Size</div>
+            <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Open Date</div>
+            <div class="whitespace-nowrap">Listing Date</div>
+            <div class="whitespace-nowrap">Subscription</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ipo of filteredClosed(); track ipo.companyID) {
+        <tr
+          (click)="navigateToDetail(ipo.companyID)"
+          (keydown.enter)="navigateToDetail(ipo.companyID)"
+          tabindex="0"
+          class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+        >
+          <th
+            scope="row"
+            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
+          >
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ ipo.companyName }}
+            </div>
+            <div class="mt-1">
+              <span
+                class="rounded-md px-2 py-0.5 text-[10px] leading-none uppercase"
+                [ngClass]="ipoTypeBadgeClass(ipo.ipoType)"
+                >{{ ipoTypeLabel(ipo.ipoType) }}</span
+              >
+            </div>
+          </th>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ ipo.priceRange | valueOrPlaceholder }}</div>
+            <div>{{ formatLotSize(ipo.lotSize) }}</div>
+            <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
+          </td>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ formatDate(ipo.openDate) }}</div>
+            <div>{{ formatDate(ipo.listingDate) }}</div>
+            <div>{{ ipo.totalSubscription | valueOrPlaceholder }}</div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+  @if (filteredClosed().length > 0) {
+  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+    <sup>*</sup> Based on the maximum price
+  </p>
+  } }
+
+  <!-- Tab Content: Listed -->
+  @if (activeTab() === IpoTab.LISTED) {
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+    @if (filteredListed().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg
+        class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No listed IPOs
+        found' }}
+      </p>
+    </div>
+    } @else {
+    <table
+      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+      <thead
+        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Company</div>
+            <div class="whitespace-nowrap">Type</div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Issue Price</div>
+            <div class="whitespace-nowrap">Listing Price</div>
+            <div class="whitespace-nowrap">LTP</div>
+          </th>
+          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+            <div class="whitespace-nowrap">Subscription</div>
+            <div class="whitespace-nowrap">Listing Gain</div>
+            <div class="whitespace-nowrap">Total Gain</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ipo of filteredListed(); track ipo.companyID) {
+        <tr
+          (click)="navigateToDetail(ipo.companyID)"
+          (keydown.enter)="navigateToDetail(ipo.companyID)"
+          tabindex="0"
+          class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+        >
+          <th
+            scope="row"
+            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
+          >
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ ipo.companyName }}
+            </div>
+            <div class="mt-1">
+              <span
+                class="rounded-md px-2 py-0.5 text-[10px] leading-none uppercase"
+                [ngClass]="ipoTypeBadgeClass(ipo.ipoType)"
+                >{{ ipoTypeLabel(ipo.ipoType) }}</span
+              >
+            </div>
+          </th>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ ipo.issuePrice | valueOrPlaceholder }}</div>
+            <div>{{ ipo.listingPrice | valueOrPlaceholder }}</div>
+            <div>{{ ipo.ltp | valueOrPlaceholder }}</div>
+          </td>
+          <td
+            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+          >
+            <div>{{ ipo.totalSubscription | valueOrPlaceholder }}</div>
+            <div [ngClass]="gainClass(ipo.listingGain)">
+              {{ ipo.listingGain | valueOrPlaceholder }}
+            </div>
+            <div [ngClass]="gainClass(ipo.returnFromIssue)">
+              {{ ipo.returnFromIssue | valueOrPlaceholder }}
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+  } }
+</div>

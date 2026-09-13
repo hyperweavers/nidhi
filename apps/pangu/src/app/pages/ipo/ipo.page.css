@@ -1,0 +1,4 @@
+/* Hide the native search clear button so the themed custom one is used instead */
+input[type='search']::-webkit-search-cancel-button {
+  display: none;
+}

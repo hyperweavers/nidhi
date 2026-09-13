@@ -163,6 +163,19 @@
         "tsConfig": "apps/pangu/tsconfig.spec.json"
       }
     },
+    "test:patch": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "inputs": ["{projectRoot}/src/**/*", "{workspaceRoot}/coverage/{projectRoot}/lcov.info"],
+      "cache": false,
+      "options": {
+        "command": "pnpm nx run pangu:test --coverage --coverageReporters=lcov && node tools/scripts/check-patch-coverage.mjs {projectRoot}",
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {

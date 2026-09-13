@@ -1,0 +1,805 @@
+<div class="mx-auto max-w-7xl px-4 pt-2 pb-6 sm:px-6 lg:px-8">
+  <!-- Loading -->
+  @if (loading()) {
+  <div class="flex items-center justify-center py-12">
+    <div
+      class="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+    ></div>
+  </div>
+  } @else if (details()) {
+  <!-- Header: borderless like stocks/:id header -->
+  <div class="mb-2 py-2">
+    <div class="space-y-3">
+      <!-- Company Name + IPO Type superscript -->
+      <h1 class="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+        {{ details()?.companyname }}
+        <sup class="ml-1 font-medium">
+          <span
+            class="rounded-md px-2 py-0.5 align-middle text-[10px] leading-none uppercase"
+            [ngClass]="details()?.ipoType === 'sme'
+                ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                : 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300'"
+          >
+            {{ details()?.ipoType === 'sme' ? 'SME' : 'Mainboard' }}
+          </span>
+        </sup>
+      </h1>
+
+      <!-- Website / RHP / DRHP chips (same style) -->
+      <div class="flex flex-wrap items-center gap-2">
+        @if (companyWebsite(); as website) {
+        <a
+          [href]="website.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+          >Website<sup
+            ><svg
+              class="ml-1 inline h-3 w-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+              /></svg></sup
+        ></a>
+        } @if (links()?.rhpUrl) {
+        <a
+          [href]="links()?.rhpUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+          >RHP<sup
+            ><svg
+              class="ml-1 inline h-3 w-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+              /></svg></sup
+        ></a>
+        } @if (links()?.drhpLink) {
+        <a
+          [href]="links()?.drhpLink"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+          >DRHP<sup
+            ><svg
+              class="ml-1 inline h-3 w-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+              /></svg></sup
+        ></a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Card (3x3 grid) -->
+  <div
+    class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
+      IPO Details
+    </h2>
+
+    <div class="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+      <!-- Desktop Row 1: Price Band | IPO Status | Total Shares -->
+      <div class="max-sm:order-1">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Price Band</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ getPriceBand() }}
+        </div>
+      </div>
+
+      <div class="max-sm:order-2">
+        <div class="text-xs text-gray-500 dark:text-gray-400">IPO Status</div>
+        <div class="pt-0.5">
+          <span
+            class="rounded-md px-3 py-1 text-xs font-medium uppercase"
+            [ngClass]="getIpoStatusColor()"
+          >
+            {{ getIpoStatus() }}
+          </span>
+        </div>
+      </div>
+
+      <div class="max-sm:order-7">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Total Shares</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ details()?.totalSharesOffered | valueOrPlaceholder }}
+        </div>
+      </div>
+
+      <!-- Desktop Row 2: Lot Size | Sale Type | Issue Size -->
+      <div class="max-sm:order-3">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Lot Size</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ details()?.lotSize }} Shares
+        </div>
+      </div>
+
+      <div class="max-sm:order-4">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Sale Type</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ details()?.saleType | valueOrPlaceholder }}
+        </div>
+      </div>
+
+      <div class="max-sm:order-9">
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          Issue Size<sup>*</sup>
+        </div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ formatLakhs(details()?.issueSize) }}
+        </div>
+      </div>
+
+      <!-- Desktop Row 3: Min Investment | Issue Type | Face Value -->
+      <div class="max-sm:order-5">
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          Min Investment<sup>*</sup>
+        </div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ formatCurrency(details()?.minInvestment) }}
+        </div>
+      </div>
+
+      <div class="max-sm:order-6">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Issue Type</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          {{ details()?.issueType | valueOrPlaceholder }}
+        </div>
+      </div>
+
+      <div class="max-sm:order-8">
+        <div class="text-xs text-gray-500 dark:text-gray-400">Face Value</div>
+        <div class="font-medium text-gray-900 dark:text-white">
+          ₹{{ details()?.faceValue }}
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+      *Based on the maximum price
+    </div>
+  </div>
+
+  <!-- Timeline Card -->
+  @if (timeline().length > 0) {
+  <div
+    class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      Timeline
+    </h2>
+
+    <!-- Mobile: 3-column stepper (dot | date | label) -->
+    <div class="sm:hidden">
+      @for (step of timeline(); track $index; let last = $last) {
+      <div class="flex items-stretch">
+        <!-- Col 1: dot + line -->
+        <div class="flex flex-col items-center">
+          <div
+            class="z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
+            [ngClass]="step.status
+                    ? 'bg-green-600 text-white'
+                    : 'border-2 border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800'"
+          >
+            @if (step.status) {
+            <svg
+              class="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            }
+          </div>
+          @if (!last) {
+          <div
+            class="mt-1 w-0.5 flex-1"
+            [ngClass]="step.status
+                      ? 'bg-green-600'
+                      : 'bg-gray-200 dark:bg-gray-700'"
+          ></div>
+          }
+        </div>
+        <!-- Col 2: date -->
+        <div
+          class="ml-3 flex w-[92px] shrink-0 items-center"
+          [ngClass]="last ? '' : 'pb-4'"
+        >
+          <span class="text-xs font-medium text-gray-900 dark:text-white">
+            {{ getTimelineDay(step.date) }} {{ getTimelineMonthYear(step.date)
+            }}
+          </span>
+        </div>
+        <!-- Col 3: label -->
+        <div
+          class="ml-3 flex flex-1 items-center"
+          [ngClass]="last ? '' : 'pb-4'"
+        >
+          <span class="text-sm font-medium text-gray-900 dark:text-white"
+            >{{ step.message }}</span
+          >
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Desktop: dates above, nodes, labels below -->
+    <div class="hidden sm:block">
+      <div class="flex">
+        @for (step of timeline(); track $index; let i = $index; let first =
+        $first; let last = $last) {
+        <div class="flex min-w-0 flex-1 flex-col items-center">
+          <!-- Date above -->
+          <div class="text-center">
+            <div class="text-sm font-bold text-gray-900 dark:text-white">
+              {{ getTimelineDay(step.date) }}
+            </div>
+            <div
+              class="text-[11px] tracking-wide text-gray-900 dark:text-white"
+            >
+              {{ getTimelineMonthYear(step.date) }}
+            </div>
+          </div>
+
+          <!-- Node row with connector halves -->
+          <div class="mt-2 flex w-full items-center">
+            <div
+              class="h-0.5 flex-1"
+              [class.invisible]="first"
+              [ngClass]="timeline()[i - 1]?.status
+                      ? 'bg-green-600'
+                      : 'bg-gray-200 dark:bg-gray-700'"
+            ></div>
+            <div
+              class="z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+              [ngClass]="step.status
+                      ? 'bg-green-600 text-white'
+                      : 'border-2 border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800'"
+            >
+              @if (step.status) {
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              }
+            </div>
+            <div
+              class="h-0.5 flex-1"
+              [class.invisible]="last"
+              [ngClass]="step.status
+                      ? 'bg-green-600'
+                      : 'bg-gray-200 dark:bg-gray-700'"
+            ></div>
+          </div>
+
+          <!-- Label below -->
+          <div
+            class="mt-2 px-1 text-center text-xs font-medium text-gray-900 dark:text-white"
+          >
+            {{ step.message }}
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Subscription Card (hidden for upcoming IPOs) -->
+  @if (subscription() && getIpoStatus() !== 'Upcoming') {
+  <div
+    class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white px-4 pt-4 pb-0 shadow sm:p-4 dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      Subscription
+    </h2>
+
+    <!-- Summary -->
+    <div class="overflow-x-auto max-sm:-mx-4">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th class="px-2 py-3">Category</th>
+            <th class="px-2 py-3">Subscription</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td class="px-2 py-3 font-medium text-gray-900 dark:text-white">
+              QIB
+            </td>
+            <td class="px-2 py-3">{{ getSubscriptionQib().toFixed(2) }}x</td>
+          </tr>
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td class="px-2 py-3 font-medium text-gray-900 dark:text-white">
+              NII
+            </td>
+            <td class="px-2 py-3">{{ getSubscriptionNii().toFixed(2) }}x</td>
+          </tr>
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td class="px-2 py-3 font-medium text-gray-900 dark:text-white">
+              Retail
+            </td>
+            <td class="px-2 py-3">{{ getSubscriptionRetail().toFixed(2) }}x</td>
+          </tr>
+          <tr class="bg-gray-50 dark:bg-gray-700">
+            <td class="px-2 py-3 font-bold text-gray-900 dark:text-white">
+              Total
+            </td>
+            <td class="px-2 py-3 font-bold">
+              {{ getSubscriptionTotal().toFixed(2) }}x
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Day-wise -->
+    @if (subscription()?.dayWiseSubs?.length) {
+    <h3 class="mt-4 mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+      Day-wise Subscription
+    </h3>
+
+    <div class="overflow-x-auto max-sm:-mx-4">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th class="px-2 py-3">Day</th>
+            <th class="px-2 py-3">QIB</th>
+            <th class="px-2 py-3">NII</th>
+            <th class="px-2 py-3">Retail</th>
+            <th class="px-2 py-3">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (day of subscription()?.dayWiseSubs; track day.day) {
+          <tr
+            class="border-b border-gray-100 bg-white last:border-0 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td class="px-2 py-3 font-medium text-gray-900 dark:text-white">
+              {{ day.day }}
+            </td>
+            <td class="px-2 py-3">
+              {{ day.qibExAnchor ? day.qibExAnchor.toFixed(2) + 'x' : '--' }}
+            </td>
+            <td class="px-2 py-3">
+              {{ day.nii ? day.nii.toFixed(2) + 'x' : '--' }}
+            </td>
+            <td class="px-2 py-3">
+              {{ day.retail ? day.retail.toFixed(2) + 'x' : '--' }}
+            </td>
+            <td class="px-2 py-3 font-medium">
+              {{ day.total ? day.total.toFixed(2) + 'x' : '--' }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Reservation Card -->
+  @if (reservation().length > 0) {
+  <div
+    class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white px-4 pt-4 pb-0 shadow sm:p-4 dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      Reservation
+    </h2>
+
+    <div class="overflow-x-auto max-sm:-mx-4">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th class="px-2 py-3">Category</th>
+            <th class="px-2 py-3">Shares</th>
+            <th class="px-2 py-3">Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of reservation(); track entry.investorCatg) {
+          <tr
+            class="border-b border-gray-100 last:border-0 dark:border-gray-700"
+            [ngClass]="isReservationTotalRow(entry)
+                    ? 'bg-gray-50 dark:bg-gray-700'
+                    : 'bg-white dark:bg-gray-800'"
+          >
+            <td
+              class="px-2 py-3 text-gray-900 dark:text-white"
+              [ngClass]="isReservationTotalRow(entry) ? 'font-bold' : 'font-medium'"
+            >
+              <span class="hidden sm:inline">{{ entry.investorCatg }}</span>
+              <span class="sm:hidden"
+                >{{ getReservationShortLabel(entry) }}</span
+              >
+            </td>
+            <td
+              class="px-2 py-3"
+              [ngClass]="isReservationTotalRow(entry) ? 'font-bold' : ''"
+            >
+              {{ entry.shares }}
+            </td>
+            <td
+              class="px-2 py-3"
+              [ngClass]="isReservationTotalRow(entry) ? 'font-bold' : ''"
+            >
+              {{ getReservationPercent(entry, reservation()) }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+  <!-- Financials Card -->
+  <!-- TODO: Hidden until chart and table format is finalized; enable in a future release. -->
+  @if (pnlData().length > 0 || quarterlyData().length > 0 || bsData().length > 0
+  || cfData().length > 0 || hasFinancials()) {
+  <div
+    class="mb-6 hidden overflow-hidden rounded-lg border border-gray-200 bg-white px-4 pt-4 pb-0 shadow sm:p-4 dark:border-gray-700 dark:bg-gray-800"
+  >
+    <div
+      class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Financials
+      </h2>
+
+      <!-- Standalone / Consolidated toggle -->
+      <div
+        class="inline-flex h-8 shrink-0 rounded-md shadow-xs"
+        role="group"
+        aria-label="Filter financials by statement type"
+      >
+        <button
+          (click)="onFinancialTypeChange('standalone')"
+          type="button"
+          [disabled]="financialsLoaded() && !standaloneAvailable()"
+          [attr.aria-pressed]="financialType() === 'standalone'"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-s-md border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700"
+          [ngClass]="financialType() === 'standalone' ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white enabled:hover:bg-gray-100 enabled:hover:text-primary-700 dark:enabled:hover:bg-gray-700 dark:enabled:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Standalone
+        </button>
+        <button
+          (click)="onFinancialTypeChange('consolidated')"
+          type="button"
+          [disabled]="financialsLoaded() && !consolidatedAvailable()"
+          [attr.aria-pressed]="financialType() === 'consolidated'"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-e-md border border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700"
+          [ngClass]="financialType() === 'consolidated' ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white enabled:hover:bg-gray-100 enabled:hover:text-primary-700 dark:enabled:hover:bg-gray-700 dark:enabled:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Consolidated
+        </button>
+      </div>
+    </div>
+
+    <!-- Desktop Tabs (Vatti FD calculator style) -->
+    <ul
+      class="mb-4 hidden flex-wrap border-b border-gray-200 sm:flex dark:border-gray-700"
+    >
+      <li class="me-2">
+        <p
+          (click)="onFinancialTabChange(FinancialTab.PNL)"
+          (keydown.enter)="onFinancialTabChange(FinancialTab.PNL)"
+          tabindex="0"
+          class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+          [ngClass]="activeFinancialTab() === FinancialTab.PNL
+                ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Profit &amp; Loss
+        </p>
+      </li>
+      <li class="me-2">
+        <p
+          (click)="onFinancialTabChange(FinancialTab.QUARTERLY)"
+          (keydown.enter)="onFinancialTabChange(FinancialTab.QUARTERLY)"
+          tabindex="0"
+          class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+          [ngClass]="activeFinancialTab() === FinancialTab.QUARTERLY
+                ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Quarterly Results
+        </p>
+      </li>
+      <li class="me-2">
+        <p
+          (click)="onFinancialTabChange(FinancialTab.BALANCE_SHEET)"
+          (keydown.enter)="onFinancialTabChange(FinancialTab.BALANCE_SHEET)"
+          tabindex="0"
+          class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+          [ngClass]="activeFinancialTab() === FinancialTab.BALANCE_SHEET
+                ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Balance Sheet
+        </p>
+      </li>
+      <li class="me-2">
+        <p
+          (click)="onFinancialTabChange(FinancialTab.CASH_FLOW)"
+          (keydown.enter)="onFinancialTabChange(FinancialTab.CASH_FLOW)"
+          tabindex="0"
+          class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
+          [ngClass]="activeFinancialTab() === FinancialTab.CASH_FLOW
+                ? 'border-primary-600 text-primary-600 dark:text-primary-500'
+                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Cash Flow
+        </p>
+      </li>
+    </ul>
+
+    <!-- Mobile Tabs -->
+    <div class="mb-4 sm:hidden">
+      <select
+        [ngModel]="activeFinancialTab()"
+        (ngModelChange)="onFinancialTabChange($event)"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      >
+        <option [value]="FinancialTab.PNL">Profit &amp; Loss</option>
+        <option [value]="FinancialTab.QUARTERLY">Quarterly Results</option>
+        <option [value]="FinancialTab.BALANCE_SHEET">Balance Sheet</option>
+        <option [value]="FinancialTab.CASH_FLOW">Cash Flow</option>
+      </select>
+    </div>
+
+    <!-- Metric Buttons (range selector style) -->
+    <div class="mb-4 flex flex-wrap gap-2">
+      @switch (activeFinancialTab()) { @case (FinancialTab.PNL) { @for (m of
+      getPnlMetrics(); track m.key) {
+      <button
+        (click)="selectMetric(m.key)"
+        class="rounded-md px-3 py-1 text-xs font-medium"
+        [ngClass]="selectedMetric() === m.key
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+      >
+        {{ m.label }}
+      </button>
+      } } @case (FinancialTab.QUARTERLY) { @for (m of getQuarterlyMetrics();
+      track m.key) {
+      <button
+        (click)="selectMetric(m.key)"
+        class="rounded-md px-3 py-1 text-xs font-medium"
+        [ngClass]="selectedMetric() === m.key
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+      >
+        {{ m.label }}
+      </button>
+      } } @case (FinancialTab.BALANCE_SHEET) { @for (m of getBsMetrics(); track
+      m.key) {
+      <button
+        (click)="selectMetric(m.key)"
+        class="rounded-md px-3 py-1 text-xs font-medium"
+        [ngClass]="selectedMetric() === m.key
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+      >
+        {{ m.label }}
+      </button>
+      } } @case (FinancialTab.CASH_FLOW) { @for (m of getCfMetrics(); track
+      m.key) {
+      <button
+        (click)="selectMetric(m.key)"
+        class="rounded-md px-3 py-1 text-xs font-medium"
+        [ngClass]="selectedMetric() === m.key
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+      >
+        {{ m.label }}
+      </button>
+      } } }
+    </div>
+
+    <!-- Chart placeholder -->
+    <div
+      class="mb-4 flex h-64 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+    >
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Chart.js bar chart — {{ selectedMetric() }}
+      </p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="overflow-x-auto max-sm:-mx-4">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th class="px-2 py-3">Metric</th>
+            @for (label of getChartLabels(); track label) {
+            <th class="px-2 py-3">{{ label }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @switch (activeFinancialTab()) { @case (FinancialTab.PNL) { @for (m of
+          getPnlMetrics(); track m.key) {
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+            [ngClass]="selectedMetric() === m.key ? 'bg-blue-50 dark:bg-blue-900/20' : ''"
+          >
+            <td class="px-2 py-2 font-medium text-gray-900 dark:text-white">
+              {{ m.label }}
+            </td>
+            @for (item of pnlData(); track item.year) {
+            <td class="px-2 py-2">
+              {{ getPnlValue(item, m.key) | number:'1.0-2' }}
+            </td>
+            }
+          </tr>
+          } } @case (FinancialTab.QUARTERLY) { @for (m of getQuarterlyMetrics();
+          track m.key) {
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+            [ngClass]="selectedMetric() === m.key ? 'bg-blue-50 dark:bg-blue-900/20' : ''"
+          >
+            <td class="px-2 py-2 font-medium text-gray-900 dark:text-white">
+              {{ m.label }}
+            </td>
+            @for (item of quarterlyData(); track item.year) {
+            <td class="px-2 py-2">
+              {{ getQuarterlyValue(item, m.key) | number:'1.0-2' }}
+            </td>
+            }
+          </tr>
+          } } @case (FinancialTab.BALANCE_SHEET) { @for (m of getBsMetrics();
+          track m.key) {
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+            [ngClass]="selectedMetric() === m.key ? 'bg-blue-50 dark:bg-blue-900/20' : ''"
+          >
+            <td class="px-2 py-2 font-medium text-gray-900 dark:text-white">
+              {{ m.label }}
+            </td>
+            @for (item of bsData(); track item.year) {
+            <td class="px-2 py-2">
+              {{ getBsValue(item, m.key) | number:'1.0-2' }}
+            </td>
+            }
+          </tr>
+          } } @case (FinancialTab.CASH_FLOW) { @for (m of getCfMetrics(); track
+          m.key) {
+          <tr
+            class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
+            [ngClass]="selectedMetric() === m.key ? 'bg-blue-50 dark:bg-blue-900/20' : ''"
+          >
+            <td class="px-2 py-2 font-medium text-gray-900 dark:text-white">
+              {{ m.label }}
+            </td>
+            @for (item of cfData(); track item.resultyear) {
+            <td class="px-2 py-2">
+              {{ getCfValue(item, m.key) | number:'1.0-2' }}
+            </td>
+            }
+          </tr>
+          } } }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+  <!-- Objects of Issue Card -->
+  @if (getObjectsOfIssue().length > 0) {
+  <div
+    class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white px-4 pt-4 pb-0 shadow sm:p-4 dark:border-gray-700 dark:bg-gray-800"
+  >
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      Objects of Issue
+    </h2>
+
+    <div class="overflow-x-auto max-sm:-mx-4">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th class="w-full px-2 py-3 whitespace-nowrap">Objective</th>
+            <th class="px-2 py-3 whitespace-nowrap">
+              <span class="hidden sm:inline">Amount</span>
+              <span class="sm:hidden">AMT (₹ Cr)</span>
+            </th>
+            <th class="px-2 py-3 whitespace-nowrap max-sm:text-center">
+              <span class="hidden sm:inline">Percentage</span>
+              <span class="sm:hidden">%</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (obj of getObjectsOfIssue(); track $index) {
+          <tr
+            class="border-b border-gray-100 bg-white last:border-0 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td class="px-2 py-3 font-medium text-gray-900 dark:text-white">
+              {{ obj.description }}
+            </td>
+            <td class="px-2 py-3 whitespace-nowrap max-sm:text-center">
+              @if (obj.amount === null || obj.amount === undefined) { -- } @else
+              {
+              <span class="hidden sm:inline"
+                >₹{{ obj.amount | number:'1.0-2' }} Cr</span
+              ><span class="sm:hidden">{{ obj.amount | number:'1.0-2' }}</span>
+              }
+            </td>
+            <td class="px-2 py-3 whitespace-nowrap max-sm:text-center">
+              @if (obj.percentChange) { {{ obj.percentChange | number:'1.0-2'
+              }}<span class="hidden sm:inline">%</span>
+              } @else { -- }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  } } @else {
+  <div class="flex flex-col items-center justify-center py-12">
+    <p class="text-gray-500 dark:text-gray-400">No IPO details found</p>
+  </div>
+  }
+</div>
