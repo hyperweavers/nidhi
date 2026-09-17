@@ -214,6 +214,15 @@ button:not(:disabled),
   cursor: pointer;
 }
 
+/* CDK virtual scroll renders its content wrapper as an absolutely positioned
+   shrink-to-fit box, which grows with the widest row. Constrain it to the
+   viewport width so flex rows fill (not exceed) the viewport and the first
+   column truncates instead of causing horizontal scroll. */
+.cdk-virtual-scroll-content-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+
 input[type='file']::file-selector-button {
   background-color: var(--color-gray);
 }

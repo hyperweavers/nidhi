@@ -16,6 +16,7 @@ import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { MarketService } from '../../services/core/market.service';
 import { SettingsService } from '../../services/core/settings.service';
+import { PortfolioService } from '../../services/portfolio.service';
 import { WatchListService } from '../../services/watch-list.service';
 import { StocksPage } from './stocks.page';
 
@@ -970,4 +971,83 @@ describe('StocksPage', () => {
       ).not.toHaveBeenCalled();
     }));
   });
+});
+
+describe('StocksPage portfolio holding', () => {
+  let component: StocksPage;
+  let fixture: ComponentFixture<StocksPage>;
+
+  const holding = {
+    id: 'h1',
+    name: 'Reliance Industries',
+    quantity: 5,
+    averagePrice: 100,
+    investment: 500,
+    marketValue: 600,
+    vendorCode: { etm: { primary: '1' } },
+    transactions: [],
+    totalProfitLoss: { direction: Direction.UP, value: 100, percentage: 20 },
+  };
+
+  async function createWithHoldings(holdings: unknown[]): Promise<void> {
+    await TestBed.configureTestingModule({
+      imports: [StocksPage],
+      providers: [
+        {
+          provide: MarketService,
+          useValue: {
+            marketStatus$: of({}),
+            getStock: jest.fn().mockReturnValue(of(createMockStock())),
+            getIntraDayChart: jest.fn().mockReturnValue(of([])),
+            getHistoricalChart: jest.fn().mockReturnValue(of([])),
+          },
+        },
+        {
+          provide: SettingsService,
+          useValue: {
+            settings$: of({}),
+            resize$: of(new Event('resize')),
+          },
+        },
+        { provide: LOGGER, useValue: {} },
+        { provide: WatchListService, useValue: {} },
+        { provide: ToastService, useValue: {} },
+        {
+          provide: PortfolioService,
+          useValue: { portfolio$: of({ holdings }) },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(StocksPage);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('id', '1');
+    fixture.detectChanges();
+  }
+
+  it('should emit the matching holding with quantity', fakeAsync(async () => {
+    await createWithHoldings([holding]);
+    tick();
+    let result: unknown = 'unset';
+    component['portfolioHolding$']?.subscribe((h) => (result = h));
+    tick();
+    expect(result).toBe(holding);
+  }));
+
+  it('should emit undefined without a match, quantity or id', fakeAsync(async () => {
+    await createWithHoldings([
+      { ...holding, vendorCode: { etm: { primary: 'other' } } },
+      { ...holding, id: 'h2', quantity: 0 },
+    ]);
+    tick();
+    let result: unknown = 'unset';
+    component['portfolioHolding$']?.subscribe((h) => (result = h));
+    tick();
+    expect(result).toBeUndefined();
+    fixture.componentRef.setInput('id', '');
+    tick();
+    component['portfolioHolding$']?.subscribe((h) => (result = h));
+    tick();
+    expect(result).toBeUndefined();
+  }));
 });

@@ -293,29 +293,26 @@
   <!-- Virtual Scroll Table -->
   @if (transactions$ | async; as transactions) { @if (transactions.length > 0) {
   <div
-    class="mx-4 flex-1 overflow-hidden rounded-md border border-gray-200 shadow-sm dark:border-gray-700"
+    class="flex-1 overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
   >
-    <!-- Sticky Header -->
-    <div
-      class="sticky top-0 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
-    >
-      <div class="flex-1 p-2 text-left sm:p-4">
-        <div class="whitespace-nowrap">Company</div>
-        <div>Date</div>
+    <cdk-virtual-scroll-viewport itemSize="57" class="h-full w-full max-w-full">
+      <!-- Sticky Header (inside the viewport so it shares the scrollbar-adjusted width with rows) -->
+      <div
+        class="sticky top-0 z-10 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <div class="min-w-0 flex-1 p-2 text-left">
+          <div class="whitespace-nowrap">Company</div>
+          <div>Date</div>
+        </div>
+        <div class="w-24 shrink-0 p-2 text-center">
+          <div>Price (&#8377;)</div>
+          <div>Quantity</div>
+        </div>
+        <div class="w-24 shrink-0 p-2 text-center leading-8">
+          <div>Actions</div>
+        </div>
       </div>
-      <div class="p-2 text-left sm:p-4">
-        <div>Price (&#8377;)</div>
-        <div>Quantity</div>
-      </div>
-      <div class="p-2 text-left leading-8 sm:p-4">
-        <div>Actions</div>
-      </div>
-    </div>
 
-    <cdk-virtual-scroll-viewport
-      itemSize="72"
-      class="h-[calc(100%-64px)] max-h-[calc(100%-64px)] w-full max-w-full"
-    >
       <!-- Data rows -->
       <ng-template
         cdkVirtualFor
@@ -324,35 +321,33 @@
         trackBy
       >
         <div
-          class="flex border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+          [routerLink]="item.vendorCode ? ['/' + Routes.STOCKS, item.vendorCode] : null"
+          class="relative flex cursor-pointer border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
         >
-          <div class="flex-1 p-2 sm:p-4">
-            <div class="flex">
-              <div class="truncate font-medium text-gray-900 dark:text-white">
-                {{ item.stockName | valueOrPlaceholder }}
-              </div>
-              <span
-                class="ms-2 rounded-sm px-2.5 py-0.5 text-xs font-medium"
-                [ngClass]="item.type === 'BUY' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'"
-                >{{ item.type }}</span
-              >
+          <div
+            class="absolute top-0 bottom-0 left-0 w-0.5"
+            [ngClass]="item.type === 'BUY' ? 'bg-green-500' : 'bg-red-500'"
+          ></div>
+          <div class="min-w-0 flex-1 p-2">
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ item.stockName | valueOrPlaceholder }}
             </div>
             <div>{{ formatDate(item.date) | valueOrPlaceholder }}</div>
           </div>
-          <div class="text-center sm:p-4">
+          <div class="w-24 shrink-0 p-2 text-center">
             <div>{{ item.price | valueOrPlaceholder }}</div>
             <div>{{ item.quantity | valueOrPlaceholder: '1.0-0' }}</div>
           </div>
-          <div class="p-2 text-center sm:p-4">
+          <div class="w-24 shrink-0 p-2 text-center">
             <!-- Edit -->
             <button
-              (click)="openEditDrawer(item)"
+              (click)="openEditDrawer(item); $event.stopPropagation()"
               data-drawer-target="edit-transaction-drawer"
               data-drawer-show="edit-transaction-drawer"
               aria-controls="edit-transaction-drawer"
               data-drawer-placement="right"
               type="button"
-              class="inline-flex items-center rounded-md p-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+              class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 inline-flex items-center rounded-md p-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
               title="Edit transaction"
             >
               <svg
@@ -378,9 +373,9 @@
             </button>
             <!-- Delete -->
             <button
-              (click)="openDeleteConfirmation(item.holdingId, item.transactionId)"
+              (click)="openDeleteConfirmation(item.holdingId, item.transactionId); $event.stopPropagation()"
               type="button"
-              class="inline-flex items-center rounded-md p-1.5 text-sm text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-red-400"
+              class="inline-flex items-center rounded-md p-1.5 text-sm text-red-500 hover:bg-gray-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-gray-600 dark:hover:text-red-300"
               title="Delete transaction"
             >
               <svg
@@ -405,6 +400,18 @@
         </div>
       </ng-template>
     </cdk-virtual-scroll-viewport>
+  </div>
+  <div
+    class="mt-4 flex justify-center gap-6 px-1 text-sm text-gray-500 dark:text-gray-400"
+  >
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block h-4 w-0.5 bg-green-500"></span>
+      BUY
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block h-4 w-0.5 bg-red-500"></span>
+      SELL
+    </span>
   </div>
   } @else {
   <div

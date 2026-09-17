@@ -1,6 +1,7 @@
 import type {
   BsResponse,
   CfResponse,
+  DraftIpoResponse,
   IpoCalendarResponse,
   IpoDetailsResponse,
   IpoLinksResponse,
@@ -517,4 +518,20 @@ export const mockListingSoonIpos: ListingSoonIpoResponse = {
     totalrecords: 1,
     totalpages: 1,
   },
+};
+
+export const mockDraftIpoResponse: DraftIpoResponse = {
+  success: 1,
+  data: [
+    {
+      equityName: 'M K C Agro Fresh Limited',
+      date: '11-Sep-2026',
+      pdfFileLink: 'https://example.com/m-k-c-agro.pdf',
+    },
+    {
+      equityName: 'Torrent Gas Limited',
+      date: '09-Sep-2026',
+      pdfFileLink: '',
+    },
+  ],
 };

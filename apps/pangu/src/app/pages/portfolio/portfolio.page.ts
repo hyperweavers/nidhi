@@ -214,13 +214,15 @@ export class PortfolioPage implements AfterViewInit {
     if (
       sortType !== PortfolioSortType.DAY_PROFIT_LOSS ||
       sortOrder !== PortfolioSortOrder.DSC ||
-      filter !== PortfolioFilter.NONE
+      filter !== PortfolioFilter.NONE ||
+      this.portfolioSearchQuery()
     ) {
       this.portfolioFilter$.next(PortfolioFilter.NONE);
       this.portfolioSort$.next([
         PortfolioSortType.DAY_PROFIT_LOSS,
         PortfolioSortOrder.DSC,
       ]);
+      this.portfolioSearchQuery.set('');
 
       this.router.navigate([], {
         relativeTo: this.route,

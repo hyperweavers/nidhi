@@ -6,7 +6,7 @@
         (click)="openTypeahead()"
         (keydown.enter)="openTypeahead()"
         type="button"
-        class="flex w-full items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+        class="flex w-full items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 md:w-64 xl:w-96 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
       >
         <span class="truncate font-medium">{{ selectedListName() }}</span>
         <svg
@@ -23,7 +23,7 @@
       </button>
     } @else {
       <!-- Typeahead inside dropdown -->
-      <div class="relative w-full">
+      <div class="relative w-full md:w-64 xl:w-96">
         <div class="relative">
           <div
             class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
@@ -94,7 +94,7 @@
     }
   } @else {
     <!-- Original typeahead mode -->
-    <div class="relative w-full">
+    <div class="relative w-full md:w-64 xl:w-96">
       <div class="relative">
         <div
           class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"

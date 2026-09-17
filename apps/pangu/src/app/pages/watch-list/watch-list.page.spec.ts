@@ -14,6 +14,7 @@ import { Direction, ExchangeName } from '../../models/market';
 import { Stock } from '../../models/stock';
 import { WatchList, WatchListStock } from '../../models/watch-list';
 import { MarketService } from '../../services/core/market.service';
+import { PortfolioService } from '../../services/portfolio.service';
 import { WatchListService } from '../../services/watch-list.service';
 import { WatchListPage } from './watch-list.page';
 
@@ -74,6 +75,7 @@ describe('WatchListPage', () => {
   let router: Router;
   let watchListSubject: BehaviorSubject<WatchList | undefined>;
   let watchListStocksSubject: BehaviorSubject<WatchListStock[]>;
+  let portfolioSubject: BehaviorSubject<{ holdings: unknown[] }>;
 
   beforeEach(async () => {
     watchListSubject = new BehaviorSubject<WatchList | undefined>(
@@ -82,6 +84,9 @@ describe('WatchListPage', () => {
     watchListStocksSubject = new BehaviorSubject<WatchListStock[]>(
       mockWatchListStocks,
     );
+    portfolioSubject = new BehaviorSubject<{ holdings: unknown[] }>({
+      holdings: [],
+    });
 
     watchListService = {
       watchLists$: of([mockWatchList]),
@@ -122,6 +127,10 @@ describe('WatchListPage', () => {
         { provide: WatchListService, useValue: watchListService },
         { provide: MarketService, useValue: marketService },
         { provide: ToastService, useValue: toastService },
+        {
+          provide: PortfolioService,
+          useValue: { portfolio$: portfolioSubject.asObservable() },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -878,5 +887,27 @@ describe('WatchListPage', () => {
     } finally {
       document.body.innerHTML = '';
     }
+  });
+
+  it('should map portfolio holdings by vendor code', () => {
+    expect(component['holdingsByCode']().size).toBe(0);
+    expect(component['holdingFor']('comp-123')).toBeUndefined();
+    expect(component['holdingFor'](undefined)).toBeUndefined();
+    portfolioSubject.next({
+      holdings: [
+        {
+          vendorCode: { etm: { primary: 'comp-123' } },
+          quantity: 5,
+        },
+        {
+          vendorCode: { etm: { primary: 'comp-456' } },
+          quantity: 0,
+        },
+        { vendorCode: {}, quantity: 1 },
+      ],
+    } as never);
+    expect(component['holdingsByCode']().size).toBe(1);
+    expect(component['holdingFor']('comp-123')?.quantity).toBe(5);
+    expect(component['holdingFor']('comp-456')).toBeUndefined();
   });
 });

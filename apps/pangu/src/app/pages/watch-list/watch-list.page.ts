@@ -28,16 +28,19 @@ import {
 
 import { ToastService, ToastType } from '@nidhi/shared-toast';
 import { Drawer, Dropdown } from 'flowbite';
+import { PortfolioPopoverComponent } from '../../components/portfolio-popover/portfolio-popover.component';
 import {
   SelectWatchListComponent,
   WatchListSelectionMode,
 } from '../../components/select-watch-list/select-watch-list.component';
 import { Constants } from '../../constants';
 import { Direction, ExchangeName } from '../../models/market';
+import { Holding } from '../../models/portfolio';
 import { Stock } from '../../models/stock';
 import { WatchList, WatchListStock } from '../../models/watch-list';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { MarketService } from '../../services/core/market.service';
+import { PortfolioService } from '../../services/portfolio.service';
 import { WatchListService } from '../../services/watch-list.service';
 
 enum WatchListSortType {
@@ -70,6 +73,7 @@ enum WatchListFilter {
     RouterLink,
     ValueOrPlaceholderPipe,
     SelectWatchListComponent,
+    PortfolioPopoverComponent,
   ],
   templateUrl: './watch-list.page.html',
   styleUrl: './watch-list.page.css',
@@ -82,6 +86,7 @@ export class WatchListPage implements AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly watchListService = inject(WatchListService);
   private readonly marketService = inject(MarketService);
+  private readonly portfolioService = inject(PortfolioService);
   private readonly toastService = inject(ToastService);
 
   private readonly stockSearchBox = viewChild<ElementRef>('stockSearchBox');
@@ -113,6 +118,7 @@ export class WatchListPage implements AfterViewInit {
   public readonly stocks = signal<(WatchListStock & { liveData?: Stock })[]>(
     [],
   );
+  protected readonly holdingsByCode = signal<Map<string, Holding>>(new Map());
   public readonly filteredStocks = signal<
     (WatchListStock & { liveData?: Stock })[]
   >([]);
@@ -132,6 +138,21 @@ export class WatchListPage implements AfterViewInit {
 
   constructor() {
     const marketService = inject(MarketService);
+
+    // Portfolio holdings by vendor code for the in-portfolio indicator.
+    this.portfolioService.portfolio$
+      .pipe(untilDestroyed(this))
+      .subscribe((portfolio) => {
+        this.holdingsByCode.set(
+          new Map(
+            (portfolio.holdings || [])
+              .filter(
+                (h) => h.vendorCode?.etm?.primary && (h.quantity || 0) > 0,
+              )
+              .map((h) => [h.vendorCode.etm.primary as string, h]),
+          ),
+        );
+      });
 
     // Load watch list stocks and live prices
     toObservable(this.id)
@@ -505,6 +526,11 @@ export class WatchListPage implements AfterViewInit {
     if (stock.scripCode?.nse) return ExchangeName.NSE;
     if (stock.scripCode?.bse) return ExchangeName.BSE;
     return '';
+  }
+
+  protected holdingFor(primary?: string): Holding | undefined {
+    if (!primary) return undefined;
+    return this.holdingsByCode().get(primary);
   }
 
   private applyFilters(): void {

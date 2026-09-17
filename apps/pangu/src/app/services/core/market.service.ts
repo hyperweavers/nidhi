@@ -57,6 +57,7 @@ import { Quote, Stock } from '../../models/stock';
 import {
   BsResponse,
   CfResponse,
+  DraftIpoResponse,
   IpoCalendarResponse,
   IpoDetailsResponse,
   IpoLinksResponse,
@@ -1029,6 +1030,15 @@ export class MarketService {
   public getIpoOverviewListing(): Observable<ListingSoonIpoResponse> {
     return this.http.get<ListingSoonIpoResponse>(
       `${Constants.api.IPO_OVERVIEW}?section=listing&pageSize=1000`,
+    );
+  }
+
+  public getIpoDraftIssues(
+    page = 1,
+    limit = Constants.configs.defaults.IPO_DRAFT_PAGE_SIZE,
+  ): Observable<DraftIpoResponse> {
+    return this.http.get<DraftIpoResponse>(
+      `${Constants.api.IPO_DRAFT}?page=${page}&limit=${limit}`,
     );
   }
 

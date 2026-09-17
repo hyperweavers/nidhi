@@ -13,6 +13,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
 import { Constants } from '../../constants';
 import {
+  DraftIpoItem,
   IpoCalendarDay,
   IpoCalendarItem,
   IpoCalendarState,
@@ -72,6 +73,10 @@ export class IpoPage implements OnInit {
   protected readonly upcomingIpos = signal<UpcomingIpoOverviewItem[]>([]);
   protected readonly closedIpos = signal<ListingSoonIpoItem[]>([]);
   protected readonly listedIpos = signal<ListedIpoOverviewItem[]>([]);
+  protected readonly draftIpos = signal<DraftIpoItem[]>([]);
+  protected readonly draftPage = signal(1);
+  protected readonly draftHasMore = signal(true);
+  protected readonly draftLoadingMore = signal(false);
 
   protected readonly selectedDay = signal<IpoCalendarDay | null>(null);
   protected readonly showDayModal = signal(false);
@@ -115,6 +120,9 @@ export class IpoPage implements OnInit {
   );
   protected readonly filteredListed = computed(() =>
     this.filterRows(this.listedIpos()),
+  );
+  protected readonly filteredDraft = computed(() =>
+    this.filterDraftRows(this.draftIpos()),
   );
 
   ngOnInit(): void {
@@ -161,7 +169,7 @@ export class IpoPage implements OnInit {
 
   private loadOverviewTables(): void {
     this.tabRowsLoading.set(true);
-    let pending = 4;
+    let pending = 5;
     const done = (): void => {
       pending -= 1;
       if (pending <= 0) this.tabRowsLoading.set(false);
@@ -222,6 +230,52 @@ export class IpoPage implements OnInit {
         },
         error: () => done(),
       });
+
+    this.ipoService
+      .getDraftIssues(1)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (items) => {
+          this.draftIpos.set(this.sortDraftIssues(items));
+          this.draftPage.set(1);
+          this.draftHasMore.set(
+            items.length >= Constants.configs.defaults.IPO_DRAFT_PAGE_SIZE,
+          );
+          done();
+        },
+        error: () => done(),
+      });
+  }
+
+  protected loadMoreDrafts(): void {
+    if (this.draftLoadingMore() || !this.draftHasMore()) return;
+    this.draftLoadingMore.set(true);
+    const nextPage = this.draftPage() + 1;
+
+    this.ipoService
+      .getDraftIssues(nextPage)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (items) => {
+          this.draftIpos.set(
+            this.sortDraftIssues([...this.draftIpos(), ...items]),
+          );
+          this.draftPage.set(nextPage);
+          this.draftHasMore.set(
+            items.length >= Constants.configs.defaults.IPO_DRAFT_PAGE_SIZE,
+          );
+          this.draftLoadingMore.set(false);
+        },
+        error: () => {
+          this.draftLoadingMore.set(false);
+        },
+      });
+  }
+
+  private sortDraftIssues(items: DraftIpoItem[]): DraftIpoItem[] {
+    return [...items].sort(
+      (a, b) => this.parseDraftDate(b.date) - this.parseDraftDate(a.date),
+    );
   }
 
   private filterRows<T extends { companyName: string; ipoType?: string }>(
@@ -234,6 +288,12 @@ export class IpoPage implements OnInit {
         (!q || i.companyName.toLowerCase().includes(q)) &&
         (type === 'all' || (i.ipoType || '').toLowerCase() === type),
     );
+  }
+
+  private filterDraftRows(items: DraftIpoItem[]): DraftIpoItem[] {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((i) => (i.equityName || '').toLowerCase().includes(q));
   }
 
   protected onSearchChange(query: string): void {
@@ -497,6 +557,19 @@ export class IpoPage implements OnInit {
     return this.formatDayMonthYear(new Date(epoch), 'short');
   }
 
+  protected formatDraftDate(value: string | null | undefined): string {
+    if (!value) return '--';
+    const time = this.parseDraftDate(value);
+    if (!Number.isFinite(time) || time <= 0) return value;
+    return this.formatDayMonthYear(new Date(time), 'short');
+  }
+
+  private parseDraftDate(value: string | null | undefined): number {
+    if (!value) return 0;
+    const time = Date.parse(value);
+    return Number.isFinite(time) ? time : 0;
+  }
+
   protected formatModalDate(date: Date): string {
     return this.formatDayMonthYear(date, 'long');
   }
@@ -566,7 +639,9 @@ export class IpoPage implements OnInit {
           ? this.upcomingIpos().length
           : tab === IpoTab.CLOSED
             ? this.closedIpos().length
-            : this.openIpos().length;
+            : tab === IpoTab.DRAFT
+              ? this.draftIpos().length
+              : this.openIpos().length;
     return count > 0 || this.searchQuery().trim().length > 0;
   }
 

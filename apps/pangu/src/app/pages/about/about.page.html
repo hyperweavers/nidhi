@@ -1,11 +1,80 @@
 <div class="p-4 text-gray-500 dark:text-gray-400">
-  <strong
+  <h1
     class="mt-4 block text-center text-2xl font-semibold text-gray-900 dark:text-white"
-    >About</strong
   >
+    About
+  </h1>
+
   <br />
+
   <p>
     Pangu (<span class="italic">Tamil: பங்கு; English: Share</span>) is a
-    privacy focused open source personal stock portfolio management application.
+    privacy focused open source personal stock portfolio management application
+    for Indian markets.
   </p>
+
+  <br />
+
+  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Features</h3>
+
+  <ul class="list-disc space-y-1 pl-5">
+    <li>Dashboard with market overview</li>
+    <li>Portfolio tracking with transactions, import and export</li>
+    <li>Stock search with quotes and company details</li>
+    <li>Indices with constituents and charts</li>
+    <li>IPO calendar with issue details, subscription and objectives</li>
+    <li>Watchlists for stocks you follow</li>
+    <li>Glossary of Indian stock market terms</li>
+    <li>Light and dark themes with offline-friendly installable app</li>
+  </ul>
+
+  <br />
+  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Privacy</h3>
+
+  <p>
+    Your portfolio holdings, transactions, watchlists and settings are stored
+    only on your device — all personal data stays local. No account or sign-up
+    is needed to use Pangu. See our
+    <a class="underline" routerLink="/{{ Routes.PRIVACY }}">Privacy Policy</a>
+    for details.
+  </p>
+
+  <br />
+
+  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Open Source</h3>
+
+  <p>
+    Pangu is free and open source software built by
+    <a class="underline" href="https://hyperweavers.com">Hyper Weavers</a>. The
+    source code is available at
+    <a
+      class="underline"
+      href="https://github.com/hyperweavers/nidhi"
+      target="_blank"
+      rel="noopener noreferrer"
+      >github.com/hyperweavers/nidhi</a
+    >, where you can also report issues and contribute.
+  </p>
+
+  <br />
+
+  <p>
+    Use of this app is subject to our
+    <a class="underline" routerLink="/{{ Routes.DISCLAIMER }}">Disclaimer</a>.
+    Pangu is for information and education purposes only and does not offer
+    financial advice or regulated financial services.
+  </p>
+
+  <br />
+
+  <p>
+    Contact us by email at
+    <a class="underline" href="mailto:info@hyperweavers.com"
+      >info&#64;hyperweavers.com</a
+    >.
+  </p>
+
+  <br />
+
+  <p class="text-center text-sm">Version: {{ appVersion }}</p>
 </div>

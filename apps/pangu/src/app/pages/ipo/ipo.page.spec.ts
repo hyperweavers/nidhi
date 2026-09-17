@@ -31,6 +31,7 @@ describe('IpoPage', () => {
     getUpcomingOverview: jest.fn().mockReturnValue(of([])),
     getListingSoon: jest.fn().mockReturnValue(of([])),
     getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
   };
 
   beforeEach(async () => {
@@ -68,6 +69,7 @@ describe('IpoPage', () => {
     expect(ipoServiceMock.getUpcomingOverview).toHaveBeenCalled();
     expect(ipoServiceMock.getListingSoon).toHaveBeenCalled();
     expect(ipoServiceMock.getListedOverview).toHaveBeenCalled();
+    expect(ipoServiceMock.getDraftIssues).toHaveBeenCalled();
   });
 
   it('should default search query to empty and type filter to all', () => {
@@ -430,6 +432,7 @@ describe('IpoPage tab persistence', () => {
     getUpcomingOverview: jest.fn().mockReturnValue(of([])),
     getListingSoon: jest.fn().mockReturnValue(of([])),
     getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
   };
 
   beforeEach(async () => {
@@ -493,6 +496,7 @@ describe('IpoPage calendar and tables', () => {
     getUpcomingOverview: jest.fn().mockReturnValue(of([])),
     getListingSoon: jest.fn().mockReturnValue(of([])),
     getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
   };
 
   beforeEach(async () => {
@@ -894,7 +898,7 @@ describe('IpoPage calendar and tables', () => {
         date: 0,
         displayIpoList: [listing, closing, opening, openingDupState, listing],
         remainingCount: 0,
-        openIpoList: [],
+        openIpoList: [opening],
         closeIpoList: [extraClosing],
         listedIpoList: [],
       },
@@ -964,6 +968,7 @@ describe('IpoPage query param restoration', () => {
     getUpcomingOverview: jest.fn().mockReturnValue(of([])),
     getListingSoon: jest.fn().mockReturnValue(of([])),
     getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
   };
 
   const setup = async (params: Record<string, string>): Promise<void> => {
@@ -1012,6 +1017,7 @@ describe('IpoPage fallback branches', () => {
     getUpcomingOverview: jest.fn().mockReturnValue(of([])),
     getListingSoon: jest.fn().mockReturnValue(of([])),
     getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
   };
 
   beforeEach(async () => {
@@ -1025,6 +1031,24 @@ describe('IpoPage fallback branches', () => {
     fixture = TestBed.createComponent(IpoPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  const makeItem = (
+    companyId: number,
+    overrides: Partial<IpoCalendarItem> = {},
+  ): IpoCalendarItem => ({
+    id: `${companyId}`,
+    companyId,
+    companyName: `Company ${companyId}`,
+    ipoType: 'mainboard',
+    openDate: 0,
+    closeDate: 0,
+    listingDate: 0,
+    issueSize: 0,
+    dayWiseSubscriptions: [],
+    objectsOfIssue: [],
+    seoName: `company-${companyId}`,
+    ...overrides,
   });
 
   it('should step months without year wrap', () => {
@@ -1082,10 +1106,11 @@ describe('IpoPage fallback branches', () => {
       of([
         { companyName: 'A', openDate: null },
         { companyName: 'B', openDate: 100 },
+        { companyName: 'C', openDate: null },
       ] as OpenIpoOverviewItem[]),
     );
     component['loadOverviewTables']();
-    expect(component['openIpos']().length).toBe(2);
+    expect(component['openIpos']().length).toBe(3);
   });
 
   it('should return empty groups for null day and handle undefined lists', () => {
@@ -1174,24 +1199,27 @@ describe('IpoPage fallback branches', () => {
       of([
         { companyName: 'A', openDate: null as unknown as number },
         { companyName: 'B', openDate: 100 },
+        { companyName: 'C', openDate: null as unknown as number },
       ] as UpcomingIpoOverviewItem[]),
     );
     ipoServiceMock.getListingSoon.mockReturnValueOnce(
       of([
         { companyName: 'A', listingDate: null as unknown as number },
         { companyName: 'B', listingDate: 100 },
+        { companyName: 'C', listingDate: null as unknown as number },
       ] as ListingSoonIpoItem[]),
     );
     ipoServiceMock.getListedOverview.mockReturnValueOnce(
       of([
         { companyName: 'A', listingDate: null as unknown as number },
         { companyName: 'B', listingDate: 100 },
+        { companyName: 'C', listingDate: null as unknown as number },
       ] as ListedIpoOverviewItem[]),
     );
     component['loadOverviewTables']();
-    expect(component['upcomingIpos']().length).toBe(2);
-    expect(component['closedIpos']().length).toBe(2);
-    expect(component['listedIpos']().length).toBe(2);
+    expect(component['upcomingIpos']().length).toBe(3);
+    expect(component['closedIpos']().length).toBe(3);
+    expect(component['listedIpos']().length).toBe(3);
   });
 
   it('should handle missing display lists and duplicate union', () => {
@@ -1233,5 +1261,292 @@ describe('IpoPage fallback branches', () => {
   it('should handle truly absent companyId in ngOnInit path', () => {
     expect(component['formatDate'](null as unknown as number)).toBe('--');
     expect(component['formatDate'](0)).toBe('--');
+  });
+
+  it('should skip already-seen items when pushing modal groups', () => {
+    const item = makeItem(1);
+    const day: IpoCalendarDay = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        displayIpoList: [],
+        remainingCount: 0,
+        openIpoList: [item],
+        closeIpoList: [item],
+        listedIpoList: [],
+      },
+    };
+    const groups = component['modalGroups'](day);
+    expect(groups.map((g) => g.key)).toEqual(['opening']);
+    expect(groups[0].items).toHaveLength(1);
+  });
+
+  it('should filter out items without ipoType when a type is selected', () => {
+    const typed = makeItem(1, { ipoType: 'sme' });
+    const untyped = {
+      ...makeItem(2),
+      ipoType: undefined,
+    } as unknown as IpoCalendarItem;
+    const day: IpoCalendarDay = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        displayIpoList: [],
+        remainingCount: 0,
+        openIpoList: [typed, untyped],
+        closeIpoList: [],
+        listedIpoList: [],
+      },
+    };
+    component['onTypeFilterChange']('sme');
+    const groups = component['modalGroups'](day);
+    expect(groups[0].items.map((i) => i.companyId)).toEqual([1]);
+  });
+
+  it('should handle empty month parts from Intl', () => {
+    function FakeDateTimeFormat() {
+      return { formatToParts: () => [] };
+    }
+    const spy = jest
+      .spyOn(Intl, 'DateTimeFormat')
+      .mockImplementation(
+        FakeDateTimeFormat as unknown as typeof Intl.DateTimeFormat,
+      );
+    try {
+      expect(
+        component['formatModalDate'](new Date(Date.UTC(2026, 7, 15, 12))),
+      ).toBe('  ');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('should tolerate api days without a date', () => {
+    component['currentMonth'].set(7);
+    component['currentYear'].set(2026);
+    ipoServiceMock.getCalendar.mockReturnValueOnce(
+      of({
+        calendarList: [
+          {
+            date: null as unknown as number,
+            displayIpoList: [],
+            remainingCount: 0,
+            openIpoList: [],
+            closeIpoList: [],
+            listedIpoList: [],
+          },
+        ],
+      }),
+    );
+    component['loadCalendar']();
+    expect(component['calendarDays']().length).toBeGreaterThan(0);
+  });
+
+  it('should build empty entries for days without a display list', () => {
+    const day = {
+      date: new Date(Date.UTC(2026, 7, 15)),
+      dayNumber: 15,
+      isCurrentMonth: true,
+      ipos: {
+        date: 0,
+        displayIpoList: undefined as unknown as IpoCalendarItem[],
+        remainingCount: 0,
+        openIpoList: [],
+        closeIpoList: [],
+        listedIpoList: [],
+      },
+    } as unknown as IpoCalendarDay;
+    component['buildCalendarView']([day]);
+    expect(component['calendarView']()[0].entries).toEqual([]);
+  });
+});
+
+describe('IpoPage draft tab', () => {
+  let component: IpoPage;
+  let fixture: ComponentFixture<IpoPage>;
+
+  const ipoServiceMock = {
+    getCalendar: jest.fn().mockReturnValue(of({ calendarList: [] })),
+    getDetails: jest.fn().mockReturnValue(of({ ipoDetails: null })),
+    getOpenOverviewAll: jest.fn().mockReturnValue(of([])),
+    getUpcomingOverview: jest.fn().mockReturnValue(of([])),
+    getListingSoon: jest.fn().mockReturnValue(of([])),
+    getListedOverview: jest.fn().mockReturnValue(of([])),
+    getDraftIssues: jest.fn().mockReturnValue(of([])),
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [IpoPage],
+      providers: [
+        provideRouter([]),
+        { provide: IpoService, useValue: ipoServiceMock },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(IpoPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should load draft issues on init', () => {
+    expect(ipoServiceMock.getDraftIssues).toHaveBeenCalled();
+  });
+
+  it('should sort draft issues by date descending', () => {
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(
+      of([
+        { equityName: 'Old Co', date: '09-Sep-2026', pdfFileLink: '' },
+        {
+          equityName: 'New Co',
+          date: '11-Sep-2026',
+          pdfFileLink: 'https://example.com/new.pdf',
+        },
+      ]),
+    );
+    component['loadOverviewTables']();
+    expect(component['draftIpos']().map((i) => i.equityName)).toEqual([
+      'New Co',
+      'Old Co',
+    ]);
+    expect(component['draftPage']()).toBe(1);
+    expect(component['draftHasMore']()).toBe(false);
+    expect(component['tabRowsLoading']()).toBe(false);
+  });
+
+  it('should keep loading more when the first draft page is full', () => {
+    const fullPage = Array.from(
+      { length: Constants.configs.defaults.IPO_DRAFT_PAGE_SIZE },
+      (_, i) => ({
+        equityName: `Co ${i}`,
+        date: '11-Sep-2026',
+        pdfFileLink: '',
+      }),
+    );
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(of(fullPage));
+    component['loadOverviewTables']();
+    expect(component['draftPage']()).toBe(1);
+    expect(component['draftHasMore']()).toBe(true);
+  });
+
+  it('should stop loading when draft request fails', () => {
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(
+      throwError(() => new Error('down')),
+    );
+    component['loadOverviewTables']();
+    expect(component['tabRowsLoading']()).toBe(false);
+  });
+
+  it('should append the next draft page sorted by date', () => {
+    component['draftIpos'].set([
+      { equityName: 'New Co', date: '11-Sep-2026', pdfFileLink: '' },
+    ]);
+    component['draftPage'].set(1);
+    component['draftHasMore'].set(true);
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(
+      of([{ equityName: 'Old Co', date: '09-Sep-2026', pdfFileLink: '' }]),
+    );
+    component['loadMoreDrafts']();
+    expect(ipoServiceMock.getDraftIssues).toHaveBeenCalledWith(2);
+    expect(component['draftIpos']().map((i) => i.equityName)).toEqual([
+      'New Co',
+      'Old Co',
+    ]);
+    expect(component['draftPage']()).toBe(2);
+    expect(component['draftHasMore']()).toBe(false);
+    expect(component['draftLoadingMore']()).toBe(false);
+  });
+
+  it('should stop paginating when a page is empty', () => {
+    component['draftIpos'].set([
+      { equityName: 'New Co', date: '11-Sep-2026', pdfFileLink: '' },
+    ]);
+    component['draftPage'].set(2);
+    component['draftHasMore'].set(true);
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(of([]));
+    component['loadMoreDrafts']();
+    expect(component['draftIpos']()).toHaveLength(1);
+    expect(component['draftHasMore']()).toBe(false);
+    expect(component['draftLoadingMore']()).toBe(false);
+  });
+
+  it('should ignore load more while loading or exhausted', () => {
+    ipoServiceMock.getDraftIssues.mockClear();
+    component['draftLoadingMore'].set(true);
+    component['loadMoreDrafts']();
+    component['draftLoadingMore'].set(false);
+    component['draftHasMore'].set(false);
+    component['loadMoreDrafts']();
+    expect(ipoServiceMock.getDraftIssues).not.toHaveBeenCalled();
+  });
+
+  it('should stop the more spinner when the next page fails', () => {
+    component['draftIpos'].set([
+      { equityName: 'New Co', date: '11-Sep-2026', pdfFileLink: '' },
+    ]);
+    component['draftHasMore'].set(true);
+    ipoServiceMock.getDraftIssues.mockReturnValueOnce(
+      throwError(() => new Error('down')),
+    );
+    component['loadMoreDrafts']();
+    expect(component['draftLoadingMore']()).toBe(false);
+    expect(component['draftIpos']()).toHaveLength(1);
+    expect(component['draftHasMore']()).toBe(true);
+  });
+
+  it('should filter draft rows by company name only', () => {
+    component['draftIpos'].set([
+      { equityName: 'Alpha Industries', date: '11-Sep-2026', pdfFileLink: '' },
+      { equityName: 'Beta Corp', date: '10-Sep-2026', pdfFileLink: '' },
+    ]);
+    expect(component['filteredDraft']()).toHaveLength(2);
+    component['onSearchChange']('alpha');
+    expect(component['filteredDraft']().map((i) => i.equityName)).toEqual([
+      'Alpha Industries',
+    ]);
+    component['onSearchChange']('');
+    component['onTypeFilterChange']('sme');
+    expect(component['filteredDraft']()).toHaveLength(2);
+  });
+
+  it('should format draft dates like upcoming dates', () => {
+    expect(component['formatDraftDate']('11-Sep-2026')).toBe('11 Sep 2026');
+    expect(component['formatDraftDate']('')).toBe('--');
+    expect(component['formatDraftDate'](null as unknown as string)).toBe('--');
+    expect(component['formatDraftDate']('not-a-date')).toBe('not-a-date');
+  });
+
+  it('should report draft items for the active draft tab', () => {
+    expect(component['hasActiveTabItems']()).toBe(false);
+    component['onTabChange'](IpoTab.DRAFT);
+    expect(component['hasActiveTabItems']()).toBe(false);
+    component['draftIpos'].set([
+      { equityName: 'Draft Co', date: '11-Sep-2026', pdfFileLink: '' },
+    ]);
+    expect(component['hasActiveTabItems']()).toBe(true);
+  });
+
+  it('should restore the draft tab from query params', async () => {
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [IpoPage],
+      providers: [
+        provideRouter([]),
+        { provide: IpoService, useValue: ipoServiceMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: convertToParamMap({ tab: 'draft' }) },
+          },
+        },
+      ],
+    }).compileComponents();
+    const draftFixture = TestBed.createComponent(IpoPage);
+    const draftComponent = draftFixture.componentInstance;
+    draftFixture.detectChanges();
+    expect(draftComponent['activeTab']()).toBe(IpoTab.DRAFT);
   });
 });

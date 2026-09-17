@@ -616,6 +616,99 @@ describe('IpoDetailsPage', () => {
     expect(component['getChartColors']().length).toBeGreaterThan(0);
   });
 
+  it('should load details on init when route has an id', async () => {
+    await TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [IpoDetailsPage],
+      providers: [
+        provideRouter([]),
+        { provide: IpoService, useValue: ipoServiceMock },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: { get: (key: string) => (key === 'id' ? '1' : null) },
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+    const f = TestBed.createComponent(IpoDetailsPage);
+    const c = f.componentInstance;
+    f.detectChanges();
+    expect(c['loading']()).toBe(false);
+    expect(c['details']()).toBeDefined();
+  });
+
+  it('should label quarterly charts for every absolute combination', () => {
+    component['quarterlyData'].set([
+      {
+        absolute: {},
+        month: 'May',
+        year: 2020,
+        resultYear: 2021,
+      } as unknown as QuarterlyRow,
+      { absolute: null, year: 2020 } as unknown as QuarterlyRow,
+    ]);
+    component['onFinancialTabChange'](FinancialTab.QUARTERLY);
+    expect(component['getChartLabels']()).toEqual(['May 2021', '2020']);
+  });
+
+  it('should fall back to zero for missing chart metrics', () => {
+    component['bsData'].set([{ totalassets: 5 } as BsYear]);
+    component['onFinancialTabChange'](FinancialTab.BALANCE_SHEET);
+    expect(component['getChartValues']()).toEqual([5]);
+    component['selectMetric']('missing');
+    expect(component['getChartValues']()).toEqual([0]);
+    component['cfData'].set([{ netcashflowoperatingActivity: 3 } as CfYear]);
+    component['onFinancialTabChange'](FinancialTab.CASH_FLOW);
+    expect(component['getChartValues']()).toEqual([3]);
+    component['selectMetric']('missing');
+    expect(component['getChartValues']()).toEqual([0]);
+  });
+
+  it('should return placeholder price band without details', () => {
+    component['details'].set(null);
+    expect(component['getPriceBand']()).toBe('--');
+  });
+
+  it('should handle empty month parts from Intl', () => {
+    function FakeDateTimeFormat() {
+      return { formatToParts: () => [] };
+    }
+    const spy = jest
+      .spyOn(Intl, 'DateTimeFormat')
+      .mockImplementation(
+        FakeDateTimeFormat as unknown as typeof Intl.DateTimeFormat,
+      );
+    try {
+      expect(component['getTimelineMonthYear'](123)).toBe(' ');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('should default every subscription total when fields are missing', () => {
+    component['subscription'].set({} as never);
+    expect(component['getSubscriptionTotal']()).toBe(0);
+    expect(component['getSubscriptionQib']()).toBe(0);
+    expect(component['getSubscriptionRetail']()).toBe(0);
+    expect(component['getSubscriptionNii']()).toBe(0);
+  });
+
+  it('should handle null subscription and zero shares per category', () => {
+    component['subscription'].set(null as never);
+    expect(component['getSubscriptionPercent']('retail', '100')).toBe('--');
+    expect(component['getSubscriptionPercent']('nii', '100')).toBe('--');
+    component['subscription'].set({
+      qualifiedInst: 50,
+      reatilIndv: 0,
+      nonInst: 0,
+    } as never);
+    expect(component['getSubscriptionPercent']('retail', '200')).toBe('--');
+    expect(component['getSubscriptionPercent']('nii', '200')).toBe('--');
+  });
+
   it('should not load details when route has no id', async () => {
     const emptyRoute = {
       snapshot: { paramMap: { get: () => null } },

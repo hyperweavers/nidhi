@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
 import {
+  mockDraftIpoResponse,
   mockListingSoonIpos,
   mockOpenIpoOverviewPage1,
   mockOpenIpoOverviewPage2,
@@ -20,6 +21,7 @@ describe('IpoService', () => {
     getIpoOverviewUpcoming: jest.Mock;
     getIpoOverviewListing: jest.Mock;
     getIpoListedOverview: jest.Mock;
+    getIpoDraftIssues: jest.Mock;
     getIpoStockQuote: jest.Mock;
     getIpoFinancials: jest.Mock;
   };
@@ -37,6 +39,7 @@ describe('IpoService', () => {
         .mockReturnValue(of(mockUpcomingIpoOverview)),
       getIpoOverviewListing: jest.fn().mockReturnValue(of(mockListingSoonIpos)),
       getIpoListedOverview: jest.fn().mockReturnValue(of({ results: [] })),
+      getIpoDraftIssues: jest.fn().mockReturnValue(of(mockDraftIpoResponse)),
       getIpoStockQuote: jest.fn().mockReturnValue(of({})),
       getIpoFinancials: jest
         .fn()
@@ -182,6 +185,32 @@ describe('IpoService', () => {
     it('should default a missing listed results list', (done) => {
       marketServiceMock.getIpoListedOverview.mockReturnValueOnce(of({}));
       service.getListedOverview().subscribe((items) => {
+        expect(items).toEqual([]);
+        done();
+      });
+    });
+  });
+
+  describe('getDraftIssues', () => {
+    it('should return draft items', (done) => {
+      service.getDraftIssues().subscribe((items) => {
+        expect(marketServiceMock.getIpoDraftIssues).toHaveBeenCalledWith(1);
+        expect(items).toHaveLength(2);
+        expect(items[0].equityName).toBe('M K C Agro Fresh Limited');
+        done();
+      });
+    });
+
+    it('should request the given page', (done) => {
+      service.getDraftIssues(3).subscribe(() => {
+        expect(marketServiceMock.getIpoDraftIssues).toHaveBeenCalledWith(3);
+        done();
+      });
+    });
+
+    it('should default a missing draft list', (done) => {
+      marketServiceMock.getIpoDraftIssues.mockReturnValueOnce(of({}));
+      service.getDraftIssues().subscribe((items) => {
         expect(items).toEqual([]);
         done();
       });
