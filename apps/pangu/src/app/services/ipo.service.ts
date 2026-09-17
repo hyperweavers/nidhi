@@ -5,6 +5,7 @@ import {
   BsResponse,
   CfResponse,
   CompanyDetails,
+  DraftIpoItem,
   IpoCalendarResponse,
   IpoDetailsResponse,
   IpoLinksResponse,
@@ -71,6 +72,12 @@ export class IpoService {
     return this.marketService
       .getIpoListedOverview()
       .pipe(map((res) => res.results || []));
+  }
+
+  getDraftIssues(page = 1): Observable<DraftIpoItem[]> {
+    return this.marketService
+      .getIpoDraftIssues(page)
+      .pipe(map((res) => res?.data || []));
   }
 
   getStockQuote(companyId: string): Observable<CompanyDetails | null> {

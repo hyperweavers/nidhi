@@ -1,9 +1,7 @@
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
   <!-- Header + Global type filter -->
   <div class="mb-6 flex items-center justify-between gap-2">
-    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">
-      IPO Calendar
-    </h1>
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-white">IPOs</h1>
     <div
       class="inline-flex h-8 shrink-0 rounded-md shadow-xs"
       role="group"
@@ -98,14 +96,14 @@
     </div>
 
     <div
-      class="flex h-8 w-full shrink-0 rounded-md shadow-xs sm:ml-auto sm:w-auto sm:max-w-xs"
+      class="mx-auto flex h-8 w-fit shrink-0 rounded-md shadow-xs sm:mx-0 sm:ml-auto sm:w-auto sm:max-w-xs"
       role="group"
       aria-label="Calendar event filter"
     >
       <button
         (click)="toggleCalStateFilter('opening')"
         type="button"
-        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-s-md border border-r-0 px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-green-500 sm:px-4"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-s-md border border-r-0 px-3 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-green-500 sm:px-4"
         [ngClass]="isCalStateActive('opening') ? 'border-green-500 bg-green-500 text-white dark:border-green-600 dark:bg-green-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
       >
         <span class="whitespace-nowrap">Opening</span>
@@ -114,7 +112,7 @@
       <button
         (click)="toggleCalStateFilter('closing')"
         type="button"
-        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center border border-r-0 px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-amber-500 sm:px-4"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center border border-r-0 px-3 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-amber-500 sm:px-4"
         [ngClass]="isCalStateActive('closing') ? 'border-amber-500 bg-amber-500 text-white dark:border-amber-600 dark:bg-amber-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
       >
         <span class="whitespace-nowrap">Closing</span>
@@ -123,7 +121,7 @@
       <button
         (click)="toggleCalStateFilter('listing')"
         type="button"
-        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-e-md border px-1 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-blue-500 sm:px-4"
+        class="inline-flex h-8 min-w-0 flex-1 items-center justify-center rounded-e-md border px-3 text-[11px] font-semibold uppercase focus:z-10 focus:ring-2 focus:ring-blue-500 sm:px-4"
         [ngClass]="isCalStateActive('listing') ? 'border-blue-500 bg-blue-500 text-white dark:border-blue-600 dark:bg-blue-600' : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
       >
         <span class="whitespace-nowrap">Listing</span>
@@ -161,11 +159,11 @@
         class="rounded border p-1 sm:min-h-[100px]"
         [class.cursor-pointer]="view.entries.length > 0"
         [ngClass]="{
-              'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800': isToday(view.day),
+              'bg-primary-100 dark:bg-primary-900/50 border-primary-300 dark:border-primary-700': isToday(view.day),
               'border-gray-100 dark:border-gray-700': !isToday(view.day) && view.day.isCurrentMonth,
               'border-gray-50 dark:border-gray-800': !isToday(view.day) && !view.day.isCurrentMonth,
               'hover:bg-gray-50 dark:hover:bg-gray-700/50': view.entries.length && !isToday(view.day),
-              'hover:bg-primary-100 dark:hover:bg-primary-900/30': view.entries.length && isToday(view.day)
+              'hover:bg-primary-200 dark:hover:bg-primary-900/60': view.entries.length && isToday(view.day)
             }"
       >
         <div
@@ -324,19 +322,19 @@
           @for (group of groups; track group.key) {
           <div>
             <div
-              class="w-full rounded px-2 py-1 text-xs font-semibold tracking-wide text-white uppercase"
+              class="flex h-8 w-full items-center rounded px-2 text-xs font-semibold tracking-wide text-white uppercase"
               [ngClass]="getDayIpoStateColor(group.key)"
             >
               {{ group.label }}
             </div>
-            <div>
+            <div class="mt-1 space-y-1">
               @for (ipo of group.items; track ipo.companyId) {
               <div
                 (click)="navigateToDetail(ipo.companyId); closeDayModal()"
                 (keydown.enter)="navigateToDetail(ipo.companyId); closeDayModal()"
                 tabindex="0"
                 role="link"
-                class="cursor-pointer truncate rounded px-1 py-1 text-sm text-gray-900 hover:bg-gray-100 hover:text-blue-600 dark:text-white dark:hover:bg-gray-700 dark:hover:text-blue-400"
+                class="h-8 cursor-pointer truncate rounded bg-gray-50 px-2 text-sm leading-8 text-gray-900 hover:bg-gray-100 hover:text-blue-600 dark:bg-gray-700/50 dark:text-white dark:hover:bg-gray-700 dark:hover:text-blue-400"
                 [attr.title]="ipo.companyName"
               >
                 {{ ipo.companyName }}
@@ -352,165 +350,146 @@
   </div>
   }
 
-  <!-- IPO Summary -->
+  <!-- IPOs List -->
   <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-    IPO Summary
+    IPOs List
   </h2>
 
-  <!-- Tabs (Desktop) -->
-  <ul
-    class="mb-4 hidden flex-wrap border-b border-gray-200 sm:flex dark:border-gray-700"
+  <!-- Search + Tabs -->
+  <div
+    class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
   >
-    <li class="me-2">
-      <p
-        (click)="onTabChange(IpoTab.OPEN)"
-        (keydown.enter)="onTabChange(IpoTab.OPEN)"
-        tabindex="0"
-        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
-        [ngClass]="activeTab() === IpoTab.OPEN
-            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
-            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
-      >
-        Open ({{ openIpos().length }})
-      </p>
-    </li>
+    <!-- Search -->
+    @if (hasActiveTabItems()) {
+    <div class="w-full sm:max-w-md sm:flex-1">
+      <div class="relative min-w-0 flex-1">
+        <div
+          class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+        >
+          <svg
+            class="h-4 w-4 text-gray-500 dark:text-gray-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+            />
+          </svg>
+        </div>
+        <input
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          type="text"
+          role="searchbox"
+          inputmode="search"
+          placeholder="Search by company name..."
+          class="block h-[38px] w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        />
+        @if (searchQuery()) {
+        <button
+          (click)="onSearchChange('')"
+          aria-label="Clear search"
+          class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+        >
+          <svg
+            class="h-2.5 w-2.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            />
+          </svg>
+        </button>
+        }
+      </div>
+    </div>
+    }
 
-    <li class="me-2">
-      <p
-        (click)="onTabChange(IpoTab.UPCOMING)"
-        (keydown.enter)="onTabChange(IpoTab.UPCOMING)"
-        tabindex="0"
-        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
-        [ngClass]="activeTab() === IpoTab.UPCOMING
-            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
-            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
+    <!-- Tabs toggle -->
+    <div class="shrink-0">
+      <div
+        class="inline-flex h-8 shrink-0 rounded-md shadow-xs"
+        role="group"
+        aria-label="Filter by IPO status"
       >
-        Upcoming ({{ upcomingIpos().length }})
-      </p>
-    </li>
-
-    <li class="me-2">
-      <p
-        (click)="onTabChange(IpoTab.CLOSED)"
-        (keydown.enter)="onTabChange(IpoTab.CLOSED)"
-        tabindex="0"
-        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
-        [ngClass]="activeTab() === IpoTab.CLOSED
-            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
-            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
-      >
-        Closed ({{ closedIpos().length }})
-      </p>
-    </li>
-
-    <li class="me-2">
-      <p
-        (click)="onTabChange(IpoTab.LISTED)"
-        (keydown.enter)="onTabChange(IpoTab.LISTED)"
-        tabindex="0"
-        class="inline-block cursor-pointer rounded-t-lg border-b-2 p-4 text-sm font-medium"
-        [ngClass]="activeTab() === IpoTab.LISTED
-            ? 'border-primary-600 text-primary-600 dark:text-primary-500'
-            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300'"
-      >
-        Listed ({{ listedIpos().length }})
-      </p>
-    </li>
-  </ul>
-
-  <!-- Tabs (Mobile) -->
-  <div class="mb-4 sm:hidden">
-    <select
-      [ngModel]="activeTab()"
-      (ngModelChange)="onTabChange($event)"
-      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-    >
-      <option [value]="IpoTab.OPEN">Open ({{ openIpos().length }})</option>
-      <option [value]="IpoTab.UPCOMING">
-        Upcoming ({{ upcomingIpos().length }})
-      </option>
-      <option [value]="IpoTab.CLOSED">
-        Closed ({{ closedIpos().length }})
-      </option>
-      <option [value]="IpoTab.LISTED">
-        Listed ({{ listedIpos().length }})
-      </option>
-    </select>
+        <button
+          (click)="onTabChange(IpoTab.OPEN)"
+          type="button"
+          [attr.aria-pressed]="activeTab() === IpoTab.OPEN"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center rounded-s-md border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:px-4 dark:border-gray-700"
+          [ngClass]="activeTab() === IpoTab.OPEN ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Open
+        </button>
+        <button
+          (click)="onTabChange(IpoTab.UPCOMING)"
+          type="button"
+          [attr.aria-pressed]="activeTab() === IpoTab.UPCOMING"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:px-4 dark:border-gray-700"
+          [ngClass]="activeTab() === IpoTab.UPCOMING ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Upcoming
+        </button>
+        <button
+          (click)="onTabChange(IpoTab.CLOSED)"
+          type="button"
+          [attr.aria-pressed]="activeTab() === IpoTab.CLOSED"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:px-4 dark:border-gray-700"
+          [ngClass]="activeTab() === IpoTab.CLOSED ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Closed
+        </button>
+        <button
+          (click)="onTabChange(IpoTab.LISTED)"
+          type="button"
+          [attr.aria-pressed]="activeTab() === IpoTab.LISTED"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center border border-r-0 border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:px-4 dark:border-gray-700"
+          [ngClass]="activeTab() === IpoTab.LISTED ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Listed
+        </button>
+        <button
+          (click)="onTabChange(IpoTab.DRAFT)"
+          type="button"
+          [attr.aria-pressed]="activeTab() === IpoTab.DRAFT"
+          class="focus:ring-primary-700 dark:focus:ring-primary-500 inline-flex h-8 items-center justify-center rounded-e-md border border-gray-200 px-3 text-[11px] font-semibold whitespace-nowrap uppercase focus:z-10 focus:ring-2 sm:px-4 dark:border-gray-700"
+          [ngClass]="activeTab() === IpoTab.DRAFT ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-white hover:bg-gray-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-primary-500 focus:text-primary-700 dark:focus:text-primary-500'"
+        >
+          Draft
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Row details loading indicator (non-blocking) -->
   @if (tabRowsLoading()) {
   <div
-    class="mb-4 flex items-center gap-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400"
+    class="mt-12 mb-4 flex justify-center gap-2 text-gray-500 sm:mx-4 dark:text-gray-400"
     role="status"
   >
     <div
-      class="border-primary-500 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+      class="border-primary-500 h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
     ></div>
     <span>Loading IPO details…</span>
   </div>
   }
 
-  <!-- Search -->
-  @if (hasActiveTabItems()) {
-  <div class="mb-4 sm:mx-auto sm:max-w-md">
-    <div class="relative min-w-0 flex-1">
-      <div
-        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-      >
-        <svg
-          class="h-4 w-4 text-gray-500 dark:text-gray-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 20 20"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-          />
-        </svg>
-      </div>
-      <input
-        [ngModel]="searchQuery()"
-        (ngModelChange)="onSearchChange($event)"
-        type="search"
-        placeholder="Search by company name..."
-        class="block h-[38px] w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-      />
-      @if (searchQuery()) {
-      <button
-        (click)="onSearchChange('')"
-        aria-label="Clear search"
-        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-      >
-        <svg
-          class="h-2.5 w-2.5"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 14"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-          />
-        </svg>
-      </button>
-      }
-    </div>
-  </div>
-  }
-
   <!-- Tab Content: Open -->
   @if (activeTab() === IpoTab.OPEN) {
-  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-0 sm:rounded-md">
     @if (filteredOpen().length === 0) {
     <div class="flex flex-col items-center justify-center py-12">
       <svg
@@ -527,13 +506,13 @@
         />
       </svg>
       <p class="text-gray-500 dark:text-gray-400">
-        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
-        }}
+        {{ searchQuery().trim() ? 'No IPOs match your search!' : 'No IPOs
+        found!' }}
       </p>
     </div>
     } @else {
     <table
-      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
       <colgroup>
         <col width="100%" />
@@ -541,19 +520,19 @@
         <col width="0%" />
       </colgroup>
       <thead
-        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        class="bg-gray-50 text-center text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-left">
             <div class="whitespace-nowrap">Company</div>
             <div class="whitespace-nowrap">Type</div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Price Band</div>
             <div class="whitespace-nowrap">Lot Size</div>
             <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Open Date</div>
             <div class="whitespace-nowrap">Close Date</div>
             <div class="whitespace-nowrap">Subscription</div>
@@ -568,10 +547,7 @@
           tabindex="0"
           class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
-          <th
-            scope="row"
-            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
-          >
+          <th scope="row" class="max-w-px px-2 py-2 text-left font-normal">
             <div class="truncate font-medium text-gray-900 dark:text-white">
               {{ ipo.companyName }}
             </div>
@@ -584,14 +560,14 @@
             </div>
           </th>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ ipo.priceRange | valueOrPlaceholder }}</div>
             <div>{{ formatLotSize(ipo.lotSize) }}</div>
             <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
           </td>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ formatDate(ipo.openDate) }}</div>
             <div>{{ formatDate(ipo.closeDate) }}</div>
@@ -604,14 +580,14 @@
     }
   </div>
   @if (filteredOpen().length > 0) {
-  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+  <p class="py-2 text-xs text-gray-500 opacity-50 sm:mx-4 dark:text-gray-400">
     <sup>*</sup> Based on the maximum price
   </p>
   } }
 
   <!-- Tab Content: Upcoming -->
   @if (activeTab() === IpoTab.UPCOMING) {
-  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-0 sm:rounded-md">
     @if (filteredUpcoming().length === 0) {
     <div class="flex flex-col items-center justify-center py-12">
       <svg
@@ -628,13 +604,13 @@
         />
       </svg>
       <p class="text-gray-500 dark:text-gray-400">
-        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
-        }}
+        {{ searchQuery().trim() ? 'No IPOs match your search!' : 'No IPOs
+        found!' }}
       </p>
     </div>
     } @else {
     <table
-      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
       <colgroup>
         <col width="100%" />
@@ -642,19 +618,19 @@
         <col width="0%" />
       </colgroup>
       <thead
-        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        class="bg-gray-50 text-center text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-left">
             <div class="whitespace-nowrap">Company</div>
             <div class="whitespace-nowrap">Type</div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Issue Price</div>
             <div class="whitespace-nowrap">Lot Size</div>
             <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Open Date</div>
             <div class="whitespace-nowrap">Issue Size</div>
             <div class="whitespace-nowrap">RHP</div>
@@ -669,10 +645,7 @@
           tabindex="0"
           class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
-          <th
-            scope="row"
-            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
-          >
+          <th scope="row" class="max-w-px px-2 py-2 text-left font-normal">
             <div class="truncate font-medium text-gray-900 dark:text-white">
               {{ ipo.companyName }}
             </div>
@@ -685,14 +658,14 @@
             </div>
           </th>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ ipo.issuePrice | valueOrPlaceholder }}</div>
             <div>{{ formatLotSize(ipo.lotSize) }}</div>
             <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
           </td>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ formatDate(ipo.openDate) }}</div>
             <div>{{ ipo.issueSize | valueOrPlaceholder }}</div>
@@ -733,14 +706,14 @@
     }
   </div>
   @if (filteredUpcoming().length > 0) {
-  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+  <p class="py-2 text-xs text-gray-500 opacity-50 sm:mx-4 dark:text-gray-400">
     <sup>*</sup> Based on the maximum price
   </p>
   } }
 
   <!-- Tab Content: Closed -->
   @if (activeTab() === IpoTab.CLOSED) {
-  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-0 sm:rounded-md">
     @if (filteredClosed().length === 0) {
     <div class="flex flex-col items-center justify-center py-12">
       <svg
@@ -757,13 +730,13 @@
         />
       </svg>
       <p class="text-gray-500 dark:text-gray-400">
-        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No IPOs found'
-        }}
+        {{ searchQuery().trim() ? 'No IPOs match your search!' : 'No IPOs
+        found!' }}
       </p>
     </div>
     } @else {
     <table
-      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
       <colgroup>
         <col width="100%" />
@@ -771,19 +744,19 @@
         <col width="0%" />
       </colgroup>
       <thead
-        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        class="bg-gray-50 text-center text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-left">
             <div class="whitespace-nowrap">Company</div>
             <div class="whitespace-nowrap">Type</div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Price Band</div>
             <div class="whitespace-nowrap">Lot Size</div>
             <div class="whitespace-nowrap">Min Investment<sup>*</sup></div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Open Date</div>
             <div class="whitespace-nowrap">Listing Date</div>
             <div class="whitespace-nowrap">Subscription</div>
@@ -798,10 +771,7 @@
           tabindex="0"
           class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
-          <th
-            scope="row"
-            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
-          >
+          <th scope="row" class="max-w-px px-2 py-2 text-left font-normal">
             <div class="truncate font-medium text-gray-900 dark:text-white">
               {{ ipo.companyName }}
             </div>
@@ -814,14 +784,14 @@
             </div>
           </th>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ ipo.priceRange | valueOrPlaceholder }}</div>
             <div>{{ formatLotSize(ipo.lotSize) }}</div>
             <div>{{ ipo.minInvestment | valueOrPlaceholder }}</div>
           </td>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ formatDate(ipo.openDate) }}</div>
             <div>{{ formatDate(ipo.listingDate) }}</div>
@@ -834,14 +804,14 @@
     }
   </div>
   @if (filteredClosed().length > 0) {
-  <p class="py-2 text-xs text-gray-500 sm:mx-4 dark:text-gray-400">
+  <p class="py-2 text-xs text-gray-500 opacity-50 sm:mx-4 dark:text-gray-400">
     <sup>*</sup> Based on the maximum price
   </p>
   } }
 
   <!-- Tab Content: Listed -->
   @if (activeTab() === IpoTab.LISTED) {
-  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-4 sm:rounded-md">
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-0 sm:rounded-md">
     @if (filteredListed().length === 0) {
     <div class="flex flex-col items-center justify-center py-12">
       <svg
@@ -858,13 +828,13 @@
         />
       </svg>
       <p class="text-gray-500 dark:text-gray-400">
-        {{ searchQuery().trim() ? 'No IPOs match your search' : 'No listed IPOs
-        found' }}
+        {{ searchQuery().trim() ? 'No IPOs match your search!' : 'No IPOs
+        found!' }}
       </p>
     </div>
     } @else {
     <table
-      class="w-screen text-left text-sm text-gray-500 sm:w-full rtl:text-right dark:text-gray-400"
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
     >
       <colgroup>
         <col width="100%" />
@@ -872,19 +842,19 @@
         <col width="0%" />
       </colgroup>
       <thead
-        class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        class="bg-gray-50 text-center text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-left">
             <div class="whitespace-nowrap">Company</div>
             <div class="whitespace-nowrap">Type</div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Issue Price</div>
             <div class="whitespace-nowrap">Listing Price</div>
             <div class="whitespace-nowrap">LTP</div>
           </th>
-          <th scope="col" class="px-1 py-2 text-left sm:px-2 sm:py-4">
+          <th scope="col" class="px-2 py-2 text-center">
             <div class="whitespace-nowrap">Subscription</div>
             <div class="whitespace-nowrap">Listing Gain</div>
             <div class="whitespace-nowrap">Total Gain</div>
@@ -899,10 +869,7 @@
           tabindex="0"
           class="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
-          <th
-            scope="row"
-            class="max-w-px px-1 py-2 font-normal sm:px-2 sm:py-4"
-          >
+          <th scope="row" class="max-w-px px-2 py-2 text-left font-normal">
             <div class="truncate font-medium text-gray-900 dark:text-white">
               {{ ipo.companyName }}
             </div>
@@ -915,14 +882,14 @@
             </div>
           </th>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ ipo.issuePrice | valueOrPlaceholder }}</div>
             <div>{{ ipo.listingPrice | valueOrPlaceholder }}</div>
             <div>{{ ipo.ltp | valueOrPlaceholder }}</div>
           </td>
           <td
-            class="px-1 py-2 text-xs whitespace-nowrap sm:px-2 sm:py-4 sm:text-sm"
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
           >
             <div>{{ ipo.totalSubscription | valueOrPlaceholder }}</div>
             <div [ngClass]="gainClass(ipo.listingGain)">
@@ -938,5 +905,153 @@
     </table>
     }
   </div>
-  } }
+  }
+  <!-- Tab Content: Draft -->
+  @if (activeTab() === IpoTab.DRAFT) {
+  <div class="relative -mx-4 overflow-x-auto shadow-sm sm:mx-0 sm:rounded-md">
+    @if (filteredDraft().length === 0) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <svg
+        class="mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400">
+        {{ searchQuery().trim() ? 'No Draft Issues match your search!' : 'No
+        Draft Issues found!' }}
+      </p>
+    </div>
+    } @else {
+    <table
+      class="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400"
+    >
+      <colgroup>
+        <col width="100%" />
+        <col width="0%" />
+        <col width="0%" />
+      </colgroup>
+      <thead
+        class="bg-gray-50 text-center text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-2 py-2 text-left">
+            <div class="whitespace-nowrap">Company</div>
+          </th>
+          <th scope="col" class="px-2 py-2 text-center">
+            <div class="whitespace-nowrap">Filing Date</div>
+          </th>
+          <th scope="col" class="px-2 py-2 text-center">
+            <div class="whitespace-nowrap">Doc</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ipo of filteredDraft(); track $index) {
+        <tr class="border-b bg-white dark:border-gray-700 dark:bg-gray-800">
+          <th scope="row" class="max-w-px px-2 py-2 text-left font-normal">
+            <div
+              class="truncate font-medium text-gray-900 dark:text-white"
+              [attr.title]="ipo.equityName"
+            >
+              {{ ipo.equityName }}
+            </div>
+          </th>
+          <td
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
+          >
+            <div>{{ formatDraftDate(ipo.date) }}</div>
+          </td>
+          <td
+            class="px-2 py-2 text-center text-xs whitespace-nowrap sm:text-sm"
+          >
+            <div>
+              @if (ipo.pdfFileLink) {
+              <a
+                [href]="ipo.pdfFileLink"
+                target="_blank"
+                rel="noopener"
+                class="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                >DRHP<sup
+                  ><svg
+                    class="ml-1 inline h-3 w-3"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
+                    /></svg></sup
+              ></a>
+              } @else {
+              <span>{{ '--' }}</span>
+              }
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+  @if (draftHasMore() && filteredDraft().length > 0) {
+  <div class="flex justify-center py-4">
+    <button
+      (click)="loadMoreDrafts()"
+      type="button"
+      [disabled]="draftLoadingMore()"
+      class="text-primary-700 border-primary-700 hover:bg-primary-50 focus:ring-primary-300 dark:text-primary-400 dark:border-primary-400 dark:focus:ring-primary-800 inline-flex h-7 items-center justify-center gap-1 rounded-lg border px-3 text-xs font-medium focus:ring-4 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-gray-700"
+    >
+      @if (draftLoadingMore()) {
+      <svg
+        aria-hidden="true"
+        role="status"
+        class="text-fg-brand me-1 h-3 w-3 animate-spin"
+        viewBox="0 0 100 101"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="#E5E7EB"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentColor"
+        />
+      </svg>
+      <span>Loading…</span>
+      } @else {
+      <span>Load more</span>
+      <svg
+        class="h-4 w-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="m19 9-7 7-7-7"
+        />
+      </svg>
+      }
+    </button>
+  </div>
+  } } }
 </div>

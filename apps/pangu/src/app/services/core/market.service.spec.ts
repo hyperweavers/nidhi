@@ -1053,6 +1053,24 @@ describe('MarketService', () => {
       req.flush({ listingSoonIpoList: [] });
     });
 
+    it('should fetch draft IPO issues with default pagination', () => {
+      service.getIpoDraftIssues().subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_DRAFT}?page=1&limit=${Constants.configs.defaults.IPO_DRAFT_PAGE_SIZE}`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: 1, data: [] });
+    });
+
+    it('should fetch a draft IPO issues page', () => {
+      service.getIpoDraftIssues(2).subscribe();
+      const req = httpMock.expectOne(
+        `${Constants.api.IPO_DRAFT}?page=2&limit=20`,
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: 1, data: [] });
+    });
+
     it('should fetch the IPO stock quote', () => {
       service.getIpoStockQuote('2269154').subscribe();
       const req = httpMock.expectOne(`${Constants.api.STOCK_QUOTE}2269154`);

@@ -1,0 +1,19 @@
+[data-popover][role='tooltip'] > [data-popper-arrow]::after {
+  border-style: solid;
+  border-color: var(--color-gray-600);
+}
+
+[data-popover][role='tooltip'] > [data-popper-arrow]::before {
+  border-style: solid;
+  border-color: var(--color-gray-600);
+}
+
+[data-popover][role='tooltip'][data-popper-placement^='bottom']
+  > [data-popper-arrow]::after {
+  background-color: var(--color-gray-700);
+}
+
+[data-popover][role='tooltip'][data-popper-placement^='bottom']
+  > [data-popper-arrow]::before {
+  background-color: var(--color-gray-700);
+}

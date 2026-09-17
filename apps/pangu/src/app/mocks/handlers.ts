@@ -104,22 +104,22 @@ export const handlers = [
     return HttpResponse.json(mockIndexConstituents);
   }),
 
-  http.get(Constants.api.IPO_CALENDAR, async () => {
+  http.get(Constants.api.IPO_CALENDAR.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIpoCalendar);
   }),
 
-  http.get(Constants.api.IPO_DETAILS, async () => {
+  http.get(Constants.api.IPO_DETAILS.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIpoDetails);
   }),
 
-  http.get(Constants.api.IPO_DETAILS_ONLY, async () => {
+  http.get(Constants.api.IPO_DETAILS_ONLY.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockIpoLinks);
   }),
 
-  http.get(Constants.api.IPO_LISTED, async () => {
+  http.get(Constants.api.IPO_LISTED.split('?')[0], async () => {
     await delay(50);
     return HttpResponse.json(mockListedIpos);
   }),

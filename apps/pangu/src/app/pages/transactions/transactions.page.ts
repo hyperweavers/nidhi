@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Dropdown } from 'flowbite';
 import {
   BehaviorSubject,
@@ -23,6 +23,7 @@ import {
 } from 'rxjs';
 
 import { TransactionDrawerComponent } from '../../components/transaction-drawer/transaction-drawer.component';
+import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
 import {
   Holding,
@@ -35,6 +36,7 @@ import { StorageService } from '../../services/core/storage.service';
 export interface TransactionItem {
   transactionId: string;
   holdingId: string;
+  vendorCode?: string;
   stockName: string;
   type: TransactionType;
   date: number;
@@ -65,6 +67,7 @@ enum TransactionSortOrder {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     ScrollingModule,
     ValueOrPlaceholderPipe,
     TransactionDrawerComponent,
@@ -90,6 +93,7 @@ export class TransactionsPage implements AfterViewInit {
   public readonly TransactionSortType = TransactionSortType;
   public readonly TransactionSortOrder = TransactionSortOrder;
   public readonly TransactionType = TransactionType;
+  public readonly Routes = Constants.routes;
 
   public readonly searchQuery = signal('');
 
@@ -121,6 +125,7 @@ export class TransactionsPage implements AfterViewInit {
           (holding.transactions || []).map((t) => ({
             transactionId: t.id,
             holdingId: holding.id ?? '',
+            vendorCode: holding.vendorCode?.etm?.primary ?? '',
             stockName: holding.name,
             type: t.type,
             date: t.date,
@@ -235,10 +240,12 @@ export class TransactionsPage implements AfterViewInit {
     if (
       sortType !== TransactionSortType.DATE ||
       sortOrder !== TransactionSortOrder.DSC ||
-      filter !== TransactionFilter.ALL
+      filter !== TransactionFilter.ALL ||
+      this.searchQuery()
     ) {
       this.filter$.next(TransactionFilter.ALL);
       this.sort$.next([TransactionSortType.DATE, TransactionSortOrder.DSC]);
+      this.searchQuery.set('');
 
       this.router.navigate([], {
         relativeTo: this.route,
@@ -304,11 +311,16 @@ export class TransactionsPage implements AfterViewInit {
   }
 
   public formatDate(epoch: number): string {
-    const date = new Date(epoch);
-
-    return epoch && date
-      ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
-      : '';
+    if (!epoch) return '';
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).formatToParts(new Date(epoch));
+    const get = (type: string): string =>
+      parts.find((p) => p.type === type)?.value || '';
+    return `${get('day')} ${get('month')} ${get('year')}`;
   }
 
   private restoreFromQueryParams(): void {

@@ -18,6 +18,7 @@ export const Constants = {
     PRIVACY: 'privacy',
     TERMS: 'terms',
     DISCLAIMER: 'disclaimer',
+    GLOSSARY: 'glossary',
   },
   api: {
     MARKET_STATUS: 'https://etapi.indiatimes.com/et-screener/index-byid',
@@ -48,6 +49,8 @@ export const Constants = {
     IPO_LISTED:
       'https://etapi.indiatimes.com/ipo/listed-ipos?tabType=all&pageSize=1000',
     IPO_OVERVIEW: 'https://etapi.indiatimes.com/ipo/ipo-overview',
+    IPO_DRAFT:
+      'https://api.moneycontrol.com/mcapi/v1/ecalendar/get-draft-issues',
     IPO_FINANCIALS: 'https://etmarketsapis.indiatimes.com/etservicestockapps',
     STOCK_INTRA_DAY_PEER_CHART:
       'https://etapi.indiatimes.com/charts/peercharts?datatype=intraday&scripcodetype=company&exchangeid=50&scripcode=',
@@ -72,6 +75,7 @@ export const Constants = {
       FORM_ERROR_CLEAR_DELAY: 2_000, // milliseconds
       HTTP_REQUEST_TIMEOUT: 10_000, // milliseconds
       WINDOW_RESIZE_DEBOUNCE_TIME: 500, // milliseconds
+      IPO_DRAFT_PAGE_SIZE: 20,
     },
   },
 };

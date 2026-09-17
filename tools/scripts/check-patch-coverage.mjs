@@ -152,26 +152,40 @@ function parseDiff(base) {
     }
   }
 
-  // also include untracked/new files that are not in diff but are new
+  // also include new files that are staged-added but outside the diff range,
+  // plus fully untracked files (new work not yet committed)
+  const extraFiles = new Set();
   try {
-    const untracked = run(
+    const staged = run(
       `git diff --name-only --diff-filter=A HEAD -- ${SRC_GLOB}`,
     )
       .split('\n')
       .map((s) => s.trim())
       .filter(Boolean);
-    for (const f of untracked) {
-      if (!perFile.has(f)) {
-        // count all lines in the file as changed — coverage will filter to instrumented lines
-        const content = readFileSync(f, 'utf-8');
-        const total = content.split('\n').length;
-        const set = new Set();
-        for (let i = 1; i <= total; i++) set.add(i);
-        perFile.set(f, set);
-      }
-    }
+    for (const f of staged) extraFiles.add(f);
   } catch {
     // ignore
+  }
+  try {
+    const untracked = run(
+      `git ls-files --others --exclude-standard -- ${SRC_GLOB}`,
+    )
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const f of untracked) extraFiles.add(f);
+  } catch {
+    // ignore
+  }
+  for (const f of extraFiles) {
+    if (!perFile.has(f)) {
+      // count all lines in the file as changed — coverage will filter to instrumented lines
+      const content = readFileSync(f, 'utf-8');
+      const total = content.split('\n').length;
+      const set = new Set();
+      for (let i = 1; i <= total; i++) set.add(i);
+      perFile.set(f, set);
+    }
   }
 
   return perFile;

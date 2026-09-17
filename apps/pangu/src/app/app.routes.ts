@@ -107,6 +107,11 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: Constants.routes.GLOSSARY,
+    loadComponent: () =>
+      import('./pages/glossary/glossary.page').then((m) => m.GlossaryPage),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./pages/page-not-found/page-not-found.page').then(

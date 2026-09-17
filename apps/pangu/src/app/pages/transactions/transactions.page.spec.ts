@@ -625,18 +625,30 @@ describe('TransactionsPage', () => {
   });
 
   describe('formatDate', () => {
-    it('should format date correctly', () => {
-      const date = new Date(2023, 0, 15);
-      expect(component.formatDate(date.getTime())).toBe('15/01/2023');
+    it('should format date like the IPO tables', () => {
+      expect(component.formatDate(Date.UTC(2023, 0, 15, 12))).toBe(
+        '15 Jan 2023',
+      );
     });
 
-    it('should pad single digit day and month', () => {
-      const date = new Date(2023, 2, 5);
-      expect(component.formatDate(date.getTime())).toBe('05/03/2023');
+    it('should format single digit day and month without padding', () => {
+      expect(component.formatDate(Date.UTC(2023, 2, 5, 12))).toBe('5 Mar 2023');
     });
   });
 
   describe('transactions$ pipeline', () => {
+    it('should map vendor codes for stock navigation', fakeAsync(() => {
+      stocksSubject.next([mockHolding, mockSellHolding]);
+      createComponent();
+      detectChangesAndTick();
+
+      component.transactions$.subscribe((items) => {
+        expect(items.length).toBe(2);
+        expect(items[0].vendorCode).toBe('RELIANCE');
+        expect(items[1].vendorCode).toBe('TCS');
+      });
+    }));
+
     it('should filter by buy type', fakeAsync(() => {
       stocksSubject.next([mockHolding, mockSellHolding]);
       createComponent();

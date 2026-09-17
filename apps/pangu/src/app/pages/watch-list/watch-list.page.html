@@ -544,20 +544,20 @@
         class="bg-gray-50 text-center text-xs whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="p-2 text-left sm:p-4">
+          <th scope="col" class="p-2 text-left">
             <div>Company</div>
             <div>Exchange</div>
           </th>
-          <th scope="col" class="p-2 sm:p-4">
+          <th scope="col" class="p-2">
             <div>Price (&#8377;)</div>
             <div>Volume</div>
           </th>
-          <th scope="col" class="p-2 sm:p-4">
+          <th scope="col" class="p-2">
             <div>Change (%)</div>
             <div>Change (&#8377;)</div>
           </th>
           @if (editMode()) {
-          <th scope="col" class="p-2 sm:p-4">
+          <th scope="col" class="p-2">
             <div>Actions</div>
           </th>
           }
@@ -572,16 +572,21 @@
           class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
           [class.!cursor-default]="editMode()"
         >
-          <th scope="row" class="max-w-px p-2 font-normal sm:p-4">
-            <div class="truncate font-medium text-gray-900 dark:text-white">
-              {{ stock?.liveData?.name || stock?.vendorCode?.etm?.primary || ''
-              }}
+          <th scope="row" class="max-w-px p-2 font-normal">
+            <div class="flex min-w-0 items-center gap-1">
+              <div class="truncate font-medium text-gray-900 dark:text-white">
+                {{ stock?.liveData?.name || stock?.vendorCode?.etm?.primary ||
+                '' }}
+              </div>
+              @if (holdingFor(stock?.vendorCode?.etm?.primary); as holding) {
+              <app-portfolio-popover class="shrink-0" [holding]="holding" />
+              }
             </div>
             <div class="text-xs text-gray-500 uppercase dark:text-gray-400">
               {{ getExchange(stock) }}
             </div>
           </th>
-          <td class="p-2 text-center sm:p-4">
+          <td class="p-2 text-center">
             <div>
               &#8377;{{ stock?.liveData?.quote?.nse?.price | valueOrPlaceholder
               }}
@@ -592,7 +597,7 @@
             </div>
           </td>
           <td
-            class="p-2 text-center sm:p-4"
+            class="p-2 text-center"
             [ngClass]="stock?.liveData?.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
@@ -605,7 +610,7 @@
             </div>
           </td>
           @if (editMode()) {
-          <td class="p-2 text-center sm:p-4">
+          <td class="p-2 text-center">
             <div class="flex justify-center space-x-2">
               <button
                 (click)="openMoveModal(stock); $event.stopPropagation()"

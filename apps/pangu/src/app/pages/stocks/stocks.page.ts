@@ -13,7 +13,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LOGGER } from '@nidhi/shared-logger';
 import {
@@ -40,13 +39,14 @@ import {
 } from 'rxjs';
 
 import { ToastService } from '@nidhi/shared-toast';
+import { PortfolioPopoverComponent } from '../../components/portfolio-popover/portfolio-popover.component';
 import {
   SelectWatchListComponent,
   WatchListSelectionMode,
 } from '../../components/select-watch-list/select-watch-list.component';
-import { Constants } from '../../constants';
 import { ChartCategory, ChartData, Period } from '../../models/chart';
 import { Direction, ExchangeName, Status } from '../../models/market';
+import { Holding } from '../../models/portfolio';
 import { ColorScheme } from '../../models/settings';
 import { Stock } from '../../models/stock';
 import { WatchList } from '../../models/watch-list';
@@ -62,9 +62,9 @@ import { ChartUtils } from '../../utils/chart.utils';
   selector: 'app-stocks',
   imports: [
     CommonModule,
-    RouterLink,
     ValueOrPlaceholderPipe,
     SelectWatchListComponent,
+    PortfolioPopoverComponent,
   ],
   templateUrl: './stocks.page.html',
   styleUrl: './stocks.page.css',
@@ -83,7 +83,7 @@ export class StocksPage implements OnDestroy {
   public readonly id = input<string>('');
 
   public stock$: Observable<Stock | null>;
-  public isInPortfolio$?: Observable<boolean>;
+  public portfolioHolding$?: Observable<Holding | undefined>;
 
   public chartCrosshairData?: ChartData;
 
@@ -101,7 +101,6 @@ export class StocksPage implements OnDestroy {
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
   public readonly ChartTimeRange = Period;
-  public readonly Routes = Constants.routes;
   public readonly WatchListSelectionMode = WatchListSelectionMode;
 
   private showIntraDayChart$ = new BehaviorSubject<boolean>(true);
@@ -122,15 +121,16 @@ export class StocksPage implements OnDestroy {
     const settingsService = inject(SettingsService);
     const portfolioService = inject(PortfolioService);
 
-    this.isInPortfolio$ = toObservable(this.id).pipe(
+    this.portfolioHolding$ = toObservable(this.id).pipe(
       switchMap((id) =>
         portfolioService.portfolio$.pipe(
-          map(
-            (portfolio) =>
-              !!id &&
-              portfolio.holdings.some(
-                (h) => h.vendorCode.etm.primary === id && (h.quantity || 0) > 0,
-              ),
+          map((portfolio) =>
+            id
+              ? portfolio.holdings.find(
+                  (h) =>
+                    h.vendorCode.etm.primary === id && (h.quantity || 0) > 0,
+                )
+              : undefined,
           ),
         ),
       ),

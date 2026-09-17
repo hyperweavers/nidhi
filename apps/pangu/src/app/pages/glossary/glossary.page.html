@@ -1,0 +1,151 @@
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <h1 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+    Glossary
+  </h1>
+
+  <!-- Search -->
+  <div class="mb-4 sm:mx-auto sm:max-w-md">
+    <div class="relative min-w-0 flex-1">
+      <div
+        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+      >
+        <svg
+          class="h-4 w-4 text-gray-500 dark:text-gray-400"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 20 20"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+          />
+        </svg>
+      </div>
+      <input
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        type="text"
+        role="searchbox"
+        inputmode="search"
+        placeholder="Search terms or definitions..."
+        class="block h-[38px] w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+      />
+      @if (searchQuery()) {
+      <button
+        (click)="onSearchChange('')"
+        aria-label="Clear search"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+      >
+        <svg
+          class="h-2.5 w-2.5"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+      }
+    </div>
+  </div>
+
+  @if (filteredTerms().length === 0) {
+  <div class="flex flex-col items-center justify-center py-12">
+    <p class="text-gray-500 dark:text-gray-400">
+      {{ searchQuery().trim() ? 'No terms match your search' : 'No terms found'
+      }}
+    </p>
+  </div>
+  } @else {
+  <!-- Desktop: table -->
+  <div
+    class="mb-6 hidden overflow-hidden rounded-lg border border-gray-200 bg-white shadow sm:block dark:border-gray-700 dark:bg-gray-800"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <thead
+          class="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="px-2 py-3 text-left sm:px-4">Term</th>
+            <th scope="col" class="px-2 py-3 text-left sm:px-4">Definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredTerms(); track item.term) {
+          <tr
+            class="border-b border-gray-100 bg-white last:border-0 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <td
+              class="px-2 py-3 font-medium whitespace-nowrap text-gray-900 sm:px-4 dark:text-white"
+            >
+              {{ item.term }}
+            </td>
+            <td class="px-2 py-3 sm:px-4">{{ item.definition }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobile: expandable rows -->
+  <div class="sm:hidden">
+    <div
+      class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow dark:border-gray-700 dark:bg-gray-800"
+    >
+      @for (item of filteredTerms(); track item.term; let last = $last) {
+      <div
+        [class.border-b]="!last"
+        class="border-gray-100 dark:border-gray-700"
+      >
+        <button
+          (click)="toggleTerm(item.term)"
+          type="button"
+          [attr.aria-expanded]="isExpanded(item.term)"
+          class="flex h-12 w-full items-center justify-between gap-2 px-4 text-left"
+        >
+          <span
+            class="truncate text-sm font-medium text-gray-900 dark:text-white"
+          >
+            {{ item.term }}
+          </span>
+          <svg
+            class="h-4 w-4 shrink-0 text-gray-500 transition-transform dark:text-gray-400"
+            [class.rotate-180]="isExpanded(item.term)"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 9-7 7-7-7"
+            />
+          </svg>
+        </button>
+        @if (isExpanded(item.term)) {
+        <div class="px-4 pb-4 text-sm text-gray-500 dark:text-gray-400">
+          {{ item.definition }}
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>

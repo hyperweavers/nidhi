@@ -4,6 +4,8 @@ export type {
   CfResponse,
   CfYear,
   CompanyDetails,
+  DraftIpoItem,
+  DraftIpoResponse,
   IpoCalendarDate,
   IpoCalendarItem,
   IpoCalendarResponse,
@@ -52,6 +54,7 @@ export enum IpoTab {
   UPCOMING = 'upcoming',
   CLOSED = 'closed',
   LISTED = 'listed',
+  DRAFT = 'draft',
 }
 
 export enum FinancialTab {

@@ -444,33 +444,30 @@
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Virtual Scroll Table -->
   <div
-    class="mx-4 flex-1 overflow-hidden rounded-md border border-gray-200 shadow-sm dark:border-gray-700"
+    class="flex-1 overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
   >
-    <!-- Sticky Header -->
-    <div
-      class="sticky top-0 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
-    >
-      <div class="flex-1 p-2 text-left sm:p-4">
-        <div class="whitespace-nowrap">Company (Qty)</div>
-        <div>Avg. Price (&#8377;)</div>
-        <div>Investment (&#8377;)</div>
+    <cdk-virtual-scroll-viewport itemSize="77" class="h-full w-full max-w-full">
+      <!-- Sticky Header (inside the viewport so it shares the scrollbar-adjusted width with rows) -->
+      <div
+        class="sticky top-0 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <div class="min-w-0 flex-1 p-2 text-left">
+          <div class="whitespace-nowrap">Company (Qty)</div>
+          <div>Avg. Price (&#8377;)</div>
+          <div>Investment (&#8377;)</div>
+        </div>
+        <div class="w-24 shrink-0 p-2 text-center">
+          <div>Day P/L (&#8377;)</div>
+          <div>Day P/L (%)</div>
+          <div>LTP (&#8377;)</div>
+        </div>
+        <div class="w-28 shrink-0 p-2 text-center">
+          <div>Total P/L (&#8377;)</div>
+          <div>Total P/L (%)</div>
+          <div>Cur. Val. (&#8377;)</div>
+        </div>
       </div>
-      <div class="p-2 text-left sm:p-4">
-        <div>Day P/L (&#8377;)</div>
-        <div>Day P/L (%)</div>
-        <div>LTP (&#8377;)</div>
-      </div>
-      <div class="p-2 text-left sm:p-4">
-        <div>Total P/L (&#8377;)</div>
-        <div>Total P/L (%)</div>
-        <div>Cur. Val. (&#8377;)</div>
-      </div>
-    </div>
 
-    <cdk-virtual-scroll-viewport
-      itemSize="80"
-      class="h-[calc(100%-80px)] max-h-[calc(100%-80px)] w-full max-w-full"
-    >
       <!-- Data rows -->
       <ng-template
         cdkVirtualFor
@@ -482,12 +479,12 @@
           [routerLink]="['/' + Routes.STOCKS, holding.vendorCode.etm.primary]"
           class="flex cursor-pointer border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
         >
-          <div class="flex-1 p-2 sm:p-4">
-            <div class="flex">
+          <div class="min-w-0 flex-1 p-2">
+            <div class="flex min-w-0">
               <div class="truncate font-medium text-gray-900 dark:text-white">
                 {{ holding.name | valueOrPlaceholder }}
               </div>
-              <div class="ps-0.5">
+              <div class="shrink-0 ps-0.5">
                 ({{ holding.quantity | valueOrPlaceholder: '1.0-0' }})
               </div>
             </div>
@@ -495,7 +492,7 @@
             <div>{{ holding.investment | valueOrPlaceholder }}</div>
           </div>
           <div
-            class="text-center sm:p-4"
+            class="w-24 shrink-0 p-2 text-center"
             [ngClass]="holding.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
@@ -509,7 +506,7 @@
             <div>{{ holding.quote?.nse?.price | valueOrPlaceholder }}</div>
           </div>
           <div
-            class="ps-2 text-center sm:p-4"
+            class="w-28 shrink-0 p-2 text-center"
             [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>{{ holding.totalProfitLoss?.value | valueOrPlaceholder }}</div>

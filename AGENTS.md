@@ -8,6 +8,10 @@ Before making edits or running commands, check:
 - [ ] Is there a built-in agent (`explore`, `code-reviewer`, `unit-test`, `migration`, `security-analyst`, `ci-monitor`) that should handle this? Delegate via the `task` tool with `subagent_type`.
 - [ ] Am I using `pnpm nx` instead of raw `nx`/`npx`? Prefer `pnpm nx`.
 - [ ] Have I read the relevant files before editing? The `edit` tool requires a prior `read`.
+- [ ] Am I assuming anything the user did not state? If a requirement is ambiguous
+      and guessing wrong would waste work, **ask first** via the `question` tool
+      instead of assuming — especially for scope ("which pages?"), visual design
+      choices, data sources, and whether to keep or remove existing behavior.
 
 ## Available skills
 
@@ -58,6 +62,28 @@ pnpm msw init apps/<app>/public --save   # pangu, palan, vatti
 - [ ] `pnpm nx build <project>`
 - [ ] `pnpm nx run <project>:test --coverage` (global thresholds in `<project>/jest.config.ts`)
 - [ ] `pnpm nx run <project>:test:patch` (changed-lines coverage ≥ `codecov.yml` patch target)
+
+## Failure policy (no exceptions)
+
+- Every gate above must pass. A red gate blocks CI, so there is no such thing as
+  someone else's failure: **fix every failure regardless of its cause or origin,
+  pre-existing failures included.**
+- Never close out a task by dismissing a failure as "pre-existing", "unrelated",
+  "flaky", or "already failing on main". Either fix it in this change, or leave
+  the task explicitly unfinished with the failure quoted and attributed.
+- Console noise is a failure too: zero warnings/errors in test output and the
+  browser console for touched flows (e.g. MSW `redundant usage of query
+parameters` warnings mean the handler must match on path, not full URL).
+
+## Assets (no binary images)
+
+- Never create or commit image files (`.png`, `.jpg`, screenshots, dumps) into
+  the workspace. Debug screenshots, repros and dumps go to `tmp/` and must be
+  deleted before finishing — they are never committable.
+- All UI icons must be **inline SVG** (e.g. heroicons/flowbite paths directly in
+  templates), never `<img>` tags pointing at committed image files. The only
+  exceptions are PWA-required generated assets (`manifest` icons, `favicon`)
+  produced by the repo's own generator scripts.
 
 ## Temporary files
 

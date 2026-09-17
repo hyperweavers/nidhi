@@ -759,6 +759,18 @@ export interface ListedIposOverviewResponse {
   pageSummary: IpoOverviewPageSummary;
 }
 
+// === IPO Draft API (moneycontrol ecalendar) ===
+export interface DraftIpoItem {
+  equityName: string;
+  date: string;
+  pdfFileLink: string;
+}
+
+export interface DraftIpoResponse {
+  success: number;
+  data: DraftIpoItem[];
+}
+
 // === IPO Financial APIs ===
 export interface PnlYear {
   year: number;
