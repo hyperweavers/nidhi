@@ -1,0 +1,484 @@
+<div
+  class="qb-root overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+>
+  <ng-container
+    [ngTemplateOutlet]="groupTpl"
+    [ngTemplateOutletContext]="{ $implicit: root(), depth: 0 }"
+  ></ng-container>
+
+  <div
+    class="flex flex-wrap gap-2 border-t border-gray-200 p-3 dark:border-gray-700"
+  >
+    <button
+      type="button"
+      (click)="addCondition(root().id)"
+      aria-label="Add condition"
+      title="Add condition"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+    >
+      <svg
+        class="h-4 w-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+      Condition
+    </button>
+    <button
+      type="button"
+      (click)="addInnerGroup(root().id)"
+      aria-label="Add group"
+      title="Add group"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+    >
+      <svg
+        class="h-4 w-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M14 8H4m8 3.5v5M9.5 14h5M4 6v13a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-5.032a1 1 0 0 1-.768-.36l-1.9-2.28a1 1 0 0 0-.768-.36H5a1 1 0 0 0-1 1Z"
+        />
+      </svg>
+      Group
+    </button>
+  </div>
+</div>
+
+<ng-template #groupTpl let-group let-depth="depth">
+  <div
+    [class]="
+      depth > 0
+        ? 'qb-group border-primary-300 dark:border-primary-500 ml-2 border-l-2 pl-2'
+        : 'qb-group'
+    "
+  >
+    <div class="flex items-start gap-2 p-3">
+      @if (group.children.length > 1) {
+        <div
+          class="inline-flex shrink-0 overflow-hidden rounded-md border border-gray-200 shadow-xs dark:border-gray-600"
+          role="group"
+          aria-label="Join conditions in this group with"
+        >
+          <button
+            type="button"
+            (click)="setCombinator(group.id, 'AND')"
+            [attr.aria-pressed]="group.combinator === 'AND'"
+            [class]="
+              group.combinator === 'AND'
+                ? 'bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 text-white focus:z-10 focus:ring-2'
+                : 'bg-white text-gray-900 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            "
+            class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold focus:outline-none"
+          >
+            <span class="hidden sm:inline">AND</span>
+            <span class="sm:hidden" aria-hidden="true">∧</span>
+            <span class="sr-only sm:hidden">AND</span>
+          </button>
+          <button
+            type="button"
+            (click)="setCombinator(group.id, 'OR')"
+            [attr.aria-pressed]="group.combinator === 'OR'"
+            [class]="
+              group.combinator === 'OR'
+                ? 'bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 text-white focus:z-10 focus:ring-2'
+                : 'bg-white text-gray-900 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            "
+            class="inline-flex items-center justify-center border-l border-gray-200 px-3 py-1.5 text-xs font-semibold focus:outline-none dark:border-gray-600"
+          >
+            <span class="hidden sm:inline">OR</span>
+            <span class="sm:hidden" aria-hidden="true">∨</span>
+            <span class="sr-only sm:hidden">OR</span>
+          </button>
+        </div>
+      }
+      <div class="min-w-0 flex-1">
+        <div
+          class="qb-scroll -mx-1 overflow-x-auto px-1 sm:mx-0 sm:overflow-visible sm:px-0"
+        >
+          <div
+            cdkDropList
+            (cdkDropListDropped)="onDrop($event, group.id)"
+            class="qb-grid-host flex min-w-[560px] flex-col gap-2 sm:min-w-0"
+          >
+            @for (child of group.children; track trackById($index, child)) {
+              <div cdkDrag class="qb-drag-item">
+                @if (child.kind === 'condition') {
+                  <div
+                    class="flex items-stretch overflow-visible rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700"
+                  >
+                    <div
+                      cdkDragHandle
+                      class="flex cursor-grab touch-none items-center px-1.5 text-gray-500 active:cursor-grabbing sm:px-2 dark:text-gray-400"
+                      [attr.aria-label]="'Drag to reorder condition'"
+                      title="Drag to reorder"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M7 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM7 10a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM7 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
+                        />
+                      </svg>
+                    </div>
+
+                    <div
+                      class="grid min-w-0 flex-1 grid-cols-[minmax(0,1.35fr)_110px_minmax(0,1fr)] gap-1.5 p-1.5 sm:gap-2 sm:p-2 md:grid-cols-[minmax(0,1fr)_150px_minmax(0,1fr)]"
+                    >
+                      <!-- Property typeahead (offline, no custom values) -->
+                      <div class="relative min-w-0">
+                        <label [attr.for]="'prop-' + child.id" class="sr-only"
+                          >Property</label
+                        >
+                        <input
+                          [id]="'prop-' + child.id"
+                          [ngModel]="child.property"
+                          (ngModelChange)="updateProperty(child.id, $event)"
+                          (focus)="openProperty(child.id)"
+                          (blur)="scheduleClose()"
+                          type="text"
+                          autocomplete="off"
+                          placeholder="Select property"
+                          class="focus:border-primary-500 focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-white p-1.5 text-xs text-gray-900 sm:p-2 sm:text-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white"
+                          [class.border-red-500]="
+                            child.property && !isPropertyValid(child.property)
+                          "
+                        />
+                        @if (openPropertyFor() === child.id) {
+                          <ul
+                            class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                          >
+                            @for (
+                              option of propertySuggestions(child.property);
+                              track option
+                            ) {
+                              <li>
+                                <button
+                                  type="button"
+                                  (mousedown)="selectProperty(child.id, option)"
+                                  class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                                >
+                                  {{ option }}
+                                </button>
+                              </li>
+                            } @empty {
+                              <li
+                                class="qb-empty text-gray-500 dark:text-gray-400"
+                              >
+                                No matching properties
+                              </li>
+                            }
+                          </ul>
+                        }
+                        @if (
+                          child.property && !isPropertyValid(child.property)
+                        ) {
+                          <p
+                            class="mt-1 text-xs text-red-600 dark:text-red-400"
+                          >
+                            Choose a property from the list.
+                          </p>
+                        }
+                      </div>
+
+                      <!-- Operator select -->
+                      <div class="relative min-w-0">
+                        <label [attr.for]="'op-' + child.id" class="sr-only"
+                          >Operator</label
+                        >
+                        <select
+                          [id]="'op-' + child.id"
+                          [ngModel]="child.operator"
+                          (ngModelChange)="updateOperator(child.id, $event)"
+                          class="focus:border-primary-500 focus:ring-primary-500 block w-full cursor-pointer appearance-none rounded-md border border-gray-300 bg-white p-1.5 pr-7 text-xs text-gray-900 sm:p-2 sm:pr-8 sm:text-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark]"
+                        >
+                          @for (op of QUERY_OPERATORS; track op) {
+                            <option [value]="op">{{ op }}</option>
+                          }
+                        </select>
+                        <svg
+                          class="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          aria-hidden="true"
+                        >
+                          <path
+                            clip-rule="evenodd"
+                            fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          />
+                        </svg>
+                      </div>
+
+                      <!-- Value -->
+                      <div class="relative min-w-0">
+                        <label [attr.for]="'val-' + child.id" class="sr-only"
+                          >Value</label
+                        >
+                        @if (
+                          child.operator === 'IN' || child.operator === 'NOT IN'
+                        ) {
+                          <div
+                            class="focus-within:border-primary-500 focus-within:ring-primary-500 flex min-h-10 flex-wrap items-center gap-1 overflow-hidden rounded-md border border-gray-300 bg-white p-1.5 text-sm dark:border-gray-500 dark:bg-gray-800"
+                            [class.border-red-500]="
+                              child.value &&
+                              !isValueValid(child.value, child.operator)
+                            "
+                          >
+                            @for (
+                              chip of chipsFor(child.id, child.value);
+                              track $index
+                            ) {
+                              <span
+                                class="inline-flex max-w-full items-center gap-1 rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-800 dark:bg-gray-600 dark:text-gray-100"
+                                [class.!bg-red-200]="!chipItemValid(chip)"
+                                [title]="chip"
+                              >
+                                <span class="max-w-36 truncate sm:max-w-40">{{
+                                  chip
+                                }}</span>
+                                <button
+                                  type="button"
+                                  (click)="removeChip(child.id, $index)"
+                                  class="font-bold hover:text-red-600"
+                                  [attr.aria-label]="'Remove value ' + chip"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            }
+                            <input
+                              [id]="'val-' + child.id"
+                              [ngModel]="chipDraft(child.id)"
+                              (ngModelChange)="setChipDraft(child.id, $event)"
+                              (focus)="openValue(child.id)"
+                              (blur)="
+                                scheduleClose(); commitChipDraft(child.id)
+                              "
+                              (keydown.enter)="commitChipDraft(child.id)"
+                              type="text"
+                              autocomplete="off"
+                              placeholder="Add value, Enter"
+                              class="min-w-0 flex-1 rounded-md bg-transparent p-1 text-xs text-gray-900 outline-none sm:text-sm dark:text-white"
+                            />
+                          </div>
+                          @if (
+                            openValueFor() === child.id &&
+                            chipDraft(child.id) &&
+                            valueSuggestions(chipDraft(child.id)).length
+                          ) {
+                            <ul
+                              class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                            >
+                              @for (
+                                option of valueSuggestions(chipDraft(child.id));
+                                track option
+                              ) {
+                                <li>
+                                  <button
+                                    type="button"
+                                    (mousedown)="
+                                      addChipFromOption(child.id, option)
+                                    "
+                                    class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    {{ option }}
+                                  </button>
+                                </li>
+                              }
+                            </ul>
+                          }
+                        } @else {
+                          <input
+                            [id]="'val-' + child.id"
+                            [ngModel]="child.value"
+                            (ngModelChange)="updateValue(child.id, $event)"
+                            (focus)="openValue(child.id)"
+                            (blur)="scheduleClose()"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Number, property or expression"
+                            class="focus:border-primary-500 focus:ring-primary-500 block w-full rounded-md border border-gray-300 bg-white p-1.5 text-xs text-gray-900 sm:p-2 sm:text-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white"
+                            [class.border-red-500]="
+                              child.value &&
+                              !isValueValid(child.value, child.operator)
+                            "
+                          />
+                          @if (
+                            openValueFor() === child.id &&
+                            child.value &&
+                            valueSuggestions(child.value).length
+                          ) {
+                            <ul
+                              class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                            >
+                              @for (
+                                option of valueSuggestions(child.value);
+                                track option
+                              ) {
+                                <li>
+                                  <button
+                                    type="button"
+                                    (mousedown)="
+                                      selectValueOption(child.id, option)
+                                    "
+                                    class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    {{ option }}
+                                  </button>
+                                </li>
+                              }
+                            </ul>
+                          }
+                        }
+                        @if (
+                          child.value &&
+                          !isValueValid(child.value, child.operator)
+                        ) {
+                          <p
+                            class="mt-1 text-xs text-red-600 dark:text-red-400"
+                          >
+                            Use a number, a property, or one + − × ÷ operation.
+                          </p>
+                        }
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="removeNode(child.id)"
+                      class="ml-1 inline-flex shrink-0 items-center justify-center self-center rounded-md bg-red-600 p-1.5 text-white shadow-xs hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-none sm:ml-0 sm:p-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                      [attr.aria-label]="'Delete condition'"
+                      title="Delete condition"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                } @else {
+                  <div
+                    class="rounded-lg border border-dashed border-gray-300 p-2 dark:border-gray-600"
+                  >
+                    <ng-container
+                      [ngTemplateOutlet]="groupTpl"
+                      [ngTemplateOutletContext]="{
+                        $implicit: child,
+                        depth: depth + 1,
+                      }"
+                    ></ng-container>
+                  </div>
+                }
+              </div>
+            } @empty {
+              <p
+                class="rounded-md bg-gray-100 p-3 text-center text-sm text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+              >
+                No conditions yet — add one below.
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (depth > 0) {
+          <div class="mt-2 flex flex-nowrap items-center gap-2">
+            <button
+              type="button"
+              (click)="addCondition(group.id)"
+              aria-label="Add condition"
+              title="Add condition"
+              class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+            >
+              <svg
+                class="h-4 w-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+              </svg>
+              Condition
+            </button>
+            <button
+              type="button"
+              (click)="addInnerGroup(group.id)"
+              aria-label="Add group"
+              title="Add group"
+              class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+            >
+              <svg
+                class="h-4 w-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 8H4m8 3.5v5M9.5 14h5M4 6v13a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-5.032a1 1 0 0 1-.768-.36l-1.9-2.28a1 1 0 0 0-.768-.36H5a1 1 0 0 0-1 1Z"
+                />
+              </svg>
+              Group
+            </button>
+            <button
+              type="button"
+              (click)="removeNode(group.id)"
+              class="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm leading-5 font-medium text-white shadow-xs hover:bg-red-700 focus:ring-4 focus:ring-red-300 focus:outline-none dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+            >
+              <svg
+                class="h-4 w-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Group
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>

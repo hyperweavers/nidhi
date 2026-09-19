@@ -1078,4 +1078,35 @@ describe('MarketService', () => {
       req.flush(null);
     });
   });
+
+  describe('Screener endpoints', () => {
+    it('should fetch the screener field mapping', () => {
+      service.getScreenerFieldMapping().subscribe((res) => {
+        expect(res.datainfo).toBeTruthy();
+      });
+      const req = httpMock.expectOne(Constants.api.SCREENER_FIELDS);
+      expect(req.request.method).toBe('GET');
+      req.flush({ datainfo: {} });
+    });
+
+    it('should post a screener preview with defaults', () => {
+      service.getScreenerPreview('Market Cap > 100').subscribe((res) => {
+        expect(res.totalRecords).toBe(1);
+      });
+      const req = httpMock.expectOne(Constants.api.SCREENER);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body.queryCondition).toBe('Market Cap > 100');
+      expect(req.request.body.pagesize).toBe(20);
+      expect(req.request.body.pageno).toBe(1);
+      req.flush({ totalRecords: 1, dataList: [] });
+    });
+
+    it('should post a screener preview with custom pagination', () => {
+      service.getScreenerPreview('q', 50, 3).subscribe();
+      const req = httpMock.expectOne(Constants.api.SCREENER);
+      expect(req.request.body.pagesize).toBe(50);
+      expect(req.request.body.pageno).toBe(3);
+      req.flush({ totalRecords: 0, dataList: [] });
+    });
+  });
 });

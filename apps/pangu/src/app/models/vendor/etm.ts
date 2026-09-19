@@ -883,3 +883,56 @@ export interface QuarterlyResponse {
     };
   };
 }
+
+// === Screener API (ETM screener.indiatimes.com) ===
+export interface ScreenerCategoryField {
+  displayName?: string;
+}
+
+export interface ScreenerCategoryLevelTwo {
+  screenerCategoryFields?: ScreenerCategoryField[];
+}
+
+export interface ScreenerCategoryLevelOne {
+  screenerCategoryLevelTwo?: ScreenerCategoryLevelTwo[];
+}
+
+export interface ScreenerFieldMappingResponse {
+  datainfo?: {
+    screenerCategoryLevelZero?: {
+      screenerCategoryLevelOne?: ScreenerCategoryLevelOne[];
+    };
+  };
+}
+
+export interface ScreenerPreviewKeyValue {
+  keyId?: string;
+  value?: string;
+  filterFormatValue?: string;
+}
+
+export interface ScreenerPreviewDataItem {
+  assetName?: string;
+  assetSymbol?: string;
+  assetId?: string;
+  assetExchangeId?: string;
+  data?: ScreenerPreviewKeyValue[];
+}
+
+export interface ScreenerPreviewResponse {
+  totalRecords?: number;
+  statusCode?: number;
+  dataList?: ScreenerPreviewDataItem[];
+}
+
+export interface ScreenerPreviewRequest {
+  viewId?: number;
+  sort?: { field: string; order: string }[];
+  pagesize: number;
+  pageno: number;
+  deviceId?: string;
+  filterType?: string;
+  filterValue?: unknown[];
+  screenerId?: string;
+  queryCondition: string;
+}

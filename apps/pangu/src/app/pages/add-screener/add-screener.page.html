@@ -1,0 +1,845 @@
+<div class="flex h-full flex-col gap-4 p-4">
+  <div #helpBox class="relative flex items-center gap-2">
+    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+      {{ pageTitle() }}
+    </h1>
+    <button
+      type="button"
+      (click)="toggleHelp()"
+      [attr.aria-expanded]="showHelp()"
+      aria-label="How to build a query"
+      title="How to build a query"
+      class="focus:ring-primary-500 ml-auto flex items-center rounded-full focus:ring-2 focus:outline-hidden"
+    >
+      <svg
+        class="h-6 w-6 text-gray-800 dark:text-white"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.008-3.018a1.502 1.502 0 0 1 2.522 1.159v.024a1.44 1.44 0 0 1-1.493 1.418 1 1 0 0 0-1.037.999V14a1 1 0 1 0 2 0v-.539a3.44 3.44 0 0 0 2.529-3.256 3.502 3.502 0 0 0-7-.255 1 1 0 0 0 2 .076c.014-.398.187-.774.48-1.044Zm.982 7.026a1 1 0 1 0 0 2H12a1 1 0 1 0 0-2h-.01Z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
+    @if (showHelp()) {
+    <div
+      class="absolute top-full right-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-gray-200 bg-white p-4 text-sm leading-5 text-gray-700 shadow-lg dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+      role="dialog"
+      aria-label="How to build a query?"
+    >
+      <p class="mb-2 font-semibold text-gray-900 dark:text-white">
+        How to build a query?
+      </p>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5">
+        <li>Add a <strong>Condition</strong> for each filter you want.</li>
+        <li>
+          Pick a property, how it should match, and what to compare it to. You
+          can compare against a number, another property, or combine them with
+          <em>+</em>
+          ,
+          <em>-</em>
+          ,
+          <em>*</em>
+          and
+          <em>/</em>
+          (for example, Market Cap (Rs Cr) / PBT, Qtr EBIT (Rs Cr) * 3).
+        </li>
+        <li>
+          Use <strong>IN</strong> to match any of several values — keep typing
+          and press <em>Enter</em> or <em>comma</em> to add each one.
+        </li>
+        <li>
+          Use <strong>AND / OR</strong> to decide if all or any of the filters
+          in a group must match.
+        </li>
+        <li>
+          Use <strong>Group</strong> to put filters inside brackets and combine
+          groups.
+        </li>
+        <li>Drag the handle to reorder, use the red trash to remove.</li>
+        <li>Your query appears in the preview.</li>
+      </ul>
+    </div>
+    }
+  </div>
+
+  @if (loading()) {
+  <div class="flex flex-1 items-center justify-center" role="status">
+    <svg
+      aria-hidden="true"
+      class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+      viewBox="0 0 100 101"
+      fill="none"
+    >
+      <path
+        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+        fill="currentColor"
+      />
+      <path
+        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+        fill="currentFill"
+      />
+    </svg>
+    <span class="sr-only">Loading properties...</span>
+  </div>
+  } @else if (properties().length === 0) {
+  <div
+    class="flex flex-1 flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400"
+    role="status"
+  >
+    <p>Could not load screener properties.<br />Please try again later.</p>
+  </div>
+  } @else {
+  <div
+    class="sticky top-16 z-10 -mx-4 border-y border-gray-200 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80 md:static md:mx-0 md:rounded-lg md:border md:bg-white md:px-4 md:py-4 md:backdrop-blur-none dark:border-gray-700 dark:bg-gray-800/95 dark:supports-[backdrop-filter]:bg-gray-800/80 md:dark:bg-gray-800"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
+        Preview
+      </h2>
+      <div class="flex items-center gap-2">
+        @if (isValid()) {
+        <span
+          class="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800 dark:bg-green-900 dark:text-green-300"
+        >
+          Valid
+        </span>
+        } @else {
+        <span
+          class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+        >
+          Incomplete
+        </span>
+        }
+        <button
+          type="button"
+          (click)="copyQuery()"
+          [disabled]="!query()"
+          class="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          <svg
+            class="h-3.5 w-3.5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7 9v6a4 4 0 0 0 4 4h4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1v2Z"
+              clip-rule="evenodd"
+            />
+            <path
+              fill-rule="evenodd"
+              d="M13 3.054V7H9.2a2 2 0 0 1 .281-.432l2.46-2.87A2 2 0 0 1 13 3.054ZM15 3v4a2 2 0 0 1-2 2H9v6a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-3Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Copy
+        </button>
+      </div>
+    </div>
+    @if (query()) {
+    <pre
+      class="mt-2 max-h-28 overflow-auto rounded-md bg-gray-50 p-3 font-mono text-sm break-words whitespace-pre-wrap text-gray-900 dark:bg-gray-900 dark:text-gray-100"
+    >
+{{ query() }}</pre
+    >
+    } @else {
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+      Add and complete each filter to see your query here.
+    </p>
+    }
+  </div>
+
+  <app-query-builder
+    [properties]="properties()"
+    [initialTree]="initialTree()"
+    (queryChange)="onQueryChange($event)"
+  />
+
+  <div class="flex justify-end gap-3">
+    @if (!previewLoading() && !previewError()) {
+    <p class="flex-1 text-sm text-gray-500 dark:text-gray-400">
+      {{ previewTotal() }} stocks matching your query!
+    </p>
+    }
+    <button
+      type="button"
+      (click)="save()"
+      [disabled]="!isValid()"
+      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-hidden disabled:opacity-50 sm:flex-none"
+    >
+      Save
+    </button>
+    <button
+      type="button"
+      (click)="preview()"
+      [disabled]="!isValid() || previewLoading()"
+      class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-hidden disabled:opacity-50 sm:flex-none dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+    >
+      @if (previewLoading()) {
+      <svg
+        aria-hidden="true"
+        class="mr-2 h-4 w-4 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+        viewBox="0 0 100 101"
+        fill="none"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+      } Preview
+    </button>
+  </div>
+
+  @if (hasPreviewed()) {
+  <div class="flex flex-col gap-4">
+    @if (previewLoading()) {
+    <div class="flex justify-center py-8" role="status">
+      <svg
+        aria-hidden="true"
+        class="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+        viewBox="0 0 100 101"
+        fill="none"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+      <span class="sr-only">Loading preview...</span>
+    </div>
+    } @else if (previewError()) {
+    <div
+      class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
+      role="alert"
+    >
+      {{ previewError() }}
+    </div>
+    } @else {
+    <!-- Results Header: Search + Sort/Filter -->
+    <div
+      class="flex flex-col items-center justify-between gap-3 pt-2 md:flex-row"
+    >
+      <div class="w-full md:w-64 xl:w-96">
+        <label for="screener-result-search" class="sr-only">Search</label>
+        <div class="relative w-full">
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+          >
+            <svg
+              class="h-5 w-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <input
+            id="screener-result-search"
+            [ngModel]="resultSearchQuery()"
+            (ngModelChange)="resultSearchQuery.set($event)"
+            type="text"
+            class="focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+            placeholder="Search by stock name..."
+          />
+        </div>
+      </div>
+
+      <div
+        class="flex w-full shrink-0 flex-col items-stretch justify-end gap-3 md:w-auto md:flex-row md:items-center"
+      >
+        <div class="flex gap-3">
+          <!-- Sort -->
+          <div class="relative flex w-full items-center md:w-auto">
+            <button
+              id="screenerSortButton"
+              (click)="showSortMenu.set(!showSortMenu())"
+              class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+              type="button"
+            >
+              <svg
+                class="mr-2 h-4 w-4 text-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 4v16M7 4l3 3M7 4 4 7m9-3h6l-6 6h6m-6.5 10 3.5-7 3.5 7M14 18h4"
+                />
+              </svg>
+              Sort
+              <svg
+                class="-mr-1 ml-1.5 h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                />
+              </svg>
+            </button>
+
+            @if (showSortMenu()) {
+            <div
+              id="screenerSortMenu"
+              class="absolute top-full right-0 z-20 mt-2 w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
+            >
+              <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                <li
+                  (click)="setSort(ScreenerSortType.NAME, ScreenerSortOrder.ASC)"
+                  (keydown.enter)="setSort(ScreenerSortType.NAME, ScreenerSortOrder.ASC)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Name
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v13m0-13 4 4m-4-4-4 4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="setSort(ScreenerSortType.NAME, ScreenerSortOrder.DSC)"
+                  (keydown.enter)="setSort(ScreenerSortType.NAME, ScreenerSortOrder.DSC)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Name
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19V5m0 14-4-4m4 4 4-4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="setSort(ScreenerSortType.PRICE, ScreenerSortOrder.ASC)"
+                  (keydown.enter)="setSort(ScreenerSortType.PRICE, ScreenerSortOrder.ASC)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Price
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v13m0-13 4 4m-4-4-4 4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="setSort(ScreenerSortType.PRICE, ScreenerSortOrder.DSC)"
+                  (keydown.enter)="setSort(ScreenerSortType.PRICE, ScreenerSortOrder.DSC)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Price
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19V5m0 14-4-4m4 4 4-4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="
+                    setSort(
+                      ScreenerSortType.CHANGE_PERCENTAGE,
+                      ScreenerSortOrder.ASC
+                    )
+                  "
+                  (keydown.enter)="
+                    setSort(
+                      ScreenerSortType.CHANGE_PERCENTAGE,
+                      ScreenerSortOrder.ASC
+                    )
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Change %
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v13m0-13 4 4m-4-4-4 4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="
+                    setSort(
+                      ScreenerSortType.CHANGE_PERCENTAGE,
+                      ScreenerSortOrder.DSC
+                    )
+                  "
+                  (keydown.enter)="
+                    setSort(
+                      ScreenerSortType.CHANGE_PERCENTAGE,
+                      ScreenerSortOrder.DSC
+                    )
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Change %
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19V5m0 14-4-4m4 4 4-4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="
+                    setSort(ScreenerSortType.CHANGE_VALUE, ScreenerSortOrder.ASC)
+                  "
+                  (keydown.enter)="
+                    setSort(ScreenerSortType.CHANGE_VALUE, ScreenerSortOrder.ASC)
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Change ₹
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v13m0-13 4 4m-4-4-4 4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="
+                    setSort(ScreenerSortType.CHANGE_VALUE, ScreenerSortOrder.DSC)
+                  "
+                  (keydown.enter)="
+                    setSort(ScreenerSortType.CHANGE_VALUE, ScreenerSortOrder.DSC)
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Change ₹
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19V5m0 14-4-4m4 4 4-4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="setSort(ScreenerSortType.VOLUME, ScreenerSortOrder.ASC)"
+                  (keydown.enter)="
+                    setSort(ScreenerSortType.VOLUME, ScreenerSortOrder.ASC)
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Volume
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v13m0-13 4 4m-4-4-4 4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+                <li
+                  (click)="setSort(ScreenerSortType.VOLUME, ScreenerSortOrder.DSC)"
+                  (keydown.enter)="
+                    setSort(ScreenerSortType.VOLUME, ScreenerSortOrder.DSC)
+                  "
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  <div class="flex items-center justify-between">
+                    Volume
+                    <svg
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 19V5m0 14-4-4m4 4 4-4"
+                      />
+                    </svg>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            }
+          </div>
+
+          <!-- Filter -->
+          <div class="relative flex w-full items-center md:w-auto">
+            <button
+              id="screenerFilterButton"
+              (click)="showFilterMenu.set(!showFilterMenu())"
+              class="hover:text-primary-700 flex w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+              type="button"
+            >
+              <svg
+                class="mr-2 h-4 w-4 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Filter
+              <svg
+                class="-mr-1 ml-1.5 h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                />
+              </svg>
+            </button>
+
+            @if (showFilterMenu()) {
+            <div
+              id="screenerFilterMenu"
+              class="absolute top-full right-0 z-20 mt-2 w-44 divide-y divide-gray-100 rounded-sm bg-white shadow-sm dark:divide-gray-600 dark:bg-gray-700"
+            >
+              <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                <li
+                  (click)="setFilter(ScreenerFilter.NONE)"
+                  (keydown.enter)="setFilter(ScreenerFilter.NONE)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  All
+                </li>
+                <li
+                  (click)="setFilter(ScreenerFilter.GAINERS)"
+                  (keydown.enter)="setFilter(ScreenerFilter.GAINERS)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  Gainers
+                </li>
+                <li
+                  (click)="setFilter(ScreenerFilter.LOSERS)"
+                  (keydown.enter)="setFilter(ScreenerFilter.LOSERS)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  Losers
+                </li>
+                <li
+                  (click)="setFilter(ScreenerFilter.NSE)"
+                  (keydown.enter)="setFilter(ScreenerFilter.NSE)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  NSE
+                </li>
+                <li
+                  (click)="setFilter(ScreenerFilter.BSE)"
+                  (keydown.enter)="setFilter(ScreenerFilter.BSE)"
+                  tabindex="0"
+                  class="block cursor-pointer px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >
+                  BSE
+                </li>
+              </ul>
+            </div>
+            }
+          </div>
+
+          <!-- Clear -->
+          <div class="flex items-center md:w-auto">
+            <button
+              (click)="clearFiltersAndSort()"
+              class="hover:text-primary-700 flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-hidden md:w-auto dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+              type="button"
+              title="Clear Filters & Sort"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (filteredResults().length > 0) {
+    <div
+      class="flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-md border border-gray-200 shadow-sm dark:border-gray-700"
+    >
+      <div
+        class="flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+      >
+        <div class="flex-1 p-2 text-left sm:p-4">
+          <div>Company</div>
+          <div>Exchange</div>
+        </div>
+        <div class="p-2 text-center sm:p-4">
+          <div>Price (&#8377;)</div>
+          <div>Volume</div>
+        </div>
+        <div class="p-2 text-center sm:p-4">
+          <div>Change (%)</div>
+          <div>Change (&#8377;)</div>
+        </div>
+      </div>
+
+      <cdk-virtual-scroll-viewport
+        itemSize="72"
+        class="h-[60vh] w-full"
+        (scrolledIndexChange)="onScrolled($event)"
+      >
+        <div
+          *cdkVirtualFor="let row of filteredResults(); trackBy: trackByAssetId"
+          (click)="openResult(row)"
+          (keydown.enter)="openResult(row)"
+          tabindex="0"
+          class="flex cursor-pointer border-b bg-white text-sm text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+        >
+          <div class="min-w-0 flex-1 p-2 font-normal sm:p-4">
+            <div class="truncate font-medium text-gray-900 dark:text-white">
+              {{ displayName(row) }}
+            </div>
+            <div
+              class="truncate text-xs text-gray-500 uppercase dark:text-gray-400"
+            >
+              {{ getExchange(row) }}
+            </div>
+          </div>
+          <div class="p-2 text-center sm:p-4">
+            <div>
+              &#8377;{{ row.liveData?.quote?.nse?.price | valueOrPlaceholder }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              {{ row.liveData?.quote?.nse?.volume | valueOrPlaceholder: '1.0-0'
+              }}
+            </div>
+          </div>
+          <div
+            class="p-2 text-center sm:p-4"
+            [ngClass]="
+              row.liveData?.quote?.nse?.change?.direction === Direction.UP
+                ? 'text-green-500 dark:text-green-400'
+                : 'text-red-600 dark:text-red-500'
+            "
+          >
+            <div>
+              {{ row.liveData?.quote?.nse?.change?.percentage |
+              valueOrPlaceholder }}%
+            </div>
+            <div>
+              &#8377;{{ row.liveData?.quote?.nse?.change?.value |
+              valueOrPlaceholder }}
+            </div>
+          </div>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+    @if (loadingMore()) {
+    <div class="flex justify-center py-4" role="status">
+      <svg
+        aria-hidden="true"
+        class="h-6 w-6 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+        viewBox="0 0 100 101"
+        fill="none"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+      <span class="sr-only">Loading more...</span>
+    </div>
+    } } @else {
+    <div
+      class="flex flex-col items-center justify-center py-8 text-center text-gray-500 dark:text-gray-400"
+      role="status"
+    >
+      <svg class="mx-auto mb-4 h-12 w-12" viewBox="0 0 20 20" fill="none">
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+      <p>No stocks match your filters.</p>
+    </div>
+    } }
+  </div>
+  } } @if (showNamePrompt()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/80"
+  >
+    <div
+      class="w-full max-w-md rounded-md bg-white p-6 shadow-lg dark:bg-gray-800"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        Save Screener
+      </h3>
+      <div class="mb-4">
+        <label
+          for="screener-name-input"
+          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+          >Name</label
+        >
+        <input
+          id="screener-name-input"
+          [ngModel]="nameDraft()"
+          (ngModelChange)="nameDraft.set($event)"
+          type="text"
+          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+          placeholder="Enter screener name..."
+        />
+        @if (nameError()) {
+        <p class="mt-1 text-sm text-red-600 dark:text-red-500">
+          {{ nameError() }}
+        </p>
+        }
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button
+          (click)="closeNamePrompt()"
+          type="button"
+          class="rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="confirmNamePrompt()"
+          type="button"
+          class="bg-primary-700 hover:bg-primary-800 rounded-md px-4 py-2 text-sm font-medium text-white"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

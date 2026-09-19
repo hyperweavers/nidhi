@@ -32,6 +32,8 @@ import {
   PeriodFrequencyQueryParamMap,
   PeriodMap,
   PeriodQueryParam,
+  ScreenerFieldMappingResponse,
+  ScreenerPreviewResponse,
   SearchResult,
   SearchResultSecondary,
   StockPeerChart,
@@ -989,6 +991,26 @@ export class MarketService {
 
   private getDashboard(query: DashboardQuery): Observable<Dashboard> {
     return this.http.post<Dashboard>(Constants.api.DASHBOARD, query);
+  }
+
+  // === Screener raw HTTP methods (vendor ETM types via adapter) ===
+
+  public getScreenerFieldMapping(): Observable<ScreenerFieldMappingResponse> {
+    return this.http.get<ScreenerFieldMappingResponse>(
+      Constants.api.SCREENER_FIELDS,
+    );
+  }
+
+  public getScreenerPreview(
+    queryCondition: string,
+    pagesize = 20,
+    pageno = 1,
+  ): Observable<ScreenerPreviewResponse> {
+    return this.http.post<ScreenerPreviewResponse>(Constants.api.SCREENER, {
+      pagesize,
+      pageno,
+      queryCondition,
+    });
   }
 
   // === IPO raw HTTP methods ===

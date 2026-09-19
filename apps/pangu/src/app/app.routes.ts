@@ -47,6 +47,30 @@ export const appRoutes: Route[] = [
       import('./pages/watch-list/watch-list.page').then((m) => m.WatchListPage),
   },
   {
+    path: Constants.routes.SCREENER,
+    loadComponent: () =>
+      import('./pages/screeners/screeners.page').then((m) => m.ScreenersPage),
+  },
+  {
+    path: `${Constants.routes.SCREENER}/edit`,
+    loadComponent: () =>
+      import('./pages/add-screener/add-screener.page').then(
+        (m) => m.AddScreenerPage,
+      ),
+  },
+  {
+    path: `${Constants.routes.SCREENER}/edit/:id`,
+    loadComponent: () =>
+      import('./pages/add-screener/add-screener.page').then(
+        (m) => m.AddScreenerPage,
+      ),
+  },
+  {
+    path: `${Constants.routes.SCREENER}/:id`,
+    loadComponent: () =>
+      import('./pages/screener/screener.page').then((m) => m.ScreenerPage),
+  },
+  {
     path: Constants.routes.IPO,
     loadComponent: () => import('./pages/ipo/ipo.page').then((m) => m.IpoPage),
   },
