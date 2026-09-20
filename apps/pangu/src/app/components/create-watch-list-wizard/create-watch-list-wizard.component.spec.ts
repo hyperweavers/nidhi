@@ -111,7 +111,7 @@ describe('CreateWatchListWizardComponent', () => {
     expect(watchListService.createWatchList).toHaveBeenCalledWith('My List');
     expect(emitSpy).toHaveBeenCalledWith('new-list-id');
     expect(toastService.show).toHaveBeenCalledWith(
-      'Watch list created successfully!',
+      'Watchlist created successfully!',
     );
   }));
 
@@ -151,7 +151,7 @@ describe('CreateWatchListWizardComponent', () => {
       mockStock.vendorCode,
     );
     expect(toastService.show).toHaveBeenCalledWith(
-      'Watch list created successfully!',
+      'Watchlist created successfully!',
     );
   }));
 
@@ -179,13 +179,13 @@ describe('CreateWatchListWizardComponent', () => {
     expect(watchListService.watchListNameExists).not.toHaveBeenCalled();
   }));
 
-  it('should prevent going to step 2 when watch list name already exists', fakeAsync(async () => {
+  it('should prevent going to step 2 when watchlist name already exists', fakeAsync(async () => {
     watchListService.watchListNameExists.mockResolvedValue(true);
     component.listName = 'My List';
     await component.goToStep2();
     expect(component.step()).toBe(1);
     expect(component.error()).toBe(
-      'A watch list with this name already exists!',
+      'A watchlist with this name already exists!',
     );
     expect(watchListService.watchListNameExists).toHaveBeenCalledWith(
       'My List',
@@ -205,7 +205,7 @@ describe('CreateWatchListWizardComponent', () => {
     expect(component.step()).toBe(1);
     const errorParagraph = fixture.debugElement.query(By.css('p'));
     expect(errorParagraph?.nativeElement.textContent).toContain(
-      'A watch list with this name already exists!',
+      'A watchlist with this name already exists!',
     );
   }));
 
@@ -244,7 +244,7 @@ describe('CreateWatchListWizardComponent', () => {
     await component.finish();
     expect(emitSpy).toHaveBeenCalledWith('list-123');
     expect(toastService.show).toHaveBeenCalledWith(
-      'Watch list created successfully!',
+      'Watchlist created successfully!',
     );
   }));
 

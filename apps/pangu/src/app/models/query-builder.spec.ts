@@ -10,6 +10,7 @@ import {
   isValidGroup,
   isValidListValue,
   normalizeOperand,
+  parseQueryText,
   parseValueExpression,
   serializeCondition,
   serializeGroup,
@@ -542,6 +543,96 @@ describe('query-builder model', () => {
         query: '',
         isValid: false,
       });
+    });
+  });
+
+  describe('parseQueryText', () => {
+    const PAREN_PROPS = [
+      'Net Sales YoY Chg (%)',
+      'Market Cap (Rs Cr)',
+      'Price',
+    ];
+
+    function roundTrip(query: string, props: readonly string[] = PROPS) {
+      const tree = parseQueryText(query, props);
+      expect(tree).not.toBeNull();
+      // Re-serializing the parsed tree reproduces the query text.
+      expect(buildQueryText(tree as QueryGroupNode, props)).toEqual({
+        query,
+        isValid: true,
+      });
+      return tree as QueryGroupNode;
+    }
+
+    it('parses a simple condition for every operator', () => {
+      roundTrip('Amount > 500');
+      roundTrip('Amount < 500');
+      roundTrip('Amount >= 500');
+      roundTrip('Amount <= 500');
+      roundTrip('Amount = 500');
+      roundTrip('Amount = Expected amount');
+      roundTrip('Amount IN (1, 2.5, Amount)');
+      roundTrip('NOT Amount = 500');
+      roundTrip('NOT Amount IN (10, 20)');
+    });
+
+    it('parses arithmetic and negative values', () => {
+      roundTrip('Amount > Expected amount * 1.5');
+      roundTrip('Amount <= -12.5');
+      roundTrip('Amount >= Amount + 1');
+    });
+
+    it('parses AND/OR groups and nested parens', () => {
+      const tree = roundTrip(
+        'Fiscal year = 2024 AND (NOT Amount = 0 OR ' +
+          '(NOT Expected amount IN (10, Amount + 5) AND Amount >= Expected amount * 1.5))',
+      );
+      expect(tree.children).toHaveLength(2);
+      expect(tree.children[1]?.kind).toBe('group');
+    });
+
+    it('parses property names with spaces and parens', () => {
+      const tree = roundTrip(
+        'Net Sales YoY Chg (%) > 100 AND Market Cap (Rs Cr) <= 500',
+        PAREN_PROPS,
+      );
+      expect(tree.children).toHaveLength(2);
+    });
+
+    it('parses a single-child nested group', () => {
+      roundTrip('(Amount IN (7))');
+    });
+
+    it.each([
+      '',
+      '   ',
+      'Amount',
+      'Amount > ',
+      'Amount >> 5',
+      'Unknown > 5',
+      'Amount > 5 AND',
+      'AND Amount > 5',
+      'Amount > 5 OR',
+      '(Amount > 5',
+      'Amount > 5)',
+      '()',
+      '(Amount > 5))',
+      'Amount IN ()',
+      'Amount IN (10,)',
+      'Amount IN (10 AND 20)',
+      'Amount > 5 6',
+      'NOT Amount > 5',
+      'NOT Unknown = 5',
+    ])('returns null for invalid query %s', (query) => {
+      expect(parseQueryText(query, PROPS)).toBeNull();
+    });
+
+    it('returns null without properties', () => {
+      expect(parseQueryText('Amount > 5', [])).toBeNull();
+    });
+
+    it('round-trips a NOT IN value with an expression item', () => {
+      roundTrip('NOT Fiscal year IN (Amount - 1, 0)');
     });
   });
 });

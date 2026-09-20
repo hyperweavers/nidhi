@@ -72,7 +72,7 @@ export const Constants = {
   },
   configs: {
     defaults: {
-      WATCH_LIST_NAME: 'My Watch List',
+      WATCH_LIST_NAME: 'My Watchlist',
       TOAST_DISMISS_TIMEOUT: 3_000, // milliseconds
       SEARCH_DEBOUNCE_TIME: 300, // milliseconds
       MIN_SEARCH_CHARS: 3,

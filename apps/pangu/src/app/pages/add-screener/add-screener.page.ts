@@ -1,4 +1,7 @@
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {
+  CdkVirtualScrollViewport,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -13,7 +16,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ToastService } from '@nidhi/shared-toast';
 import { firstValueFrom, take } from 'rxjs';
@@ -21,7 +24,11 @@ import { firstValueFrom, take } from 'rxjs';
 import { QueryBuilderComponent } from '../../components/query-builder/query-builder.component';
 import { Constants } from '../../constants';
 import { Direction, ExchangeName } from '../../models/market';
-import { QueryChange, QueryGroupNode } from '../../models/query-builder';
+import {
+  QueryChange,
+  QueryGroupNode,
+  parseQueryText,
+} from '../../models/query-builder';
 import { Screener, ScreenerPreviewResult } from '../../models/screener';
 import { Stock } from '../../models/stock';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
@@ -55,6 +62,8 @@ export type EnrichedScreenerResult = ScreenerPreviewResult & {
 
 const PAGE_SIZE = 20;
 const SCROLL_THRESHOLD = 8;
+/** Must match the virtual-scroll itemSize in the template. */
+const ROW_HEIGHT = 57;
 
 @UntilDestroy()
 @Component({
@@ -63,6 +72,7 @@ const SCROLL_THRESHOLD = 8;
     CommonModule,
     FormsModule,
     QueryBuilderComponent,
+    RouterLink,
     ScrollingModule,
     ValueOrPlaceholderPipe,
   ],
@@ -84,6 +94,8 @@ export class AddScreenerPage implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly helpBox = viewChild<ElementRef>('helpBox');
+  private readonly nameInput =
+    viewChild<ElementRef<HTMLInputElement>>('nameInput');
   private readonly queryBuilder = viewChild(QueryBuilderComponent);
 
   public readonly properties = signal<string[]>([]);
@@ -94,19 +106,55 @@ export class AddScreenerPage implements OnInit {
 
   public readonly screener = signal<Screener | undefined>(undefined);
   public readonly screenerLoading = signal(false);
+  public readonly notFound = signal(false);
 
-  public readonly initialTree = computed<QueryGroupNode | null>(
-    () => this.screener()?.queryTree ?? null,
-  );
+  public readonly isEditMode = computed(() => this.id() !== undefined);
 
-  public readonly pageTitle = computed(
-    () => this.screener()?.name ?? 'Add New Screener',
-  );
+  public readonly initialTree = computed<QueryGroupNode | null>(() => {
+    const current = this.screener();
+    if (!current) return null;
+    if (current.queryTree) return current.queryTree;
+    // Screeners saved without a tree (older shape): rebuild the builder
+    // state from the stored query text once properties are known.
+    return parseQueryText(current.query, this.properties());
+  });
+
+  public readonly pageTitle = computed(() => {
+    if (this.notFound()) return 'Screener not found';
+    return this.screener()?.name ?? 'Add New Screener';
+  });
 
   // Name prompt for create mode
   public readonly showNamePrompt = signal(false);
   public readonly nameDraft = signal('');
   public readonly nameError = signal('');
+  // Inline title rename for edit mode
+  public readonly editingName = signal(false);
+
+  /** True when the edit-mode name field differs from the stored name. */
+  public readonly nameChanged = computed(() => {
+    const current = this.screener();
+    if (!current) return false;
+    const draft = this.nameDraft().trim();
+    return draft !== current.name;
+  });
+
+  /** Save is available when the query is valid or the name changed. */
+  public readonly canSave = computed(
+    () => this.isValid() || this.nameChanged(),
+  );
+
+  private justSaved = false;
+
+  /** True when the page holds edits that have not been saved yet. */
+  public hasUnsavedChanges(): boolean {
+    if (this.justSaved) return false;
+    if (this.nameChanged()) return true;
+    if (!this.isValid() || !this.query()) return false;
+    const saved = this.screener()?.query;
+    // Create mode has no saved query: any valid query is unsaved work.
+    return saved === undefined ? true : this.query() !== saved;
+  }
 
   // Preview results
   public readonly previewResults = signal<EnrichedScreenerResult[]>([]);
@@ -132,6 +180,7 @@ export class AddScreenerPage implements OnInit {
   private currentPreviewQuery = '';
   private currentPage = 0;
   private readonly loadedPages = new Set<number>();
+  private readonly viewport = viewChild(CdkVirtualScrollViewport);
 
   public readonly hasMore = computed(
     () => this.previewResults().length < this.previewTotal(),
@@ -223,9 +272,12 @@ export class AddScreenerPage implements OnInit {
         .subscribe((s) => {
           if (s) {
             this.screener.set(s);
+            this.nameDraft.set(s.name);
             // Query will be emitted via builder's initialTree effect; also set fallback.
             this.query.set(s.query);
             this.isValid.set(!!s.query.trim());
+          } else {
+            this.notFound.set(true);
           }
           this.screenerLoading.set(false);
         });
@@ -248,6 +300,22 @@ export class AddScreenerPage implements OnInit {
   public onEscape(): void {
     this.closeHelp();
     if (this.showNamePrompt()) this.closeNamePrompt();
+    if (this.editingName()) this.cancelNameEdit();
+  }
+
+  public startNameEdit(): void {
+    if (!this.screener()) return;
+    this.nameError.set('');
+    this.editingName.set(true);
+    // Focus once the inline input renders.
+    setTimeout(() => this.nameInput()?.nativeElement.focus(), 0);
+  }
+
+  public cancelNameEdit(): void {
+    const current = this.screener();
+    if (current) this.nameDraft.set(current.name);
+    this.nameError.set('');
+    this.editingName.set(false);
   }
 
   public onDocumentClick(event: MouseEvent): void {
@@ -296,29 +364,60 @@ export class AddScreenerPage implements OnInit {
   }
 
   public save(): void {
+    const editId = this.id();
+    if (editId) {
+      // Edit mode: rename and/or update the query, no prompt.
+      void this.saveEdit(editId);
+      return;
+    }
+
     const q = this.query();
     if (!q || !this.isValid()) return;
 
-    const editId = this.id();
-    if (editId) {
-      // Edit mode: save directly, no prompt
-      this.screenerLoading.set(true);
-      const tree = this.queryBuilder()?.root() ?? undefined;
-      this.screenerService
-        .updateScreener(editId, q, tree)
-        .then(() => {
-          this.toastService.show('Screener updated');
-          this.router.navigate(['/', Constants.routes.SCREENER, editId]);
-        })
-        .catch((e: unknown) => {
-          this.toastService.show((e as Error).message);
-        })
-        .finally(() => this.screenerLoading.set(false));
-    } else {
-      // Create mode: prompt for name
-      this.nameDraft.set('');
-      this.nameError.set('');
-      this.showNamePrompt.set(true);
+    // Create mode: prompt for name
+    this.nameDraft.set('');
+    this.nameError.set('');
+    this.showNamePrompt.set(true);
+  }
+
+  private async saveEdit(editId: string): Promise<void> {
+    const q = this.query();
+    const queryValid = !!q && this.isValid();
+    const rename = this.nameChanged();
+    if (!queryValid && !rename) return;
+
+    this.screenerLoading.set(true);
+    this.nameError.set('');
+    try {
+      if (rename) {
+        const newName = this.nameDraft().trim();
+        if (!newName) {
+          this.nameError.set('Name is required!');
+          return;
+        }
+        const exists = await this.screenerService.screenerNameExists(
+          newName,
+          editId,
+        );
+        if (exists) {
+          this.nameError.set('A screener with this name already exists!');
+          return;
+        }
+        await this.screenerService.renameScreener(editId, newName);
+      }
+      if (queryValid) {
+        const tree = this.queryBuilder()?.root() ?? undefined;
+        await this.screenerService.updateScreener(editId, q, tree);
+      }
+      this.toastService.show(
+        queryValid ? 'Screener updated' : 'Screener renamed',
+      );
+      this.justSaved = true;
+      this.router.navigate(['/', Constants.routes.SCREENER, editId]);
+    } catch (e: unknown) {
+      this.toastService.show((e as Error).message);
+    } finally {
+      this.screenerLoading.set(false);
     }
   }
 
@@ -349,6 +448,7 @@ export class AddScreenerPage implements OnInit {
 
       this.toastService.show('Screener saved');
       this.closeNamePrompt();
+      this.justSaved = true;
       this.router.navigate(['/', Constants.routes.SCREENER, id]);
     } catch (e: unknown) {
       this.nameError.set((e as Error).message);
@@ -462,6 +562,15 @@ export class AddScreenerPage implements OnInit {
     const len = this.filteredResults().length;
     if (len === 0) return;
     if (index + SCROLL_THRESHOLD >= len) {
+      this.loadMore();
+      return;
+    }
+    // Short rows can fill the viewport with a full page, so the index never
+    // reaches the threshold — also load when scrolled near the bottom.
+    // loadMore() itself guards against duplicate or exhausted pages.
+    const remaining =
+      this.viewport()?.measureScrollOffset('bottom') ?? Number.MAX_VALUE;
+    if (remaining <= SCROLL_THRESHOLD * ROW_HEIGHT) {
       this.loadMore();
     }
   }

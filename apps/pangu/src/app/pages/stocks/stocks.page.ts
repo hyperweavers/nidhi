@@ -13,6 +13,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { LOGGER } from '@nidhi/shared-logger';
 import {
@@ -62,6 +63,7 @@ import { ChartUtils } from '../../utils/chart.utils';
   selector: 'app-stocks',
   imports: [
     CommonModule,
+    FormsModule,
     ValueOrPlaceholderPipe,
     SelectWatchListComponent,
     PortfolioPopoverComponent,
@@ -97,6 +99,8 @@ export class StocksPage implements OnDestroy {
   public readonly showAddToListDrawer = signal(false);
   public readonly currentStock = signal<Stock | null | undefined>(undefined);
   public readonly selectWatchListRef = viewChild(SelectWatchListComponent);
+  public readonly newListName = signal('');
+  public readonly newListError = signal('');
 
   public readonly ExchangeName = ExchangeName;
   public readonly Direction = Direction;
@@ -432,11 +436,36 @@ export class StocksPage implements OnDestroy {
   }
 
   public openAddToListDrawer(): void {
+    this.newListName.set('');
+    this.newListError.set('');
     this.showAddToListDrawer.set(true);
   }
 
   public closeAddToListDrawer(): void {
     this.showAddToListDrawer.set(false);
+  }
+
+  public async createAndSelectList(): Promise<void> {
+    const name = this.newListName().trim();
+    if (!name) {
+      this.newListError.set('Name is required!');
+      return;
+    }
+
+    try {
+      const exists = await this.watchListService.watchListNameExists(name);
+      if (exists) {
+        this.newListError.set('A watchlist with this name already exists!');
+        return;
+      }
+
+      const id = await this.watchListService.createWatchList(name);
+      this.newListName.set('');
+      this.newListError.set('');
+      this.selectWatchListRef()?.toggleList(id);
+    } catch (e: unknown) {
+      this.newListError.set((e as Error).message);
+    }
   }
 
   public confirmAddToList(): void {
@@ -453,7 +482,7 @@ export class StocksPage implements OnDestroy {
       stock.scripCode,
       stock.vendorCode,
     );
-    this.toastService.show(`Added to ${selected.length} watch list(s)!`);
+    this.toastService.show(`Added to ${selected.length} watchlist(s)!`);
     this.closeAddToListDrawer();
   }
 

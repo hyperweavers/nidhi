@@ -558,7 +558,7 @@
                     />
                   </svg>
 
-                  <span class="ml-3">Watch List</span>
+                  <span class="ml-3">Watchlist</span>
                 </a>
               </li>
 
@@ -996,16 +996,17 @@
 
     <!-- Side Menu Overlay -->
     <div
-      class="fixed inset-0 z-10 bg-gray-900/50 lg:hidden dark:bg-gray-900/90"
+      class="fixed inset-0 z-10 bg-gray-900/50 lg:hidden dark:bg-gray-900/80"
       [class.hidden]="!sidebarOpen"
-      (click)="toggleSidebar()"
-      (keydown.escape)="toggleSidebar()"
+      (click)="closeSidebar()"
+      (keydown.escape)="closeSidebar()"
       tabindex="0"
       aria-hidden="true"
     ></div>
 
     <!-- Main Content -->
     <main
+      #mainContent
       class="relative w-full overflow-y-auto bg-gray-50 text-gray-900 lg:pl-64 dark:bg-gray-900 dark:text-white"
     >
       <router-outlet />
@@ -1016,29 +1017,79 @@
   <!-- Global FAB -->
   @if (showFabMenu()) {
     <div
-      class="fixed inset-0 z-20"
+      class="fixed inset-0 z-20 bg-gray-900/50 dark:bg-gray-900/80"
       (click)="closeFabMenu()"
       (keydown.enter)="closeFabMenu()"
       (keydown.escape)="closeFabMenu()"
       tabindex="0"
     ></div>
   }
-  <div class="fixed right-6 bottom-6 z-30 flex flex-col items-center">
+  <div class="group fixed inset-e-6 bottom-6 z-30 flex flex-col items-center">
     @if (showFabMenu()) {
       <div
-        class="mb-3"
-        (click)="closeFabMenu()"
-        (keydown.enter)="closeFabMenu()"
-        tabindex="0"
+        id="speed-dial-menu"
+        class="mb-4 flex flex-col items-center space-y-2"
       >
         <button
-          (click)="openWizard(); $event.stopPropagation()"
+          (click)="openGlobalTransactionDrawer()"
           type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg focus:ring-4 focus:outline-hidden"
+          aria-label="Add transaction"
+          class="relative h-[52px] w-[52px] rounded-full border border-gray-200 bg-white text-gray-500 shadow-xs hover:bg-gray-50 hover:text-gray-900 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-400"
+        >
+          <svg
+            class="mx-auto h-5 w-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+            />
+          </svg>
+          <span
+            class="absolute inset-e-15 top-1/2 mb-px block -translate-y-1/2 text-sm font-medium whitespace-nowrap"
+            >Transaction (Buy/Sell)</span
+          >
+        </button>
+        <button
+          (click)="openScreenerEdit()"
+          type="button"
+          aria-label="Add screener"
+          class="relative h-[52px] w-[52px] rounded-full border border-gray-200 bg-white text-gray-500 shadow-xs hover:bg-gray-50 hover:text-gray-900 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-400"
+        >
+          <svg
+            class="mx-auto h-5 w-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M6 12H18M3 6H21M9 18H15"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span
+            class="absolute inset-e-15 top-1/2 mb-px block -translate-y-1/2 text-sm font-medium whitespace-nowrap"
+            >Screener</span
+          >
+        </button>
+        <button
+          (click)="openWizard()"
+          type="button"
+          aria-label="New watchlist"
+          class="relative h-[52px] w-[52px] rounded-full border border-gray-200 bg-white text-gray-500 shadow-xs hover:bg-gray-50 hover:text-gray-900 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-400"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-4.5 w-4.5"
+            class="mx-auto h-5 w-5"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
@@ -1046,12 +1097,18 @@
               d="M14 2a5 5 0 0 1 5 5v14a1 1 0 0 1 -1.555 .832l-5.445 -3.63l-5.444 3.63a1 1 0 0 1 -1.55 -.72l-.006 -.112v-14a5 5 0 0 1 5 -5h4z"
             />
           </svg>
+          <span
+            class="absolute inset-e-15 top-1/2 mb-px block -translate-y-1/2 text-sm font-medium whitespace-nowrap"
+            >Watchlist</span
+          >
         </button>
       </div>
     }
     <button
       (click)="toggleFabMenu()"
       type="button"
+      aria-controls="speed-dial-menu"
+      [attr.aria-expanded]="showFabMenu()"
       class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg focus:ring-4 focus:outline-hidden"
     >
       <svg
@@ -1060,6 +1117,7 @@
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path
           stroke-linecap="round"
@@ -1068,8 +1126,22 @@
           d="M12 4v16m8-8H4"
         />
       </svg>
+      <span class="sr-only">Open actions menu</span>
     </button>
   </div>
+
+  <!-- Global Add Transaction Drawer -->
+  <button
+    #globalDrawerTrigger
+    type="button"
+    class="hidden"
+    data-drawer-target="global-add-transaction-drawer"
+    data-drawer-show="global-add-transaction-drawer"
+    data-drawer-placement="right"
+    aria-hidden="true"
+    tabindex="-1"
+  ></button>
+  <app-transaction-drawer mode="add" drawerId="global-add-transaction-drawer" />
 
   <!-- Global Wizard -->
   @if (showWizard()) {

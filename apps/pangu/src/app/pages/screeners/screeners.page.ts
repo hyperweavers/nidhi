@@ -113,10 +113,6 @@ export class ScreenersPage implements AfterViewInit {
     this.router.navigate(['/', Constants.routes.SCREENER, s.id]);
   }
 
-  public addNew(): void {
-    this.router.navigate(['/', Constants.routes.SCREENER, 'edit']);
-  }
-
   public editScreener(s: Screener, event?: Event): void {
     event?.stopPropagation();
     this.router.navigate(['/', Constants.routes.SCREENER, 'edit', s.id]);

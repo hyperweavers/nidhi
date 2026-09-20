@@ -9,6 +9,7 @@ import {
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { v4 as uuid } from 'uuid';
@@ -93,16 +94,23 @@ export class QueryBuilderComponent implements OnInit {
   constructor() {
     effect(() => {
       // Re-emit whenever the available properties change (validity may change).
+      // Reads of root inside emitQuery stay untracked so user edits never
+      // re-trigger this effect.
       this.properties();
-      this.emitQuery();
+      untracked(() => this.emitQuery());
     });
 
     effect(() => {
+      // Applies the saved tree exactly when it arrives/changes. Everything
+      // else stays untracked: without this, every root edit would re-run the
+      // effect and reset the builder to the saved tree.
       const tree = this.initialTree();
-      if (tree) {
-        this.root.set(cloneGroup(tree));
-        this.emitQuery();
-      }
+      untracked(() => {
+        if (tree) {
+          this.root.set(cloneGroup(tree));
+          this.emitQuery();
+        }
+      });
     });
   }
 
@@ -134,8 +142,26 @@ export class QueryBuilderComponent implements OnInit {
     this.emitQuery();
   }
 
+  /** Appends a condition to the end of a group (footer "Add new clause"). */
+  public addConditionAfter(groupId: string, afterId: string | null): void {
+    const node = emptyCondition();
+    this.root.update((root) =>
+      this.mapGroup(root, groupId, (g) => {
+        if (!afterId) return { ...g, children: [...g.children, node] };
+        const idx = g.children.findIndex((c) => c.id === afterId);
+        if (idx < 0) return { ...g, children: [...g.children, node] };
+        const children = [...g.children];
+        children.splice(idx + 1, 0, node);
+        return { ...g, children };
+      }),
+    );
+    this.emitQuery();
+  }
+
   public removeNode(nodeId: string): void {
-    this.root.update((root) => this.filterNode(root, nodeId));
+    this.root.update((root) =>
+      this.pruneEmptyGroups(this.filterNode(root, nodeId)),
+    );
     this.emitQuery();
   }
 
@@ -144,6 +170,30 @@ export class QueryBuilderComponent implements OnInit {
       this.mapGroup(root, groupId, (g) => ({ ...g, combinator })),
     );
     this.emitQuery();
+  }
+
+  /** Flattens a nested group back into its parent. */
+  public ungroup(groupId: string): void {
+    this.root.update((root) => this.ungroupNode(root, groupId));
+    this.emitQuery();
+  }
+
+  private ungroupNode(node: QueryGroupNode, groupId: string): QueryGroupNode {
+    const idx = node.children.findIndex(
+      (c) => c.kind === 'group' && c.id === groupId,
+    );
+    if (idx >= 0) {
+      const target = node.children[idx] as QueryGroupNode;
+      const children = [...node.children];
+      children.splice(idx, 1, ...target.children);
+      return { ...node, children };
+    }
+    return {
+      ...node,
+      children: node.children.map((c) =>
+        c.kind === 'group' ? this.ungroupNode(c, groupId) : c,
+      ),
+    };
   }
 
   public updateProperty(conditionId: string, value: string): void {
@@ -268,10 +318,12 @@ export class QueryBuilderComponent implements OnInit {
         const existing = splitListValue(c.value);
         const draft = (this.chipDrafts()[conditionId] ?? '').trim();
         // Support "base +" draft awaiting a property operand.
+        // Otherwise the draft is only the search text used to filter the
+        // suggestions, so the picked option replaces it (never both).
         const trailingOp = draft.match(/^(.+?)\s*[+\-*/]\s*$/);
         const additions = trailingOp?.[1]?.trim()
           ? [`${trailingOp[1].trim()} ${draft.trim().slice(-1)} ${option}`]
-          : [draft, option].filter((p) => p.trim().length > 0);
+          : [option];
         return { ...c, value: [...existing, ...additions].join(', ') };
       }),
     );
@@ -398,6 +450,21 @@ export class QueryBuilderComponent implements OnInit {
         .map((child) =>
           child.kind === 'group' ? this.filterNode(child, nodeId) : child,
         ),
+    };
+  }
+
+  /**
+   * Drops nested groups left childless by a removal (bottom-up, so chains of
+   * emptied groups collapse too). The root itself is always kept.
+   */
+  private pruneEmptyGroups(node: QueryGroupNode): QueryGroupNode {
+    return {
+      ...node,
+      children: node.children
+        .map((child) =>
+          child.kind === 'group' ? this.pruneEmptyGroups(child) : child,
+        )
+        .filter((child) => child.kind !== 'group' || child.children.length > 0),
     };
   }
 }

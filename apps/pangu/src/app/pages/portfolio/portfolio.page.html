@@ -410,64 +410,35 @@
           </button>
         </div>
       </div>
-
-      <div class="flex space-x-3">
-        <!-- Buy Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.BUY)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden md:w-24"
-        >
-          Buy
-        </button>
-
-        <!-- Sell Button -->
-        <button
-          (click)="openAddTransactionDrawer(TransactionType.SELL)"
-          data-drawer-target="add-transaction-drawer"
-          data-drawer-show="add-transaction-drawer"
-          aria-controls="add-transaction-drawer"
-          data-drawer-placement="right"
-          type="button"
-          class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex w-1/2 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-4 focus:outline-hidden md:w-24"
-        >
-          Sell
-        </button>
-      </div>
     </div>
   </div>
 
   @if (portfolio$ | async; as portfolio) { @if (portfolio.holdings.length > 0) {
   <!-- Virtual Scroll Table -->
   <div
-    class="flex-1 overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
+    class="flex flex-1 flex-col overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
   >
-    <cdk-virtual-scroll-viewport itemSize="77" class="h-full w-full max-w-full">
-      <!-- Sticky Header (inside the viewport so it shares the scrollbar-adjusted width with rows) -->
-      <div
-        class="sticky top-0 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
-      >
-        <div class="min-w-0 flex-1 p-2 text-left">
-          <div class="whitespace-nowrap">Company (Qty)</div>
-          <div>Avg. Price (&#8377;)</div>
-          <div>Investment (&#8377;)</div>
-        </div>
-        <div class="w-24 shrink-0 p-2 text-center">
-          <div>Day P/L (&#8377;)</div>
-          <div>Day P/L (%)</div>
-          <div>LTP (&#8377;)</div>
-        </div>
-        <div class="w-28 shrink-0 p-2 text-center">
-          <div>Total P/L (&#8377;)</div>
-          <div>Total P/L (%)</div>
-          <div>Cur. Val. (&#8377;)</div>
-        </div>
+    <div
+      class="flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+    >
+      <div class="min-w-0 flex-1 p-2 text-left">
+        <div class="whitespace-nowrap">Company (Qty)</div>
+        <div>Avg. Price (&#8377;)</div>
+        <div>Investment (&#8377;)</div>
       </div>
+      <div class="w-24 shrink-0 p-2 text-center">
+        <div>Day P/L (&#8377;)</div>
+        <div>Day P/L (%)</div>
+        <div>LTP (&#8377;)</div>
+      </div>
+      <div class="w-28 shrink-0 p-2 text-center">
+        <div>Total P/L (&#8377;)</div>
+        <div>Total P/L (%)</div>
+        <div>Cur. Val. (&#8377;)</div>
+      </div>
+    </div>
 
+    <cdk-virtual-scroll-viewport itemSize="77" class="w-full max-w-full flex-1">
       <!-- Data rows -->
       <ng-template
         cdkVirtualFor
@@ -567,13 +538,4 @@
     <span class="sr-only">Loading...</span>
   </div>
   }
-
-  <!-- Add Transaction Drawer -->
-  <app-transaction-drawer
-    mode="add"
-    [transactionType]="transactionType()"
-    drawerId="add-transaction-drawer"
-    (saved)="onDrawerClosed()"
-    (closed)="onDrawerClosed()"
-  />
 </div>

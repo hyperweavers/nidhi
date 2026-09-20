@@ -99,11 +99,6 @@ describe('ScreenersPage', () => {
     expect(routerNavigate).toHaveBeenCalledWith(['/', 'screener', 'edit', '1']);
   });
 
-  it('should add new', () => {
-    component.addNew();
-    expect(routerNavigate).toHaveBeenCalledWith(['/', 'screener', 'edit']);
-  });
-
   it('should delete with confirmation', async () => {
     component.openDeleteConfirm({
       id: '1',
@@ -335,5 +330,26 @@ describe('ScreenersPage', () => {
     const rows = fixture.debugElement.queryAll(By.css('tbody tr'));
     expect(rows.length).toBe(2);
     expect(rows[0].nativeElement.textContent).toContain('1 Jan 1970');
+  });
+
+  it('should init flowbite dropdown after view init', () => {
+    jest.useFakeTimers();
+    try {
+      component.ngAfterViewInit();
+      jest.advanceTimersByTime(1000);
+      expect(component['sortDropdown']).toBeDefined();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('should skip flowbite init without dropdown elements', () => {
+    const spy = jest.spyOn(document, 'getElementById').mockReturnValue(null);
+    try {
+      expect(() => component['initFlowbiteInstances']()).not.toThrow();
+      expect(component['sortDropdown']).toBeUndefined();
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

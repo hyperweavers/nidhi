@@ -954,7 +954,7 @@ describe('StocksPage', () => {
         { etm: { primary: '1', chart: 'RELIANCE' } },
       );
       expect(toastServiceMock.show).toHaveBeenCalledWith(
-        'Added to 1 watch list(s)!',
+        'Added to 1 watchlist(s)!',
       );
       expect(component.showAddToListDrawer()).toBe(false);
     }));

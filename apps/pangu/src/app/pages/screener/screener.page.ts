@@ -1,4 +1,7 @@
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {
+  CdkVirtualScrollViewport,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -9,6 +12,7 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -51,6 +55,8 @@ export type EnrichedScreenerResult = ScreenerPreviewResult & {
 
 const PAGE_SIZE = 20;
 const SCROLL_THRESHOLD = 8;
+/** Must match the virtual-scroll itemSize in the template. */
+const ROW_HEIGHT = 57;
 
 @UntilDestroy()
 @Component({
@@ -105,6 +111,7 @@ export class ScreenerPage implements OnInit {
   private currentQuery = '';
   private currentPage = 0;
   private readonly loadedPages = new Set<number>();
+  private readonly viewport = viewChild(CdkVirtualScrollViewport);
 
   public readonly hasMore = computed(
     () => this.previewResults().length < this.previewTotal(),
@@ -312,6 +319,15 @@ export class ScreenerPage implements OnInit {
     const len = this.filteredResults().length;
     if (len === 0) return;
     if (index + SCROLL_THRESHOLD >= len) {
+      this.loadMore();
+      return;
+    }
+    // Short rows can fill the viewport with a full page, so the index never
+    // reaches the threshold — also load when scrolled near the bottom.
+    // loadMore() itself guards against duplicate or exhausted pages.
+    const remaining =
+      this.viewport()?.measureScrollOffset('bottom') ?? Number.MAX_VALUE;
+    if (remaining <= SCROLL_THRESHOLD * ROW_HEIGHT) {
       this.loadMore();
     }
   }

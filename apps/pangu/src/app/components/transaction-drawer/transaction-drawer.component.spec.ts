@@ -180,7 +180,7 @@ describe('TransactionDrawerComponent', () => {
   describe('save', () => {
     it('should call addTransaction on save in add mode', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      component.selectedType.set(TransactionType.BUY);
       fixture.detectChanges();
       component.selectedStock.set(mockHolding);
       component.name.set('Reliance Industries');
@@ -251,7 +251,7 @@ describe('TransactionDrawerComponent', () => {
 
     it('should reject transaction with future date', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      component.selectedType.set(TransactionType.BUY);
       fixture.detectChanges();
       component.selectedStock.set(mockHolding);
       component.name.set('Test');
@@ -269,7 +269,7 @@ describe('TransactionDrawerComponent', () => {
 
     it('should submit transaction successfully', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      component.selectedType.set(TransactionType.BUY);
       fixture.detectChanges();
       component.selectedStock.set(mockHolding);
       component.name.set('Reliance Industries');
@@ -413,7 +413,7 @@ describe('TransactionDrawerComponent', () => {
   describe('searchResults$', () => {
     it('should search portfolio when transaction type is SELL', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.SELL);
+      component.selectedType.set(TransactionType.SELL);
       fixture.detectChanges();
 
       const results: Stock[][] = [];
@@ -524,7 +524,7 @@ describe('TransactionDrawerComponent', () => {
 
     it('should deduct charges for sell transactions', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.SELL);
+      component.selectedType.set(TransactionType.SELL);
       fixture.detectChanges();
       component.price.set(200);
       component.quantity.set(5);
@@ -556,7 +556,7 @@ describe('TransactionDrawerComponent', () => {
   describe('validation edge cases', () => {
     it('should reject a save when charges are negative', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      component.selectedType.set(TransactionType.BUY);
       fixture.detectChanges();
       component.selectedStock.set(mockHolding);
       component.name.set('Reliance Industries');
@@ -601,7 +601,7 @@ describe('TransactionDrawerComponent', () => {
 
     it('should not search when the query is too short', fakeAsync(() => {
       createComponent();
-      fixture.componentRef.setInput('transactionType', TransactionType.BUY);
+      component.selectedType.set(TransactionType.BUY);
       fixture.detectChanges();
 
       const results: Stock[][] = [];

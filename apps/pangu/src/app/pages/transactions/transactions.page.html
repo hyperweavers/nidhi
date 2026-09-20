@@ -293,26 +293,25 @@
   <!-- Virtual Scroll Table -->
   @if (transactions$ | async; as transactions) { @if (transactions.length > 0) {
   <div
-    class="flex-1 overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
+    class="flex flex-1 flex-col overflow-hidden shadow-sm sm:mx-4 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
   >
-    <cdk-virtual-scroll-viewport itemSize="57" class="h-full w-full max-w-full">
-      <!-- Sticky Header (inside the viewport so it shares the scrollbar-adjusted width with rows) -->
-      <div
-        class="sticky top-0 z-10 flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
-      >
-        <div class="min-w-0 flex-1 p-2 text-left">
-          <div class="whitespace-nowrap">Company</div>
-          <div>Date</div>
-        </div>
-        <div class="w-24 shrink-0 p-2 text-center">
-          <div>Price (&#8377;)</div>
-          <div>Quantity</div>
-        </div>
-        <div class="w-24 shrink-0 p-2 text-center leading-8">
-          <div>Actions</div>
-        </div>
+    <div
+      class="flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
+    >
+      <div class="min-w-0 flex-1 p-2 text-left">
+        <div class="whitespace-nowrap">Company</div>
+        <div>Date</div>
       </div>
+      <div class="w-24 shrink-0 p-2 text-center">
+        <div>Price (&#8377;)</div>
+        <div>Quantity</div>
+      </div>
+      <div class="w-24 shrink-0 p-2 text-center leading-8">
+        <div>Actions</div>
+      </div>
+    </div>
 
+    <cdk-virtual-scroll-viewport itemSize="57" class="w-full max-w-full flex-1">
       <!-- Data rows -->
       <ng-template
         cdkVirtualFor

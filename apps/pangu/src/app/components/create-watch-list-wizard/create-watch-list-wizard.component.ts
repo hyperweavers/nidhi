@@ -97,7 +97,7 @@ export class CreateWatchListWizardComponent {
       );
       await this.addSelectedStocks();
 
-      this.toastService.show('Watch list created successfully!');
+      this.toastService.show('Watchlist created successfully!');
       this.created.emit(this.createdListId);
     } catch (e) {
       this.error.set((e as Error).message);
@@ -118,7 +118,7 @@ export class CreateWatchListWizardComponent {
     }
 
     if (await this.watchListService.watchListNameExists(this.listName)) {
-      this.error.set('A watch list with this name already exists!');
+      this.error.set('A watchlist with this name already exists!');
 
       this.cdr.markForCheck();
 
@@ -188,7 +188,7 @@ export class CreateWatchListWizardComponent {
 
     await this.addSelectedStocks();
 
-    this.toastService.show('Watch list created successfully!');
+    this.toastService.show('Watchlist created successfully!');
     this.created.emit(this.createdListId);
   }
 

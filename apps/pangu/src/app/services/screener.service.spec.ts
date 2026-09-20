@@ -3,12 +3,12 @@ import { Observable, firstValueFrom, of, throwError } from 'rxjs';
 
 import { LOGGER } from '@nidhi/shared-logger';
 
-import { MarketService } from './core/market.service';
 import {
-  ScreenerService,
   extractPropertyNames,
   mapPreviewResponse,
-} from './screener.service';
+} from '../adapters/market.adapter';
+import { MarketService } from './core/market.service';
+import { ScreenerService } from './screener.service';
 
 function createMockTable() {
   return {
@@ -215,6 +215,24 @@ describe('ScreenerService', () => {
         },
       }),
     ).toEqual([]);
+  });
+
+  it('should skip fields without a display name', () => {
+    expect(
+      extractPropertyNames({
+        datainfo: {
+          screenerCategoryLevelZero: {
+            screenerCategoryLevelOne: [
+              {
+                screenerCategoryLevelTwo: [
+                  { screenerCategoryFields: [{}, { displayName: 'Beta' }] },
+                ],
+              },
+            ],
+          },
+        },
+      }),
+    ).toEqual(['Beta']);
   });
 
   it('should fetch preview and map results via the market service', () => {

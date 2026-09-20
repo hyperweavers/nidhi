@@ -152,7 +152,7 @@ describe('WatchListPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('clears state when no watch list id is set', fakeAsync(() => {
+  it('clears state when no watchlist id is set', fakeAsync(() => {
     fixture.componentRef.setInput('id', '');
     fixture.detectChanges();
     tick();
@@ -207,7 +207,7 @@ describe('WatchListPage', () => {
     expect(spinner).toBeTruthy();
   });
 
-  it('should load watch list and display stocks', fakeAsync(() => {
+  it('should load watchlist and display stocks', fakeAsync(() => {
     component.loading.set(false);
     fixture.detectChanges();
     tick();
@@ -257,7 +257,7 @@ describe('WatchListPage', () => {
     await component.addSelectedFromDrawer();
     tick();
     expect(toastService.show).toHaveBeenCalledWith(
-      'Stocks added to watch list!',
+      'Stocks added to watchlist!',
     );
   }));
 
@@ -340,7 +340,7 @@ describe('WatchListPage', () => {
       'INE002A01018',
     );
     expect(toastService.show).toHaveBeenCalledWith(
-      'Stock removed from watch list!',
+      'Stock removed from watchlist!',
     );
   }));
 
@@ -405,7 +405,7 @@ describe('WatchListPage', () => {
     expect(navigateSpy).toHaveBeenCalled();
   });
 
-  it('should handle header watch list selection', () => {
+  it('should handle header watchlist selection', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
     component.onHeaderWatchListSelected(mockWatchList);
     expect(navigateSpy).toHaveBeenCalledWith([
@@ -415,7 +415,7 @@ describe('WatchListPage', () => {
     ]);
   });
 
-  it('should ignore array in header watch list selection', () => {
+  it('should ignore array in header watchlist selection', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
     component.onHeaderWatchListSelected([mockWatchList]);
     expect(navigateSpy).not.toHaveBeenCalled();
@@ -758,7 +758,7 @@ describe('WatchListPage', () => {
     tick();
     expect(watchListService.addStock).not.toHaveBeenCalled();
     expect(toastService.show).toHaveBeenCalledWith(
-      'Stocks added to watch list!',
+      'Stocks added to watchlist!',
     );
   }));
 
@@ -774,7 +774,7 @@ describe('WatchListPage', () => {
     tick();
     expect(watchListService.addStock).toHaveBeenCalledTimes(1);
     expect(toastService.show).toHaveBeenCalledWith(
-      'Stocks added to watch list!',
+      'Stocks added to watchlist!',
     );
   }));
 

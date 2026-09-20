@@ -515,36 +515,63 @@ describe('IpoDetailsPage', () => {
   });
 
   it('should derive the IPO status and chip color', () => {
+    const DAY = 86_400_000;
     const now = Date.now();
     component['details'].set({
-      listingdate: now - 1000,
+      listingdate: now - 2 * DAY,
     } as IpoDetails);
     expect(component['getIpoStatus']()).toBe('Listed');
     expect(component['getIpoStatusColor']()).toContain('bg-purple-100');
 
     component['details'].set({
-      closedate: now - 1000,
-      listingdate: now + 100000,
+      closedate: now - 2 * DAY,
+      listingdate: now + 2 * DAY,
     } as IpoDetails);
     expect(component['getIpoStatus']()).toBe('Closed');
     expect(component['getIpoStatusColor']()).toContain('bg-orange-100');
 
     component['details'].set({
-      opendate: now - 1000,
-      closedate: now + 100000,
+      opendate: now - 2 * DAY,
+      closedate: now + 2 * DAY,
     } as IpoDetails);
     expect(component['getIpoStatus']()).toBe('Open');
     expect(component['getIpoStatusColor']()).toContain('bg-green-100');
 
     component['details'].set({
-      opendate: now + 100000,
-      closedate: now + 200000,
+      opendate: now + 2 * DAY,
+      closedate: now + 4 * DAY,
     } as IpoDetails);
     expect(component['getIpoStatus']()).toBe('Upcoming');
     expect(component['getIpoStatusColor']()).toContain('bg-blue-100');
 
     component['details'].set(null);
     expect(component['getIpoStatus']()).toBe('');
+  });
+
+  it('should match boundary days by date only', () => {
+    const DAY = 86_400_000;
+    const noon = new Date();
+    noon.setHours(12, 0, 0, 0);
+    const today = noon.getTime();
+    component['details'].set({
+      listingdate: today,
+    } as IpoDetails);
+    expect(component['getIpoStatus']()).toBe('Listing');
+    expect(component['getIpoStatusColor']()).toContain('bg-purple-100');
+
+    component['details'].set({
+      closedate: today,
+      listingdate: today + 2 * DAY,
+    } as IpoDetails);
+    expect(component['getIpoStatus']()).toBe('Closing');
+    expect(component['getIpoStatusColor']()).toContain('bg-green-100');
+
+    component['details'].set({
+      opendate: today,
+      closedate: today + 2 * DAY,
+    } as IpoDetails);
+    expect(component['getIpoStatus']()).toBe('Opening');
+    expect(component['getIpoStatusColor']()).toContain('bg-green-100');
   });
 
   it('should format dates, currency and lakhs', () => {

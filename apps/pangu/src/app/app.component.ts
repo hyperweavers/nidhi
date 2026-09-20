@@ -5,9 +5,11 @@ import {
   ChangeDetectorRef,
   Component,
   DOCUMENT,
+  ElementRef,
   OnInit,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   NavigationEnd,
@@ -30,6 +32,7 @@ import { ToastComponent } from '@nidhi/shared-toast';
 import { APP_VERSION } from '../generated/version';
 import { CreateWatchListWizardComponent } from './components/create-watch-list-wizard/create-watch-list-wizard.component';
 import { StockSearchComponent } from './components/stock-search/stock-search.component';
+import { TransactionDrawerComponent } from './components/transaction-drawer/transaction-drawer.component';
 import { Constants } from './constants';
 import { Flowbite } from './decorators/flowbite.decorator';
 import { MarketStatus, Status } from './models/market';
@@ -47,6 +50,7 @@ import { WatchListService } from './services/watch-list.service';
     StockSearchComponent,
     ToastComponent,
     CreateWatchListWizardComponent,
+    TransactionDrawerComponent,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -86,6 +90,12 @@ export class AppComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private pwaInstallPromptEvent?: any;
 
+  private readonly mainContent =
+    viewChild<ElementRef<HTMLElement>>('mainContent');
+  private readonly globalDrawerTrigger = viewChild<
+    ElementRef<HTMLButtonElement>
+  >('globalDrawerTrigger');
+
   constructor() {
     this.marketStatus$ = this.marketService.marketStatus$.pipe(
       tap(() => (this.refreshing = false)),
@@ -93,13 +103,22 @@ export class AppComponent implements OnInit {
   }
 
   public ngOnInit(): void {
+    this.router.events.pipe(untilDestroyed(this)).subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.sidebarOpen = false;
+        this.mainContent()?.nativeElement?.scrollTo({ top: 0 });
+        this.closeMobileSearch();
+        this.closeFabMenu();
+      }
+    });
+
     this.router.events
       .pipe(untilDestroyed(this), delay(100))
       .subscribe((event) => {
-        if (event instanceof NavigationStart) {
-          this.sidebarOpen = false;
-          this.closeMobileSearch();
-        } else if (event instanceof NavigationEnd) {
+        if (event instanceof NavigationEnd) {
+          this.mainContent()?.nativeElement?.scrollTo({ top: 0 });
+          this.closeSidebar();
+          this.closeFabMenu();
           initFlowbite();
         }
       });
@@ -172,6 +191,15 @@ export class AppComponent implements OnInit {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
+  public closeSidebar(): void {
+    if (this.document.documentElement.clientWidth >= this.MEDIA_SIZE_LARGE) {
+      return;
+    }
+
+    this.sidebarOpen = false;
+    this.cdr.markForCheck();
+  }
+
   public toggleFabMenu(): void {
     this.showFabMenu.update((v) => !v);
   }
@@ -192,6 +220,18 @@ export class AppComponent implements OnInit {
   public onWizardCreated(id: string): void {
     this.showWizard.set(false);
     this.router.navigate(['/', Constants.routes.WATCH_LIST, id]);
+  }
+
+  public openScreenerEdit(): void {
+    this.closeFabMenu();
+    this.router.navigate(['/', Constants.routes.SCREENER, 'edit']);
+  }
+
+  public openGlobalTransactionDrawer(): void {
+    this.closeFabMenu();
+    // Opens through the hidden Flowbite trigger so the drawer uses the same
+    // instance lifecycle as every other drawer in the app.
+    this.globalDrawerTrigger()?.nativeElement.click();
   }
 
   public navigateToWatchList(): void {

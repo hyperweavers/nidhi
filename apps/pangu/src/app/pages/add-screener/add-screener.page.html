@@ -1,8 +1,58 @@
 <div class="flex h-full flex-col gap-4 p-4">
   <div #helpBox class="relative flex items-center gap-2">
-    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-      {{ pageTitle() }}
-    </h1>
+    <div class="flex min-w-0 flex-1 flex-col">
+      @if (isEditMode() && screener() && editingName()) {
+      <label for="screener-edit-name" class="sr-only">Screener name</label>
+      <input
+        #nameInput
+        id="screener-edit-name"
+        [ngModel]="nameDraft()"
+        (ngModelChange)="nameDraft.set($event); nameError.set('')"
+        (keydown.enter)="save()"
+        (keydown.escape)="cancelNameEdit()"
+        type="text"
+        class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-1.5 text-xl font-semibold text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+        placeholder="Enter screener name..."
+      />
+      } @else {
+      <div class="flex min-w-0 items-center gap-1.5">
+        <h1
+          class="truncate text-xl font-semibold text-gray-900 dark:text-white"
+        >
+          {{ pageTitle() }}
+        </h1>
+        @if (isEditMode() && screener()) {
+        <button
+          type="button"
+          (click)="startNameEdit()"
+          aria-label="Rename screener"
+          title="Rename screener"
+          class="focus:ring-primary-500 inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:outline-hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        >
+          <svg
+            class="h-5 w-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+            />
+          </svg>
+        </button>
+        }
+      </div>
+      } @if (isEditMode() && screener() && nameError()) {
+      <p class="mt-1 text-sm text-red-600 dark:text-red-500">
+        {{ nameError() }}
+      </p>
+      }
+    </div>
     <button
       type="button"
       (click)="toggleHelp()"
@@ -55,14 +105,17 @@
           and press <em>Enter</em> or <em>comma</em> to add each one.
         </li>
         <li>
-          Use <strong>AND / OR</strong> to decide if all or any of the filters
-          in a group must match.
+          Use the <strong>And/Or</strong> dropdown on each clause to decide if
+          all or any of the filters in a group must match.
         </li>
         <li>
           Use <strong>Group</strong> to put filters inside brackets and combine
-          groups.
+          groups; <strong>Ungroup</strong> flattens one back.
         </li>
-        <li>Drag the handle to reorder, use the red trash to remove.</li>
+        <li>
+          Use <strong>+</strong> to add a clause, drag the handle to reorder,
+          use the red trash on the right to remove.
+        </li>
         <li>Your query appears in the preview.</li>
       </ul>
     </div>
@@ -95,9 +148,37 @@
   >
     <p>Could not load screener properties.<br />Please try again later.</p>
   </div>
-  } @else {
+  } @else if (isEditMode() && notFound()) {
   <div
-    class="sticky top-16 z-10 -mx-4 border-y border-gray-200 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80 md:static md:mx-0 md:rounded-lg md:border md:bg-white md:px-4 md:py-4 md:backdrop-blur-none dark:border-gray-700 dark:bg-gray-800/95 dark:supports-[backdrop-filter]:bg-gray-800/80 md:dark:bg-gray-800"
+    class="flex flex-1 flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400"
+    role="status"
+  >
+    <p>Screener not found.</p>
+    <a
+      routerLink="/{{ Routes.SCREENER }}"
+      class="text-primary-700 dark:text-primary-400 mt-2 underline"
+      >Back to screeners</a
+    >
+  </div>
+  } @else { @if (isEditMode() && screener() && !screener()?.queryTree &&
+  !initialTree()) {
+  <div
+    class="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+    role="note"
+  >
+    <p class="font-semibold">
+      Saved query could not be loaded into the builder.
+    </p>
+    <pre
+      class="mt-2 max-h-28 overflow-auto rounded-md bg-white/60 p-3 font-mono text-sm break-words whitespace-pre-wrap dark:bg-gray-900/60"
+    >
+{{ screener()?.query }}</pre
+    >
+    <p class="mt-2">Rebuild the filters below, then save.</p>
+  </div>
+  }
+  <div
+    class="sticky top-16 z-10 rounded-lg border border-gray-200 bg-white/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/80 md:static md:bg-white md:px-4 md:py-4 md:backdrop-blur-none dark:border-gray-700 dark:bg-gray-800/95 dark:supports-[backdrop-filter]:bg-gray-800/80 md:dark:bg-gray-800"
   >
     <div class="flex items-center justify-between gap-2">
       <h2 class="text-sm font-semibold text-gray-900 dark:text-white">
@@ -164,44 +245,46 @@
     (queryChange)="onQueryChange($event)"
   />
 
-  <div class="flex justify-end gap-3">
-    @if (!previewLoading() && !previewError()) {
-    <p class="flex-1 text-sm text-gray-500 dark:text-gray-400">
+  <div class="flex flex-col gap-2">
+    <div class="flex justify-end gap-3">
+      <button
+        type="button"
+        (click)="save()"
+        [disabled]="!canSave() || screenerLoading()"
+        class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-hidden disabled:opacity-50 sm:flex-none"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        (click)="preview()"
+        [disabled]="!isValid() || previewLoading()"
+        class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-hidden disabled:opacity-50 sm:flex-none dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
+      >
+        @if (previewLoading()) {
+        <svg
+          aria-hidden="true"
+          class="mr-2 h-4 w-4 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+          viewBox="0 0 100 101"
+          fill="none"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        } Preview
+      </button>
+    </div>
+    @if (hasPreviewed() && !previewLoading() && !previewError()) {
+    <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
       {{ previewTotal() }} stocks matching your query!
     </p>
     }
-    <button
-      type="button"
-      (click)="save()"
-      [disabled]="!isValid()"
-      class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex flex-1 items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium text-white shadow-xs focus:ring-4 focus:outline-hidden disabled:opacity-50 sm:flex-none"
-    >
-      Save
-    </button>
-    <button
-      type="button"
-      (click)="preview()"
-      [disabled]="!isValid() || previewLoading()"
-      class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-hidden disabled:opacity-50 sm:flex-none dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
-    >
-      @if (previewLoading()) {
-      <svg
-        aria-hidden="true"
-        class="mr-2 h-4 w-4 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
-        viewBox="0 0 100 101"
-        fill="none"
-      >
-        <path
-          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-          fill="currentColor"
-        />
-        <path
-          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-          fill="currentFill"
-        />
-      </svg>
-      } Preview
-    </button>
   </div>
 
   @if (hasPreviewed()) {
@@ -686,28 +769,28 @@
 
     @if (filteredResults().length > 0) {
     <div
-      class="flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-md border border-gray-200 shadow-sm dark:border-gray-700"
+      class="-mx-4 flex-1 overflow-hidden shadow-sm sm:mx-0 sm:rounded-md sm:border sm:border-gray-200 sm:dark:border-gray-700"
     >
       <div
         class="flex bg-gray-50 text-center text-xs font-bold whitespace-nowrap text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400"
       >
-        <div class="flex-1 p-2 text-left sm:p-4">
+        <div class="min-w-0 flex-1 p-2 text-left">
           <div>Company</div>
           <div>Exchange</div>
         </div>
-        <div class="p-2 text-center sm:p-4">
+        <div class="w-24 shrink-0 p-2 text-center">
           <div>Price (&#8377;)</div>
           <div>Volume</div>
         </div>
-        <div class="p-2 text-center sm:p-4">
+        <div class="w-28 shrink-0 p-2 text-center">
           <div>Change (%)</div>
           <div>Change (&#8377;)</div>
         </div>
       </div>
 
       <cdk-virtual-scroll-viewport
-        itemSize="72"
-        class="h-[60vh] w-full"
+        itemSize="57"
+        class="h-[60vh] w-full max-w-full"
         (scrolledIndexChange)="onScrolled($event)"
       >
         <div
@@ -715,19 +798,19 @@
           (click)="openResult(row)"
           (keydown.enter)="openResult(row)"
           tabindex="0"
-          class="flex cursor-pointer border-b bg-white text-sm text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+          class="flex cursor-pointer border-b bg-white text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
         >
-          <div class="min-w-0 flex-1 p-2 font-normal sm:p-4">
+          <div class="min-w-0 flex-1 p-2">
             <div class="truncate font-medium text-gray-900 dark:text-white">
               {{ displayName(row) }}
             </div>
             <div
               class="truncate text-xs text-gray-500 uppercase dark:text-gray-400"
             >
-              {{ getExchange(row) }}
+              {{ getExchange(row) | valueOrPlaceholder }}
             </div>
           </div>
-          <div class="p-2 text-center sm:p-4">
+          <div class="w-24 shrink-0 p-2 text-center">
             <div>
               &#8377;{{ row.liveData?.quote?.nse?.price | valueOrPlaceholder }}
             </div>
@@ -737,7 +820,7 @@
             </div>
           </div>
           <div
-            class="p-2 text-center sm:p-4"
+            class="w-28 shrink-0 p-2 text-center"
             [ngClass]="
               row.liveData?.quote?.nse?.change?.direction === Direction.UP
                 ? 'text-green-500 dark:text-green-400'

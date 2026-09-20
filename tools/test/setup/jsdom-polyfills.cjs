@@ -30,3 +30,10 @@ globalThis.BroadcastChannel ??= class BroadcastChannel {
   removeEventListener() {}
 };
 /* eslint-enable @typescript-eslint/no-empty-function */
+
+// jsdom does not implement Element.scrollTo, but AppComponent calls
+// mainContent.nativeElement.scrollTo on router navigation. Provide a no-op
+// so unit tests exercise the navigation handlers instead of throwing.
+if (typeof Element !== 'undefined' && !Element.prototype.scrollTo) {
+  Element.prototype.scrollTo = function () {};
+}

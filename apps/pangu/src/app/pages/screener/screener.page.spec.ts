@@ -313,6 +313,35 @@ describe('ScreenerPage', () => {
     expect(preview.mock.calls.length).toBeGreaterThanOrEqual(afterFirst);
   });
 
+  it('should load more when viewport is near the bottom', () => {
+    component.previewResults.set(
+      Array.from({ length: 20 }, (_, i) => ({
+        assetId: `${i}`,
+        assetName: `S${i}`,
+        assetSymbol: '',
+        assetExchangeId: '',
+        sector: '',
+        price: 0,
+        priceDisplay: '--',
+        marketCap: 0,
+        marketCapDisplay: '--',
+        peDisplay: '--',
+        epsGrowthDisplay: '--',
+        dividendYieldDisplay: '--',
+      })) as never,
+    );
+    component.previewTotal.set(40);
+    const calls = preview.mock.calls.length;
+    (component as unknown as { viewport: unknown }).viewport = () => undefined;
+    component.onScrolled(0);
+    expect(preview.mock.calls.length).toBe(calls);
+    (component as unknown as { viewport: unknown }).viewport = () => ({
+      measureScrollOffset: () => 0,
+    });
+    component.onScrolled(0);
+    expect(preview.mock.calls.length).toBeGreaterThan(calls);
+  });
+
   it('should cover default sort and beyond-total guard', () => {
     (component.sortBy as { set: (v: never) => void }).set('unknown' as never);
     expect(component.filteredResults().length).toBe(2);

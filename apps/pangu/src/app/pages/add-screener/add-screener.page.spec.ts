@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '@nidhi/shared-toast';
 import { of, throwError } from 'rxjs';
 
@@ -420,6 +420,39 @@ describe('AddScreenerPage', () => {
     expect(() => component.onScrolled(5)).not.toThrow();
   });
 
+  it('should load more when viewport is near the bottom', () => {
+    component.onQueryChange({ query: 'Q', isValid: true });
+    component.preview();
+    component.previewResults.set(
+      Array.from({ length: 20 }, (_, i) => ({
+        assetId: `${i}`,
+        assetName: `S${i}`,
+        assetSymbol: '',
+        assetExchangeId: '',
+        sector: '',
+        price: 0,
+        priceDisplay: '--',
+        marketCap: 0,
+        marketCapDisplay: '--',
+        peDisplay: '--',
+        epsGrowthDisplay: '--',
+        dividendYieldDisplay: '--',
+      })),
+    );
+    component.previewTotal.set(40);
+    const calls = preview.mock.calls.length;
+    // Far from the end with no viewport offset: no extra load.
+    (component as unknown as { viewport: unknown }).viewport = () => undefined;
+    component.onScrolled(0);
+    expect(preview.mock.calls.length).toBe(calls);
+    // Near the bottom via viewport offset: triggers loadMore.
+    (component as unknown as { viewport: unknown }).viewport = () => ({
+      measureScrollOffset: () => 0,
+    });
+    component.onScrolled(0);
+    expect(preview.mock.calls.length).toBeGreaterThan(calls);
+  });
+
   it('should guard loading beyond total without extra calls', () => {
     component.onQueryChange({ query: 'Q', isValid: true });
     component.preview();
@@ -526,5 +559,283 @@ describe('AddScreenerPage', () => {
     );
     expect(saveBtn?.nativeElement.disabled).toBe(true);
     expect(previewBtn?.nativeElement.disabled).toBe(true);
+  });
+
+  describe('edit mode rename and recovery', () => {
+    const renameScreener = jest.fn(() => Promise.resolve());
+
+    async function setupEdit(screener: {
+      id: string;
+      name: string;
+      query: string;
+      queryTree?: {
+        kind: 'group';
+        id: string;
+        combinator: 'AND';
+        children: Array<{
+          kind: 'condition';
+          id: string;
+          property: string;
+          operator: '>';
+          value: string;
+        }>;
+      };
+    }) {
+      TestBed.resetTestingModule();
+      renameScreener.mockClear();
+      getScreener$.mockReturnValue(
+        of({ ...screener, createdAt: 1, updatedAt: 1 }),
+      );
+      await TestBed.configureTestingModule({
+        imports: [AddScreenerPage],
+        providers: [
+          {
+            provide: ScreenerService,
+            useValue: {
+              getProperties,
+              preview,
+              createScreener,
+              updateScreener,
+              renameScreener,
+              screenerNameExists,
+              getScreener$,
+            },
+          },
+          { provide: MarketService, useValue: { getStocks } },
+          { provide: ToastService, useValue: { show: toastShow } },
+          { provide: Router, useValue: { navigate: routerNavigate } },
+        ],
+      }).compileComponents();
+      const f = TestBed.createComponent(AddScreenerPage);
+      f.componentRef.setInput('id', screener.id);
+      f.detectChanges();
+      await f.whenStable();
+      return f;
+    }
+
+    async function flush() {
+      await Promise.resolve();
+      await new Promise((r) => setTimeout(r, 0));
+    }
+
+    it('should rename and update the query together on save', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+        queryTree: {
+          kind: 'group',
+          id: 'g1',
+          combinator: 'AND',
+          children: [
+            {
+              kind: 'condition',
+              id: 'c1',
+              property: 'Market Cap (Rs Cr)',
+              operator: '>',
+              value: '5',
+            },
+          ],
+        },
+      });
+      const c = f.componentInstance;
+      expect(c.nameDraft()).toBe('Old');
+      c.nameDraft.set('New');
+      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 10', isValid: true });
+      c.save();
+      await flush();
+      expect(renameScreener).toHaveBeenCalledWith('e1', 'New');
+      expect(updateScreener).toHaveBeenCalledWith(
+        'e1',
+        'Market Cap (Rs Cr) > 10',
+        expect.anything(),
+      );
+      expect(toastShow).toHaveBeenCalledWith('Screener updated');
+      expect(routerNavigate).toHaveBeenCalledWith(['/', 'screener', 'e1']);
+    });
+
+    it('should rename only when the query is invalid', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      c.onQueryChange({ query: '', isValid: false });
+      c.nameDraft.set('New');
+      expect(c.canSave()).toBe(true);
+      c.save();
+      await flush();
+      expect(renameScreener).toHaveBeenCalledWith('e1', 'New');
+      expect(updateScreener).not.toHaveBeenCalled();
+      expect(toastShow).toHaveBeenCalledWith('Screener renamed');
+    });
+
+    it('should reject duplicate names on rename', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+      c.nameDraft.set('Dup');
+      screenerNameExists.mockResolvedValueOnce(true);
+      c.save();
+      await flush();
+      expect(c.nameError()).toBe('A screener with this name already exists!');
+      expect(renameScreener).not.toHaveBeenCalled();
+      expect(updateScreener).not.toHaveBeenCalled();
+      expect(routerNavigate).not.toHaveBeenCalled();
+    });
+
+    it('should require a name when renaming to blank', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      c.onQueryChange({ query: '', isValid: false });
+      c.nameDraft.set('   ');
+      expect(c.nameChanged()).toBe(true);
+      expect(c.canSave()).toBe(true);
+      c.save();
+      await flush();
+      expect(c.nameError()).toBe('Name is required!');
+      expect(renameScreener).not.toHaveBeenCalled();
+      expect(updateScreener).not.toHaveBeenCalled();
+    });
+
+    it('should show not-found for an unknown id', async () => {
+      TestBed.resetTestingModule();
+      getScreener$.mockReturnValue(of(undefined));
+      await TestBed.configureTestingModule({
+        imports: [AddScreenerPage],
+        providers: [
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { queryParamMap: { get: () => null } } },
+          },
+          {
+            provide: ScreenerService,
+            useValue: {
+              getProperties,
+              preview,
+              createScreener,
+              updateScreener,
+              renameScreener,
+              screenerNameExists,
+              getScreener$,
+            },
+          },
+          { provide: MarketService, useValue: { getStocks } },
+          { provide: ToastService, useValue: { show: toastShow } },
+          { provide: Router, useValue: { navigate: routerNavigate } },
+        ],
+      }).compileComponents();
+      const f = TestBed.createComponent(AddScreenerPage);
+      f.componentRef.setInput('id', 'missing');
+      f.detectChanges();
+      await f.whenStable();
+      expect(f.componentInstance.notFound()).toBe(true);
+      expect(f.componentInstance.pageTitle()).toBe('Screener not found');
+    });
+
+    it('should rebuild the builder from query text without a tree', async () => {
+      const f = await setupEdit({
+        id: 'leg',
+        name: 'Legacy',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      const tree = c.initialTree();
+      expect(tree).not.toBeNull();
+      expect(tree?.children[0]).toMatchObject({
+        property: 'Market Cap (Rs Cr)',
+        operator: '>',
+        value: '5',
+      });
+      // The parsed tree flows into the builder and validates the query.
+      f.detectChanges();
+      await f.whenStable();
+      expect(c.isValid()).toBe(true);
+      expect(c.query()).toBe('Market Cap (Rs Cr) > 5');
+    });
+
+    it('should keep the saved query when text cannot be parsed', async () => {
+      const f = await setupEdit({
+        id: 'leg',
+        name: 'Legacy',
+        query: 'Something unparseable ???',
+      });
+      const c = f.componentInstance;
+      expect(c.initialTree()).toBeNull();
+      expect(c.screener()?.query).toBe('Something unparseable ???');
+    });
+
+    it('should edit the name inline from the title', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      expect(c.editingName()).toBe(false);
+
+      // Pencil button opens the inline editor with the current name.
+      const pencil = f.debugElement.query(
+        By.css('button[aria-label="Rename screener"]'),
+      );
+      expect(pencil).toBeTruthy();
+      pencil.nativeElement.click();
+      f.detectChanges();
+      await f.whenStable();
+      f.detectChanges();
+      expect(c.editingName()).toBe(true);
+      const input = f.debugElement.query(By.css('#screener-edit-name'));
+      expect(input).toBeTruthy();
+      expect(input.nativeElement.value).toBe('Old');
+
+      // Escape reverts the draft and closes the editor.
+      c.nameDraft.set('Changed');
+      c.cancelNameEdit();
+      expect(c.nameDraft()).toBe('Old');
+      expect(c.nameError()).toBe('');
+      expect(c.editingName()).toBe(false);
+
+      // Drafts persist until Save — blur/typing never reverts to text.
+      c.startNameEdit();
+      c.nameDraft.set('New');
+      expect(c.editingName()).toBe(true);
+      expect(c.nameChanged()).toBe(true);
+    });
+
+    it('should report unsaved changes until saved', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      expect(c.hasUnsavedChanges()).toBe(false);
+      c.nameDraft.set('New');
+      expect(c.hasUnsavedChanges()).toBe(true);
+      c.nameDraft.set('Old');
+      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 10', isValid: true });
+      expect(c.hasUnsavedChanges()).toBe(true);
+    });
+
+    it('should ignore rename controls without a loaded screener', async () => {
+      const f = await setupEdit({
+        id: 'e1',
+        name: 'Old',
+        query: 'Market Cap (Rs Cr) > 5',
+      });
+      const c = f.componentInstance;
+      c.screener.set(undefined);
+      c.startNameEdit();
+      expect(c.editingName()).toBe(false);
+    });
   });
 });

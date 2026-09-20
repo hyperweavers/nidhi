@@ -134,6 +134,20 @@ describe('QueryBuilderComponent', () => {
     });
   });
 
+  it('should replace the typed search text when picking a chip option', () => {
+    const id = firstConditionId();
+    component.selectProperty(id, 'Amount');
+    component.updateOperator(id, 'IN');
+    component.setChipDraft(id, 'Expected');
+    component.addChipFromOption(id, 'Expected amount');
+
+    expect(component.liveQuery()).toEqual({
+      query: 'Amount IN (Expected amount)',
+      isValid: true,
+    });
+    expect(component.chipDraft(id)).toBe('');
+  });
+
   it('should reorder children on drop', () => {
     const rootId = component.root().id;
     component.addCondition(rootId);
@@ -298,6 +312,130 @@ describe('QueryBuilderComponent', () => {
     const node = component.root().children[0];
     if (!node) throw new Error('missing node');
     expect(component.trackById(0, node)).toBe(node.id);
+  });
+
+  it('should keep user edits after the initial tree loads', () => {
+    TestBed.resetTestingModule();
+    return (async () => {
+      await TestBed.configureTestingModule({
+        imports: [QueryBuilderComponent],
+      }).compileComponents();
+      const f2 = TestBed.createComponent(QueryBuilderComponent);
+      f2.componentRef.setInput('properties', PROPS);
+      f2.componentRef.setInput('initialTree', {
+        kind: 'group',
+        id: 'g1',
+        combinator: 'AND',
+        children: [
+          {
+            kind: 'condition',
+            id: 'c1',
+            property: 'Amount',
+            operator: '>',
+            value: '10',
+          },
+        ],
+      });
+      f2.detectChanges();
+      await f2.whenStable();
+      const emitted: { query: string; isValid: boolean }[] = [];
+      f2.componentInstance.queryChange.subscribe((q) => emitted.push(q));
+
+      f2.componentInstance.updateValue('c1', '99');
+      f2.detectChanges();
+      await f2.whenStable();
+
+      const child = f2.componentInstance.root().children[0];
+      expect(child).toMatchObject({ property: 'Amount', value: '99' });
+      expect(emitted.at(-1)).toEqual({
+        query: 'Amount > 99',
+        isValid: true,
+      });
+    })();
+  });
+
+  it('should insert a clause below a given row', () => {
+    const rootId = component.root().id;
+    const firstId = firstConditionId();
+    component.addConditionAfter(rootId, firstId);
+    expect(component.root().children).toHaveLength(2);
+    expect(component.root().children[0]?.id).toBe(firstId);
+  });
+
+  it('should append when inserting without a known target row', () => {
+    const rootId = component.root().id;
+    component.addConditionAfter(rootId, null);
+    expect(component.root().children).toHaveLength(2);
+    component.addConditionAfter(rootId, 'missing-id');
+    expect(component.root().children).toHaveLength(3);
+  });
+
+  it('should ignore chip commits without a draft', () => {
+    const id = firstConditionId();
+    expect(component.chipDraft(id)).toBe('');
+    component.commitChipDraft(id);
+    expect(component.root().children).toHaveLength(1);
+    expect(component.liveQuery()).toEqual({ query: '', isValid: false });
+  });
+
+  it('should flatten a nested group with ungroup', () => {
+    const rootId = component.root().id;
+    component.addInnerGroup(rootId);
+    expect(component.root().children).toHaveLength(2);
+    const nested = component.root().children[1];
+    expect(nested?.kind).toBe('group');
+    if (nested?.kind !== 'group') throw new Error('no nested group');
+
+    component.ungroup(nested.id);
+    expect(component.root().children).toHaveLength(2);
+    expect(component.root().children.every((c) => c.kind === 'condition')).toBe(
+      true,
+    );
+  });
+
+  it('should ungroup a doubly nested group', () => {
+    const rootId = component.root().id;
+    component.addInnerGroup(rootId);
+    const nested = component.root().children[1];
+    if (nested?.kind !== 'group') throw new Error('no nested group');
+    component.addInnerGroup(nested.id);
+    const inner = component.root().children[1];
+    if (inner?.kind !== 'group') throw new Error('no nested group');
+    const deep = inner.children[1];
+    if (deep?.kind !== 'group') throw new Error('no deep group');
+
+    component.ungroup(deep.id);
+    const after = component.root().children[1];
+    if (after?.kind !== 'group') throw new Error('no nested group');
+    expect(after.children.every((c) => c.kind === 'condition')).toBe(true);
+  });
+
+  it('should delete the group when its last clause is removed', () => {
+    const rootId = component.root().id;
+    component.addInnerGroup(rootId);
+    const nested = component.root().children[1];
+    expect(nested?.kind).toBe('group');
+    if (nested?.kind !== 'group') throw new Error('no nested group');
+    const clause = nested.children[0];
+    if (!clause || clause.kind !== 'condition')
+      throw new Error('no nested clause');
+
+    component.removeNode(clause.id);
+    expect(component.root().children).toHaveLength(1);
+    expect(component.root().children[0]?.kind).toBe('condition');
+  });
+
+  it('should keep an emptied root group', () => {
+    const id = firstConditionId();
+    component.removeNode(id);
+    expect(component.root().children).toHaveLength(0);
+  });
+
+  it('should set the group combinator from any row', () => {
+    const rootId = component.root().id;
+    component.addCondition(rootId);
+    component.setCombinator(rootId, 'OR');
+    expect(component.root().combinator).toBe('OR');
   });
 
   it('should clone nested initial tree', () => {

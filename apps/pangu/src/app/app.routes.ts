@@ -1,6 +1,18 @@
-import { Route } from '@angular/router';
+import { CanDeactivateFn, Route } from '@angular/router';
 
 import { Constants } from './constants';
+
+import type { AddScreenerPage } from './pages/add-screener/add-screener.page';
+
+export const confirmScreenerDiscardGuard: CanDeactivateFn<AddScreenerPage> = (
+  component,
+) => {
+  if (component.hasUnsavedChanges()) {
+    return window.confirm('You have unsaved changes. Leave without saving?');
+  }
+
+  return true;
+};
 
 export const appRoutes: Route[] = [
   { path: '', redirectTo: `/${Constants.routes.DASHBOARD}`, pathMatch: 'full' },
@@ -57,6 +69,7 @@ export const appRoutes: Route[] = [
       import('./pages/add-screener/add-screener.page').then(
         (m) => m.AddScreenerPage,
       ),
+    canDeactivate: [confirmScreenerDiscardGuard],
   },
   {
     path: `${Constants.routes.SCREENER}/edit/:id`,
@@ -64,6 +77,7 @@ export const appRoutes: Route[] = [
       import('./pages/add-screener/add-screener.page').then(
         (m) => m.AddScreenerPage,
       ),
+    canDeactivate: [confirmScreenerDiscardGuard],
   },
   {
     path: `${Constants.routes.SCREENER}/:id`,

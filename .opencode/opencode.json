@@ -9,7 +9,7 @@
       "description": "Generates Angular standalone components, services, pages, pipes, directives, and Nx library scaffolding following project conventions.",
       "permission": {
         "edit": "allow",
-        "bash": "ask"
+        "bash": "allow"
       }
     },
     "unit-test": {
@@ -18,7 +18,7 @@
       "description": "Writes and updates Jest unit tests for Angular standalone components, services, and pipes using jest-preset-angular and project mocking patterns.",
       "permission": {
         "edit": "allow",
-        "bash": "ask"
+        "bash": "allow"
       }
     },
     "code-reviewer": {
@@ -56,7 +56,23 @@
     "Playwright": {
       "type": "local",
       "command": ["npx", "@playwright/mcp@latest"],
-      "enable": true
+      "enabled": true
     }
+  },
+  "watcher": {
+    "ignore": [
+      "dist/**",
+      "coverage/**",
+      ".nx/**",
+      "node_modules/**",
+      ".opencode/node_modules/**",
+      ".angular/**",
+      ".git/**",
+      "test-results/**",
+      "playwright-report/**",
+      "tmp/**",
+      ".playwright-mcp/**",
+      "**/.DS_Store"
+    ]
   }
 }
