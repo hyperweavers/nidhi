@@ -170,7 +170,7 @@ describe('WatchListService', () => {
       expect(service.getWatchList$('1') instanceof Observable).toBe(true);
     });
 
-    it('should emit a watch list by id', fakeAsync(async () => {
+    it('should emit a watchlist by id', fakeAsync(async () => {
       const list: WatchList = { id: '1', name: 'My List', isDefault: true };
       db.watchLists.get.mockResolvedValue(list);
       const result = await firstValueFrom(service.getWatchList$('1'));
@@ -180,7 +180,7 @@ describe('WatchListService', () => {
   });
 
   describe('getWatchListStocks$', () => {
-    it('should emit stocks for a watch list', fakeAsync(async () => {
+    it('should emit stocks for a watchlist', fakeAsync(async () => {
       const stocks: WatchListStock[] = [
         {
           watchListId: '1',
@@ -224,7 +224,7 @@ describe('WatchListService', () => {
       expect(id).toBe(mockUuid);
       expect(db.watchLists.add).toHaveBeenCalledWith({
         id: mockUuid,
-        name: 'My Watch List',
+        name: 'My Watchlist',
         isDefault: true,
         createdAt: expect.any(Number),
       });
@@ -259,7 +259,7 @@ describe('WatchListService', () => {
   });
 
   describe('createWatchList', () => {
-    it('should create a new watch list', async () => {
+    it('should create a new watchlist', async () => {
       db.watchLists.where.mockReturnValue({
         equalsIgnoreCase: jest
           .fn()
@@ -290,13 +290,13 @@ describe('WatchListService', () => {
         }),
       });
       await expect(service.createWatchList('My New List')).rejects.toThrow(
-        'A watch list with this name already exists',
+        'A watchlist with this name already exists',
       );
     });
   });
 
   describe('renameWatchList', () => {
-    it('should rename a watch list', async () => {
+    it('should rename a watchlist', async () => {
       db.watchLists.where.mockReturnValue({
         equalsIgnoreCase: jest
           .fn()
@@ -333,13 +333,13 @@ describe('WatchListService', () => {
         }),
       });
       await expect(service.renameWatchList('1', 'Taken')).rejects.toThrow(
-        'A watch list with this name already exists',
+        'A watchlist with this name already exists',
       );
     });
   });
 
   describe('deleteWatchList', () => {
-    it('should delete a non-default watch list and its stocks', async () => {
+    it('should delete a non-default watchlist and its stocks', async () => {
       db.watchLists.get.mockResolvedValue({
         id: '2',
         name: 'To Delete',
@@ -357,7 +357,7 @@ describe('WatchListService', () => {
     it('should throw if list not found', async () => {
       db.watchLists.get.mockResolvedValue(null);
       await expect(service.deleteWatchList('nonexistent')).rejects.toThrow(
-        'Watch list not found',
+        'Watchlist not found',
       );
     });
 
@@ -368,7 +368,7 @@ describe('WatchListService', () => {
         isDefault: true,
       });
       await expect(service.deleteWatchList('1')).rejects.toThrow(
-        'Cannot delete the default watch list',
+        'Cannot delete the default watchlist',
       );
     });
   });
@@ -414,13 +414,13 @@ describe('WatchListService', () => {
     it('should throw if list not found', async () => {
       db.watchLists.get.mockResolvedValue(null);
       await expect(service.setDefaultWatchList('nonexistent')).rejects.toThrow(
-        'Watch list not found',
+        'Watchlist not found',
       );
     });
   });
 
   describe('addStock', () => {
-    it('should add a stock to a watch list', async () => {
+    it('should add a stock to a watchlist', async () => {
       db.watchListStocks.where.mockReturnValue({
         equals: jest
           .fn()
@@ -461,7 +461,7 @@ describe('WatchListService', () => {
           mockStock.scripCode as any,
           mockStock.vendorCode as any,
         ),
-      ).rejects.toThrow('Stock is already in this watch list');
+      ).rejects.toThrow('Stock is already in this watchlist');
     });
   });
 

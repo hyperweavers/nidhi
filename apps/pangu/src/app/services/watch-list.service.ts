@@ -82,7 +82,7 @@ export class WatchListService {
       .equalsIgnoreCase(trimmed)
       .first();
     if (existing) {
-      throw new Error('A watch list with this name already exists!');
+      throw new Error('A watchlist with this name already exists!');
     }
 
     const id = uuid();
@@ -106,7 +106,7 @@ export class WatchListService {
       .equalsIgnoreCase(trimmed)
       .first();
     if (existing && existing.id !== id) {
-      throw new Error('A watch list with this name already exists!');
+      throw new Error('A watchlist with this name already exists!');
     }
 
     await db.watchLists.update(id, { name: trimmed });
@@ -115,10 +115,10 @@ export class WatchListService {
   public async deleteWatchList(id: string): Promise<void> {
     const list = await db.watchLists.get(id);
     if (!list) {
-      throw new Error('Watch list not found!');
+      throw new Error('Watchlist not found!');
     }
     if (list.isDefault) {
-      throw new Error('Cannot delete the default watch list!');
+      throw new Error('Cannot delete the default watchlist!');
     }
 
     await db.transaction('rw', db.watchLists, db.watchListStocks, async () => {
@@ -130,7 +130,7 @@ export class WatchListService {
   public async setDefaultWatchList(id: string): Promise<void> {
     const list = await db.watchLists.get(id);
     if (!list) {
-      throw new Error('Watch list not found!');
+      throw new Error('Watchlist not found!');
     }
 
     await db.transaction('rw', db.watchLists, async () => {
@@ -159,7 +159,7 @@ export class WatchListService {
       .first();
 
     if (exists) {
-      throw new Error('Stock is already in this watch list!');
+      throw new Error('Stock is already in this watchlist!');
     }
 
     await db.watchListStocks.add({

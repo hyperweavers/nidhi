@@ -141,6 +141,28 @@ describe('AppComponent', () => {
       expect(component.sidebarOpen).toBe(false);
     }));
 
+    it('should not throw on navigation when main content is unavailable', fakeAsync(() => {
+      fixture.detectChanges();
+      (component as unknown as { mainContent: unknown }).mainContent = () =>
+        undefined;
+      component.sidebarOpen = true;
+      mockRouter.events.next(new NavigationStart(1, '/test'));
+      mockRouter.events.next(new NavigationEnd(1, '/test', '/test'));
+      tick(100);
+      expect(component.sidebarOpen).toBe(false);
+    }));
+
+    it('should not throw on navigation without a native element', fakeAsync(() => {
+      fixture.detectChanges();
+      (component as unknown as { mainContent: unknown }).mainContent =
+        () => ({});
+      component.sidebarOpen = true;
+      mockRouter.events.next(new NavigationStart(1, '/test'));
+      mockRouter.events.next(new NavigationEnd(1, '/test', '/test'));
+      tick(100);
+      expect(component.sidebarOpen).toBe(false);
+    }));
+
     it('should keep sidebar open when already open on resize >= 1024', () => {
       fixture.detectChanges();
       component.sidebarOpen = true;
@@ -466,6 +488,55 @@ describe('AppComponent', () => {
         'new-list-id',
       ]);
     });
+
+    it('should navigate to screener edit and close fab', () => {
+      component.showFabMenu.set(true);
+      component.openScreenerEdit();
+      expect(component.showFabMenu()).toBe(false);
+      expect(mockRouter.navigate).toHaveBeenCalledWith([
+        '/',
+        Constants.routes.SCREENER,
+        'edit',
+      ]);
+    });
+
+    it('should open global transaction drawer and close fab', () => {
+      component.showFabMenu.set(true);
+      const click = jest.fn();
+      (
+        component as unknown as { globalDrawerTrigger: unknown }
+      ).globalDrawerTrigger = () => ({ nativeElement: { click } });
+      component.openGlobalTransactionDrawer();
+      expect(component.showFabMenu()).toBe(false);
+      expect(click).toHaveBeenCalled();
+
+      (
+        component as unknown as { globalDrawerTrigger: unknown }
+      ).globalDrawerTrigger = () => undefined;
+      expect(() => component.openGlobalTransactionDrawer()).not.toThrow();
+    });
+  });
+
+  describe('closeSidebar', () => {
+    it('should keep sidebar open when width >= 1024', () => {
+      Object.defineProperty(document.documentElement, 'clientWidth', {
+        value: 1200,
+        configurable: true,
+      });
+      component.sidebarOpen = true;
+      component.closeSidebar();
+      expect(component.sidebarOpen).toBe(true);
+    });
+
+    it('should close sidebar when width < 1024', () => {
+      Object.defineProperty(document.documentElement, 'clientWidth', {
+        value: 800,
+        configurable: true,
+      });
+      component.sidebarOpen = true;
+      component.closeSidebar();
+      expect(component.sidebarOpen).toBe(false);
+    });
   });
 
   describe('navigateToWatchList', () => {
@@ -496,5 +567,14 @@ describe('AppComponent', () => {
     component.ngOnInit();
     tick();
     expect(component.defaultWatchListId).toBeUndefined();
+  }));
+
+  it('should set defaultWatchListId on ensureDefaultWatchList success', fakeAsync(() => {
+    jest
+      .spyOn(component['watchListService'], 'ensureDefaultWatchList')
+      .mockResolvedValue('default-1');
+    component.ngOnInit();
+    tick();
+    expect(component.defaultWatchListId).toBe('default-1');
   }));
 });

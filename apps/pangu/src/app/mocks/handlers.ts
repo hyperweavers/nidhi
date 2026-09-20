@@ -143,6 +143,70 @@ export const handlers = [
     await delay(50);
     return HttpResponse.json(mockCf);
   }),
+
+  http.get(Constants.api.SCREENER_FIELDS, async () => {
+    await delay(50);
+    return HttpResponse.json({
+      datainfo: {
+        screenerCategoryLevelZero: {
+          screenerCategoryLevelOne: [
+            {
+              screenerCategoryLevelTwo: [
+                {
+                  screenerCategoryFields: [
+                    { displayName: 'Market Cap (Rs Cr)' },
+                    { displayName: 'Price' },
+                    { displayName: 'PE' },
+                    { displayName: 'EPS Growth' },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+  }),
+
+  http.post(Constants.api.SCREENER, async ({ request }) => {
+    await delay(50);
+    const body = (await request.json()) as {
+      pagesize?: number;
+      pageno?: number;
+    };
+    const pagesize = body.pagesize ?? 20;
+    const pageno = body.pageno ?? 1;
+    const totalRecords = 45;
+    const start = (pageno - 1) * pagesize;
+    const end = Math.min(start + pagesize, totalRecords);
+    const dataList = [];
+    for (let i = start; i < end; i++) {
+      const n = i + 1;
+      dataList.push({
+        assetId: n === 1 ? 'comp-123' : `screener-${n}`,
+        assetName: n === 1 ? 'Reliance Industries Ltd.' : `Screener Stock ${n}`,
+        assetSymbol: n === 1 ? 'RELIANCEEQ' : `SCR${n}EQ`,
+        assetExchangeId: '50',
+        data: [
+          { keyId: 'sectorName', value: n % 2 === 0 ? 'Bank' : 'Tech' },
+          {
+            keyId: 'lastTradedPrice',
+            value: `${100 + n}`,
+            filterFormatValue: `${100 + n}`,
+          },
+          {
+            keyId: 'marketCap',
+            value: `${1000 + n * 10}`,
+            filterFormatValue: `${1000 + n * 10}`,
+          },
+          { keyId: 'pe', value: '20' },
+          { keyId: 'Annual_EPS_Growth', value: n % 2 === 0 ? '-5' : '8' },
+          { keyId: 'dividendyield', value: '1' },
+        ],
+      });
+    }
+    return HttpResponse.json({ totalRecords, dataList });
+  }),
 ];
 
 export const errorHandlers = [

@@ -24,7 +24,7 @@
     <div class="flex-1">
       <app-select-watch-list
         [mode]="WatchListSelectionMode.SINGLE"
-        [placeholderText]="'Select a watch list...'"
+        [placeholderText]="'Select a watchlist...'"
         [showAsDropdown]="true"
         [selectedListId]="watchList()?.id"
         (selected)="onHeaderWatchListSelected($event)"
@@ -616,7 +616,7 @@
                 (click)="openMoveModal(stock); $event.stopPropagation()"
                 title="Move"
                 type="button"
-                class="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 rounded-md p-1.5 hover:bg-gray-100 dark:hover:bg-gray-600"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -633,7 +633,7 @@
                 (click)="openDeleteConfirm(stock); $event.stopPropagation()"
                 title="Delete"
                 type="button"
-                class="rounded-md p-1.5 text-red-500 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900 dark:hover:text-red-400"
+                class="rounded-md p-1.5 text-red-500 hover:bg-gray-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-gray-600 dark:hover:text-red-300"
               >
                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -665,7 +665,7 @@
         d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
       />
     </svg>
-    <p>No stocks in this watch list.<br />Click "Add Stock" to add some!</p>
+    <p>No stocks in this watchlist.<br />Click "Add Stock" to add some!</p>
   </div>
   } }
 
@@ -827,7 +827,7 @@
         Move Stock
       </h3>
       <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-        Select the target watch list:
+        Select the target watchlist:
       </p>
 
       <div class="mb-4">
@@ -884,7 +884,7 @@
           />
         </svg>
         <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-          Are you sure you want to remove this stock from the watch list?
+          Are you sure you want to remove this stock from the watchlist?
         </h3>
         <button
           (click)="confirmDelete()"

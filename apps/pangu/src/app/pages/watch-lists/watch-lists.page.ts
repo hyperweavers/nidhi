@@ -156,7 +156,7 @@ export class WatchListsPage implements AfterViewInit {
     try {
       await this.watchListService.renameWatchList(target.id, name);
 
-      this.toastService.show('Watch list renamed successfully!');
+      this.toastService.show('Watchlist renamed successfully!');
     } catch (e) {
       this.toastService.show((e as Error).message, ToastType.ERROR);
     } finally {
@@ -182,7 +182,7 @@ export class WatchListsPage implements AfterViewInit {
     try {
       await this.watchListService.deleteWatchList(target.id);
 
-      this.toastService.show('Watch list deleted successfully!');
+      this.toastService.show('Watchlist deleted successfully!');
     } catch (e) {
       this.toastService.show((e as Error).message, ToastType.ERROR);
     } finally {
@@ -208,7 +208,7 @@ export class WatchListsPage implements AfterViewInit {
     try {
       await this.watchListService.setDefaultWatchList(target.id);
 
-      this.toastService.show(`${target.name} is now the default watch list!`);
+      this.toastService.show(`${target.name} is now the default watchlist!`);
     } catch (e) {
       this.toastService.show((e as Error).message, ToastType.ERROR);
     } finally {

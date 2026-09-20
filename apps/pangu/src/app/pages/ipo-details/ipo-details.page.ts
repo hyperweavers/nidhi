@@ -42,6 +42,18 @@ const EMPTY_FINANCIAL_LISTS: FinancialLists = {
   cf: [],
 };
 
+/** Vendor dates may arrive as seconds or milliseconds — normalize to ms. */
+function toMs(v: number): number {
+  return v != null && v < 1_000_000_000_000 ? v * 1000 : v;
+}
+
+/** Strips the time part so status compares calendar dates, not instants. */
+function startOfDay(ms: number): number {
+  const d = new Date(ms);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
 @UntilDestroy()
 @Component({
   selector: 'app-ipo-details',
@@ -367,22 +379,39 @@ export class IpoDetailsPage implements OnInit {
 
     if (!d) return '';
 
-    const now = Date.now();
+    const today = startOfDay(Date.now());
+    const listing = d.listingdate ? startOfDay(toMs(d.listingdate)) : 0;
+    const closed = d.closedate ? startOfDay(toMs(d.closedate)) : 0;
+    const open = d.opendate ? startOfDay(toMs(d.opendate)) : 0;
 
-    if (d.listingdate && d.listingdate <= now) {
-      return 'Listed';
+    if (listing) {
+      if (listing === today) {
+        return 'Listing';
+      }
+
+      if (listing < today) {
+        return 'Listed';
+      }
     }
 
-    if (
-      d.closedate &&
-      d.closedate <= now &&
-      (!d.listingdate || d.listingdate > now)
-    ) {
-      return 'Closed';
+    if (closed && (!listing || listing > today)) {
+      if (closed === today) {
+        return 'Closing';
+      }
+
+      if (closed < today) {
+        return 'Closed';
+      }
     }
 
-    if (d.opendate && d.opendate <= now && d.closedate > now) {
-      return 'Open';
+    if (open && closed > today) {
+      if (open === today) {
+        return 'Opening';
+      }
+
+      if (open < today) {
+        return 'Open';
+      }
     }
 
     return 'Upcoming';
@@ -393,10 +422,13 @@ export class IpoDetailsPage implements OnInit {
 
     switch (status) {
       case 'Open':
+      case 'Opening':
+      case 'Closing':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       case 'Closed':
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
       case 'Listed':
+      case 'Listing':
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
       default:
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
@@ -425,7 +457,7 @@ export class IpoDetailsPage implements OnInit {
 
   protected formatDate(epoch: number): string {
     if (!epoch) return '--';
-    return new Date(epoch).toLocaleDateString('en-IN', {
+    return new Date(toMs(epoch)).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -438,7 +470,7 @@ export class IpoDetailsPage implements OnInit {
     return new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Kolkata',
       day: 'numeric',
-    }).format(new Date(epoch));
+    }).format(new Date(toMs(epoch)));
   }
 
   protected getTimelineMonthYear(epoch: number): string {
@@ -447,7 +479,7 @@ export class IpoDetailsPage implements OnInit {
       timeZone: 'Asia/Kolkata',
       month: 'short',
       year: 'numeric',
-    }).formatToParts(new Date(epoch));
+    }).formatToParts(new Date(toMs(epoch)));
     const get = (type: string): string =>
       parts.find((p) => p.type === type)?.value || '';
     return `${get('month')} ${get('year')}`.toUpperCase();

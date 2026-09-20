@@ -154,7 +154,7 @@ export class WatchListPage implements AfterViewInit {
         );
       });
 
-    // Load watch list stocks and live prices
+    // Load watchlist stocks and live prices
     toObservable(this.id)
       .pipe(
         untilDestroyed(this),
@@ -402,7 +402,7 @@ export class WatchListPage implements AfterViewInit {
     }
 
     this.loading.set(false);
-    this.toastService.show('Stocks added to watch list!');
+    this.toastService.show('Stocks added to watchlist!');
     this.closeStockSearchDrawer();
     this.marketService.refresh();
   }
@@ -473,7 +473,7 @@ export class WatchListPage implements AfterViewInit {
     try {
       await this.watchListService.removeStock(this.id(), target.scripCode.isin);
 
-      this.toastService.show('Stock removed from watch list!');
+      this.toastService.show('Stock removed from watchlist!');
       this.marketService.refresh();
     } catch (e) {
       this.toastService.show((e as Error).message, ToastType.ERROR);

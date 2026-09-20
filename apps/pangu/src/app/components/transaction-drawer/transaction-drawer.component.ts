@@ -66,7 +66,6 @@ export class TransactionDrawerComponent implements AfterViewInit {
   private readonly dateInputRef = viewChild<ElementRef>('dateInput');
 
   public readonly mode = input<'add' | 'edit'>('add');
-  public readonly transactionType = input<TransactionType>();
   public readonly editContext = input<TransactionEditContext | undefined>();
   public readonly drawerId = input('add-transaction-drawer');
 
@@ -74,6 +73,12 @@ export class TransactionDrawerComponent implements AfterViewInit {
   public readonly closed = output<void>();
 
   public readonly TransactionType = TransactionType;
+
+  /**
+   * Owned type state for add mode (selectable, default BUY). Edit mode keeps
+   * using the readonly editContext type.
+   */
+  public readonly selectedType = signal<TransactionType>(TransactionType.BUY);
 
   public readonly name = signal('');
   public readonly date = signal('');
@@ -84,7 +89,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
   public readonly net = computed(
     () =>
       this.gross() +
-      (this.transactionType() === TransactionType.SELL ||
+      (this.selectedType() === TransactionType.SELL ||
       this.editContext()?.transaction.type === TransactionType.SELL
         ? -this.charges()
         : this.charges()),
@@ -122,7 +127,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
       ),
       switchMap((query) =>
         iif(
-          () => this.transactionType() === TransactionType.BUY,
+          () => this.selectedType() === TransactionType.BUY,
           this.marketService.search(query),
           this.portfolioService.portfolio$.pipe(
             map((portfolio) =>
@@ -145,6 +150,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
     effect(() => {
       const context = this.editContext();
       if (context) {
+        this.selectedType.set(context.transaction.type);
         this.name.set(context.holdingName || '');
         this.price.set(context.transaction.price || 0);
         this.quantity.set(context.transaction.quantity || 0);
@@ -156,6 +162,11 @@ export class TransactionDrawerComponent implements AfterViewInit {
         );
       }
     });
+  }
+
+  public setTransactionType(type: TransactionType): void {
+    this.selectedType.set(type);
+    this.selectedStock.set(undefined);
   }
 
   public ngAfterViewInit(): void {
@@ -253,6 +264,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
 
   public resetForm(): void {
     this.selectedStock.set(undefined);
+    this.selectedType.set(TransactionType.BUY);
 
     this.showSearchResults.set(false);
 
@@ -275,7 +287,6 @@ export class TransactionDrawerComponent implements AfterViewInit {
     const stock = this.selectedStock();
     if (
       stock &&
-      this.transactionType() &&
       this.date() &&
       this.price() > 0 &&
       this.quantity() > 0 &&
@@ -291,7 +302,7 @@ export class TransactionDrawerComponent implements AfterViewInit {
 
         const transaction = {
           id: uuid(),
-          type: this.transactionType() as TransactionType,
+          type: this.selectedType(),
           date: date.getTime(),
           price: this.price(),
           quantity: this.quantity(),

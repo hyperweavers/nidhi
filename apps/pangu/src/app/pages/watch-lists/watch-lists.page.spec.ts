@@ -19,7 +19,7 @@ import {
 } from './watch-lists.page';
 
 const mockLists: WatchList[] = [
-  { id: 'wl-1', name: 'My Watch List', isDefault: true },
+  { id: 'wl-1', name: 'My Watchlist', isDefault: true },
   { id: 'wl-2', name: 'Tech Stocks', isDefault: false },
   { id: 'wl-3', name: 'Blue Chips', isDefault: false },
 ];
@@ -81,7 +81,7 @@ describe('WatchListsPage', () => {
     expect(rows.length).toBe(3);
   });
 
-  it('should navigate to watch list detail on openWatchList', () => {
+  it('should navigate to watchlist detail on openWatchList', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
     component.openWatchList({ id: 'wl-1', name: 'Test', isDefault: false });
     expect(navigateSpy).toHaveBeenCalledWith([
@@ -120,7 +120,7 @@ describe('WatchListsPage', () => {
       'New Name',
     );
     expect(toastService.show).toHaveBeenCalledWith(
-      'Watch list renamed successfully!',
+      'Watchlist renamed successfully!',
     );
   }));
 
@@ -158,7 +158,7 @@ describe('WatchListsPage', () => {
     await component.confirmDelete();
     expect(watchListService.deleteWatchList).toHaveBeenCalledWith('wl-2');
     expect(toastService.show).toHaveBeenCalledWith(
-      'Watch list deleted successfully!',
+      'Watchlist deleted successfully!',
     );
   }));
 
@@ -198,7 +198,7 @@ describe('WatchListsPage', () => {
     await component.confirmDefault();
     expect(watchListService.setDefaultWatchList).toHaveBeenCalledWith('wl-2');
     expect(toastService.show).toHaveBeenCalledWith(
-      'Tech Stocks is now the default watch list!',
+      'Tech Stocks is now the default watchlist!',
     );
   }));
 

@@ -8,6 +8,7 @@ export const Constants = {
     STOCKS: 'stocks',
     INDICES: 'indices',
     IPO: 'ipo',
+    SCREENER: 'screener',
     WATCH_LIST: 'watch-list',
     SETTINGS: 'settings',
     IMPORT: 'import',
@@ -52,6 +53,10 @@ export const Constants = {
     IPO_DRAFT:
       'https://api.moneycontrol.com/mcapi/v1/ecalendar/get-draft-issues',
     IPO_FINANCIALS: 'https://etmarketsapis.indiatimes.com/etservicestockapps',
+    SCREENER_FIELDS:
+      'https://screener.indiatimes.com/screener/v2/getScreenerSelectCategoryFieldMapping',
+    SCREENER:
+      'https://screener.indiatimes.com/screener/v2/screenerByScreenerIdForWeb',
     STOCK_INTRA_DAY_PEER_CHART:
       'https://etapi.indiatimes.com/charts/peercharts?datatype=intraday&scripcodetype=company&exchangeid=50&scripcode=',
     STOCK_HISTORIC_PEER_CHART:
@@ -67,7 +72,7 @@ export const Constants = {
   },
   configs: {
     defaults: {
-      WATCH_LIST_NAME: 'My Watch List',
+      WATCH_LIST_NAME: 'My Watchlist',
       TOAST_DISMISS_TIMEOUT: 3_000, // milliseconds
       SEARCH_DEBOUNCE_TIME: 300, // milliseconds
       MIN_SEARCH_CHARS: 3,

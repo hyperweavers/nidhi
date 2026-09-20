@@ -6,7 +6,6 @@ import {
 } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { LOGGER } from '@nidhi/shared-logger';
-import userEvent from '@testing-library/user-event';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
 import { Direction } from '../../models/market';
@@ -1589,54 +1588,5 @@ describe('PortfolioPage', () => {
       expect(emitted!.holdings[4].name).toContain('Missing C');
       expect(emitted!.holdings[5].name).toContain('Missing D');
     }));
-  });
-
-  describe('transaction drawer', () => {
-    it('should open buy drawer', () => {
-      createComponent();
-      component.openAddTransactionDrawer(TransactionType.BUY);
-      expect(component.transactionType()).toBe(TransactionType.BUY);
-    });
-
-    it('should open sell drawer', () => {
-      createComponent();
-      component.openAddTransactionDrawer(TransactionType.SELL);
-      expect(component.transactionType()).toBe(TransactionType.SELL);
-    });
-
-    it('should handle drawer closed event', () => {
-      createComponent();
-      component.transactionType.set(TransactionType.BUY);
-      component.onDrawerClosed();
-      expect(component.transactionType()).toBeUndefined();
-    });
-  });
-
-  describe('user interactions', () => {
-    it('should open Sell drawer when Sell button is clicked', async () => {
-      createComponent();
-      fixture.detectChanges();
-      const sellBtn = Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: HTMLButtonElement) => b.textContent.trim() === 'Sell');
-      expect(sellBtn).toBeTruthy();
-      const user = userEvent.setup();
-      await user.click(sellBtn!);
-      fixture.detectChanges();
-      expect(component.transactionType()).toBe(TransactionType.SELL);
-    });
-
-    it('should open Buy drawer when Buy button is clicked', async () => {
-      createComponent();
-      fixture.detectChanges();
-      const buyBtn = Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: HTMLButtonElement) => b.textContent.trim() === 'Buy');
-      expect(buyBtn).toBeTruthy();
-      const user = userEvent.setup();
-      await user.click(buyBtn!);
-      fixture.detectChanges();
-      expect(component.transactionType()).toBe(TransactionType.BUY);
-    });
   });
 });

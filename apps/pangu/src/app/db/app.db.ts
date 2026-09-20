@@ -6,12 +6,14 @@ import {
 } from '../adapters/market.adapter';
 import { Constants } from '../constants';
 import { Holding } from '../models/portfolio';
+import { Screener } from '../models/screener';
 import { WatchList, WatchListStock } from '../models/watch-list';
 
 class AppDB extends Dexie {
   stocks!: EntityTable<Holding, 'id'>;
   watchLists!: EntityTable<WatchList, 'id'>;
   watchListStocks!: EntityTable<WatchListStock, 'id'>;
+  screeners!: EntityTable<Screener, 'id'>;
 
   constructor() {
     super(Constants.db.NAME);
@@ -32,6 +34,13 @@ class AppDB extends Dexie {
       stocks: '&id, &scripCode.isin',
       watchLists: '&id, &name, isDefault',
       watchListStocks: '++id, watchListId, &[watchListId+scripCode.isin]',
+    });
+
+    this.version(5).stores({
+      stocks: '&id, &scripCode.isin',
+      watchLists: '&id, &name, isDefault',
+      watchListStocks: '++id, watchListId, &[watchListId+scripCode.isin]',
+      screeners: '&id, &name, isFavorite',
     });
 
     this.on('ready', async () => {

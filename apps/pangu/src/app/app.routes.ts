@@ -1,6 +1,18 @@
-import { Route } from '@angular/router';
+import { CanDeactivateFn, Route } from '@angular/router';
 
 import { Constants } from './constants';
+
+import type { AddScreenerPage } from './pages/add-screener/add-screener.page';
+
+export const confirmScreenerDiscardGuard: CanDeactivateFn<AddScreenerPage> = (
+  component,
+) => {
+  if (component.hasUnsavedChanges()) {
+    return window.confirm('You have unsaved changes. Leave without saving?');
+  }
+
+  return true;
+};
 
 export const appRoutes: Route[] = [
   { path: '', redirectTo: `/${Constants.routes.DASHBOARD}`, pathMatch: 'full' },
@@ -45,6 +57,32 @@ export const appRoutes: Route[] = [
     path: `${Constants.routes.WATCH_LIST}/:id`,
     loadComponent: () =>
       import('./pages/watch-list/watch-list.page').then((m) => m.WatchListPage),
+  },
+  {
+    path: Constants.routes.SCREENER,
+    loadComponent: () =>
+      import('./pages/screeners/screeners.page').then((m) => m.ScreenersPage),
+  },
+  {
+    path: `${Constants.routes.SCREENER}/edit`,
+    loadComponent: () =>
+      import('./pages/add-screener/add-screener.page').then(
+        (m) => m.AddScreenerPage,
+      ),
+    canDeactivate: [confirmScreenerDiscardGuard],
+  },
+  {
+    path: `${Constants.routes.SCREENER}/edit/:id`,
+    loadComponent: () =>
+      import('./pages/add-screener/add-screener.page').then(
+        (m) => m.AddScreenerPage,
+      ),
+    canDeactivate: [confirmScreenerDiscardGuard],
+  },
+  {
+    path: `${Constants.routes.SCREENER}/:id`,
+    loadComponent: () =>
+      import('./pages/screener/screener.page').then((m) => m.ScreenerPage),
   },
   {
     path: Constants.routes.IPO,

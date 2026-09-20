@@ -15,7 +15,7 @@ import {
 } from './select-watch-list.component';
 
 const mockLists: WatchList[] = [
-  { id: '1', name: 'My Watch List', isDefault: true },
+  { id: '1', name: 'My Watchlist', isDefault: true },
   { id: '2', name: 'Tech Stocks', isDefault: false },
   { id: '3', name: 'Blue Chips', isDefault: false },
 ];

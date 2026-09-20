@@ -13,7 +13,7 @@
     class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
   >
     @if (mode() === 'add') {
-      {{ transactionType() === TransactionType.SELL ? 'Sell' : 'Buy' }} Stock
+      {{ selectedType() === TransactionType.SELL ? 'Sell' : 'Buy' }} Stock
     } @else {
       Edit Transaction
     }
@@ -43,6 +43,63 @@
   </button>
 
   <div class="space-y-4">
+    <!-- Transaction Type -->
+    <div>
+      <span
+        class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        id="transaction-type-label"
+        >Transaction Type</span
+      >
+      <div
+        class="inline-flex overflow-hidden rounded-md border border-gray-200 shadow-xs disabled:opacity-60 dark:border-gray-600"
+        role="group"
+        aria-labelledby="transaction-type-label"
+        [attr.aria-disabled]="mode() === 'edit'"
+      >
+        <button
+          type="button"
+          (click)="setTransactionType(TransactionType.BUY)"
+          [disabled]="mode() === 'edit'"
+          [attr.aria-pressed]="selectedType() === TransactionType.BUY"
+          [class]="
+            selectedType() === TransactionType.BUY
+              ? 'bg-primary-700 dark:bg-primary-600 text-white focus:z-10 focus:ring-2'
+              : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-300'
+          "
+          class="inline-flex h-8 items-center justify-center px-4 text-xs font-semibold focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          [ngClass]="
+            mode() === 'edit'
+              ? ''
+              : selectedType() === TransactionType.BUY
+                ? 'hover:bg-primary-800 focus:ring-primary-300 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+          "
+        >
+          Buy
+        </button>
+        <button
+          type="button"
+          (click)="setTransactionType(TransactionType.SELL)"
+          [disabled]="mode() === 'edit'"
+          [attr.aria-pressed]="selectedType() === TransactionType.SELL"
+          [class]="
+            selectedType() === TransactionType.SELL
+              ? 'bg-primary-700 dark:bg-primary-600 text-white focus:z-10 focus:ring-2'
+              : 'bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-300'
+          "
+          class="inline-flex h-8 items-center justify-center border-l border-gray-200 px-4 text-xs font-semibold focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600"
+          [ngClass]="
+            mode() === 'edit'
+              ? ''
+              : selectedType() === TransactionType.SELL
+                ? 'hover:bg-primary-800 focus:ring-primary-300 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+          "
+        >
+          Sell
+        </button>
+      </div>
+    </div>
     <!-- Company -->
     <div>
       <label
@@ -52,36 +109,12 @@
       >
       <app-stock-search
         id="stock-search"
-        [mode]="
-          transactionType() === TransactionType.SELL ||
-          editContext()?.transaction?.type === TransactionType.SELL
-            ? 'sell'
-            : 'buy'
-        "
+        [mode]="selectedType() === TransactionType.SELL ? 'sell' : 'buy'"
         [(query)]="name"
         (stockSelected)="selectStock($event)"
         placeholder="Type company name/symbol..."
       />
     </div>
-
-    @if (mode() === 'edit') {
-      <!-- Transaction Type -->
-      <div>
-        <label
-          for="type"
-          class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-          >Transaction Type</label
-        >
-        <input
-          type="text"
-          name="type"
-          id="type"
-          [value]="editContext()?.transaction?.type"
-          class="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-md border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-          readonly
-        />
-      </div>
-    }
 
     <!-- Date -->
     <div>
@@ -227,7 +260,7 @@
         class="bg-primary-700 hover:bg-primary-800 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 inline-flex w-full justify-center rounded-md px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-hidden"
       >
         @if (mode() === 'add') {
-          {{ transactionType() === TransactionType.SELL ? 'Sell' : 'Buy' }}
+          {{ selectedType() === TransactionType.SELL ? 'Sell' : 'Buy' }}
         } @else {
           Save
         }

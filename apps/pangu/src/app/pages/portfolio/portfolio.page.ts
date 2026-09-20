@@ -24,11 +24,10 @@ import {
 } from 'rxjs';
 
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { TransactionDrawerComponent } from '../../components/transaction-drawer/transaction-drawer.component';
 import { Constants } from '../../constants';
 import { Flowbite } from '../../decorators/flowbite.decorator';
 import { Direction } from '../../models/market';
-import { Portfolio, TransactionType } from '../../models/portfolio';
+import { Portfolio } from '../../models/portfolio';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
 import { PortfolioService } from '../../services/portfolio.service';
 
@@ -61,7 +60,6 @@ enum PortfolioSortOrder {
     RouterLink,
     ScrollingModule,
     ValueOrPlaceholderPipe,
-    TransactionDrawerComponent,
   ],
   templateUrl: './portfolio.page.html',
   styleUrl: './portfolio.page.css',
@@ -85,14 +83,11 @@ export class PortfolioPage implements AfterViewInit {
 
   public readonly Routes = Constants.routes;
   public readonly Direction = Direction;
-  public readonly TransactionType = TransactionType;
   public readonly PortfolioFilter = PortfolioFilter;
   public readonly PortfolioSortType = PortfolioSortType;
   public readonly PortfolioSortOrder = PortfolioSortOrder;
 
   public readonly portfolioSearchQuery = signal('');
-
-  public transactionType = signal<TransactionType | undefined>(undefined);
 
   private sortDropdown?: Dropdown;
   private filterDropdown?: Dropdown;
@@ -176,14 +171,6 @@ export class PortfolioPage implements AfterViewInit {
       () => this.initFlowbiteInstances(),
       Constants.configs.defaults.FLOWBITE_INITIALIZATION_DELAY,
     );
-  }
-
-  public openAddTransactionDrawer(type: TransactionType): void {
-    this.transactionType.set(type);
-  }
-
-  public onDrawerClosed(): void {
-    this.transactionType.set(undefined);
   }
 
   public filterPortfolio(filter: PortfolioFilter): void {
