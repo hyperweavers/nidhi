@@ -139,5 +139,8 @@
   "analytics": false,
   "tui": {
     "enabled": false
+  },
+  "migrate": {
+    "agentic": true
   }
 }
