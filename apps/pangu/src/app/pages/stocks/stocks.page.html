@@ -62,7 +62,8 @@
 
     <div class="text-gray-900 dark:text-white">
       <div class="text-lg font-semibold">
-        &#8377;{{ stock.quote?.[activeExchange]?.price | valueOrPlaceholder }}
+        &#8377;{{ $safeNavigationMigration(stock.quote?.[activeExchange]?.price)
+        | valueOrPlaceholder }}
       </div>
       <div
         class="flex items-center"
@@ -70,13 +71,15 @@
       >
         {{ stock.quote?.[activeExchange]?.change?.direction === Direction.UP ?
         '&#x25B2;' : '&#x25BC;' }} &#8377;{{
-        stock.quote?.[activeExchange]?.change?.value | valueOrPlaceholder }} ({{
-        stock.quote?.[activeExchange]?.change?.percentage | valueOrPlaceholder
-        }}%)
+        $safeNavigationMigration(stock.quote?.[activeExchange]?.change?.value) |
+        valueOrPlaceholder }} ({{
+        $safeNavigationMigration(stock.quote?.[activeExchange]?.change?.percentage)
+        | valueOrPlaceholder }}%)
       </div>
       <div class="pt-2 text-sm text-gray-500 dark:text-gray-400">
-        Volume: {{ stock.quote?.[activeExchange]?.volume | valueOrPlaceholder:
-        '1.0-0' }}
+        Volume: {{
+        $safeNavigationMigration(stock.quote?.[activeExchange]?.volume) |
+        valueOrPlaceholder: '1.0-0' }}
       </div>
     </div>
   </div>
@@ -323,16 +326,18 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.open | valueOrPlaceholder
-            }}
+            &#8377;{{
+            $safeNavigationMigration(stock.quote?.[activeExchange]?.open) |
+            valueOrPlaceholder }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            &#8377;{{ stock.quote?.[activeExchange]?.close | valueOrPlaceholder
-            }}
+            &#8377;{{
+            $safeNavigationMigration(stock.quote?.[activeExchange]?.close) |
+            valueOrPlaceholder }}
           </div>
         </div>
 
@@ -344,11 +349,13 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.low | valueOrPlaceholder }}
+                {{ $safeNavigationMigration(stock.quote?.[activeExchange]?.low)
+                | valueOrPlaceholder }}
               </div>
 
               <div>
-                {{ stock.quote?.[activeExchange]?.high | valueOrPlaceholder }}
+                {{ $safeNavigationMigration(stock.quote?.[activeExchange]?.high)
+                | valueOrPlaceholder }}
               </div>
             </div>
 
@@ -360,9 +367,9 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-md bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.[activeExchange]?.low"
-                [max]="stock.quote?.[activeExchange]?.high"
-                [value]="stock.quote?.[activeExchange]?.price"
+                [min]="$safeNavigationMigration(stock.quote?.[activeExchange]?.low)"
+                [max]="$safeNavigationMigration(stock.quote?.[activeExchange]?.high)"
+                [value]="$safeNavigationMigration(stock.quote?.[activeExchange]?.price)"
                 disabled
               />
 
@@ -379,13 +386,15 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekLow |
-                valueOrPlaceholder }}
+                {{
+                $safeNavigationMigration(stock.quote?.[activeExchange]?.fiftyTwoWeekLow)
+                | valueOrPlaceholder }}
               </div>
 
               <div>
-                {{ stock.quote?.[activeExchange]?.fiftyTwoWeekHigh |
-                valueOrPlaceholder }}
+                {{
+                $safeNavigationMigration(stock.quote?.[activeExchange]?.fiftyTwoWeekHigh)
+                | valueOrPlaceholder }}
               </div>
             </div>
 
@@ -397,9 +406,9 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-md bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.[activeExchange]?.fiftyTwoWeekLow"
-                [max]="stock.quote?.[activeExchange]?.fiftyTwoWeekHigh"
-                [value]="stock.quote?.[activeExchange]?.price"
+                [min]="$safeNavigationMigration(stock.quote?.[activeExchange]?.fiftyTwoWeekLow)"
+                [max]="$safeNavigationMigration(stock.quote?.[activeExchange]?.fiftyTwoWeekHigh)"
+                [value]="$safeNavigationMigration(stock.quote?.[activeExchange]?.price)"
                 disabled
               />
 
@@ -429,7 +438,8 @@
               EPS (TTM)
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.eps |
+              &#8377;{{
+              $safeNavigationMigration(stock.metrics?.[activeExchange]?.eps) |
               valueOrPlaceholder }}
             </div>
           </div>
@@ -439,7 +449,8 @@
               P/E Ratio
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.pe | valueOrPlaceholder }}
+              {{ $safeNavigationMigration(stock.metrics?.[activeExchange]?.pe) |
+              valueOrPlaceholder }}
             </div>
           </div>
 
@@ -448,7 +459,8 @@
               VWAP
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.vwap |
+              &#8377;{{
+              $safeNavigationMigration(stock.metrics?.[activeExchange]?.vwap) |
               valueOrPlaceholder }}
             </div>
           </div>
@@ -460,8 +472,9 @@
               Dividend Yield
             </div>
             <div class="flex">
-              {{ stock.metrics?.[activeExchange]?.dividendYield |
-              valueOrPlaceholder }}%
+              {{
+              $safeNavigationMigration(stock.metrics?.[activeExchange]?.dividendYield)
+              | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -470,8 +483,9 @@
               Market Cap
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.marketCap |
-              valueOrPlaceholder }} Cr.
+              &#8377;{{
+              $safeNavigationMigration(stock.metrics?.[activeExchange]?.marketCap)
+              | valueOrPlaceholder }} Cr.
             </div>
           </div>
 
@@ -480,8 +494,9 @@
               Face Value
             </div>
             <div class="flex">
-              &#8377;{{ stock.metrics?.[activeExchange]?.faceValue |
-              valueOrPlaceholder }}
+              &#8377;{{
+              $safeNavigationMigration(stock.metrics?.[activeExchange]?.faceValue)
+              | valueOrPlaceholder }}
             </div>
           </div>
         </div>
@@ -511,8 +526,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.monthly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.monthly?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.monthly?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -527,8 +542,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.quarterly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.quarterly?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.quarterly?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -543,8 +558,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.halfYearly?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.halfYearly?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.halfYearly?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
         </div>
@@ -561,8 +576,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.yearly?.one?.direction ===
               Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.one?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.yearly?.one?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -577,8 +592,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.yearly?.three?.direction
               === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.three?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.yearly?.three?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
 
@@ -593,8 +608,8 @@
             <div class="flex">
               {{ stock.performance?.[activeExchange]?.yearly?.five?.direction
               === Direction.UP ? '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.[activeExchange]?.yearly?.five?.percentage |
-              valueOrPlaceholder }}%
+              $safeNavigationMigration(stock.performance?.[activeExchange]?.yearly?.five?.percentage)
+              | valueOrPlaceholder }}%
             </div>
           </div>
         </div>
@@ -643,7 +658,8 @@
               Sector
             </div>
             <div class="flex">
-              {{ stock.details?.sector?.name | valueOrPlaceholder }}
+              {{ $safeNavigationMigration(stock.details?.sector?.name) |
+              valueOrPlaceholder }}
             </div>
           </div>
 
@@ -652,7 +668,8 @@
               Industry
             </div>
             <div class="flex">
-              {{ stock.details?.industry?.name | valueOrPlaceholder }}
+              {{ $safeNavigationMigration(stock.details?.industry?.name) |
+              valueOrPlaceholder }}
             </div>
           </div>
 
@@ -661,7 +678,8 @@
               Market Cap Type
             </div>
             <div class="flex">
-              {{ stock.details?.marketCapType | valueOrPlaceholder }}
+              {{ $safeNavigationMigration(stock.details?.marketCapType) |
+              valueOrPlaceholder }}
             </div>
           </div>
         </div>
@@ -682,7 +700,7 @@
       </h3>
       <app-select-watch-list
         [mode]="WatchListSelectionMode.MULTI"
-        [stockIsin]="currentStock()?.scripCode?.isin"
+        [stockIsin]="$safeNavigationMigration(currentStock()?.scripCode?.isin)"
         [placeholderText]="'Select watch lists...'"
         (selected)="onAddToListSelected($event)"
         (cancelled)="closeAddToListDrawer()"

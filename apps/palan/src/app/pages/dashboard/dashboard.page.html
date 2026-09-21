@@ -23,8 +23,9 @@
         >
           <span class="mr-1.5 flex items-center text-sm">
             {{ card.change?.direction === Direction.UP ? '&#x25B2;' : '&#x25BC;'
-            }} {{ card.change?.value | number: '1.2-2' }} ({{
-            card.change?.percentage | number: '1.2-2' }}%)
+            }} {{ $safeNavigationMigration(card.change?.value) | number: '1.2-2'
+            }} ({{ $safeNavigationMigration(card.change?.percentage) | number:
+            '1.2-2' }}%)
           </span>
         </p>
       </div>

@@ -26,7 +26,7 @@
         [mode]="WatchListSelectionMode.SINGLE"
         [placeholderText]="'Select a watchlist...'"
         [showAsDropdown]="true"
-        [selectedListId]="watchList()?.id"
+        [selectedListId]="$safeNavigationMigration(watchList()?.id)"
         (selected)="onHeaderWatchListSelected($event)"
       />
     </div>
@@ -568,7 +568,7 @@
         @for (stock of filteredStocks(); track stock?.vendorCode?.etm?.primary
         || $index) {
         <tr
-          [routerLink]="editMode() ? null : ['/' + Routes.STOCKS, stock?.vendorCode?.etm?.primary]"
+          [routerLink]="editMode() ? null : ['/' + Routes.STOCKS, $safeNavigationMigration(stock?.vendorCode?.etm?.primary)]"
           class="cursor-pointer border-b bg-white dark:border-gray-700 dark:bg-gray-800"
           [class.!cursor-default]="editMode()"
         >
@@ -578,7 +578,9 @@
                 {{ stock?.liveData?.name || stock?.vendorCode?.etm?.primary ||
                 '' }}
               </div>
-              @if (holdingFor(stock?.vendorCode?.etm?.primary); as holding) {
+              @if
+              (holdingFor($safeNavigationMigration(stock?.vendorCode?.etm?.primary));
+              as holding) {
               <app-portfolio-popover class="shrink-0" [holding]="holding" />
               }
             </div>
@@ -588,12 +590,13 @@
           </th>
           <td class="p-2 text-center">
             <div>
-              &#8377;{{ stock?.liveData?.quote?.nse?.price | valueOrPlaceholder
-              }}
+              &#8377;{{
+              $safeNavigationMigration(stock?.liveData?.quote?.nse?.price) |
+              valueOrPlaceholder }}
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">
-              {{ stock?.liveData?.quote?.nse?.volume | valueOrPlaceholder:
-              '1.0-0' }}
+              {{ $safeNavigationMigration(stock?.liveData?.quote?.nse?.volume) |
+              valueOrPlaceholder: '1.0-0' }}
             </div>
           </td>
           <td
@@ -601,12 +604,14 @@
             [ngClass]="stock?.liveData?.quote?.nse?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
-              {{ stock?.liveData?.quote?.nse?.change?.percentage |
-              valueOrPlaceholder }}%
+              {{
+              $safeNavigationMigration(stock?.liveData?.quote?.nse?.change?.percentage)
+              | valueOrPlaceholder }}%
             </div>
             <div>
-              &#8377;{{ stock?.liveData?.quote?.nse?.change?.value |
-              valueOrPlaceholder }}
+              &#8377;{{
+              $safeNavigationMigration(stock?.liveData?.quote?.nse?.change?.value)
+              | valueOrPlaceholder }}
             </div>
           </td>
           @if (editMode()) {
@@ -739,7 +744,8 @@
             @if (stock.quote?.nse?.price) {
             <div class="text-right text-xs leading-tight">
               <div class="text-gray-900 dark:text-white">
-                &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+                &#8377;{{ $safeNavigationMigration(stock.quote?.nse?.price) |
+                valueOrPlaceholder }}
               </div>
               @if (stock.quote?.nse?.change) {
               <div
@@ -749,7 +755,9 @@
                     : 'text-red-600 dark:text-red-500'
                 "
               >
-                {{ stock.quote?.nse?.change?.percentage | valueOrPlaceholder }}%
+                {{
+                $safeNavigationMigration(stock.quote?.nse?.change?.percentage) |
+                valueOrPlaceholder }}%
               </div>
               }
             </div>
@@ -834,7 +842,7 @@
         <app-select-watch-list
           [mode]="WatchListSelectionMode.SINGLE"
           [excludeListId]="id()"
-          [stockIsin]="moveStockTarget()?.scripCode?.isin"
+          [stockIsin]="$safeNavigationMigration(moveStockTarget()?.scripCode?.isin)"
           [placeholderText]="'Filter watch lists...'"
           [inline]="true"
           [selectedListId]="selectedMoveList()"

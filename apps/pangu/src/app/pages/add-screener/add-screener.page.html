@@ -172,8 +172,7 @@
     <pre
       class="mt-2 max-h-28 overflow-auto rounded-md bg-white/60 p-3 font-mono text-sm break-words whitespace-pre-wrap dark:bg-gray-900/60"
     >
-{{ screener()?.query }}</pre
-    >
+{{ screener()?.query }}</pre>
     <p class="mt-2">Rebuild the filters below, then save.</p>
   </div>
   }
@@ -230,8 +229,7 @@
     <pre
       class="mt-2 max-h-28 overflow-auto rounded-md bg-gray-50 p-3 font-mono text-sm break-words whitespace-pre-wrap text-gray-900 dark:bg-gray-900 dark:text-gray-100"
     >
-{{ query() }}</pre
-    >
+{{ query() }}</pre>
     } @else {
     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
       Add and complete each filter to see your query here.
@@ -812,11 +810,13 @@
           </div>
           <div class="w-24 shrink-0 p-2 text-center">
             <div>
-              &#8377;{{ row.liveData?.quote?.nse?.price | valueOrPlaceholder }}
+              &#8377;{{
+              $safeNavigationMigration(row.liveData?.quote?.nse?.price) |
+              valueOrPlaceholder }}
             </div>
             <div class="text-xs text-gray-500 dark:text-gray-400">
-              {{ row.liveData?.quote?.nse?.volume | valueOrPlaceholder: '1.0-0'
-              }}
+              {{ $safeNavigationMigration(row.liveData?.quote?.nse?.volume) |
+              valueOrPlaceholder: '1.0-0' }}
             </div>
           </div>
           <div
@@ -828,12 +828,14 @@
             "
           >
             <div>
-              {{ row.liveData?.quote?.nse?.change?.percentage |
-              valueOrPlaceholder }}%
+              {{
+              $safeNavigationMigration(row.liveData?.quote?.nse?.change?.percentage)
+              | valueOrPlaceholder }}%
             </div>
             <div>
-              &#8377;{{ row.liveData?.quote?.nse?.change?.value |
-              valueOrPlaceholder }}
+              &#8377;{{
+              $safeNavigationMigration(row.liveData?.quote?.nse?.change?.value)
+              | valueOrPlaceholder }}
             </div>
           </div>
         </div>

@@ -25,28 +25,27 @@
     },
     "@nx/eslint:lint": {
       "cache": true,
-      "inputs": [
-        "default",
-        "{workspaceRoot}/eslint.config.cjs",
-        "{workspaceRoot}/.eslintignore"
-      ]
-    },
-    "@nx/jest:jest": {
-      "cache": true,
-      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
-      "options": {
-        "passWithNoTests": true,
-        "codeCoverage": true,
-        "ci": true,
-        "coverageReporters": ["text-summary", "html", "clover"]
-      }
+      "inputs": ["default", "{workspaceRoot}/eslint.config.cjs"]
     },
     "build": {
       "inputs": ["production", "^production"]
     },
     "e2e-ci--**/*": {
       "dependsOn": ["^pangu:build", "^build"]
-    }
+    },
+    "test": [
+      {
+        "filter": {
+          "plugin": "@nx/jest/plugin"
+        },
+        "options": {
+          "passWithNoTests": true,
+          "ci": true,
+          "coverageReporters": ["text-summary", "html", "clover"],
+          "coverage": true
+        }
+      }
+    ]
   },
   "plugins": [
     {
@@ -62,6 +61,12 @@
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
       }
     }
   ],

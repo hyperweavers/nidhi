@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
@@ -61,7 +61,7 @@ describe('AppComponent', () => {
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: { snapshot: {} } },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         {
           provide: LOGGER,
           useValue: {

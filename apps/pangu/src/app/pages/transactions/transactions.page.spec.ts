@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -161,7 +161,7 @@ describe('TransactionsPage', () => {
       imports: [TransactionsPage, MockTransactionDrawerComponent],
       providers: [
         provideRouter([]),
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: LOGGER, useFactory: loggerStub },
         { provide: MarketService, useFactory: marketServiceStub },
@@ -485,7 +485,7 @@ describe('TransactionsPage', () => {
         imports: [TransactionsPage, MockTransactionDrawerComponent],
         providers: [
           provideRouter([]),
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           provideHttpClientTesting(),
           { provide: LOGGER, useFactory: loggerStub },
           { provide: StorageService, useFactory: storageServiceStub },
@@ -524,7 +524,7 @@ describe('TransactionsPage', () => {
         imports: [TransactionsPage, MockTransactionDrawerComponent],
         providers: [
           provideRouter([]),
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           provideHttpClientTesting(),
           { provide: LOGGER, useFactory: loggerStub },
           { provide: StorageService, useFactory: storageServiceStub },
@@ -831,7 +831,7 @@ describe('TransactionsPage', () => {
         imports: [TransactionsPage, MockTransactionDrawerComponent],
         providers: [
           provideRouter([]),
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           provideHttpClientTesting(),
           { provide: LOGGER, useFactory: loggerStub },
           { provide: MarketService, useFactory: marketServiceStub },

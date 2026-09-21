@@ -388,10 +388,12 @@
         </div>
         <div class="w-24 shrink-0 p-2 text-center">
           <div>
-            &#8377;{{ row.liveData?.quote?.nse?.price | valueOrPlaceholder }}
+            &#8377;{{ $safeNavigationMigration(row.liveData?.quote?.nse?.price)
+            | valueOrPlaceholder }}
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
-            {{ row.liveData?.quote?.nse?.volume | valueOrPlaceholder: '1.0-0' }}
+            {{ $safeNavigationMigration(row.liveData?.quote?.nse?.volume) |
+            valueOrPlaceholder: '1.0-0' }}
           </div>
         </div>
         <div
@@ -403,11 +405,13 @@
               "
         >
           <div>
-            {{ row.liveData?.quote?.nse?.change?.percentage | valueOrPlaceholder
-            }}%
+            {{
+            $safeNavigationMigration(row.liveData?.quote?.nse?.change?.percentage)
+            | valueOrPlaceholder }}%
           </div>
           <div>
-            &#8377;{{ row.liveData?.quote?.nse?.change?.value |
+            &#8377;{{
+            $safeNavigationMigration(row.liveData?.quote?.nse?.change?.value) |
             valueOrPlaceholder }}
           </div>
         </div>

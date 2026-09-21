@@ -8,7 +8,7 @@
 
     <div class="text-gray-900 dark:text-white">
       <div class="text-lg font-semibold">
-        {{ stock.quote?.price | number: '1.2-2' }} {{
+        {{ $safeNavigationMigration(stock.quote?.price) | number: '1.2-2' }} {{
         contributionCurrency()?.code }}
       </div>
       <div
@@ -16,9 +16,11 @@
         [ngClass]="stock.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
       >
         {{ stock.quote?.change?.direction === Direction.UP ? '&#x25B2;' :
-        '&#x25BC;' }} {{ stock.quote?.change?.value | number: '1.2-2' }} {{
-        contributionCurrency()?.code }} ({{ stock.quote?.change?.percentage |
-        number: '1.2-2' }}%)
+        '&#x25BC;' }} {{ $safeNavigationMigration(stock.quote?.change?.value) |
+        number: '1.2-2' }} {{
+        $safeNavigationMigration(contributionCurrency()?.code) }} ({{
+        $safeNavigationMigration(stock.quote?.change?.percentage) | number:
+        '1.2-2' }}%)
       </div>
     </div>
   </div>
@@ -260,16 +262,16 @@
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Open
             </div>
-            {{ stock.quote?.open | number: '1.2-2' }} {{
-            contributionCurrency()?.code }}
+            {{ $safeNavigationMigration(stock.quote?.open) | number: '1.2-2' }}
+            {{ contributionCurrency()?.code }}
           </div>
 
           <div class="flex-1">
             <div class="pb-1 text-xs text-gray-500 dark:text-gray-400">
               Prev. Close
             </div>
-            {{ stock.quote?.close | number: '1.2-2' }} {{
-            contributionCurrency()?.code }}
+            {{ $safeNavigationMigration(stock.quote?.close) | number: '1.2-2' }}
+            {{ contributionCurrency()?.code }}
           </div>
         </div>
 
@@ -280,9 +282,15 @@
             </div>
 
             <div class="flex text-xs">
-              <div class="flex-1">{{ stock.quote?.low | number: '1.2-2' }}</div>
+              <div class="flex-1">
+                {{ $safeNavigationMigration(stock.quote?.low) | number: '1.2-2'
+                }}
+              </div>
 
-              <div>{{ stock.quote?.high | number: '1.2-2' }}</div>
+              <div>
+                {{ $safeNavigationMigration(stock.quote?.high) | number: '1.2-2'
+                }}
+              </div>
             </div>
 
             <div class="flex items-center">
@@ -293,9 +301,9 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-md bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.low"
-                [max]="stock.quote?.high"
-                [value]="stock.quote?.price"
+                [min]="$safeNavigationMigration(stock.quote?.low)"
+                [max]="$safeNavigationMigration(stock.quote?.high)"
+                [value]="$safeNavigationMigration(stock.quote?.price)"
                 disabled
               />
 
@@ -312,10 +320,14 @@
 
             <div class="flex text-xs">
               <div class="flex-1">
-                {{ stock.quote?.fiftyTwoWeekLow | number: '1.2-2' }}
+                {{ $safeNavigationMigration(stock.quote?.fiftyTwoWeekLow) |
+                number: '1.2-2' }}
               </div>
 
-              <div>{{ stock.quote?.fiftyTwoWeekHigh | number: '1.2-2' }}</div>
+              <div>
+                {{ $safeNavigationMigration(stock.quote?.fiftyTwoWeekHigh) |
+                number: '1.2-2' }}
+              </div>
             </div>
 
             <div class="flex items-center">
@@ -326,9 +338,9 @@
               <input
                 type="range"
                 class="slider mx-1 h-1 flex-1 appearance-none rounded-md bg-gray-200 dark:bg-gray-700"
-                [min]="stock.quote?.fiftyTwoWeekLow"
-                [max]="stock.quote?.fiftyTwoWeekHigh"
-                [value]="stock.quote?.price"
+                [min]="$safeNavigationMigration(stock.quote?.fiftyTwoWeekLow)"
+                [max]="$safeNavigationMigration(stock.quote?.fiftyTwoWeekHigh)"
+                [value]="$safeNavigationMigration(stock.quote?.price)"
                 disabled
               />
 
@@ -358,7 +370,8 @@
               Dividend Yield
             </div>
             <div class="flex">
-              {{ stock.metrics?.dividendYield | number: '1.2-2' }}%
+              {{ $safeNavigationMigration(stock.metrics?.dividendYield) |
+              number: '1.2-2' }}%
             </div>
           </div>
 
@@ -367,8 +380,8 @@
               Market Cap
             </div>
             <div class="flex">
-              {{ stock.metrics?.marketCap | number: '1.2-2' }} Billion {{
-              contributionCurrency()?.code }}
+              {{ $safeNavigationMigration(stock.metrics?.marketCap) | number:
+              '1.2-2' }} Billion {{ contributionCurrency()?.code }}
             </div>
           </div>
         </div>
@@ -398,7 +411,8 @@
             <div class="flex">
               {{ stock.performance?.monthly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.monthly?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.monthly?.percentage) |
+              number: '1.2-2' }}%
             </div>
           </div>
 
@@ -413,7 +427,8 @@
             <div class="flex">
               {{ stock.performance?.quarterly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.quarterly?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.quarterly?.percentage)
+              | number: '1.2-2' }}%
             </div>
           </div>
 
@@ -428,7 +443,8 @@
             <div class="flex">
               {{ stock.performance?.halfYearly?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.halfYearly?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.halfYearly?.percentage)
+              | number: '1.2-2' }}%
             </div>
           </div>
         </div>
@@ -445,7 +461,8 @@
             <div class="flex">
               {{ stock.performance?.yearly?.one?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.yearly?.one?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.yearly?.one?.percentage)
+              | number: '1.2-2' }}%
             </div>
           </div>
 
@@ -460,7 +477,8 @@
             <div class="flex">
               {{ stock.performance?.yearly?.three?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.yearly?.three?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.yearly?.three?.percentage)
+              | number: '1.2-2' }}%
             </div>
           </div>
 
@@ -475,7 +493,8 @@
             <div class="flex">
               {{ stock.performance?.yearly?.five?.direction === Direction.UP ?
               '&#x25B2;' : '&#x25BC;' }} {{
-              stock.performance?.yearly?.five?.percentage | number: '1.2-2' }}%
+              $safeNavigationMigration(stock.performance?.yearly?.five?.percentage)
+              | number: '1.2-2' }}%
             </div>
           </div>
         </div>

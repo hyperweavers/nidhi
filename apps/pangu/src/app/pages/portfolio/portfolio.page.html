@@ -471,18 +471,26 @@
               ?? 0)) | valueOrPlaceholder }}
             </div>
             <div>
-              ({{ holding.quote?.nse?.change?.percentage | valueOrPlaceholder
-              }}%)
+              ({{
+              $safeNavigationMigration(holding.quote?.nse?.change?.percentage) |
+              valueOrPlaceholder }}%)
             </div>
-            <div>{{ holding.quote?.nse?.price | valueOrPlaceholder }}</div>
+            <div>
+              {{ $safeNavigationMigration(holding.quote?.nse?.price) |
+              valueOrPlaceholder }}
+            </div>
           </div>
           <div
             class="w-28 shrink-0 p-2 text-center"
             [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
-            <div>{{ holding.totalProfitLoss?.value | valueOrPlaceholder }}</div>
             <div>
-              ({{ holding.totalProfitLoss?.percentage | valueOrPlaceholder }}%)
+              {{ $safeNavigationMigration(holding.totalProfitLoss?.value) |
+              valueOrPlaceholder }}
+            </div>
+            <div>
+              ({{ $safeNavigationMigration(holding.totalProfitLoss?.percentage)
+              | valueOrPlaceholder }}%)
             </div>
             <div>{{ holding.marketValue | valueOrPlaceholder }}</div>
           </div>

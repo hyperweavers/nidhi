@@ -1,5 +1,11 @@
 import { DecimalPipe, NgClass } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
@@ -61,6 +67,7 @@ function startOfDay(ms: number): number {
   imports: [NgClass, FormsModule, DecimalPipe, ValueOrPlaceholderPipe],
   templateUrl: './ipo-details.page.html',
   styleUrl: './ipo-details.page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IpoDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
