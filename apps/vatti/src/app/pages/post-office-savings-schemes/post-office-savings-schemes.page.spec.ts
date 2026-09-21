@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -159,7 +159,7 @@ describe('PostOfficeSavingsSchemesPage', () => {
     await TestBed.configureTestingModule({
       imports: [PostOfficeSavingsSchemesPage],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         provideRouter([]),
         { provide: DataService, useValue: mockDataService },

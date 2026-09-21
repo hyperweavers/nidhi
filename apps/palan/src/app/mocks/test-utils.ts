@@ -1,6 +1,6 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Provider } from '@angular/core';
+import { EnvironmentProviders, Provider } from '@angular/core';
 import { LOGGER } from '@nidhi/shared-logger';
 import { setupServer } from 'msw/node';
 import { errorHandlers, handlers } from './handlers';
@@ -19,8 +19,8 @@ export const loggerProvider: Provider = {
   useValue: mockLogger,
 };
 
-export const commonTestProviders: Provider[] = [
-  provideHttpClient(),
+export const commonTestProviders: Array<Provider | EnvironmentProviders> = [
+  provideHttpClient(withXhr()),
   provideHttpClientTesting(),
   loggerProvider,
 ];

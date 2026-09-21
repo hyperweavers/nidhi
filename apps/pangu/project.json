@@ -19,6 +19,7 @@
       "outputs": [
         "{options.outputPath}"
       ],
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/pangu",
         "index": "apps/pangu/src/index.html",
@@ -80,8 +81,7 @@
             }
           ]
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "prebuild-version": {
       "executor": "nx:run-commands",
@@ -114,7 +114,9 @@
         "prebuild-version",
         "prebuild-sentry"
       ],
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
       "configurations": {
         "production": {
           "buildTarget": "pangu:build:production"
@@ -125,9 +127,7 @@
         "with-mocks": {
           "buildTarget": "pangu:build:with-mocks"
         }
-      },
-      "defaultConfiguration": "development",
-      "continuous": true
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -145,11 +145,7 @@
         "command": "tsc --noEmit -p apps/pangu/tsconfig.app.json"
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "test": {
-      "executor": "@nx/jest:jest",
       "dependsOn": [
         "prebuild-version",
         "prebuild-sentry"
@@ -157,11 +153,7 @@
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",
         "{workspaceRoot}/test-results/{projectRoot}"
-      ],
-      "options": {
-        "jestConfig": "apps/pangu/jest.config.ts",
-        "tsConfig": "apps/pangu/tsconfig.spec.json"
-      }
+      ]
     },
     "test:patch": {
       "executor": "nx:run-commands",
@@ -169,7 +161,10 @@
         "prebuild-version",
         "prebuild-sentry"
       ],
-      "inputs": ["{projectRoot}/src/**/*", "{workspaceRoot}/coverage/{projectRoot}/lcov.info"],
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{workspaceRoot}/coverage/{projectRoot}/lcov.info"
+      ],
       "cache": false,
       "options": {
         "command": "pnpm nx run pangu:test --coverage --coverageReporters=lcov && node tools/scripts/check-patch-coverage.mjs {projectRoot}",

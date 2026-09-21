@@ -23,8 +23,10 @@
         >
           <span class="mr-1.5 flex items-center text-sm">
             {{ card.change?.direction === Direction.UP ? '&#x25B2;' : '&#x25BC;'
-            }} {{ card.change?.value | valueOrPlaceholder }} ({{
-            card.change?.percentage | valueOrPlaceholder }}%)
+            }} {{ $safeNavigationMigration(card.change?.value) |
+            valueOrPlaceholder }} ({{
+            $safeNavigationMigration(card.change?.percentage) |
+            valueOrPlaceholder }}%)
           </span>
         </p>
 
@@ -40,12 +42,16 @@
           class="mt-1 flex w-full justify-between text-xs text-gray-500 dark:text-gray-400"
         >
           <span
-            >{{ card.advance?.value | valueOrPlaceholder: '1.0-0' }} ({{
-            card.advance?.percentage | valueOrPlaceholder }}%)</span
+            >{{ $safeNavigationMigration(card.advance?.value) |
+            valueOrPlaceholder: '1.0-0' }} ({{
+            $safeNavigationMigration(card.advance?.percentage) |
+            valueOrPlaceholder }}%)</span
           >
           <span
-            >{{ card.decline?.value | valueOrPlaceholder: '1.0-0' }} ({{
-            card.decline?.percentage | valueOrPlaceholder }}%)</span
+            >{{ $safeNavigationMigration(card.decline?.value) |
+            valueOrPlaceholder: '1.0-0' }} ({{
+            $safeNavigationMigration(card.decline?.percentage) |
+            valueOrPlaceholder }}%)</span
           >
         </div>
       </div>

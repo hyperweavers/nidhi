@@ -1,4 +1,8 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors,
+  withXhr,
+} from '@angular/common/http';
 import {
   ApplicationConfig,
   isDevMode,
@@ -36,7 +40,7 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    provideHttpClient(withInterceptors([timeoutInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([timeoutInterceptor])),
     {
       provide: HTTP_REQUEST_TIMEOUT,
       useValue: Constants.configs.defaults.HTTP_REQUEST_TIMEOUT,

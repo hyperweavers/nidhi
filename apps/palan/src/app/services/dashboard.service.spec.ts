@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { LOGGER } from '@nidhi/shared-logger';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { Direction } from '../models/market';
 import { MarketService } from './core/market.service';
 import { PlanService } from './core/plan.service';
@@ -63,7 +63,7 @@ describe('DashboardService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         {
           provide: LOGGER,
           useValue: mockLogger,
@@ -121,7 +121,7 @@ describe('DashboardService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           { provide: LOGGER, useValue: mockLogger },
           {
             provide: PortfolioService,
@@ -154,7 +154,7 @@ describe('DashboardService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           { provide: LOGGER, useValue: mockLogger },
           {
             provide: PortfolioService,
@@ -226,7 +226,7 @@ describe('DashboardService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           { provide: LOGGER, useValue: mockLogger },
           {
             provide: PortfolioService,
@@ -258,7 +258,7 @@ describe('DashboardService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           { provide: LOGGER, useValue: mockLogger },
           {
             provide: PortfolioService,

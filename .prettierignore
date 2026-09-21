@@ -6,3 +6,4 @@
 .angular
 project.json
 **/public/mockServiceWorker.js
+pnpm-lock.yaml

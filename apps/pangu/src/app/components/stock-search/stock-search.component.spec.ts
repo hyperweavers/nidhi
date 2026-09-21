@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import {
   ComponentFixture,
   TestBed,
@@ -22,7 +22,7 @@ describe('StockSearchComponent', () => {
     await TestBed.configureTestingModule({
       imports: [StockSearchComponent],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideRouter([]),
         {
           provide: LOGGER,
@@ -214,7 +214,7 @@ describe('StockSearchComponent', () => {
       await TestBed.configureTestingModule({
         imports: [StockSearchComponent],
         providers: [
-          provideHttpClient(),
+          provideHttpClient(withXhr()),
           provideRouter([]),
           {
             provide: LOGGER,

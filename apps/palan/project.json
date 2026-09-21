@@ -10,14 +10,23 @@
   "tags": [],
   "targets": {
     "build": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry", "^build"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry",
+        "^build"
+      ],
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/palan",
         "index": "apps/palan/src/index.html",
         "browser": "apps/palan/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/palan/tsconfig.app.json",
         "inlineStyleLanguage": "css",
         "assets": [
@@ -26,7 +35,9 @@
             "input": "apps/palan/public"
           }
         ],
-        "styles": ["apps/palan/src/styles.css"],
+        "styles": [
+          "apps/palan/src/styles.css"
+        ],
         "scripts": [
           "node_modules/flowbite-datepicker/dist/js/datepicker-full.min.js"
         ]
@@ -70,14 +81,17 @@
             }
           ]
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "prebuild-version": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/version.ts"],
-      "inputs": ["{projectRoot}/version"],
+      "outputs": [
+        "{projectRoot}/src/generated/version.ts"
+      ],
+      "inputs": [
+        "{projectRoot}/version"
+      ],
       "options": {
         "command": "node tools/scripts/generate-version.mjs {projectName}"
       }
@@ -85,15 +99,24 @@
     "prebuild-sentry": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{projectRoot}/src/generated/sentry-config.ts"],
-      "inputs": ["{workspaceRoot}/.env"],
+      "outputs": [
+        "{projectRoot}/src/generated/sentry-config.ts"
+      ],
+      "inputs": [
+        "{workspaceRoot}/.env"
+      ],
       "options": {
         "command": "node tools/scripts/generate-sentry-env.mjs {projectName}"
       }
     },
     "serve": {
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
       "options": {
         "port": 4400
       },
@@ -107,9 +130,7 @@
         "with-mocks": {
           "buildTarget": "palan:build:with-mocks"
         }
-      },
-      "defaultConfiguration": "development",
-      "continuous": true
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -127,25 +148,26 @@
         "command": "tsc --noEmit -p apps/palan/tsconfig.app.json"
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "test": {
-      "executor": "@nx/jest:jest",
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
       "outputs": [
         "{workspaceRoot}/coverage/{projectRoot}",
         "{workspaceRoot}/test-results/{projectRoot}"
-      ],
-      "options": {
-        "jestConfig": "apps/palan/jest.config.ts",
-        "tsConfig": "apps/palan/tsconfig.spec.json"
-      }
+      ]
     },
     "test:patch": {
       "executor": "nx:run-commands",
-      "dependsOn": ["prebuild-version", "prebuild-sentry"],
-      "inputs": ["{projectRoot}/src/**/*", "{workspaceRoot}/coverage/{projectRoot}/lcov.info"],
+      "dependsOn": [
+        "prebuild-version",
+        "prebuild-sentry"
+      ],
+      "inputs": [
+        "{projectRoot}/src/**/*",
+        "{workspaceRoot}/coverage/{projectRoot}/lcov.info"
+      ],
       "cache": false,
       "options": {
         "command": "pnpm nx run palan:test --coverage --coverageReporters=lcov && node tools/scripts/check-patch-coverage.mjs {projectRoot}",

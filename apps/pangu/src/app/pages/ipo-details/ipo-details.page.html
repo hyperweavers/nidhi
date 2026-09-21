@@ -51,7 +51,7 @@
         ></a>
         } @if (links()?.rhpUrl) {
         <a
-          [href]="links()?.rhpUrl"
+          [href]="$safeNavigationMigration(links()?.rhpUrl)"
           target="_blank"
           rel="noopener noreferrer"
           class="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 rounded-md px-2 py-1 text-xs font-medium"
@@ -73,7 +73,7 @@
         ></a>
         } @if (links()?.drhpLink) {
         <a
-          [href]="links()?.drhpLink"
+          [href]="$safeNavigationMigration(links()?.drhpLink)"
           target="_blank"
           rel="noopener noreferrer"
           class="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:hover:bg-primary-800 rounded-md px-2 py-1 text-xs font-medium"
@@ -130,7 +130,8 @@
       <div class="max-sm:order-7">
         <div class="text-xs text-gray-500 dark:text-gray-400">Total Shares</div>
         <div class="font-medium text-gray-900 dark:text-white">
-          {{ details()?.totalSharesOffered | valueOrPlaceholder }}
+          {{ $safeNavigationMigration(details()?.totalSharesOffered) |
+          valueOrPlaceholder }}
         </div>
       </div>
 
@@ -145,7 +146,8 @@
       <div class="max-sm:order-4">
         <div class="text-xs text-gray-500 dark:text-gray-400">Sale Type</div>
         <div class="font-medium text-gray-900 dark:text-white">
-          {{ details()?.saleType | valueOrPlaceholder }}
+          {{ $safeNavigationMigration(details()?.saleType) | valueOrPlaceholder
+          }}
         </div>
       </div>
 
@@ -154,7 +156,7 @@
           Issue Size<sup>*</sup>
         </div>
         <div class="font-medium text-gray-900 dark:text-white">
-          {{ formatLakhs(details()?.issueSize) }}
+          {{ formatLakhs($safeNavigationMigration(details()?.issueSize)) }}
         </div>
       </div>
 
@@ -164,14 +166,16 @@
           Min Investment<sup>*</sup>
         </div>
         <div class="font-medium text-gray-900 dark:text-white">
-          {{ formatCurrency(details()?.minInvestment) }}
+          {{ formatCurrency($safeNavigationMigration(details()?.minInvestment))
+          }}
         </div>
       </div>
 
       <div class="max-sm:order-6">
         <div class="text-xs text-gray-500 dark:text-gray-400">Issue Type</div>
         <div class="font-medium text-gray-900 dark:text-white">
-          {{ details()?.issueType | valueOrPlaceholder }}
+          {{ $safeNavigationMigration(details()?.issueType) | valueOrPlaceholder
+          }}
         </div>
       </div>
 

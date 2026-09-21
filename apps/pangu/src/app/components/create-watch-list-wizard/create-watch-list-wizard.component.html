@@ -149,7 +149,10 @@
                 <div class="text-right text-sm">
                   @if (stock.quote?.nse?.price) {
                     <div class="text-gray-900 dark:text-white">
-                      &#8377;{{ stock.quote?.nse?.price | valueOrPlaceholder }}
+                      &#8377;{{
+                        $safeNavigationMigration(stock.quote?.nse?.price)
+                          | valueOrPlaceholder
+                      }}
                     </div>
                     <div
                       class="text-xs"
@@ -160,8 +163,9 @@
                       "
                     >
                       {{
-                        stock.quote?.nse?.change?.percentage
-                          | valueOrPlaceholder
+                        $safeNavigationMigration(
+                          stock.quote?.nse?.change?.percentage
+                        ) | valueOrPlaceholder
                       }}%
                     </div>
                   }

@@ -140,21 +140,29 @@
             [ngClass]="holding.quote?.change?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
             <div>
-              {{ (holding.quote?.change?.value! * holding.quantity!) | number:
-              '1.2-2' }}
+              {{ ($safeNavigationMigration(holding.quote?.change?.value)! *
+              holding.quantity!) | number: '1.2-2' }}
             </div>
             <div>
-              ({{ holding.quote?.change?.percentage | number: '1.2-2' }}%)
+              ({{ $safeNavigationMigration(holding.quote?.change?.percentage) |
+              number: '1.2-2' }}%)
             </div>
-            <div>{{ holding.quote?.price | number: '1.2-2' }}</div>
+            <div>
+              {{ $safeNavigationMigration(holding.quote?.price) | number:
+              '1.2-2' }}
+            </div>
           </td>
           <td
             class="p-2 text-center sm:p-4"
             [ngClass]="holding.totalProfitLoss?.direction === Direction.UP ? 'text-green-500 dark:text-green-400' : 'text-red-600 dark:text-red-500'"
           >
-            <div>{{ holding.totalProfitLoss?.value | number: '1.2-2' }}</div>
             <div>
-              ({{ holding.totalProfitLoss?.percentage | number: '1.2-2' }}%)
+              {{ $safeNavigationMigration(holding.totalProfitLoss?.value) |
+              number: '1.2-2' }}
+            </div>
+            <div>
+              ({{ $safeNavigationMigration(holding.totalProfitLoss?.percentage)
+              | number: '1.2-2' }}%)
             </div>
             <div>{{ holding.marketValue | number: '1.2-2' }}</div>
           </td>
