@@ -23,12 +23,9 @@ import { firstValueFrom, take } from 'rxjs';
 
 import { QueryBuilderComponent } from '../../components/query-builder/query-builder.component';
 import { Constants } from '../../constants';
+import { parseQueryText } from '../../helpers/query-builder.helper';
 import { Direction, ExchangeName } from '../../models/market';
-import {
-  QueryChange,
-  QueryGroupNode,
-  parseQueryText,
-} from '../../models/query-builder';
+import { QueryChange, QueryGroupNode } from '../../models/query-builder';
 import { Screener, ScreenerPreviewResult } from '../../models/screener';
 import { Stock } from '../../models/stock';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';
@@ -101,6 +98,7 @@ export class AddScreenerPage implements OnInit {
   public readonly properties = signal<string[]>([]);
   public readonly loading = signal(true);
   public readonly query = signal('');
+  public readonly displayQuery = signal('');
   public readonly isValid = signal(false);
   public readonly showHelp = signal(false);
 
@@ -286,6 +284,7 @@ export class AddScreenerPage implements OnInit {
 
   public onQueryChange(change: QueryChange): void {
     this.query.set(change.query);
+    this.displayQuery.set(change.displayQuery);
     this.isValid.set(change.isValid);
   }
 
@@ -354,7 +353,7 @@ export class AddScreenerPage implements OnInit {
   }
 
   public async copyQuery(): Promise<void> {
-    const text = this.query();
+    const text = this.displayQuery();
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);

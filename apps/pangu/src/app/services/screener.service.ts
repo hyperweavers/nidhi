@@ -1,20 +1,38 @@
 import { Injectable, inject } from '@angular/core';
 import { LOGGER } from '@nidhi/shared-logger';
 import { liveQuery } from 'dexie';
-import { Observable, catchError, from, map, of, shareReplay } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  combineLatest,
+  from,
+  map,
+  of,
+  shareReplay,
+} from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import {
   extractPropertyNames,
   mapPreviewResponse,
 } from '../adapters/market.adapter';
+import { Constants } from '../constants';
 import { db } from '../db/app.db';
+import { uniqueEntityIds } from '../helpers/query-builder.helper';
+import {
+  COMPANY_NAME_PROPERTY,
+  CompanyNameValue,
+} from '../models/query-builder';
 import { Screener, ScreenerPreviewResult } from '../models/screener';
 import { MarketService } from './core/market.service';
+import { PortfolioService } from './portfolio.service';
+import { WatchListService } from './watch-list.service';
 
 @Injectable({ providedIn: 'root' })
 export class ScreenerService {
   private readonly marketService = inject(MarketService);
+  private readonly portfolioService = inject(PortfolioService);
+  private readonly watchListService = inject(WatchListService);
   private readonly logger = inject(LOGGER);
 
   private cached$?: Observable<string[]>;
@@ -22,6 +40,44 @@ export class ScreenerService {
   public readonly screeners$: Observable<Screener[]> = from(
     liveQuery(() => db.screeners.toArray()),
   );
+
+  /**
+   * Sources offered for Company Name IN / NOT IN clauses: current holdings
+   * with quantity > 0, then every watch list that actually holds stocks.
+   */
+  public get companyNameSources$(): Observable<CompanyNameValue[]> {
+    return combineLatest([
+      this.portfolioService.portfolio$,
+      this.watchListService.watchLists$,
+      this.watchListService.watchListStocksAll$,
+    ]).pipe(
+      map(([portfolio, lists, listStocks]) => {
+        const options: CompanyNameValue[] = [];
+        const portfolioIds = uniqueEntityIds(
+          (portfolio.holdings ?? []).map((holding) =>
+            (holding.quantity ?? 0) > 0
+              ? holding.vendorCode?.etm?.primary
+              : undefined,
+          ),
+        );
+        if (portfolioIds.length > 0) {
+          options.push({ label: 'Portfolio', entityIds: portfolioIds });
+        }
+        for (const list of lists) {
+          const entityIds = uniqueEntityIds(
+            listStocks
+              .filter((stock) => stock.watchListId === list.id)
+              .map((stock) => stock.vendorCode?.etm?.primary),
+          );
+          if (entityIds.length > 0) {
+            options.push({ label: list.name, entityIds });
+          }
+        }
+        return options;
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
 
   public getScreener$(id: string): Observable<Screener | undefined> {
     return from(liveQuery(() => db.screeners.get(id)));
@@ -123,7 +179,11 @@ export class ScreenerService {
   public getProperties(): Observable<string[]> {
     if (!this.cached$) {
       this.cached$ = this.marketService.getScreenerFieldMapping().pipe(
-        map((res) => extractPropertyNames(res)),
+        map((res) =>
+          [...extractPropertyNames(res), COMPANY_NAME_PROPERTY].sort((a, b) =>
+            a.localeCompare(b),
+          ),
+        ),
         catchError((error) => {
           this.logger.error(`Failed to load screener properties: ${error}`);
           return of([]);
@@ -132,6 +192,32 @@ export class ScreenerService {
       );
     }
     return this.cached$;
+  }
+
+  /**
+   * Company typeahead for Company Name clauses. Reuses the Company ID
+   * already returned by the header search; no detail request is needed.
+   */
+  public searchCompanies(query: string): Observable<CompanyNameValue[]> {
+    const trimmed = query.trim();
+    if (trimmed.length < Constants.configs.defaults.MIN_SEARCH_CHARS) {
+      return of([]);
+    }
+
+    return this.marketService.search(trimmed).pipe(
+      map((stocks) =>
+        stocks.flatMap((stock) => {
+          const entityId = stock.vendorCode?.etm?.primary?.trim();
+          const label = stock.name?.trim();
+          if (!entityId || !label) return [];
+          return [{ label, entityIds: [entityId] }];
+        }),
+      ),
+      catchError((error) => {
+        this.logger.error(`Company search failed: ${error}`);
+        return of<CompanyNameValue[]>([]);
+      }),
+    );
   }
 
   public preview(

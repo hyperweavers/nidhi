@@ -189,7 +189,7 @@
                     (ngModelChange)="updateOperator(child.id, $event)"
                     class="focus:border-primary-500 focus:ring-primary-500 block min-h-10 w-full cursor-pointer appearance-none rounded-md border border-gray-300 bg-white p-1.5 pr-7 text-xs text-gray-900 sm:p-2 sm:pr-8 sm:text-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark]"
                   >
-                    @for (op of QUERY_OPERATORS; track op) {
+                    @for (op of operatorOptions(child); track op) {
                       <option [value]="op">{{ op }}</option>
                     }
                   </select>
@@ -202,12 +202,61 @@
                   <label [attr.for]="'val-' + child.id" class="sr-only"
                     >Value</label
                   >
-                  @if (child.operator === 'IN' || child.operator === 'NOT IN') {
+                  @if (isCompanyName(child) && child.operator === '=') {
+                    <input
+                      [id]="'val-' + child.id"
+                      [ngModel]="child.value"
+                      (ngModelChange)="onCompanyNameInput(child.id, $event)"
+                      (focus)="openValue(child.id)"
+                      (blur)="scheduleClose()"
+                      type="text"
+                      autocomplete="off"
+                      placeholder="Search company name"
+                      class="focus:border-primary-500 focus:ring-primary-500 block min-h-10 w-full rounded-md border border-gray-300 bg-white p-1.5 text-xs text-gray-900 sm:p-2 sm:text-sm dark:border-gray-500 dark:bg-gray-800 dark:text-white"
+                      [class.border-red-500]="
+                        child.value &&
+                        !isValueValid(
+                          child.value,
+                          child.operator,
+                          child.companyNameValues
+                        )
+                      "
+                    />
+                    @if (
+                      openValueFor() === child.id &&
+                      companySearchResults().length
+                    ) {
+                      <ul
+                        class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                      >
+                        @for (
+                          option of companySearchResults();
+                          track option.entityIds[0]
+                        ) {
+                          <li>
+                            <button
+                              type="button"
+                              (mousedown)="selectCompany(child.id, option)"
+                              class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                            >
+                              {{ option.label }}
+                            </button>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  } @else if (
+                    child.operator === 'IN' || child.operator === 'NOT IN'
+                  ) {
                     <div
                       class="focus-within:border-primary-500 focus-within:ring-primary-500 flex max-h-24 min-h-10 flex-wrap items-center gap-1 overflow-y-auto rounded-md border border-gray-300 bg-white p-1.5 text-sm dark:border-gray-500 dark:bg-gray-800"
                       [class.border-red-500]="
                         child.value &&
-                        !isValueValid(child.value, child.operator)
+                        !isValueValid(
+                          child.value,
+                          child.operator,
+                          child.companyNameValues
+                        )
                       "
                     >
                       @for (
@@ -216,7 +265,9 @@
                       ) {
                         <span
                           class="inline-flex max-w-full items-center gap-1 rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-800 dark:bg-gray-600 dark:text-gray-100"
-                          [class.!bg-red-200]="!chipItemValid(chip)"
+                          [class.!bg-red-200]="
+                            !isCompanyName(child) && !chipItemValid(chip)
+                          "
                           [title]="chip"
                         >
                           <span class="max-w-36 truncate sm:max-w-40">{{
@@ -235,39 +286,128 @@
                       <input
                         [id]="'val-' + child.id"
                         [ngModel]="chipDraft(child.id)"
-                        (ngModelChange)="setChipDraft(child.id, $event)"
+                        (ngModelChange)="
+                          isCompanyName(child)
+                            ? onCompanyChipInput(child.id, $event)
+                            : setChipDraft(child.id, $event)
+                        "
                         (focus)="openValue(child.id)"
                         (blur)="scheduleClose(); commitChipDraft(child.id)"
                         (keydown.enter)="commitChipDraft(child.id)"
                         type="text"
                         autocomplete="off"
-                        placeholder="Add value, Enter"
+                        [attr.placeholder]="
+                          isCompanyName(child)
+                            ? 'Search company, portfolio or list'
+                            : 'Add value, Enter'
+                        "
                         class="min-w-0 flex-1 rounded-md bg-transparent p-1 text-xs text-gray-900 outline-none dark:text-white"
                       />
                     </div>
                     @if (
                       openValueFor() === child.id &&
-                      chipDraft(child.id) &&
-                      valueSuggestions(chipDraft(child.id)).length
+                      (isCompanyName(child) || chipDraft(child.id))
                     ) {
-                      <ul
-                        class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
-                      >
-                        @for (
-                          option of valueSuggestions(chipDraft(child.id));
-                          track option
-                        ) {
-                          <li>
-                            <button
-                              type="button"
-                              (mousedown)="addChipFromOption(child.id, option)"
-                              class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                      @if (isCompanyName(child)) {
+                        <div
+                          class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                        >
+                          <p
+                            class="px-3 pt-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+                          >
+                            Companies
+                          </p>
+                          @if (
+                            chipDraft(child.id).trim().length < minSearchChars
+                          ) {
+                            <p
+                              class="qb-empty text-gray-500 dark:text-gray-400"
                             >
-                              {{ option }}
-                            </button>
-                          </li>
-                        }
-                      </ul>
+                              Type at least {{ minSearchChars }} characters to
+                              search companies
+                            </p>
+                          } @else {
+                            <ul>
+                              @for (
+                                option of companySearchResults();
+                                track option.label
+                              ) {
+                                <li>
+                                  <button
+                                    type="button"
+                                    (mousedown)="
+                                      addCompanyNameValue(child.id, option)
+                                    "
+                                    class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    {{ option.label }}
+                                  </button>
+                                </li>
+                              } @empty {
+                                <li
+                                  class="qb-empty text-gray-500 dark:text-gray-400"
+                                >
+                                  No matching companies
+                                </li>
+                              }
+                            </ul>
+                          }
+                          <p
+                            class="px-3 pt-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+                          >
+                            Portfolios &amp; lists
+                          </p>
+                          <ul>
+                            @for (
+                              option of companySourceSuggestions(
+                                chipDraft(child.id)
+                              );
+                              track option.label
+                            ) {
+                              <li>
+                                <button
+                                  type="button"
+                                  (mousedown)="
+                                    addCompanyNameValue(child.id, option)
+                                  "
+                                  class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                                >
+                                  {{ option.label }}
+                                </button>
+                              </li>
+                            } @empty {
+                              <li
+                                class="qb-empty text-gray-500 dark:text-gray-400"
+                              >
+                                No matching portfolios or lists
+                              </li>
+                            }
+                          </ul>
+                        </div>
+                      } @else if (
+                        valueSuggestions(chipDraft(child.id)).length
+                      ) {
+                        <ul
+                          class="qb-dropdown rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700"
+                        >
+                          @for (
+                            option of valueSuggestions(chipDraft(child.id));
+                            track option
+                          ) {
+                            <li>
+                              <button
+                                type="button"
+                                (mousedown)="
+                                  addChipFromOption(child.id, option)
+                                "
+                                class="qb-option text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
+                              >
+                                {{ option }}
+                              </button>
+                            </li>
+                          }
+                        </ul>
+                      }
                     }
                   } @else {
                     <input
@@ -311,10 +451,25 @@
                     }
                   }
                   @if (
-                    child.value && !isValueValid(child.value, child.operator)
+                    child.value &&
+                    !isValueValid(
+                      child.value,
+                      child.operator,
+                      child.companyNameValues
+                    )
                   ) {
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                      Use a number, a property, or one + − × / operation.
+                      @if (isCompanyName(child)) {
+                        Choose
+                        {{
+                          child.operator === '='
+                            ? 'a company'
+                            : 'a company, portfolio or watch list'
+                        }}
+                        from the list.
+                      } @else {
+                        Use a number, a property, or one + − × / operation.
+                      }
                     </p>
                   }
                 </div>
