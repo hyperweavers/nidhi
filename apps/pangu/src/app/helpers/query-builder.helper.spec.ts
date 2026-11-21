@@ -2,6 +2,9 @@ import {
   COMPANY_NAME_PROPERTY,
   QueryGroupNode,
   QueryOperator,
+} from '../models/query-builder';
+
+import {
   buildDisplayQueryText,
   buildQueryText,
   filterProperties,
@@ -18,7 +21,7 @@ import {
   serializeGroup,
   serializeValueExpression,
   splitListValue,
-} from './query-builder';
+} from './query-builder.helper';
 
 const PROPS = ['Amount', 'Expected amount', 'Fiscal year'];
 

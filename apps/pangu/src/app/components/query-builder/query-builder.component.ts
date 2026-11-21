@@ -19,6 +19,16 @@ import { v4 as uuid } from 'uuid';
 
 import { Constants } from '../../constants';
 import {
+  buildDisplayQueryText,
+  buildQueryText,
+  filterProperties,
+  isCompanyNameCondition,
+  isPropertyOperand,
+  isValidConditionValue,
+  parseValueExpression,
+  splitListValue,
+} from '../../helpers/query-builder.helper';
+import {
   COMPANY_NAME_OPERATORS,
   COMPANY_NAME_PROPERTY,
   CompanyNameValue,
@@ -30,14 +40,6 @@ import {
   QueryGroupNode,
   QueryNode,
   QueryOperator,
-  buildDisplayQueryText,
-  buildQueryText,
-  filterProperties,
-  isCompanyNameCondition,
-  isPropertyOperand,
-  isValidConditionValue,
-  parseValueExpression,
-  splitListValue,
 } from '../../models/query-builder';
 import { ScreenerService } from '../../services/screener.service';
 
@@ -354,7 +356,7 @@ export class QueryBuilderComponent implements OnInit {
 
   /**
    * Adds a selected company, portfolio, or watch list as a value chip.
-   * ETM primary IDs are normalized and later deduplicated by the serializer.
+   * Company IDs are normalized and later deduplicated by the serializer.
    */
   public addCompanyNameValue(
     conditionId: string,

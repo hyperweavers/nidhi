@@ -23,12 +23,9 @@ import { firstValueFrom, take } from 'rxjs';
 
 import { QueryBuilderComponent } from '../../components/query-builder/query-builder.component';
 import { Constants } from '../../constants';
+import { parseQueryText } from '../../helpers/query-builder.helper';
 import { Direction, ExchangeName } from '../../models/market';
-import {
-  QueryChange,
-  QueryGroupNode,
-  parseQueryText,
-} from '../../models/query-builder';
+import { QueryChange, QueryGroupNode } from '../../models/query-builder';
 import { Screener, ScreenerPreviewResult } from '../../models/screener';
 import { Stock } from '../../models/stock';
 import { ValueOrPlaceholderPipe } from '../../pipes/value-or-placeholder.pipe';

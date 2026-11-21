@@ -18,6 +18,7 @@ import {
 } from '../adapters/market.adapter';
 import { Constants } from '../constants';
 import { db } from '../db/app.db';
+import { uniqueEntityIds } from '../helpers/query-builder.helper';
 import {
   COMPANY_NAME_PROPERTY,
   CompanyNameValue,
@@ -26,14 +27,6 @@ import { Screener, ScreenerPreviewResult } from '../models/screener';
 import { MarketService } from './core/market.service';
 import { PortfolioService } from './portfolio.service';
 import { WatchListService } from './watch-list.service';
-
-function uniqueEntityIds(values: Array<string | undefined>): string[] {
-  return [
-    ...new Set(
-      values.filter((value): value is string => !!value && !!value.trim()),
-    ),
-  ];
-}
 
 @Injectable({ providedIn: 'root' })
 export class ScreenerService {
@@ -51,7 +44,6 @@ export class ScreenerService {
   /**
    * Sources offered for Company Name IN / NOT IN clauses: current holdings
    * with quantity > 0, then every watch list that actually holds stocks.
-   * Each source carries the ETM primary IDs used by the screener API.
    */
   public get companyNameSources$(): Observable<CompanyNameValue[]> {
     return combineLatest([
@@ -203,7 +195,7 @@ export class ScreenerService {
   }
 
   /**
-   * Company typeahead for Company Name clauses. Reuses the ETM primary ID
+   * Company typeahead for Company Name clauses. Reuses the Company ID
    * already returned by the header search; no detail request is needed.
    */
   public searchCompanies(query: string): Observable<CompanyNameValue[]> {
