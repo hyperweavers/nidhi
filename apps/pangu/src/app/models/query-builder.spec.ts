@@ -1,6 +1,8 @@
 import {
+  COMPANY_NAME_PROPERTY,
   QueryGroupNode,
   QueryOperator,
+  buildDisplayQueryText,
   buildQueryText,
   filterProperties,
   isNumericLiteral,
@@ -633,6 +635,129 @@ describe('query-builder model', () => {
 
     it('round-trips a NOT IN value with an expression item', () => {
       roundTrip('NOT Fiscal year IN (Amount - 1, 0)');
+    });
+  });
+
+  describe('Company Name', () => {
+    const PROPS_WITH_COMPANY = [...PROPS, COMPANY_NAME_PROPERTY];
+    const company = (operator: QueryOperator) => ({
+      kind: 'condition' as const,
+      id: 'c',
+      property: COMPANY_NAME_PROPERTY,
+      operator,
+      value: 'Reliance Industries Ltd.',
+      companyNameValues: [
+        { label: 'Reliance Industries Ltd.', entityIds: ['comp-123'] },
+      ],
+    });
+
+    it('serializes to Company ID for the API', () => {
+      expect(serializeCondition(company('='), PROPS_WITH_COMPANY)).toBe(
+        'Company ID = comp-123',
+      );
+      expect(
+        serializeCondition(
+          {
+            ...company('IN'),
+            value: 'Portfolio, My List',
+            companyNameValues: [
+              { label: 'Portfolio', entityIds: ['ID-1', 'ID-2'] },
+              { label: 'My List', entityIds: ['ID-2', 'ID-3'] },
+            ],
+          },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe('Company ID IN (ID-1, ID-2, ID-3)');
+      expect(
+        serializeCondition(
+          {
+            ...company('IN'),
+            value: 'Reliance Industries Ltd., Portfolio, My List',
+            companyNameValues: [
+              {
+                label: 'Reliance Industries Ltd.',
+                entityIds: ['ID-2', 'ID-2'],
+              },
+              { label: 'Portfolio', entityIds: ['ID-1', 'ID-2'] },
+              { label: 'My List', entityIds: ['ID-2', 'ID-3'] },
+            ],
+          },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe('Company ID IN (ID-2, ID-1, ID-3)');
+      expect(
+        serializeCondition(
+          {
+            ...company('NOT IN'),
+            companyNameValues: [{ label: 'Portfolio', entityIds: ['ID-1'] }],
+          },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe('NOT Company ID IN (ID-1)');
+    });
+
+    it('keeps friendly labels in the display query', () => {
+      const group = groupWith([
+        company('='),
+        {
+          ...company('NOT IN'),
+          value: 'Portfolio',
+          companyNameValues: [{ label: 'Portfolio', entityIds: ['ID-1'] }],
+        },
+      ]);
+      expect(buildQueryText(group, PROPS_WITH_COMPANY).query).toBe(
+        'Company ID = comp-123 AND NOT Company ID IN (ID-1)',
+      );
+      expect(buildDisplayQueryText(group, PROPS_WITH_COMPANY)).toBe(
+        'Company Name = Reliance Industries Ltd. AND Company Name NOT IN (Portfolio)',
+      );
+    });
+
+    it('only allows =, IN and NOT IN with resolved IDs', () => {
+      expect(isValidCondition(company('='), PROPS_WITH_COMPANY)).toBe(true);
+      expect(
+        isValidCondition({ ...company('>'), value: '5' }, PROPS_WITH_COMPANY),
+      ).toBe(false);
+      expect(
+        isValidCondition(
+          { ...company('='), companyNameValues: undefined },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe(false);
+      expect(
+        isValidCondition(
+          {
+            ...company('IN'),
+            companyNameValues: [{ label: 'List', entityIds: [] }],
+          },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe(false);
+      expect(
+        isValidCondition(
+          {
+            ...company('IN'),
+            value: 'Company, Empty list',
+            companyNameValues: [
+              { label: 'Company', entityIds: ['ID-1'] },
+              { label: 'Empty list', entityIds: [] },
+            ],
+          },
+          PROPS_WITH_COMPANY,
+        ),
+      ).toBe(false);
+    });
+
+    it('cannot be used as a value operand', () => {
+      expect(isSingleOperand(COMPANY_NAME_PROPERTY, PROPS_WITH_COMPANY)).toBe(
+        false,
+      );
+      expect(
+        parseValueExpression(
+          `Amount + ${COMPANY_NAME_PROPERTY}`,
+          PROPS_WITH_COMPANY,
+        ).valid,
+      ).toBe(false);
     });
   });
 });

@@ -1,8 +1,27 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
+import { of } from 'rxjs';
 
+import { COMPANY_NAME_PROPERTY } from '../../models/query-builder';
+import { ScreenerService } from '../../services/screener.service';
 import { QueryBuilderComponent } from './query-builder.component';
 
 const PROPS = ['Amount', 'Expected amount', 'Fiscal year'];
+const COMPANY = COMPANY_NAME_PROPERTY;
+
+const mockScreenerService = {
+  companyNameSources$: of([
+    { label: 'Portfolio', entityIds: ['ID-1'] },
+    { label: 'Watchlist A', entityIds: ['ID-2'] },
+  ]),
+  searchCompanies: jest.fn(() =>
+    of([{ label: 'Reliance Industries Ltd.', entityIds: ['ID-R'] }]),
+  ),
+};
 
 describe('QueryBuilderComponent', () => {
   let component: QueryBuilderComponent;
@@ -11,6 +30,7 @@ describe('QueryBuilderComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [QueryBuilderComponent],
+      providers: [{ provide: ScreenerService, useValue: mockScreenerService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(QueryBuilderComponent);
@@ -49,7 +69,11 @@ describe('QueryBuilderComponent', () => {
 
     completeFirstCondition();
 
-    expect(emitted.at(-1)).toEqual({ query: 'Amount > 25500', isValid: true });
+    expect(emitted.at(-1)).toEqual({
+      query: 'Amount > 25500',
+      displayQuery: 'Amount > 25500',
+      isValid: true,
+    });
   });
 
   it('should rewrite != as NOT ... =', () => {
@@ -296,6 +320,7 @@ describe('QueryBuilderComponent', () => {
     expect(emitted.length).toBeGreaterThan(count);
     expect(emitted.at(-1)).toEqual({
       query: 'Amount > 25500',
+      displayQuery: 'Amount > 25500',
       isValid: true,
     });
   });
@@ -319,6 +344,9 @@ describe('QueryBuilderComponent', () => {
     return (async () => {
       await TestBed.configureTestingModule({
         imports: [QueryBuilderComponent],
+        providers: [
+          { provide: ScreenerService, useValue: mockScreenerService },
+        ],
       }).compileComponents();
       const f2 = TestBed.createComponent(QueryBuilderComponent);
       f2.componentRef.setInput('properties', PROPS);
@@ -349,6 +377,7 @@ describe('QueryBuilderComponent', () => {
       expect(child).toMatchObject({ property: 'Amount', value: '99' });
       expect(emitted.at(-1)).toEqual({
         query: 'Amount > 99',
+        displayQuery: 'Amount > 99',
         isValid: true,
       });
     })();
@@ -438,11 +467,215 @@ describe('QueryBuilderComponent', () => {
     expect(component.root().combinator).toBe('OR');
   });
 
+  describe('Company Name conditions', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('properties', [...PROPS, COMPANY]);
+      fixture.detectChanges();
+    });
+
+    it('forces = and restricts operators when selected as property', () => {
+      const id = firstConditionId();
+      component.selectProperty(id, 'Amount');
+      component.updateOperator(id, '>');
+      component.selectProperty(id, COMPANY);
+
+      const condition = component.root().children[0];
+      expect(condition).toMatchObject({
+        property: COMPANY,
+        operator: '=',
+        value: '',
+      });
+      expect(component.operatorOptions(condition as never)).toEqual([
+        '=',
+        'IN',
+        'NOT IN',
+      ]);
+    });
+
+    it('keeps company labels in preview while emitting a Company ID query', () => {
+      const id = firstConditionId();
+      const emitted: { query: string; displayQuery: string }[] = [];
+      component.queryChange.subscribe((change) => emitted.push(change));
+
+      component.selectProperty(id, COMPANY);
+      component.onCompanyNameInput(id, 'Reliance');
+      component.selectCompany(id, {
+        label: 'Reliance Industries Ltd.',
+        entityIds: ['ID-R'],
+      });
+
+      expect(component.liveQuery()).toEqual({
+        query: 'Company ID = ID-R',
+        isValid: true,
+      });
+      expect(emitted.at(-1)?.displayQuery).toBe(
+        'Company Name = Reliance Industries Ltd.',
+      );
+    });
+
+    it('re-runs company search for a repeated term', fakeAsync(() => {
+      const id = firstConditionId();
+      component.selectProperty(id, COMPANY);
+
+      component.onCompanyNameInput(id, 'Reliance');
+      tick(300);
+      expect(component.companySearchResults()).toHaveLength(1);
+
+      component.selectCompany(id, {
+        label: 'Reliance Industries Ltd.',
+        entityIds: ['ID-R'],
+      });
+      expect(component.companySearchResults()).toEqual([]);
+
+      component.onCompanyNameInput(id, 'Reliance');
+      tick(300);
+      expect(component.companySearchResults()).toHaveLength(1);
+    }));
+
+    it('supports company chips in IN / NOT IN and deduplicates IDs', fakeAsync(() => {
+      const id = firstConditionId();
+      const emitted: { query: string; displayQuery: string }[] = [];
+      component.queryChange.subscribe((change) => emitted.push(change));
+
+      component.selectProperty(id, COMPANY);
+      component.updateOperator(id, 'IN');
+
+      component.onCompanyChipInput(id, 'Reliance');
+      expect(component.chipDraft(id)).toBe('Reliance');
+      tick(300);
+      expect(component.companySearchResults()).toHaveLength(1);
+
+      component.addCompanyNameValue(id, {
+        label: 'Reliance Industries Ltd.',
+        entityIds: ['ID-R', 'ID-R'],
+      });
+      component.addCompanyNameValue(id, {
+        label: 'Portfolio',
+        entityIds: ['ID-R', 'ID-2'],
+      });
+      component.addCompanyNameValue(id, {
+        label: 'Reliance Industries Ltd.',
+        entityIds: ['ID-OTHER'],
+      });
+
+      expect(component.chipDraft(id)).toBe('');
+      expect(component.companySearchResults()).toEqual([]);
+      expect(component.liveQuery()).toEqual({
+        query: 'Company ID IN (ID-R, ID-2)',
+        isValid: true,
+      });
+      expect(emitted.at(-1)?.displayQuery).toBe(
+        'Company Name IN (Reliance Industries Ltd., Portfolio)',
+      );
+
+      component.updateOperator(id, 'NOT IN');
+      component.addCompanyNameValue(id, {
+        label: 'Reliance Industries Ltd.',
+        entityIds: ['ID-R'],
+      });
+      expect(component.liveQuery()).toEqual({
+        query: 'NOT Company ID IN (ID-R)',
+        isValid: true,
+      });
+    }));
+
+    it('never adds free text or unresolved options as IN values', () => {
+      const id = firstConditionId();
+      component.selectProperty(id, COMPANY);
+      component.updateOperator(id, 'IN');
+
+      component.onCompanyChipInput(id, 're');
+      expect(component.companySearchResults()).toEqual([]);
+      expect(component.companySourceSuggestions('')).toHaveLength(2);
+
+      component.addCompanyNameValue(id, { label: '  ', entityIds: ['ID-X'] });
+      component.addCompanyNameValue(id, { label: 'No ID', entityIds: ['  '] });
+      expect(component.liveQuery().isValid).toBe(false);
+
+      component.setChipDraft(id, 'Typed list');
+      component.commitChipDraft(id);
+      expect(component.chipDraft(id)).toBe('');
+      expect(component.liveQuery().isValid).toBe(false);
+    });
+
+    it('handles short searches, source filtering, duplicates, and unknown ids', () => {
+      const id = firstConditionId();
+      component.selectProperty(id, COMPANY);
+
+      component.onCompanyNameInput(id, 're');
+      expect(component.companySearchResults()).toEqual([]);
+
+      expect(component.companySourceSuggestions('watch')).toEqual([
+        { label: 'Watchlist A', entityIds: ['ID-2'] },
+      ]);
+      expect(component.companySourceSuggestions('')).toHaveLength(2);
+
+      component.updateOperator(id, 'IN');
+      const portfolio = { label: 'Portfolio', entityIds: ['ID-1'] };
+      component.addCompanyNameValue(id, portfolio);
+      component.addCompanyNameValue(id, portfolio);
+      expect(component.liveQuery()).toEqual({
+        query: 'Company ID IN (ID-1)',
+        isValid: true,
+      });
+
+      component.setChipDraft('unknown', 'x');
+      component.commitChipDraft('unknown');
+      expect(component.chipDraft('unknown')).toBe('');
+    });
+
+    it('aggregates IDs from selected portfolio and watch list chips', () => {
+      const id = firstConditionId();
+      const emitted: { query: string; displayQuery: string }[] = [];
+      component.queryChange.subscribe((change) => emitted.push(change));
+
+      component.selectProperty(id, COMPANY);
+      component.updateOperator(id, 'IN');
+      component.addCompanyNameValue(id, {
+        label: 'Portfolio',
+        entityIds: ['ID-1'],
+      });
+      component.addCompanyNameValue(id, {
+        label: 'Watchlist A',
+        entityIds: ['ID-2'],
+      });
+
+      expect(component.liveQuery()).toEqual({
+        query: 'Company ID IN (ID-1, ID-2)',
+        isValid: true,
+      });
+      expect(emitted.at(-1)?.displayQuery).toBe(
+        'Company Name IN (Portfolio, Watchlist A)',
+      );
+
+      component.removeChip(id, 0);
+      expect(component.liveQuery()).toEqual({
+        query: 'Company ID IN (ID-2)',
+        isValid: true,
+      });
+    });
+
+    it('does not turn typed commas into chips and hides Company Name as a value', () => {
+      const id = firstConditionId();
+      component.selectProperty(id, COMPANY);
+      component.updateOperator(id, 'NOT IN');
+      component.setChipDraft(id, 'Portfolio, Watchlist A');
+      component.commitChipDraft(id);
+
+      expect(component.chipDraft(id)).toBe('');
+      expect(component.liveQuery().isValid).toBe(false);
+      expect(component.valueSuggestions('')).not.toContain(COMPANY);
+    });
+  });
+
   it('should clone nested initial tree', () => {
     TestBed.resetTestingModule();
     return (async () => {
       await TestBed.configureTestingModule({
         imports: [QueryBuilderComponent],
+        providers: [
+          { provide: ScreenerService, useValue: mockScreenerService },
+        ],
       }).compileComponents();
       const f2 = TestBed.createComponent(QueryBuilderComponent);
       f2.componentRef.setInput('properties', PROPS);

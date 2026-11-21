@@ -101,6 +101,7 @@ export class AddScreenerPage implements OnInit {
   public readonly properties = signal<string[]>([]);
   public readonly loading = signal(true);
   public readonly query = signal('');
+  public readonly displayQuery = signal('');
   public readonly isValid = signal(false);
   public readonly showHelp = signal(false);
 
@@ -286,6 +287,7 @@ export class AddScreenerPage implements OnInit {
 
   public onQueryChange(change: QueryChange): void {
     this.query.set(change.query);
+    this.displayQuery.set(change.displayQuery);
     this.isValid.set(change.isValid);
   }
 
@@ -354,7 +356,7 @@ export class AddScreenerPage implements OnInit {
   }
 
   public async copyQuery(): Promise<void> {
-    const text = this.query();
+    const text = this.displayQuery();
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);

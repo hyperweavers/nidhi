@@ -8,7 +8,9 @@ import {
   mapPreviewResponse,
 } from '../adapters/market.adapter';
 import { MarketService } from './core/market.service';
+import { PortfolioService } from './portfolio.service';
 import { ScreenerService } from './screener.service';
+import { WatchListService } from './watch-list.service';
 
 function createMockTable() {
   return {
@@ -23,8 +25,11 @@ function createMockTable() {
   };
 }
 
-jest.mock('dexie', () => ({
-  liveQuery: jest.fn((fn: () => unknown) => {
+jest.mock('dexie', () => {
+  // dexie-export-import extends the CommonJS Dexie export at module load time.
+  class DexieMock {}
+  const mock = DexieMock as unknown as Record<string, unknown>;
+  mock.liveQuery = jest.fn((fn: () => unknown) => {
     const dexieObservable = {
       subscribe(observer: {
         next?: (v: unknown) => void;
@@ -51,8 +56,9 @@ jest.mock('dexie', () => ({
         '@@observable'
     ] = () => dexieObservable;
     return dexieObservable;
-  }),
-}));
+  });
+  return mock;
+});
 
 jest.mock('../db/app.db', () => {
   const screeners = createMockTable();
@@ -75,6 +81,10 @@ describe('ScreenerService', () => {
   let db: any;
   const getScreenerFieldMapping = jest.fn();
   const getScreenerPreview = jest.fn();
+  const search = jest.fn();
+  const portfolio$ = jest.fn();
+  const watchLists$ = jest.fn();
+  const watchListStocksAll$ = jest.fn();
   const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
@@ -142,13 +152,40 @@ describe('ScreenerService', () => {
     db.screeners.first.mockResolvedValue(undefined);
     getScreenerFieldMapping.mockReturnValue(of(fieldMappingResponse));
     getScreenerPreview.mockReturnValue(of(previewResponse));
+    search.mockReturnValue(of([]));
+    portfolio$.mockReturnValue(of({ holdings: [] }));
+    watchLists$.mockReturnValue(of([]));
+    watchListStocksAll$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
         ScreenerService,
         {
           provide: MarketService,
-          useValue: { getScreenerFieldMapping, getScreenerPreview },
+          useValue: {
+            getScreenerFieldMapping,
+            getScreenerPreview,
+            search,
+          },
+        },
+        {
+          provide: PortfolioService,
+          useValue: {
+            get portfolio$() {
+              return portfolio$();
+            },
+          },
+        },
+        {
+          provide: WatchListService,
+          useValue: {
+            get watchLists$() {
+              return watchLists$();
+            },
+            get watchListStocksAll$() {
+              return watchListStocksAll$();
+            },
+          },
         },
         { provide: LOGGER, useValue: mockLogger },
       ],
@@ -159,11 +196,15 @@ describe('ScreenerService', () => {
     db.screeners.equalsIgnoreCase.mockReturnThis();
     getScreenerFieldMapping.mockReturnValue(of(fieldMappingResponse));
     getScreenerPreview.mockReturnValue(of(previewResponse));
+    search.mockReturnValue(of([]));
+    portfolio$.mockReturnValue(of({ holdings: [] }));
+    watchLists$.mockReturnValue(of([]));
+    watchListStocksAll$.mockReturnValue(of([]));
   });
 
   it('should extract sorted unique property names via the market service', () => {
     service.getProperties().subscribe((names) => {
-      expect(names).toEqual(['Beta', 'Market Cap']);
+      expect(names).toEqual(['Beta', 'Company Name', 'Market Cap']);
     });
 
     expect(getScreenerFieldMapping).toHaveBeenCalledTimes(1);
@@ -198,10 +239,102 @@ describe('ScreenerService', () => {
     );
     service.getProperties().subscribe();
     service.getProperties().subscribe((names) => {
-      expect(names).toEqual(['Beta']);
+      expect(names).toEqual(['Beta', 'Company Name']);
     });
 
     expect(getScreenerFieldMapping).toHaveBeenCalledTimes(1);
+  });
+
+  describe('company name values', () => {
+    it('should map header search results directly to ETM primary IDs', async () => {
+      search.mockReturnValue(
+        of([
+          {
+            name: ' Reliance ',
+            vendorCode: { etm: { primary: ' RELIANCE ' } },
+            scripCode: {},
+          },
+          { name: 'No ID', vendorCode: {}, scripCode: {} },
+        ]),
+      );
+
+      const result = await firstValueFrom(service.searchCompanies('reliance'));
+
+      expect(search).toHaveBeenCalledWith('reliance');
+      expect(result).toEqual([{ label: 'Reliance', entityIds: ['RELIANCE'] }]);
+    });
+
+    it('should return no options when company search fails', async () => {
+      search.mockReturnValueOnce(throwError(() => new Error('boom')));
+
+      await expect(
+        firstValueFrom(service.searchCompanies('reliance')),
+      ).resolves.toEqual([]);
+      expect(mockLogger.error).toHaveBeenCalled();
+    });
+
+    it('should skip short searches and results without a primary ID', async () => {
+      await expect(
+        firstValueFrom(service.searchCompanies('re')),
+      ).resolves.toEqual([]);
+      expect(search).not.toHaveBeenCalled();
+
+      search.mockReturnValue(
+        of([{ name: 'No ID', vendorCode: {}, scripCode: {} }]),
+      );
+      await expect(
+        firstValueFrom(service.searchCompanies('abc')),
+      ).resolves.toEqual([]);
+    });
+
+    it('should offer holdings with quantity and non-empty watch lists only', async () => {
+      portfolio$.mockReturnValue(
+        of({
+          holdings: [
+            {
+              name: 'Held',
+              quantity: 5,
+              vendorCode: { etm: { primary: 'ID-1' } },
+            },
+            {
+              name: 'Duplicate',
+              quantity: 2,
+              vendorCode: { etm: { primary: 'ID-1' } },
+            },
+            {
+              name: 'Sold',
+              quantity: 0,
+              vendorCode: { etm: { primary: 'ID-2' } },
+            },
+          ],
+        }),
+      );
+      watchLists$.mockReturnValue(
+        of([
+          { id: 'l1', name: 'My List' },
+          { id: 'l2', name: 'Empty List' },
+        ]),
+      );
+      watchListStocksAll$.mockReturnValue(
+        of([
+          {
+            watchListId: 'l1',
+            vendorCode: { etm: { primary: 'ID-3' } },
+          },
+          {
+            watchListId: 'l1',
+            vendorCode: { etm: { primary: 'ID-3' } },
+          },
+        ]),
+      );
+
+      const result = await firstValueFrom(service.companyNameSources$);
+
+      expect(result).toEqual([
+        { label: 'Portfolio', entityIds: ['ID-1'] },
+        { label: 'My List', entityIds: ['ID-3'] },
+      ]);
+    });
   });
 
   it('should handle empty responses', () => {

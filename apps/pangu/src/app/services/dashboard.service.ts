@@ -56,17 +56,15 @@ export class DashboardService {
                 },
               ]
             : []),
-          ...indices.map(
-            (index): KpiCard => ({
-              id: index.id,
-              title: index.name,
-              value: index.quote?.value,
-              change: index.quote?.change,
-              advance: index.quote?.advance,
-              decline: index.quote?.decline,
-              routeLink: `${Constants.routes.INDICES}/${index.exchange}/${index.id}`,
-            }),
-          ),
+          ...indices.map((index): KpiCard => ({
+            id: index.id,
+            title: index.name,
+            value: index.quote?.value,
+            change: index.quote?.change,
+            advance: index.quote?.advance,
+            decline: index.quote?.decline,
+            routeLink: `${Constants.routes.INDICES}/${index.exchange}/${index.id}`,
+          })),
         ],
       })),
     );

@@ -6,15 +6,22 @@ import {
   OnInit,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { Subject, debounceTime, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
+import { Constants } from '../../constants';
 import {
+  COMPANY_NAME_OPERATORS,
+  COMPANY_NAME_PROPERTY,
+  CompanyNameValue,
   QUERY_COMBINATORS,
   QUERY_OPERATORS,
   QueryChange,
@@ -23,13 +30,16 @@ import {
   QueryGroupNode,
   QueryNode,
   QueryOperator,
+  buildDisplayQueryText,
   buildQueryText,
   filterProperties,
+  isCompanyNameCondition,
   isPropertyOperand,
   isValidConditionValue,
   parseValueExpression,
   splitListValue,
 } from '../../models/query-builder';
+import { ScreenerService } from '../../services/screener.service';
 
 function emptyCondition(): QueryNode {
   return {
@@ -54,6 +64,7 @@ function cloneGroup(group: QueryGroupNode): QueryGroupNode {
   };
 }
 
+@UntilDestroy()
 @Component({
   selector: 'app-query-builder',
   imports: [CommonModule, FormsModule, DragDropModule],
@@ -62,6 +73,8 @@ function cloneGroup(group: QueryGroupNode): QueryGroupNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QueryBuilderComponent implements OnInit {
+  private readonly screenerService = inject(ScreenerService);
+
   /** Available properties. Used for offline typeahead in property + value fields. */
   public readonly properties = input<string[]>([]);
   public readonly initialTree = input<QueryGroupNode | null>(null);
@@ -82,16 +95,37 @@ export class QueryBuilderComponent implements OnInit {
   /** Draft text for the IN-list chip input, keyed by condition id. */
   public readonly chipDrafts = signal<Record<string, string>>({});
 
+  /** Portfolio/watch-list options for Company Name IN / NOT IN clauses. */
+  public readonly companySources = signal<readonly CompanyNameValue[]>([]);
+  /** Async company options for all Company Name clauses. */
+  public readonly companySearchResults = signal<readonly CompanyNameValue[]>(
+    [],
+  );
+
   public readonly QUERY_OPERATORS = QUERY_OPERATORS;
   public readonly QUERY_COMBINATORS = QUERY_COMBINATORS;
+  public readonly minSearchChars = Constants.configs.defaults.MIN_SEARCH_CHARS;
 
   public readonly liveQuery = computed(() =>
     buildQueryText(this.root(), this.properties()),
   );
 
+  private readonly companySearchTerm$ = new Subject<string>();
   private closeTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
+    this.screenerService.companyNameSources$
+      .pipe(untilDestroyed(this))
+      .subscribe((sources) => this.companySources.set(sources));
+
+    this.companySearchTerm$
+      .pipe(
+        debounceTime(Constants.configs.defaults.SEARCH_DEBOUNCE_TIME),
+        switchMap((term) => this.screenerService.searchCompanies(term)),
+        untilDestroyed(this),
+      )
+      .subscribe((results) => this.companySearchResults.set(results));
+
     effect(() => {
       // Re-emit whenever the available properties change (validity may change).
       // Reads of root inside emitQuery stay untracked so user edits never
@@ -198,7 +232,7 @@ export class QueryBuilderComponent implements OnInit {
 
   public updateProperty(conditionId: string, value: string): void {
     this.root.update((root) =>
-      this.mapCondition(root, conditionId, (c) => ({ ...c, property: value })),
+      this.mapCondition(root, conditionId, (c) => this.withProperty(c, value)),
     );
     this.openPropertyFor.set(conditionId);
     this.emitQuery();
@@ -206,10 +240,31 @@ export class QueryBuilderComponent implements OnInit {
 
   public selectProperty(conditionId: string, value: string): void {
     this.root.update((root) =>
-      this.mapCondition(root, conditionId, (c) => ({ ...c, property: value })),
+      this.mapCondition(root, conditionId, (c) => this.withProperty(c, value)),
     );
     this.openPropertyFor.set(null);
     this.emitQuery();
+  }
+
+  private withProperty(
+    condition: QueryConditionNode,
+    value: string,
+  ): QueryConditionNode {
+    const isCompany = value.trim() === COMPANY_NAME_PROPERTY;
+    if (isCompany) {
+      return {
+        ...condition,
+        property: value,
+        operator: '=',
+        value: '',
+        companyNameValues: undefined,
+      };
+    }
+    return {
+      ...condition,
+      property: value,
+      companyNameValues: undefined,
+    };
   }
 
   public updateOperator(conditionId: string, operator: QueryOperator): void {
@@ -218,6 +273,7 @@ export class QueryBuilderComponent implements OnInit {
         ...c,
         operator,
         value: '',
+        companyNameValues: undefined,
       })),
     );
     this.chipDrafts.update((drafts) => {
@@ -225,14 +281,116 @@ export class QueryBuilderComponent implements OnInit {
       delete next[conditionId];
       return next;
     });
+    this.companySearchResults.set([]);
     this.emitQuery();
   }
 
   public updateValue(conditionId: string, value: string): void {
     this.root.update((root) =>
-      this.mapCondition(root, conditionId, (c) => ({ ...c, value })),
+      this.mapCondition(root, conditionId, (c) =>
+        isCompanyNameCondition(c)
+          ? { ...c, value, companyNameValues: undefined }
+          : { ...c, value },
+      ),
     );
     this.openValueFor.set(conditionId);
+    this.emitQuery();
+  }
+
+  public isCompanyName(condition: QueryConditionNode): boolean {
+    return isCompanyNameCondition(condition);
+  }
+
+  public operatorOptions(condition: QueryConditionNode): QueryOperator[] {
+    return isCompanyNameCondition(condition)
+      ? COMPANY_NAME_OPERATORS
+      : QUERY_OPERATORS;
+  }
+
+  /** Company typeahead input: keeps typed text friendly until a result is picked. */
+  public onCompanyNameInput(conditionId: string, value: string): void {
+    this.updateValue(conditionId, value);
+    this.companySearchTerm$.next(value);
+    if (value.trim().length >= this.minSearchChars) {
+      this.openValue(conditionId);
+    } else {
+      this.companySearchResults.set([]);
+    }
+  }
+
+  /**
+   * Company typeahead for the IN / NOT IN chip input. The draft is only a
+   * search filter here; values are added when an option is picked.
+   */
+  public onCompanyChipInput(conditionId: string, value: string): void {
+    this.setChipDraft(conditionId, value);
+    this.companySearchTerm$.next(value);
+    if (value.trim().length >= this.minSearchChars) {
+      this.openValue(conditionId);
+    } else {
+      this.companySearchResults.set([]);
+    }
+  }
+
+  public selectCompany(conditionId: string, option: CompanyNameValue): void {
+    this.root.update((root) =>
+      this.mapCondition(root, conditionId, (c) => ({
+        ...c,
+        value: option.label,
+        companyNameValues: [option],
+      })),
+    );
+    this.companySearchResults.set([]);
+    this.openValueFor.set(null);
+    this.emitQuery();
+  }
+
+  public companySourceSuggestions(search: string): CompanyNameValue[] {
+    const q = search.trim().toLowerCase();
+    return this.companySources()
+      .filter((source) => !q || source.label.toLowerCase().includes(q))
+      .slice(0, 50);
+  }
+
+  /**
+   * Adds a selected company, portfolio, or watch list as a value chip.
+   * ETM primary IDs are normalized and later deduplicated by the serializer.
+   */
+  public addCompanyNameValue(
+    conditionId: string,
+    option: CompanyNameValue,
+  ): void {
+    this.root.update((root) =>
+      this.mapCondition(root, conditionId, (c) => {
+        if (!isCompanyNameCondition(c)) return c;
+        const normalized: CompanyNameValue = {
+          label: option.label.trim(),
+          entityIds: [
+            ...new Set(
+              option.entityIds.filter((entityId) => !!entityId.trim()),
+            ),
+          ],
+        };
+        if (!normalized.label || normalized.entityIds.length === 0) return c;
+        const existingValues = c.companyNameValues ?? [];
+        if (
+          existingValues.some(
+            (value) => value.label.trim() === normalized.label,
+          )
+        ) {
+          return c;
+        }
+        const values = [...existingValues, normalized];
+        return {
+          ...c,
+          value: values.map((value) => value.label).join(', '),
+          companyNameValues: values,
+        };
+      }),
+    );
+    this.chipDrafts.update((drafts) => ({ ...drafts, [conditionId]: '' }));
+    this.companySearchResults.set([]);
+    this.openValueFor.set(null);
     this.emitQuery();
   }
 
@@ -277,6 +435,13 @@ export class QueryBuilderComponent implements OnInit {
   }
 
   public setChipDraft(conditionId: string, draft: string): void {
+    const condition = this.findCondition(conditionId);
+    if (condition && isCompanyNameCondition(condition)) {
+      // Draft text is only a search filter here; options are picked from a list.
+      this.chipDrafts.update((drafts) => ({ ...drafts, [conditionId]: draft }));
+      this.openValueFor.set(conditionId);
+      return;
+    }
     if (draft.includes(',')) {
       const parts = draft
         .split(',')
@@ -299,6 +464,13 @@ export class QueryBuilderComponent implements OnInit {
   }
 
   public commitChipDraft(conditionId: string): void {
+    const condition = this.findCondition(conditionId);
+    if (condition && isCompanyNameCondition(condition)) {
+      // Free text is never a valid company/source value.
+      this.chipDrafts.update((drafts) => ({ ...drafts, [conditionId]: '' }));
+      this.openValueFor.set(null);
+      return;
+    }
     const draft = (this.chipDrafts()[conditionId] ?? '').trim();
     if (!draft) return;
     this.root.update((root) =>
@@ -337,7 +509,14 @@ export class QueryBuilderComponent implements OnInit {
       this.mapCondition(root, conditionId, (c) => {
         const existing = splitListValue(c.value);
         existing.splice(index, 1);
-        return { ...c, value: existing.join(', ') };
+        const values = isCompanyNameCondition(c)
+          ? (c.companyNameValues ?? []).filter((_, i) => i !== index)
+          : c.companyNameValues;
+        return {
+          ...c,
+          value: existing.join(', '),
+          companyNameValues: values?.length ? values : undefined,
+        };
       }),
     );
     this.emitQuery();
@@ -369,6 +548,7 @@ export class QueryBuilderComponent implements OnInit {
     this.clearCloseTimer();
     this.openPropertyFor.set(null);
     this.openValueFor.set(null);
+    this.companySearchResults.set([]);
   }
 
   public propertySuggestions(search: string): string[] {
@@ -379,15 +559,26 @@ export class QueryBuilderComponent implements OnInit {
     // For expressions like "Amount +", suggest based on the text after
     // the last arithmetic operator so the dropdown stays useful.
     const tail = search.split(/[+\-*/]/).pop() ?? search;
-    return filterProperties(this.properties(), tail);
+    return filterProperties(this.properties(), tail).filter(
+      (property) => property !== COMPANY_NAME_PROPERTY,
+    );
   }
 
   public isPropertyValid(property: string): boolean {
     return isPropertyOperand(property, this.properties());
   }
 
-  public isValueValid(value: string, operator: QueryOperator): boolean {
-    return isValidConditionValue(value, operator, this.properties());
+  public isValueValid(
+    value: string,
+    operator: QueryOperator,
+    companyNameValues?: readonly CompanyNameValue[],
+  ): boolean {
+    return isValidConditionValue(
+      value,
+      operator,
+      this.properties(),
+      companyNameValues,
+    );
   }
 
   public chipItemValid(item: string): boolean {
@@ -401,7 +592,28 @@ export class QueryBuilderComponent implements OnInit {
   // -- private tree helpers ---------------------------------------------------
 
   private emitQuery(): void {
-    this.queryChange.emit(buildQueryText(this.root(), this.properties()));
+    const tree = this.root();
+    const properties = this.properties();
+    const built = buildQueryText(tree, properties);
+    this.queryChange.emit({
+      query: built.query,
+      displayQuery: buildDisplayQueryText(tree, properties),
+      isValid: built.isValid,
+    });
+  }
+
+  private findCondition(conditionId: string): QueryConditionNode | undefined {
+    const visit = (node: QueryNode): QueryConditionNode | undefined => {
+      if (node.kind === 'condition') {
+        return node.id === conditionId ? node : undefined;
+      }
+      for (const child of node.children) {
+        const found = visit(child);
+        if (found) return found;
+      }
+      return undefined;
+    };
+    return visit(this.root());
   }
 
   private clearCloseTimer(): void {

@@ -5,6 +5,7 @@ import { ToastService } from '@nidhi/shared-toast';
 import { of, throwError } from 'rxjs';
 
 import { Direction } from '../../models/market';
+import { COMPANY_NAME_PROPERTY } from '../../models/query-builder';
 import { MarketService } from '../../services/core/market.service';
 import { ScreenerService } from '../../services/screener.service';
 import { AddScreenerPage } from './add-screener.page';
@@ -83,6 +84,8 @@ describe('AddScreenerPage', () => {
   const updateScreener = jest.fn(() => Promise.resolve());
   const screenerNameExists = jest.fn(() => Promise.resolve(false));
   const getScreener$ = jest.fn(() => of(undefined));
+  const companyNameSources$ = of([]);
+  const searchCompanies = jest.fn(() => of([]));
   const toastShow = jest.fn();
   const routerNavigate = jest.fn();
 
@@ -111,6 +114,8 @@ describe('AddScreenerPage', () => {
             updateScreener,
             screenerNameExists,
             getScreener$,
+            companyNameSources$,
+            searchCompanies,
           },
         },
         { provide: MarketService, useValue: { getStocks } },
@@ -154,6 +159,8 @@ describe('AddScreenerPage', () => {
             updateScreener,
             screenerNameExists,
             getScreener$,
+            companyNameSources$,
+            searchCompanies,
           },
         },
         { provide: MarketService, useValue: { getStocks } },
@@ -174,14 +181,18 @@ describe('AddScreenerPage', () => {
   });
 
   it('should prompt for name on save in create mode', () => {
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.save();
     expect(component.showNamePrompt()).toBe(true);
     expect(createScreener).not.toHaveBeenCalled();
   });
 
   it('should not save when invalid', () => {
-    component.onQueryChange({ query: '', isValid: false });
+    component.onQueryChange({ query: '', displayQuery: '', isValid: false });
     component.save();
     expect(component.showNamePrompt()).toBe(false);
   });
@@ -209,6 +220,8 @@ describe('AddScreenerPage', () => {
             updateScreener,
             screenerNameExists,
             getScreener$,
+            companyNameSources$,
+            searchCompanies,
           },
         },
         { provide: MarketService, useValue: { getStocks } },
@@ -221,7 +234,7 @@ describe('AddScreenerPage', () => {
     f2.detectChanges();
     await f2.whenStable();
     const c2 = f2.componentInstance;
-    c2.onQueryChange({ query: 'New Q', isValid: true });
+    c2.onQueryChange({ query: 'New Q', displayQuery: 'New Q', isValid: true });
     c2.save();
     await Promise.resolve();
     expect(updateScreener).toHaveBeenCalledWith(
@@ -249,6 +262,8 @@ describe('AddScreenerPage', () => {
             updateScreener,
             screenerNameExists,
             getScreener$,
+            companyNameSources$,
+            searchCompanies,
           },
         },
         { provide: MarketService, useValue: { getStocks } },
@@ -260,7 +275,11 @@ describe('AddScreenerPage', () => {
     f2.componentRef.setInput('id', 'e1');
     f2.detectChanges();
     await f2.whenStable();
-    f2.componentInstance.onQueryChange({ query: 'Q2', isValid: true });
+    f2.componentInstance.onQueryChange({
+      query: 'Q2',
+      displayQuery: 'Q2',
+      isValid: true,
+    });
     f2.componentInstance.save();
     await Promise.resolve();
     await new Promise((r) => setTimeout(r, 0));
@@ -268,7 +287,11 @@ describe('AddScreenerPage', () => {
   });
 
   it('should validate name prompt and create without stock count', async () => {
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.save();
     component.nameDraft.set('');
     await component.confirmNamePrompt();
@@ -286,7 +309,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should handle existing name and create errors', async () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.save();
     component.nameDraft.set('Dup');
     screenerNameExists.mockResolvedValueOnce(true);
@@ -304,18 +327,31 @@ describe('AddScreenerPage', () => {
     expect(component.showNamePrompt()).toBe(false);
   });
 
-  it('should store emitted queries', () => {
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
-    expect(component.query()).toBe('Market Cap (Rs Cr) > 5');
+  it('should store emitted queries and preview friendly labels', () => {
+    component.onQueryChange({
+      query: 'Company ID = ID-1',
+      displayQuery: 'Company Name = Acme',
+      isValid: true,
+    });
+    fixture.detectChanges();
+
+    expect(component.query()).toBe('Company ID = ID-1');
+    expect(component.displayQuery()).toBe('Company Name = Acme');
+    expect(fixture.nativeElement.textContent).toContain('Company Name = Acme');
+    expect(fixture.nativeElement.textContent).not.toContain('ID-1');
     expect(component.isValid()).toBe(true);
   });
 
   it('should preview only when valid and handle success', () => {
-    component.onQueryChange({ query: '', isValid: false });
+    component.onQueryChange({ query: '', displayQuery: '', isValid: false });
     component.preview();
     expect(preview).not.toHaveBeenCalled();
 
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.preview();
     expect(preview).toHaveBeenCalledWith(
       'Market Cap (Rs Cr) > 5',
@@ -326,7 +362,11 @@ describe('AddScreenerPage', () => {
   });
 
   it('should not duplicate preview calls for already loaded pages', () => {
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.preview();
     const calls = preview.mock.calls.length;
     component.preview();
@@ -336,7 +376,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should guard loadMore while loading', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     component.previewLoading.set(true);
     const calls = preview.mock.calls.length;
@@ -350,7 +390,11 @@ describe('AddScreenerPage', () => {
   });
 
   it('should filter and sort like watchlist', () => {
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.preview();
     component.resultSearchQuery.set('alpha');
     expect(component.filteredResults().map((r) => r.assetName)).toContain(
@@ -398,7 +442,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should compute exchange, display name, and trackBy', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     const rows = component.filteredResults();
     expect(rows.length).toBe(2);
@@ -410,7 +454,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should scroll to load more and ignore empty', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     component.previewTotal.set(40);
     component.onScrolled(1);
@@ -421,7 +465,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should load more when viewport is near the bottom', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     component.previewResults.set(
       Array.from({ length: 20 }, (_, i) => ({
@@ -454,7 +498,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should guard loading beyond total without extra calls', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     // Inside-guard: hasMore true (10 < 20) but next page start >= total.
     component.previewResults.set(
@@ -488,7 +532,7 @@ describe('AddScreenerPage', () => {
   });
 
   it('should open results and guard empty', () => {
-    component.onQueryChange({ query: 'Q', isValid: true });
+    component.onQueryChange({ query: 'Q', displayQuery: 'Q', isValid: true });
     component.preview();
     const row = component.previewResults()[0];
     component.openResult(row);
@@ -504,13 +548,18 @@ describe('AddScreenerPage', () => {
     component.onEscape();
     expect(component.showHelp()).toBe(false);
 
-    component.onQueryChange({ query: 'Q', isValid: true });
-    Object.assign(navigator, {
-      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    component.onQueryChange({
+      query: 'Company ID = ID-1',
+      displayQuery: 'Company Name = Acme',
+      isValid: true,
     });
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
     await component.copyQuery();
-    component.query.set('');
+    expect(writeText).toHaveBeenCalledWith('Company Name = Acme');
+    component.displayQuery.set('');
     await component.copyQuery();
+    expect(writeText).toHaveBeenCalledTimes(1);
 
     component.showSortMenu.set(true);
     component.showFilterMenu.set(true);
@@ -542,13 +591,17 @@ describe('AddScreenerPage', () => {
     preview.mockReturnValueOnce(
       throwError(() => ({ message: 'boom', status: 500 })),
     );
-    component.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+    component.onQueryChange({
+      query: 'Market Cap (Rs Cr) > 5',
+      displayQuery: 'Market Cap (Rs Cr) > 5',
+      isValid: true,
+    });
     component.preview();
     expect(component.previewError()).toBe('boom');
   });
 
   it('should disable Save/Preview buttons when invalid', () => {
-    component.onQueryChange({ query: '', isValid: false });
+    component.onQueryChange({ query: '', displayQuery: '', isValid: false });
     fixture.detectChanges();
     const buttons = fixture.debugElement.queryAll(By.css('button'));
     const saveBtn = buttons.find(
@@ -576,8 +629,9 @@ describe('AddScreenerPage', () => {
           kind: 'condition';
           id: string;
           property: string;
-          operator: '>';
+          operator: '>' | '=' | 'IN' | 'NOT IN';
           value: string;
+          companyNameValues?: Array<{ label: string; entityIds: string[] }>;
         }>;
       };
     }) {
@@ -599,6 +653,8 @@ describe('AddScreenerPage', () => {
               renameScreener,
               screenerNameExists,
               getScreener$,
+              companyNameSources$,
+              searchCompanies,
             },
           },
           { provide: MarketService, useValue: { getStocks } },
@@ -641,7 +697,11 @@ describe('AddScreenerPage', () => {
       const c = f.componentInstance;
       expect(c.nameDraft()).toBe('Old');
       c.nameDraft.set('New');
-      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 10', isValid: true });
+      c.onQueryChange({
+        query: 'Market Cap (Rs Cr) > 10',
+        displayQuery: 'Market Cap (Rs Cr) > 10',
+        isValid: true,
+      });
       c.save();
       await flush();
       expect(renameScreener).toHaveBeenCalledWith('e1', 'New');
@@ -654,6 +714,80 @@ describe('AddScreenerPage', () => {
       expect(routerNavigate).toHaveBeenCalledWith(['/', 'screener', 'e1']);
     });
 
+    it('should reopen a saved Company Name condition with friendly labels', async () => {
+      getProperties.mockReturnValueOnce(
+        of(['Market Cap (Rs Cr)', COMPANY_NAME_PROPERTY]),
+      );
+      const f = await setupEdit({
+        id: 'e2',
+        name: 'Company ID screener',
+        query: 'Company ID = ID-R',
+        queryTree: {
+          kind: 'group',
+          id: 'g2',
+          combinator: 'AND',
+          children: [
+            {
+              kind: 'condition',
+              id: 'c2',
+              property: COMPANY_NAME_PROPERTY,
+              operator: '=',
+              value: 'Reliance Industries Ltd.',
+              companyNameValues: [
+                { label: 'Reliance Industries Ltd.', entityIds: ['ID-R'] },
+              ],
+            },
+          ],
+        },
+      });
+      await flush();
+      f.detectChanges();
+
+      const valueInput = f.nativeElement.querySelector(
+        'input[placeholder="Search company name"]',
+      ) as HTMLInputElement;
+      expect(valueInput.value).toBe('Reliance Industries Ltd.');
+      expect(f.componentInstance.displayQuery()).toBe(
+        'Company Name = Reliance Industries Ltd.',
+      );
+      expect(f.nativeElement.textContent).not.toContain('ID-R');
+    });
+
+    it('should reopen a mixed IN condition with friendly labels', async () => {
+      getProperties.mockReturnValueOnce(of([COMPANY_NAME_PROPERTY]));
+      const f = await setupEdit({
+        id: 'e3',
+        name: 'Mixed Company ID screener',
+        query: 'Company ID IN (ID-R, ID-2)',
+        queryTree: {
+          kind: 'group',
+          id: 'g3',
+          combinator: 'AND',
+          children: [
+            {
+              kind: 'condition',
+              id: 'c3',
+              property: COMPANY_NAME_PROPERTY,
+              operator: 'IN',
+              value: 'Reliance Industries Ltd., My List',
+              companyNameValues: [
+                { label: 'Reliance Industries Ltd.', entityIds: ['ID-R'] },
+                { label: 'My List', entityIds: ['ID-2'] },
+              ],
+            },
+          ],
+        },
+      });
+      await flush();
+      f.detectChanges();
+
+      expect(f.componentInstance.displayQuery()).toBe(
+        'Company Name IN (Reliance Industries Ltd., My List)',
+      );
+      expect(f.nativeElement.textContent).toContain('Reliance Industries Ltd.');
+      expect(f.nativeElement.textContent).not.toContain('ID-R');
+    });
+
     it('should rename only when the query is invalid', async () => {
       const f = await setupEdit({
         id: 'e1',
@@ -661,7 +795,7 @@ describe('AddScreenerPage', () => {
         query: 'Market Cap (Rs Cr) > 5',
       });
       const c = f.componentInstance;
-      c.onQueryChange({ query: '', isValid: false });
+      c.onQueryChange({ query: '', displayQuery: '', isValid: false });
       c.nameDraft.set('New');
       expect(c.canSave()).toBe(true);
       c.save();
@@ -678,7 +812,11 @@ describe('AddScreenerPage', () => {
         query: 'Market Cap (Rs Cr) > 5',
       });
       const c = f.componentInstance;
-      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 5', isValid: true });
+      c.onQueryChange({
+        query: 'Market Cap (Rs Cr) > 5',
+        displayQuery: 'Market Cap (Rs Cr) > 5',
+        isValid: true,
+      });
       c.nameDraft.set('Dup');
       screenerNameExists.mockResolvedValueOnce(true);
       c.save();
@@ -696,7 +834,7 @@ describe('AddScreenerPage', () => {
         query: 'Market Cap (Rs Cr) > 5',
       });
       const c = f.componentInstance;
-      c.onQueryChange({ query: '', isValid: false });
+      c.onQueryChange({ query: '', displayQuery: '', isValid: false });
       c.nameDraft.set('   ');
       expect(c.nameChanged()).toBe(true);
       expect(c.canSave()).toBe(true);
@@ -727,6 +865,8 @@ describe('AddScreenerPage', () => {
               renameScreener,
               screenerNameExists,
               getScreener$,
+              companyNameSources$,
+              searchCompanies,
             },
           },
           { provide: MarketService, useValue: { getStocks } },
@@ -822,7 +962,11 @@ describe('AddScreenerPage', () => {
       c.nameDraft.set('New');
       expect(c.hasUnsavedChanges()).toBe(true);
       c.nameDraft.set('Old');
-      c.onQueryChange({ query: 'Market Cap (Rs Cr) > 10', isValid: true });
+      c.onQueryChange({
+        query: 'Market Cap (Rs Cr) > 10',
+        displayQuery: 'Market Cap (Rs Cr) > 10',
+        isValid: true,
+      });
       expect(c.hasUnsavedChanges()).toBe(true);
     });
 

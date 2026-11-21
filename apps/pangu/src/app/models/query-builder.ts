@@ -1,14 +1,7 @@
 import { v4 as uuid } from 'uuid';
 
 export type QueryOperator =
-  | '>'
-  | '<'
-  | '>='
-  | '<='
-  | '='
-  | '!='
-  | 'IN'
-  | 'NOT IN';
+  '>' | '<' | '>=' | '<=' | '=' | '!=' | 'IN' | 'NOT IN';
 
 export const QUERY_OPERATORS: QueryOperator[] = [
   '>',
@@ -29,6 +22,23 @@ export type ArithmeticOperator = '+' | '-' | '*' | '/';
 
 export const ARITHMETIC_OPERATORS: ArithmeticOperator[] = ['+', '-', '*', '/'];
 
+/** Synthetic UI property. Serialized as Company ID for the screener API. */
+export const COMPANY_NAME_PROPERTY = 'Company Name';
+export const COMPANY_NAME_API_PROPERTY = 'Company ID';
+export const COMPANY_NAME_OPERATORS: QueryOperator[] = ['=', 'IN', 'NOT IN'];
+
+export interface CompanyNameValue {
+  /** Friendly label shown in the builder and in the query preview. */
+  label: string;
+  /**
+   * Resolved ETM primary IDs: one for a selected company, many for a
+   * portfolio/watch list. Overlaps are removed when the API query is serialized.
+   */
+  entityIds: string[];
+}
+
+export type QuerySerializationMode = 'api' | 'display';
+
 export interface QueryConditionNode {
   kind: 'condition';
   id: string;
@@ -36,6 +46,18 @@ export interface QueryConditionNode {
   operator: QueryOperator;
   /** Raw value text. For IN / NOT IN this is a comma-separated list of items. */
   value: string;
+  /** Labels + ETM primary IDs for COMPANY_NAME_PROPERTY, kept out of the emitted query. */
+  companyNameValues?: CompanyNameValue[];
+}
+
+export function isCompanyNameCondition(condition: QueryConditionNode): boolean {
+  return condition.property.trim() === COMPANY_NAME_PROPERTY;
+}
+
+function collectCompanyNameIds(values: readonly CompanyNameValue[]): string[] {
+  return [
+    ...new Set(values.flatMap((value) => value.entityIds).filter(Boolean)),
+  ];
 }
 
 export interface QueryGroupNode {
@@ -48,7 +70,10 @@ export interface QueryGroupNode {
 export type QueryNode = QueryConditionNode | QueryGroupNode;
 
 export interface QueryChange {
+  /** Transformed query sent to the API and persisted with the screener. */
   query: string;
+  /** Friendly labels for the read-only query preview. */
+  displayQuery: string;
   isValid: boolean;
 }
 
@@ -80,13 +105,25 @@ export function isPropertyOperand(
   return properties.includes(raw.trim());
 }
 
+/** Company Name is a valid left-hand property, never a value operand. */
+export function isValuePropertyOperand(
+  raw: string,
+  properties: readonly string[],
+): boolean {
+  return (
+    raw.trim() !== COMPANY_NAME_PROPERTY && isPropertyOperand(raw, properties)
+  );
+}
+
 export function isSingleOperand(
   raw: string,
   properties: readonly string[],
 ): boolean {
   const trimmed = raw.trim();
   if (!trimmed) return false;
-  return isPropertyOperand(trimmed, properties) || isNumericLiteral(trimmed);
+  return (
+    isValuePropertyOperand(trimmed, properties) || isNumericLiteral(trimmed)
+  );
 }
 
 export interface ValueExpression {
@@ -177,7 +214,28 @@ export function isValidConditionValue(
   value: string,
   operator: QueryOperator,
   properties: readonly string[],
+  companyNameValues?: readonly CompanyNameValue[],
 ): boolean {
+  if (companyNameValues) {
+    if (!COMPANY_NAME_OPERATORS.includes(operator)) return false;
+    const entityIds = collectCompanyNameIds(companyNameValues);
+    if (entityIds.length === 0) return false;
+    if (operator === '=') {
+      return (
+        companyNameValues.length === 1 &&
+        entityIds.length === 1 &&
+        !!value.trim()
+      );
+    }
+    return (
+      splitListValue(value).length === companyNameValues.length &&
+      companyNameValues.every(
+        (item) =>
+          !!item.label.trim() &&
+          item.entityIds.some((entityId) => !!entityId.trim()),
+      )
+    );
+  }
   if (operator === 'IN' || operator === 'NOT IN') {
     return isValidListValue(value, properties);
   }
@@ -190,6 +248,17 @@ export function isValidCondition(
 ): boolean {
   if (!QUERY_OPERATORS.includes(condition.operator)) return false;
   if (!isPropertyOperand(condition.property, properties)) return false;
+  if (isCompanyNameCondition(condition)) {
+    return (
+      COMPANY_NAME_OPERATORS.includes(condition.operator) &&
+      isValidConditionValue(
+        condition.value,
+        condition.operator,
+        properties,
+        condition.companyNameValues,
+      )
+    );
+  }
   return isValidConditionValue(condition.value, condition.operator, properties);
 }
 
@@ -208,7 +277,30 @@ export function isValidGroup(
 export function serializeCondition(
   condition: QueryConditionNode,
   properties: readonly string[],
+  mode: QuerySerializationMode = 'api',
 ): string {
+  if (isCompanyNameCondition(condition)) {
+    const values = condition.companyNameValues ?? [];
+    if (mode === 'display') {
+      const labels = values.map((value) => value.label.trim()).filter(Boolean);
+      if (condition.operator === '=') {
+        return `${COMPANY_NAME_PROPERTY} = ${labels[0] ?? condition.value.trim()}`;
+      }
+      const list = labels.join(', ');
+      return condition.operator === 'NOT IN'
+        ? `${COMPANY_NAME_PROPERTY} NOT IN (${list})`
+        : `${COMPANY_NAME_PROPERTY} IN (${list})`;
+    }
+    const entityIds = collectCompanyNameIds(values);
+    if (condition.operator === '=') {
+      return `${COMPANY_NAME_API_PROPERTY} = ${entityIds[0] ?? ''}`;
+    }
+    const list = entityIds.join(', ');
+    return condition.operator === 'NOT IN'
+      ? `NOT ${COMPANY_NAME_API_PROPERTY} IN (${list})`
+      : `${COMPANY_NAME_API_PROPERTY} IN (${list})`;
+  }
+
   const property = condition.property.trim();
   if (condition.operator === '!=') {
     const value = serializeValueExpression(condition.value, properties);
@@ -234,17 +326,26 @@ export function serializeGroup(
   group: QueryGroupNode,
   properties: readonly string[],
   isRoot = true,
+  mode: QuerySerializationMode = 'api',
 ): string {
   const parts: string[] = [];
   for (const child of group.children) {
     if (child.kind === 'condition') {
-      parts.push(serializeCondition(child, properties));
+      parts.push(serializeCondition(child, properties, mode));
     } else {
-      parts.push(serializeGroup(child, properties, false));
+      parts.push(serializeGroup(child, properties, false, mode));
     }
   }
   const joined = parts.join(` ${group.combinator} `);
   return isRoot ? joined : `(${joined})`;
+}
+
+/** Same query tree, rendered with friendly labels instead of resolved IDs. */
+export function buildDisplayQueryText(
+  group: QueryGroupNode,
+  properties: readonly string[],
+): string {
+  return serializeGroup(group, properties, true, 'display');
 }
 
 /** Builds the emitted text query. Returns '' when the tree is not fully valid. */

@@ -200,7 +200,7 @@
         <button
           type="button"
           (click)="copyQuery()"
-          [disabled]="!query()"
+          [disabled]="!displayQuery()"
           class="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           <svg
@@ -229,7 +229,7 @@
     <pre
       class="mt-2 max-h-28 overflow-auto rounded-md bg-gray-50 p-3 font-mono text-sm break-words whitespace-pre-wrap text-gray-900 dark:bg-gray-900 dark:text-gray-100"
     >
-{{ query() }}</pre>
+{{ displayQuery() }}</pre>
     } @else {
     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
       Add and complete each filter to see your query here.
